@@ -1,4 +1,4 @@
-package com.vimeo.stag;
+package com.vimeo.stag.processor;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
@@ -8,6 +8,7 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import com.vimeo.stag.Assignable;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -55,11 +56,11 @@ import javax.tools.JavaFileObject;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-@SupportedAnnotationTypes("com.anthonycr.processor.Assignable")
+@SupportedAnnotationTypes("com.vimeo.stag.Assignable")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class AssignableProcessor extends AbstractProcessor {
 
-    private static final String PACKAGE_NAME = "com.anthonycr.assignable.generated";
+    private static final String PACKAGE_NAME = "com.vimeo.stag.generated";
     private static final String PARSE_UTILS = "ParseUtils";
     private static final String TYPE_ADAPTERS = "AdapterFactory";
     private static final String ADAPTER = "Adapter";
