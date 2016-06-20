@@ -268,7 +268,7 @@ public final class StagProcessor extends AbstractProcessor {
     private static String getJsonName(VariableElement element) {
         String name = element.getAnnotation(GsonAdapterKey.class).value();
 
-        if (name == null) {
+        if (name == null || name.isEmpty()) {
             name = element.getSimpleName().toString();
         }
         return name;
