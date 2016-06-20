@@ -86,14 +86,14 @@ public final class StagProcessor extends AbstractProcessor {
                 Set<Modifier> modifiers = variableElement.getModifiers();
                 if (modifiers.contains(Modifier.FINAL)) {
                     throw new RuntimeException("Unable to access field \"" +
-                            variableElement.getSimpleName().toString() + "\" in class " +
-                            variableElement.getEnclosingElement().asType() +
-                            ", field must not be final.");
+                                               variableElement.getSimpleName().toString() + "\" in class " +
+                                               variableElement.getEnclosingElement().asType() +
+                                               ", field must not be final.");
                 } else if (!modifiers.contains(Modifier.PUBLIC)) {
                     throw new RuntimeException("Unable to access field \"" +
-                            variableElement.getSimpleName().toString() + "\" in class " +
-                            variableElement.getEnclosingElement().asType() +
-                            ", field must public.");
+                                               variableElement.getSimpleName().toString() + "\" in class " +
+                                               variableElement.getEnclosingElement().asType() +
+                                               ", field must public.");
                 }
                 mSupportedTypes.add(variableElement.getEnclosingElement().asType().toString());
                 addToListMap(variableMap, variableElement.getEnclosingElement().asType(), variableElement);
@@ -113,26 +113,23 @@ public final class StagProcessor extends AbstractProcessor {
     }
 
     private void generateParsingCode(Map<TypeMirror, List<VariableElement>> map) throws IOException {
-        TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(PARSE_UTILS)
-                .addModifiers(Modifier.FINAL);
+        TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(PARSE_UTILS).addModifiers(Modifier.FINAL);
         for (Map.Entry<TypeMirror, List<VariableElement>> entry : map.entrySet()) {
             generateParseAndWriteMethods(typeSpecBuilder, entry.getKey(), entry.getValue());
         }
 
-        JavaFile javaFile = JavaFile.builder(PACKAGE_NAME, typeSpecBuilder.build())
-                .build();
+        JavaFile javaFile = JavaFile.builder(PACKAGE_NAME, typeSpecBuilder.build()).build();
 
         writeTo(javaFile, processingEnv.getFiler());
     }
 
     private void generateTypeAdapters(Set<TypeMirror> types) throws IOException {
-        TypeSpec.Builder adaptersBuilder = TypeSpec.classBuilder(TYPE_ADAPTERS)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+        TypeSpec.Builder adaptersBuilder =
+                TypeSpec.classBuilder(TYPE_ADAPTERS).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
-        FieldSpec fieldSpec = FieldSpec.builder(Map.class, "sTypeAdapterMap",
-                Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                .initializer("new java.util.HashMap();")
-                .build();
+        FieldSpec fieldSpec =
+                FieldSpec.builder(Map.class, "sTypeAdapterMap", Modifier.PRIVATE, Modifier.STATIC,
+                                  Modifier.FINAL).initializer("new java.util.HashMap();").build();
 
         adaptersBuilder.addField(fieldSpec);
 
@@ -150,11 +147,11 @@ public final class StagProcessor extends AbstractProcessor {
                 .addParameter(String.class, "clazz")
                 .addParameter(JsonReader.class, "in")
                 .addCode("try {\n" +
-                        "\treturn ((com.google.gson.TypeAdapter) sTypeAdapterMap.get(clazz)).read(in);\n" +
-                        "} catch (IOException e) {\n" +
-                        "\te.printStackTrace();\n" +
-                        "}\n" +
-                        "return null;")
+                         "\treturn ((com.google.gson.TypeAdapter) sTypeAdapterMap.get(clazz)).read(in);\n" +
+                         "} catch (IOException e) {\n" +
+                         "\te.printStackTrace();\n" +
+                         "}\n" +
+                         "return null;")
                 .build();
 
         MethodSpec writeAdapterMethod = MethodSpec.methodBuilder("writeToAdapter")
@@ -164,10 +161,10 @@ public final class StagProcessor extends AbstractProcessor {
                 .addParameter(JsonWriter.class, "out")
                 .addParameter(Object.class, "value")
                 .addCode("try {\n" +
-                        "\t((com.google.gson.TypeAdapter) sTypeAdapterMap.get(clazz)).write(out, value);\n" +
-                        "} catch (IOException e) {\n" +
-                        "\te.printStackTrace();\n" +
-                        '}')
+                         "\t((com.google.gson.TypeAdapter) sTypeAdapterMap.get(clazz)).write(out, value);\n" +
+                         "} catch (IOException e) {\n" +
+                         "\te.printStackTrace();\n" +
+                         '}')
                 .build();
 
         adaptersBuilder.addMethod(registerMethod);
@@ -191,7 +188,8 @@ public final class StagProcessor extends AbstractProcessor {
                     .addModifiers(Modifier.PUBLIC)
                     .addAnnotation(Override.class)
                     .addException(IOException.class)
-                    .addCode("ParseUtils.write(out, (" + ClassName.get(packageName, clazzName) + ") value);\n")
+                    .addCode(
+                            "ParseUtils.write(out, (" + ClassName.get(packageName, clazzName) + ") value);\n")
                     .build();
 
             MethodSpec readMethod = MethodSpec.methodBuilder("read")
@@ -209,13 +207,13 @@ public final class StagProcessor extends AbstractProcessor {
             adaptersBuilder.addType(innerAdapterBuilder.build());
         }
 
-        JavaFile javaFile = JavaFile.builder(PACKAGE_NAME, adaptersBuilder.build())
-                .build();
+        JavaFile javaFile = JavaFile.builder(PACKAGE_NAME, adaptersBuilder.build()).build();
 
         writeTo(javaFile, processingEnv.getFiler());
     }
 
-    private void generateParseAndWriteMethods(TypeSpec.Builder typeSpecBuilder, TypeMirror type, List<VariableElement> elements) {
+    private void generateParseAndWriteMethods(TypeSpec.Builder typeSpecBuilder, TypeMirror type,
+                                              List<VariableElement> elements) {
 
         MethodSpec writeSpec = generateWriteSpec(type, elements);
 
@@ -239,9 +237,9 @@ public final class StagProcessor extends AbstractProcessor {
                 .addException(IOException.class)
                 .returns(void.class)
                 .addCode("\twriter.beginObject();\n" +
-                        "\tif (object == null) {\n" +
-                        "\t\treturn;\n" +
-                        "\t} else {\n");
+                         "\tif (object == null) {\n" +
+                         "\t\treturn;\n" +
+                         "\t} else {\n");
 
         for (VariableElement element : elements) {
             String name = getJsonName(element);
@@ -259,8 +257,7 @@ public final class StagProcessor extends AbstractProcessor {
                 writeBuilder.addCode("\t\t}\n");
             }
         }
-        writeBuilder.addCode(
-                "\t}\n" + "\twriter.endObject();\n");
+        writeBuilder.addCode("\t}\n" + "\twriter.endObject();\n");
 
         return writeBuilder.build();
     }
@@ -286,17 +283,17 @@ public final class StagProcessor extends AbstractProcessor {
                 .addParameter(JsonReader.class, "reader")
                 .addException(IOException.class)
                 .addCode("\treader.beginObject();\n" +
-                        '\n' +
-                        '\t' + clazz + " object = new " + clazz + "();\n" +
-                        "\twhile (reader.hasNext()) {\n" +
-                        "\t\tString name = reader.nextName();\n" +
-                        "\t\tcom.google.gson.stream.JsonToken jsonToken = reader.peek();\n" +
-                        "\t\tif (jsonToken == com.google.gson.stream.JsonToken.NULL) {\n" +
-                        "\t\t\treader.skipValue();\n" +
-                        "\t\t\tcontinue;\n" +
-                        "\t\t}\n" +
+                         '\n' +
+                         '\t' + clazz + " object = new " + clazz + "();\n" +
+                         "\twhile (reader.hasNext()) {\n" +
+                         "\t\tString name = reader.nextName();\n" +
+                         "\t\tcom.google.gson.stream.JsonToken jsonToken = reader.peek();\n" +
+                         "\t\tif (jsonToken == com.google.gson.stream.JsonToken.NULL) {\n" +
+                         "\t\t\treader.skipValue();\n" +
+                         "\t\t\tcontinue;\n" +
+                         "\t\t}\n" +
 //                        "java.lang.System.out.println(jsonToken.toString());" +
-                        "\t\tswitch (name) {\n");
+                         "\t\tswitch (name) {\n");
 
         for (VariableElement element : elements) {
             String name = getJsonName(element);
@@ -305,21 +302,19 @@ public final class StagProcessor extends AbstractProcessor {
 
             String variableType = element.asType().toString();
 
-            parseBuilder.addCode(
-                    "\t\t\tcase \"" + name + "\":\n" +
-                            "\t\t\t\tobject." + variableName + " = " + getReadType(variableType) + '\n' +
-                            "\t\t\t\tbreak;\n");
+            parseBuilder.addCode("\t\t\tcase \"" + name + "\":\n" +
+                                 "\t\t\t\tobject." + variableName + " = " + getReadType(variableType) + '\n' +
+                                 "\t\t\t\tbreak;\n");
         }
 
-        parseBuilder.addCode(
-                "\t\t\tdefault:\n" +
-                        "\t\t\t\treader.skipValue();\n" +
-                        "\t\t\t\tbreak;\n" +
-                        "\t\t}\n" +
-                        "\t}\n" +
-                        '\n' +
-                        "\treader.endObject();\n" +
-                        "\treturn object;\n");
+        parseBuilder.addCode("\t\t\tdefault:\n" +
+                             "\t\t\t\treader.skipValue();\n" +
+                             "\t\t\t\tbreak;\n" +
+                             "\t\t}\n" +
+                             "\t}\n" +
+                             '\n' +
+                             "\treader.endObject();\n" +
+                             "\treturn object;\n");
 
         return parseBuilder.build();
     }
@@ -348,10 +343,10 @@ public final class StagProcessor extends AbstractProcessor {
 
     private String getWriteType(String type, String variableName) {
         if (type.equals(long.class.getName()) ||
-                type.equals(double.class.getName()) ||
-                type.equals(boolean.class.getName()) ||
-                type.equals(String.class.getName()) ||
-                type.equals(int.class.getName())) {
+            type.equals(double.class.getName()) ||
+            type.equals(boolean.class.getName()) ||
+            type.equals(String.class.getName()) ||
+            type.equals(int.class.getName())) {
             return "writer.value(object." + variableName + ");";
         } else {
             log("Supported type: " + mSupportedTypes.contains(type));
@@ -365,12 +360,13 @@ public final class StagProcessor extends AbstractProcessor {
 
     private static boolean isPrimative(String type) {
         return type.equals(long.class.getName()) ||
-                type.equals(double.class.getName()) ||
-                type.equals(boolean.class.getName()) ||
-                type.equals(int.class.getName());
+               type.equals(double.class.getName()) ||
+               type.equals(boolean.class.getName()) ||
+               type.equals(int.class.getName());
     }
 
-    private static void addToListMap(Map<TypeMirror, List<VariableElement>> map, TypeMirror key, VariableElement value) {
+    private static void addToListMap(Map<TypeMirror, List<VariableElement>> map, TypeMirror key,
+                                     VariableElement value) {
         if (key == null || value == null) {
             return;
         }
@@ -393,12 +389,11 @@ public final class StagProcessor extends AbstractProcessor {
     }
 
     private static void writeTo(JavaFile file, Filer filer) throws IOException {
-        String fileName = file.packageName.isEmpty()
-                ? file.typeSpec.name
-                : file.packageName + '.' + file.typeSpec.name;
+        String fileName =
+                file.packageName.isEmpty() ? file.typeSpec.name : file.packageName + '.' + file.typeSpec.name;
         List<Element> originatingElements = file.typeSpec.originatingElements;
-        JavaFileObject filerSourceFile = filer.createSourceFile(fileName,
-                originatingElements.toArray(new Element[originatingElements.size()]));
+        JavaFileObject filerSourceFile = filer.createSourceFile(fileName, originatingElements.toArray(
+                new Element[originatingElements.size()]));
         filerSourceFile.delete();
         Writer writer = null;
         try {
