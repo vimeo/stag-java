@@ -1,0 +1,13 @@
+apply plugin: 'java'
+
+compileJava {
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+}
+
+dependencies {
+    compile project(':library')
+
+    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.squareup:javapoet:1.7.0'
+}
