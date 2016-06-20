@@ -50,7 +50,7 @@ MyRandomClass {
                                 .create();
 
     public Stag fromJson(String json) {
-        return gson.fromJson(json, Deer.class);
+        return gson.fromJson(json, Stag.class);
     }
 }
 
