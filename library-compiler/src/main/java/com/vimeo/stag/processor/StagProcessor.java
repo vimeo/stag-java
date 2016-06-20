@@ -8,7 +8,7 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
-import com.vimeo.stag.Assignable;
+import com.vimeo.stag.GsonAdapterKey;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -56,9 +56,9 @@ import javax.tools.JavaFileObject;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-@SupportedAnnotationTypes("com.vimeo.stag.Assignable")
+@SupportedAnnotationTypes("com.vimeo.stag.GsonAdapterKey")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
-public final class AssignableProcessor extends AbstractProcessor {
+public final class StagProcessor extends AbstractProcessor {
 
     private static final String PACKAGE_NAME = "com.vimeo.stag.generated";
     private static final String PARSE_UTILS = "ParseUtils";
@@ -76,10 +76,10 @@ public final class AssignableProcessor extends AbstractProcessor {
         if (mHasBeenProcessed) {
             return true;
         }
-        log("Beginning @Assignable annotation processing");
+        log("Beginning @GsonAdapterKey annotation processing");
         mHasBeenProcessed = true;
         Map<TypeMirror, List<VariableElement>> variableMap = new HashMap<>();
-        for (Element element : roundEnv.getElementsAnnotatedWith(Assignable.class)) {
+        for (Element element : roundEnv.getElementsAnnotatedWith(GsonAdapterKey.class)) {
             if (element instanceof VariableElement) {
                 final VariableElement variableElement = (VariableElement) element;
 
@@ -108,7 +108,7 @@ public final class AssignableProcessor extends AbstractProcessor {
             e.printStackTrace();
             return true;
         }
-        log("Successfully processed @Assignable annotations");
+        log("Successfully processed @GsonAdapterKey annotations");
         return true;
     }
 
@@ -266,7 +266,7 @@ public final class AssignableProcessor extends AbstractProcessor {
     }
 
     private static String getJsonName(VariableElement element) {
-        String name = element.getAnnotation(Assignable.class).value();
+        String name = element.getAnnotation(GsonAdapterKey.class).value();
 
         if (name == null) {
             name = element.getSimpleName().toString();

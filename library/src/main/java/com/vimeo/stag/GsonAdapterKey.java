@@ -23,6 +23,6 @@ package com.vimeo.stag;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-public @interface Assignable {
+public @interface GsonAdapterKey {
     String value() default "";
 }
