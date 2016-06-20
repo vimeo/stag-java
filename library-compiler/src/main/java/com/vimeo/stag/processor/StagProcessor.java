@@ -246,14 +246,14 @@ public final class StagProcessor extends AbstractProcessor {
             String variableName = element.getSimpleName().toString();
             String variableType = element.asType().toString();
 
-            boolean isPrimative = isPrimative(variableType);
+            boolean isPrimitive = isPrimitive(variableType);
 
-            if (!isPrimative) {
+            if (!isPrimitive) {
                 writeBuilder.addCode("\t\tif (object." + variableName + " != null) {\n");
             }
             writeBuilder.addCode("\t\t\twriter.name(\"" + name + "\");\n");
             writeBuilder.addCode("\t\t\t" + getWriteType(variableType, variableName) + '\n');
-            if (!isPrimative) {
+            if (!isPrimitive) {
                 writeBuilder.addCode("\t\t}\n");
             }
         }
@@ -358,7 +358,7 @@ public final class StagProcessor extends AbstractProcessor {
         }
     }
 
-    private static boolean isPrimative(String type) {
+    private static boolean isPrimitive(String type) {
         return type.equals(long.class.getName()) ||
                type.equals(double.class.getName()) ||
                type.equals(boolean.class.getName()) ||
