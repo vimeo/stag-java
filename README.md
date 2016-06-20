@@ -1,2 +1,2 @@
-# stag-java
+# Stag
 Speedy Type Adapter Generation
