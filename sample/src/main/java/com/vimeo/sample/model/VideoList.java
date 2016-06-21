@@ -6,7 +6,7 @@ import java.util.List;
 
 public class VideoList {
 
-    @GsonAdapterKey("data")
-    public List<Video> mVideoList;
+    @GsonAdapterKey
+    public List<Video> data;
 
 }

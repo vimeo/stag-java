@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
-import com.vimeo.stag.generated.AdapterFactory.Factory;
+import com.vimeo.stag.generated.Stag;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -91,11 +91,15 @@ public final class NetworkRequest {
                     builder.append(line);
                 }
 
-                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Factory()).create();
+                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();
 
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
 
-                videos.addAll(gson.fromJson(jsonObject, VideoList.class).mVideoList);
+                long time = System.currentTimeMillis();
+
+                videos.addAll(gson.fromJson(jsonObject, VideoList.class).data);
+
+                Log.d(TAG, "Time elapsed while parsing: " + (System.currentTimeMillis() - time) + " ms");
 
             } catch (IOException e) {
                 Log.e(TAG, "Error", e);

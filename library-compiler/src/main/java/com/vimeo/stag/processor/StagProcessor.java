@@ -71,10 +71,11 @@ import javax.tools.JavaFileObject;
 public final class StagProcessor extends AbstractProcessor {
 
     private static final String PACKAGE_NAME = "com.vimeo.stag.generated";
-    private static final String PARSE_UTILS = "ParseUtils";
-    private static final String TYPE_ADAPTERS = "AdapterFactory";
-    private static final String TYPE_FACTORY = "Factory";
-    private static final String ADAPTER = "Adapter";
+    private static final String CLASS_PARSE_UTILS = "ParseUtils";
+    private static final String CLASS_STAG = "Stag";
+    private static final String CLASS_TYPE_ADAPTER_FACTORY = "Factory";
+
+    private static final String CLASS_SUFFIX_ADAPTER = "Adapter";
 
     private static final boolean DEBUG = true;
 
@@ -125,7 +126,8 @@ public final class StagProcessor extends AbstractProcessor {
     }
 
     private void generateParsingCode(Map<TypeMirror, List<VariableElement>> map) throws IOException {
-        TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(PARSE_UTILS).addModifiers(Modifier.FINAL);
+        TypeSpec.Builder typeSpecBuilder =
+                TypeSpec.classBuilder(CLASS_PARSE_UTILS).addModifiers(Modifier.FINAL);
 
         typeSpecBuilder.addMethod(generateParseArraySpec());
 
@@ -140,7 +142,7 @@ public final class StagProcessor extends AbstractProcessor {
 
     private void generateTypeAdapters(Set<TypeMirror> types) throws IOException {
         TypeSpec.Builder adaptersBuilder =
-                TypeSpec.classBuilder(TYPE_ADAPTERS).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+                TypeSpec.classBuilder(CLASS_STAG).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
         FieldSpec fieldSpec =
                 FieldSpec.builder(Map.class, "sTypeAdapterMap", Modifier.PRIVATE, Modifier.STATIC,
@@ -237,7 +239,7 @@ public final class StagProcessor extends AbstractProcessor {
 
             TypeName typeVariableName = TypeVariableName.get(type);
 
-            TypeSpec.Builder innerAdapterBuilder = TypeSpec.classBuilder(clazzName + ADAPTER)
+            TypeSpec.Builder innerAdapterBuilder = TypeSpec.classBuilder(clazzName + CLASS_SUFFIX_ADAPTER)
                     .addModifiers(Modifier.STATIC)
                     .superclass(
                             ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
@@ -269,7 +271,7 @@ public final class StagProcessor extends AbstractProcessor {
 
         adaptersBuilder.addStaticBlock(CodeBlock.of(staticBuilder.toString()));
 
-        TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(TYPE_FACTORY)
+        TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(CLASS_TYPE_ADAPTER_FACTORY)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addSuperinterface(TypeAdapterFactory.class);
 
@@ -281,8 +283,7 @@ public final class StagProcessor extends AbstractProcessor {
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
                               "type")
-                .addCode("System.out.println(type.getRawType().toString());\n" +
-                         "return getTypeAdapter(type.getRawType());\n")
+                .addCode("return getTypeAdapter(type.getRawType());\n")
                 .build();
 
         adapterFactoryBuilder.addMethod(createTypeAdapterMethod);
@@ -365,7 +366,7 @@ public final class StagProcessor extends AbstractProcessor {
                          "\n" +
                          "List<Object> list = new java.util.ArrayList<>();\n" +
                          "\n" +
-                         "list.addAll(AdapterFactory.readListFromAdapter(clazz, reader));\n" +
+                         "list.addAll(" + CLASS_STAG + ".readListFromAdapter(clazz, reader));\n" +
                          "\n" +
                          "reader.endArray();\n" +
                          "return list;\n")
@@ -465,7 +466,7 @@ public final class StagProcessor extends AbstractProcessor {
         } else {
             String typeName = type.toString();
             if (!mSupportedTypes.contains(type.toString())) {
-                return '(' + typeName + ")AdapterFactory.readFromAdapter(\"" + typeName + "\", reader);";
+                return '(' + typeName + ")" + CLASS_STAG + ".readFromAdapter(\"" + typeName + "\", reader);";
             } else {
                 String packageName = typeName.substring(0, typeName.lastIndexOf('.'));
                 String clazzName = typeName.substring(packageName.length() + 1, typeName.length());
@@ -484,7 +485,7 @@ public final class StagProcessor extends AbstractProcessor {
         } else {
             log("Supported type: " + mSupportedTypes.contains(type));
             if (!mSupportedTypes.contains(type)) {
-                return "AdapterFactory.writeToAdapter(\"" + type + "\", writer, object);";
+                return CLASS_STAG + ".writeToAdapter(\"" + type + "\", writer, object);";
             } else {
                 return "ParseUtils.write(writer, object." + variableName + ");";
             }
