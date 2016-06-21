@@ -1,6 +1,9 @@
 package com.vimeo.stag.processor;
 
+import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.ClassName;
@@ -10,6 +13,7 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
 import com.vimeo.stag.GsonAdapterKey;
 
@@ -34,7 +38,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.type.TypeVariable;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
@@ -69,6 +72,7 @@ public final class StagProcessor extends AbstractProcessor {
     private static final String PACKAGE_NAME = "com.vimeo.stag.generated";
     private static final String PARSE_UTILS = "ParseUtils";
     private static final String TYPE_ADAPTERS = "AdapterFactory";
+    private static final String TYPE_FACTORY = "Factory";
     private static final String ADAPTER = "Adapter";
 
     private static final boolean DEBUG = true;
@@ -198,10 +202,18 @@ public final class StagProcessor extends AbstractProcessor {
                          "}\n")
                 .build();
 
+        MethodSpec getAdapterMethod = MethodSpec.methodBuilder("getTypeAdapter")
+                .addModifiers(Modifier.STATIC, Modifier.PUBLIC)
+                .returns(TypeAdapter.class)
+                .addParameter(Class.class, "clazz")
+                .addCode("return (com.google.gson.TypeAdapter) sTypeAdapterMap.get(clazz.getName());\n")
+                .build();
+
         adaptersBuilder.addMethod(registerMethod);
         adaptersBuilder.addMethod(readAdapterMethod);
         adaptersBuilder.addMethod(readListAdapterMethod);
         adaptersBuilder.addMethod(writeAdapterMethod);
+        adaptersBuilder.addMethod(getAdapterMethod);
 
         StringBuilder staticBuilder = new StringBuilder(types.size());
 
@@ -248,6 +260,28 @@ public final class StagProcessor extends AbstractProcessor {
         }
 
         adaptersBuilder.addStaticBlock(CodeBlock.of(staticBuilder.toString()));
+
+        TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(TYPE_FACTORY)
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addSuperinterface(TypeAdapterFactory.class);
+
+        TypeVariableName typeVariableName = TypeVariableName.get("T");
+
+        MethodSpec createTypeAdapterMethod = MethodSpec.methodBuilder("create")
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addTypeVariable(typeVariableName)
+                .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName))
+                .addParameter(Gson.class, "gson")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeVariableName),
+                              "type")
+                .addCode("System.out.println(type.getRawType().toString());\n" +
+                         "return getTypeAdapter(type.getRawType());\n")
+                .build();
+
+        adapterFactoryBuilder.addMethod(createTypeAdapterMethod);
+
+        adaptersBuilder.addType(adapterFactoryBuilder.build());
 
         JavaFile javaFile = JavaFile.builder(PACKAGE_NAME, adaptersBuilder.build()).build();
 

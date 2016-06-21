@@ -13,7 +13,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
-import com.vimeo.stag.generated.AdapterFactory;
+import com.vimeo.stag.generated.AdapterFactory.Factory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -91,9 +91,7 @@ public final class NetworkRequest {
                     builder.append(line);
                 }
 
-                Gson gson = new GsonBuilder().registerTypeAdapter(VideoList.class,
-                                                                  new AdapterFactory.VideoListAdapter())
-                        .create();
+                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Factory()).create();
 
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
 
