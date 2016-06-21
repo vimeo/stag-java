@@ -1,9 +1,12 @@
 package com.vimeo.sample.model;
 
-import java.util.ArrayList;
+import com.vimeo.stag.GsonAdapterKey;
+
+import java.util.List;
 
 public class VideoList {
 
-    public ArrayList<Video> mVideoList;
+    @GsonAdapterKey("data")
+    public List<Video> mVideoList;
 
 }

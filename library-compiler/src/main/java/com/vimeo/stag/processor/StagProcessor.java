@@ -4,10 +4,13 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.WildcardTypeName;
 import com.vimeo.stag.GsonAdapterKey;
 
 import java.io.IOException;
@@ -29,7 +32,9 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 
@@ -116,6 +121,9 @@ public final class StagProcessor extends AbstractProcessor {
 
     private void generateParsingCode(Map<TypeMirror, List<VariableElement>> map) throws IOException {
         TypeSpec.Builder typeSpecBuilder = TypeSpec.classBuilder(PARSE_UTILS).addModifiers(Modifier.FINAL);
+
+        typeSpecBuilder.addMethod(generateParseArraySpec());
+
         for (Map.Entry<TypeMirror, List<VariableElement>> entry : map.entrySet()) {
             generateParseAndWriteMethods(typeSpecBuilder, entry.getKey(), entry.getValue());
         }
@@ -131,7 +139,7 @@ public final class StagProcessor extends AbstractProcessor {
 
         FieldSpec fieldSpec =
                 FieldSpec.builder(Map.class, "sTypeAdapterMap", Modifier.PRIVATE, Modifier.STATIC,
-                                  Modifier.FINAL).initializer("new java.util.HashMap();").build();
+                                  Modifier.FINAL).initializer("new java.util.HashMap()").build();
 
         adaptersBuilder.addField(fieldSpec);
 
@@ -140,7 +148,7 @@ public final class StagProcessor extends AbstractProcessor {
                 .returns(void.class)
                 .addParameter(Class.class, "className")
                 .addParameter(TypeAdapter.class, "adapter")
-                .addCode("sTypeAdapterMap.put(className.getName(), adapter);")
+                .addCode("sTypeAdapterMap.put(className.getName(), adapter);\n")
                 .build();
 
         MethodSpec readAdapterMethod = MethodSpec.methodBuilder("readFromAdapter")
@@ -153,8 +161,29 @@ public final class StagProcessor extends AbstractProcessor {
                          "} catch (IOException e) {\n" +
                          "\te.printStackTrace();\n" +
                          "}\n" +
-                         "return null;")
+                         "return null;\n")
                 .build();
+
+        MethodSpec readListAdapterMethod = MethodSpec.methodBuilder("readListFromAdapter")
+                .addModifiers(Modifier.STATIC)
+                .returns(List.class)
+                .addParameter(String.class, "clazz")
+                .addParameter(JsonReader.class, "in")
+                .addCode("try {\n" +
+                         "\tList<Object> list = new java.util.ArrayList<>();\n" +
+                         "\tcom.google.gson.TypeAdapter typeAdapter = (com.google.gson.TypeAdapter) sTypeAdapterMap.get(clazz);\n" +
+                         "\n" +
+                         "\twhile(in.hasNext()){\n" +
+                         "\t\tlist.add(typeAdapter.read(in));\n" +
+                         "\t}\n" +
+                         "\n" +
+                         "\treturn list;\n" +
+                         "} catch (IOException e) {\n" +
+                         "\te.printStackTrace();\n" +
+                         "}\n" +
+                         "return null;\n")
+                .build();
+
 
         MethodSpec writeAdapterMethod = MethodSpec.methodBuilder("writeToAdapter")
                 .addModifiers(Modifier.STATIC)
@@ -166,18 +195,27 @@ public final class StagProcessor extends AbstractProcessor {
                          "\t((com.google.gson.TypeAdapter) sTypeAdapterMap.get(clazz)).write(out, value);\n" +
                          "} catch (IOException e) {\n" +
                          "\te.printStackTrace();\n" +
-                         '}')
+                         "}\n")
                 .build();
 
         adaptersBuilder.addMethod(registerMethod);
         adaptersBuilder.addMethod(readAdapterMethod);
+        adaptersBuilder.addMethod(readListAdapterMethod);
         adaptersBuilder.addMethod(writeAdapterMethod);
+
+        StringBuilder staticBuilder = new StringBuilder(types.size());
 
         for (TypeMirror type : types) {
             String clazz = type.toString();
 
             String packageName = clazz.substring(0, clazz.lastIndexOf('.'));
             String clazzName = clazz.substring(packageName.length() + 1, clazz.length());
+
+            staticBuilder.append("registerTypeAdapter(")
+                    .append(clazz)
+                    .append(".class, new ")
+                    .append(clazzName)
+                    .append("Adapter());\n");
 
             TypeSpec.Builder innerAdapterBuilder = TypeSpec.classBuilder(clazzName + ADAPTER)
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -208,6 +246,8 @@ public final class StagProcessor extends AbstractProcessor {
 
             adaptersBuilder.addType(innerAdapterBuilder.build());
         }
+
+        adaptersBuilder.addStaticBlock(CodeBlock.of(staticBuilder.toString()));
 
         JavaFile javaFile = JavaFile.builder(PACKAGE_NAME, adaptersBuilder.build()).build();
 
@@ -273,6 +313,25 @@ public final class StagProcessor extends AbstractProcessor {
         return name;
     }
 
+    private static MethodSpec generateParseArraySpec() {
+        return MethodSpec.methodBuilder("parseArray")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(ParameterizedTypeName.get(ClassName.get(List.class),
+                                                   WildcardTypeName.subtypeOf(Object.class)))
+                .addParameter(JsonReader.class, "reader")
+                .addParameter(String.class, "clazz")
+                .addException(IOException.class)
+                .addCode("reader.beginArray();\n" +
+                         "\n" +
+                         "List<Object> list = new java.util.ArrayList<>();\n" +
+                         "\n" +
+                         "\tlist.addAll(AdapterFactory.readListFromAdapter(clazz, reader));\n" +
+                         "\n" +
+                         "reader.endArray();\n" +
+                         "return list;\n")
+                .build();
+    }
+
     private MethodSpec generateParseSpec(TypeMirror type, List<VariableElement> elements) {
         String clazz = type.toString();
 
@@ -302,10 +361,14 @@ public final class StagProcessor extends AbstractProcessor {
 
             String variableName = element.getSimpleName().toString();
 
-            String variableType = element.asType().toString();
+//            String variableType = element.asType().toString();
+//            if (variableType.contains("List")) {
+//                debugPrintTypes(element.asType());
+//            }
 
             parseBuilder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                                 "\t\t\t\tobject." + variableName + " = " + getReadType(variableType) + '\n' +
+                                 "\t\t\t\tobject." + variableName + " = " + getReadType(element.asType()) +
+                                 '\n' +
                                  "\t\t\t\tbreak;\n");
         }
 
@@ -321,23 +384,51 @@ public final class StagProcessor extends AbstractProcessor {
         return parseBuilder.build();
     }
 
-    private String getReadType(String type) {
-        if (type.equals(long.class.getName())) {
-            return "reader.nextLong();";
-        } else if (type.equals(double.class.getName())) {
-            return "reader.nextDouble();";
-        } else if (type.equals(boolean.class.getName())) {
-            return "reader.nextBoolean();";
-        } else if (type.equals(String.class.getName())) {
-            return "reader.nextString();";
-        } else if (type.equals(int.class.getName())) {
-            return "reader.nextInt();";
+    private static void debugPrintTypes(TypeMirror type) {
+        if (type instanceof DeclaredType) { // e.g. List<E>
+            log("declared type: " + ((DeclaredType) type).asElement().getSimpleName());  // List
+
+            for (TypeMirror arg : ((DeclaredType) type).getTypeArguments()) { // E
+                debugPrintTypes(arg);
+            }
         } else {
-            if (!mSupportedTypes.contains(type)) {
-                return '(' + type + ")AdapterFactory.readFromAdapter(\"" + type + "\", reader);";
+            log("unknown type: " + type.toString());
+        }
+    }
+
+    private static TypeMirror getInnerListType(TypeMirror type) {
+        return ((DeclaredType) type).getTypeArguments().get(0);
+    }
+
+    private static String getOuterClassType(TypeMirror type) {
+        if (type instanceof DeclaredType) {
+            return ((DeclaredType) type).asElement().toString();
+        } else {
+            return type.toString();
+        }
+    }
+
+    private String getReadType(TypeMirror type) {
+        if (type.toString().equals(long.class.getName())) {
+            return "reader.nextLong();";
+        } else if (type.toString().equals(double.class.getName())) {
+            return "reader.nextDouble();";
+        } else if (type.toString().equals(boolean.class.getName())) {
+            return "reader.nextBoolean();";
+        } else if (type.toString().equals(String.class.getName())) {
+            return "reader.nextString();";
+        } else if (type.toString().equals(int.class.getName())) {
+            return "reader.nextInt();";
+        } else if (getOuterClassType(type).equals(List.class.getName())) {
+            return "(" + type.toString() +
+                   ") ParseUtils.parseArray(reader, \"" + getInnerListType(type).toString() + "\");";
+        } else {
+            String typeName = type.toString();
+            if (!mSupportedTypes.contains(type.toString())) {
+                return '(' + typeName + ")AdapterFactory.readFromAdapter(\"" + typeName + "\", reader);";
             } else {
-                String packageName = type.substring(0, type.lastIndexOf('.'));
-                String clazzName = type.substring(packageName.length() + 1, type.length());
+                String packageName = typeName.substring(0, typeName.lastIndexOf('.'));
+                String clazzName = typeName.substring(packageName.length() + 1, typeName.length());
                 return "ParseUtils.parse" + clazzName + "(reader);";
             }
         }

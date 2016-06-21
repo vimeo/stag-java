@@ -9,11 +9,10 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.vimeo.sample.BuildConfig;
 import com.vimeo.sample.model.Video;
+import com.vimeo.sample.model.VideoList;
 import com.vimeo.stag.generated.AdapterFactory;
 
 import java.io.BufferedReader;
@@ -92,20 +91,13 @@ public final class NetworkRequest {
                     builder.append(line);
                 }
 
-                Gson gson =
-                        new GsonBuilder().registerTypeAdapter(Video.class, new AdapterFactory.VideoAdapter())
-                                .create();
+                Gson gson = new GsonBuilder().registerTypeAdapter(VideoList.class,
+                                                                  new AdapterFactory.VideoListAdapter())
+                        .create();
 
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
 
-                JsonArray jsonElements = jsonObject.get("data").getAsJsonArray();
-
-                for (int n = 0; n < jsonElements.size(); n++) {
-                    videos.add(gson.fromJson(jsonElements.get(n), Video.class));
-                    if (BuildConfig.DEBUG) {
-                        Log.d(TAG, videos.get(n).toString());
-                    }
-                }
+                videos.addAll(gson.fromJson(jsonObject, VideoList.class).mVideoList);
 
             } catch (IOException e) {
                 Log.e(TAG, "Error", e);
