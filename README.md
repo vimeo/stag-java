@@ -2,10 +2,12 @@
 ####Using Gson Without Reflection####
 
 ### Gradle usage
-```
+```groovy
 compile project(':stag:library')
 apt project(':stag:library-compiler')
 ```
+
+Additionally, if you are using this on an Android project, you will need to use the android apt plugin (`com.neenbedankt.gradle.plugins:android-apt:1.8`). You must apply the plugin (`apply plugin: 'com.neenbedankt.android-apt'`) on the `build.gradle` file of the module you wish to use this on.
 
 ### Why
 
