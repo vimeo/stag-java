@@ -65,6 +65,3 @@ out
 # https://gitlab.com/fdroid/fdroidclient/raw/master/.gitignore
 
 *.iml
-
-# Temporary: hide app module until example is complete
-/app
