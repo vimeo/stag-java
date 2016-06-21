@@ -46,7 +46,9 @@ public class Stag extends Deer {
 }
 
 MyRandomClass {
-    private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new AdapterFactory.Factory()).create();
+    private Gson gson = new GsonBuilder()
+                                 .registerTypeAdapterFactory(new AdapterFactory.Factory())
+                                 .create();
 
     public Stag fromJson(String json) {
         return gson.fromJson(json, Stag.class);
