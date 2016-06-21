@@ -12,6 +12,7 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.squareup.javapoet.WildcardTypeName;
@@ -147,11 +148,16 @@ public final class StagProcessor extends AbstractProcessor {
 
         adaptersBuilder.addField(fieldSpec);
 
+        TypeVariableName genericTypeName = TypeVariableName.get("T");
+
         MethodSpec registerMethod = MethodSpec.methodBuilder("registerTypeAdapter")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addTypeVariable(genericTypeName)
                 .returns(void.class)
-                .addParameter(Class.class, "className")
-                .addParameter(TypeAdapter.class, "adapter")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName),
+                              "className")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName),
+                              "adapter")
                 .addCode("sTypeAdapterMap.put(className.getName(), adapter);\n")
                 .build();
 
@@ -229,24 +235,26 @@ public final class StagProcessor extends AbstractProcessor {
                     .append(clazzName)
                     .append("Adapter());\n");
 
+            TypeName typeVariableName = TypeVariableName.get(type);
+
             TypeSpec.Builder innerAdapterBuilder = TypeSpec.classBuilder(clazzName + ADAPTER)
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .superclass(TypeAdapter.class);
+                    .addModifiers(Modifier.STATIC)
+                    .superclass(
+                            ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
 
             MethodSpec writeMethod = MethodSpec.methodBuilder("write")
                     .addParameter(JsonWriter.class, "out")
-                    .addParameter(Object.class, "value")
+                    .addParameter(typeVariableName, "value")
                     .returns(void.class)
                     .addModifiers(Modifier.PUBLIC)
                     .addAnnotation(Override.class)
                     .addException(IOException.class)
-                    .addCode(
-                            "ParseUtils.write(out, (" + ClassName.get(packageName, clazzName) + ") value);\n")
+                    .addCode("ParseUtils.write(out, value);\n")
                     .build();
 
             MethodSpec readMethod = MethodSpec.methodBuilder("read")
                     .addParameter(JsonReader.class, "in")
-                    .returns(Object.class)
+                    .returns(typeVariableName)
                     .addModifiers(Modifier.PUBLIC)
                     .addAnnotation(Override.class)
                     .addException(IOException.class)
@@ -265,15 +273,13 @@ public final class StagProcessor extends AbstractProcessor {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addSuperinterface(TypeAdapterFactory.class);
 
-        TypeVariableName typeVariableName = TypeVariableName.get("T");
-
         MethodSpec createTypeAdapterMethod = MethodSpec.methodBuilder("create")
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
-                .addTypeVariable(typeVariableName)
-                .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName))
+                .addTypeVariable(genericTypeName)
+                .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
                 .addParameter(Gson.class, "gson")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeVariableName),
+                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
                               "type")
                 .addCode("System.out.println(type.getRawType().toString());\n" +
                          "return getTypeAdapter(type.getRawType());\n")
@@ -359,7 +365,7 @@ public final class StagProcessor extends AbstractProcessor {
                          "\n" +
                          "List<Object> list = new java.util.ArrayList<>();\n" +
                          "\n" +
-                         "\tlist.addAll(AdapterFactory.readListFromAdapter(clazz, reader));\n" +
+                         "list.addAll(AdapterFactory.readListFromAdapter(clazz, reader));\n" +
                          "\n" +
                          "reader.endArray();\n" +
                          "return list;\n")
