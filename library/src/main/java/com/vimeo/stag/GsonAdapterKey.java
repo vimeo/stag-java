@@ -24,5 +24,7 @@ package com.vimeo.stag;
  * SOFTWARE.
  */
 public @interface GsonAdapterKey {
+
     String value() default "";
+    
 }
