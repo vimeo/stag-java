@@ -56,6 +56,7 @@ import javax.tools.JavaFileObject;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@SuppressWarnings("StringConcatenationMissingWhitespace")
 @SupportedAnnotationTypes("com.vimeo.stag.GsonAdapterKey")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
@@ -67,9 +68,9 @@ public final class StagProcessor extends AbstractProcessor {
 
     private static final boolean DEBUG = true;
 
-    private boolean mHasBeenProcessed = false;
+    private boolean mHasBeenProcessed;
 
-    private Set<String> mSupportedTypes = new HashSet<>();
+    private final Set<String> mSupportedTypes = new HashSet<>();
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
@@ -105,6 +106,7 @@ public final class StagProcessor extends AbstractProcessor {
             generateTypeAdapters(variableMap.keySet());
         } catch (IOException e) {
             logError("Error while processing annotations");
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
             return true;
         }
@@ -380,6 +382,7 @@ public final class StagProcessor extends AbstractProcessor {
 
     private static void log(CharSequence message) {
         if (DEBUG) {
+            //noinspection UseOfSystemOutOrSystemErr
             System.out.println(message);
         }
     }
