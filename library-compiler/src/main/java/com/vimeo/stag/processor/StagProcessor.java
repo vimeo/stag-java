@@ -15,7 +15,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.squareup.javapoet.WildcardTypeName;
 import com.vimeo.stag.GsonAdapterKey;
 
 import java.io.IOException;
@@ -166,9 +165,10 @@ public final class StagProcessor extends AbstractProcessor {
 
         MethodSpec readAdapterMethod = MethodSpec.methodBuilder("readFromAdapter")
                 .addModifiers(Modifier.STATIC)
-                .returns(Object.class)
+                .returns(genericTypeName)
+                .addTypeVariable(genericTypeName)
                 .addParameter(Gson.class, "gson")
-                .addParameter(Class.class, "clazz")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addParameter(JsonReader.class, "in")
                 .addCode("try {\n" +
                          "\treturn gson.getAdapter(clazz).read(in);\n" +
@@ -183,11 +183,11 @@ public final class StagProcessor extends AbstractProcessor {
                 .returns(void.class)
                 .addTypeVariable(genericTypeName)
                 .addParameter(Gson.class, "gson")
-                .addParameter(Class.class, "clazz")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addParameter(JsonWriter.class, "out")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(List.class), genericTypeName), "list")
                 .addCode("try {\n" +
-                         "\tcom.google.gson.TypeAdapter typeAdapter = gson.getAdapter(clazz);\n" +
+                         "\tcom.google.gson.TypeAdapter<T> typeAdapter = gson.getAdapter(clazz);\n" +
                          "\n" +
                          "\tfor (T object : list) {\n" +
                          "\t\ttypeAdapter.write(out, object);\n" +
@@ -199,13 +199,14 @@ public final class StagProcessor extends AbstractProcessor {
 
         MethodSpec readListAdapterMethod = MethodSpec.methodBuilder("readListFromAdapter")
                 .addModifiers(Modifier.STATIC)
-                .returns(List.class)
+                .returns(ParameterizedTypeName.get(ClassName.get(List.class), genericTypeName))
+                .addTypeVariable(genericTypeName)
                 .addParameter(Gson.class, "gson")
-                .addParameter(Class.class, "clazz")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addParameter(JsonReader.class, "in")
                 .addCode("try {\n" +
-                         "\tList<Object> list = new java.util.ArrayList<>();\n" +
-                         "\tcom.google.gson.TypeAdapter typeAdapter = gson.getAdapter(clazz);\n" +
+                         "\tList<T> list = new java.util.ArrayList<>();\n" +
+                         "\tcom.google.gson.TypeAdapter<T> typeAdapter = gson.getAdapter(clazz);\n" +
                          "\n" +
                          "\twhile(in.hasNext()){\n" +
                          "\t\tlist.add(typeAdapter.read(in));\n" +
@@ -222,10 +223,11 @@ public final class StagProcessor extends AbstractProcessor {
         MethodSpec writeAdapterMethod = MethodSpec.methodBuilder("writeToAdapter")
                 .addModifiers(Modifier.STATIC)
                 .returns(void.class)
+                .addTypeVariable(genericTypeName)
                 .addParameter(Gson.class, "gson")
-                .addParameter(Class.class, "clazz")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addParameter(JsonWriter.class, "out")
-                .addParameter(Object.class, "value")
+                .addParameter(genericTypeName, "value")
                 .addCode("try {\n" +
                          "\tgson.getAdapter(clazz).write(out, value);\n" +
                          "} catch (IOException e) {\n" +
@@ -400,17 +402,20 @@ public final class StagProcessor extends AbstractProcessor {
     }
 
     private static MethodSpec generateParseArraySpec() {
+
+        TypeVariableName genericTypeName = TypeVariableName.get("T");
+
         return MethodSpec.methodBuilder("parseArray")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(ParameterizedTypeName.get(ClassName.get(List.class),
-                                                   WildcardTypeName.subtypeOf(Object.class)))
+                .addTypeVariable(genericTypeName)
+                .returns(ParameterizedTypeName.get(ClassName.get(List.class), genericTypeName))
                 .addParameter(Gson.class, "gson")
                 .addParameter(JsonReader.class, "reader")
-                .addParameter(Class.class, "clazz")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addException(IOException.class)
                 .addCode("reader.beginArray();\n" +
                          "\n" +
-                         "List<Object> list = " + CLASS_STAG +
+                         "List<" + genericTypeName.name + "> list = " + CLASS_STAG +
                          ".readListFromAdapter(gson, clazz, reader);\n" +
                          "\n" +
                          "reader.endArray();\n" +
@@ -529,13 +534,11 @@ public final class StagProcessor extends AbstractProcessor {
         } else if (type.toString().equals(int.class.getName())) {
             return "reader.nextInt();";
         } else if (getOuterClassType(type).equals(List.class.getName())) {
-            return "(" + type.toString() +
-                   ") ParseUtils.parseArray(gson, reader, " + getInnerListType(type).toString() + ".class);";
+            return "ParseUtils.parseArray(gson, reader, " + getInnerListType(type).toString() + ".class);";
         } else {
             String typeName = type.toString();
             if (!mSupportedTypes.contains(type.toString())) {
-                return '(' + typeName + ")" + CLASS_STAG + ".readFromAdapter(gson, " + typeName +
-                       ".class, reader);";
+                return CLASS_STAG + ".readFromAdapter(gson, " + typeName + ".class, reader);";
             } else {
                 String packageName = typeName.substring(0, typeName.lastIndexOf('.'));
                 String clazzName = typeName.substring(packageName.length() + 1, typeName.length());
@@ -557,7 +560,8 @@ public final class StagProcessor extends AbstractProcessor {
         } else {
             log("Supported type: " + mSupportedTypes.contains(type.toString()));
             if (!mSupportedTypes.contains(type.toString())) {
-                return CLASS_STAG + ".writeToAdapter(gson, " + type + ".class, writer, object);";
+                return CLASS_STAG + ".writeToAdapter(gson, " + type + ".class, writer, object." +
+                       variableName + ");";
             } else {
                 return "ParseUtils.write(gson, writer, object." + variableName + ");";
             }
