@@ -19,7 +19,7 @@ The Stag library solves this problem. It generates TypeAdapters for your model o
 
 ### How to use
 
-- You do not need to use `@SerializedName("json_key)`.
+- You do not need to use `@SerializedName("json_key")`.
 - Your model class must have a zero argument constructor.
 - The member variables of your model class need to have `public` visibility (for now).
 - The member variables of your model class that you wish to be filled must be annotated with `@GsonAdapterKey`.
@@ -38,20 +38,29 @@ public class Deer {
     
     @GsonAdapterKey("age")
     public int mAge;
-}
-
-public class Stag extends Deer {
+    
     @GsonAdapterKey("points")
     public int mPoints;
 }
 
-MyRandomClass {
+public class Herd {
+    @GsonAdapterKey("data_list")
+    List<Deer> mIndividuals;
+}
+
+/**
+ * The class where you receive JSON 
+ * containing a list of Deer objects.
+ * You parse the list from JSON using
+ * Gson.
+ */
+MyParsingClass {
     private Gson gson = new GsonBuilder()
-                                 .registerTypeAdapterFactory(new AdapterFactory.Factory())
+                                 .registerTypeAdapterFactory(new Stag.Factory())
                                  .create();
 
-    public Stag fromJson(String json) {
-        return gson.fromJson(json, Stag.class);
+    public List<Deer> fromJson(String json) {
+        return gson.fromJson(json, Herd.class);
     }
 }
 
