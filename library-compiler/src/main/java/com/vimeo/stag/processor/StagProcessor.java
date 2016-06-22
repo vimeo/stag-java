@@ -7,8 +7,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.CodeBlock;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -144,24 +142,7 @@ public final class StagProcessor extends AbstractProcessor {
         TypeSpec.Builder adaptersBuilder =
                 TypeSpec.classBuilder(CLASS_STAG).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
-        FieldSpec fieldSpec =
-                FieldSpec.builder(Map.class, "sTypeAdapterMap", Modifier.PRIVATE, Modifier.STATIC,
-                                  Modifier.FINAL).initializer("new java.util.HashMap()").build();
-
-        adaptersBuilder.addField(fieldSpec);
-
         TypeVariableName genericTypeName = TypeVariableName.get("T");
-
-        MethodSpec registerMethod = MethodSpec.methodBuilder("registerTypeAdapter")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addTypeVariable(genericTypeName)
-                .returns(void.class)
-                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName),
-                              "className")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName),
-                              "adapter")
-                .addCode("sTypeAdapterMap.put(className.getName(), adapter);\n")
-                .build();
 
         MethodSpec readAdapterMethod = MethodSpec.methodBuilder("readFromAdapter")
                 .addModifiers(Modifier.STATIC)
@@ -235,21 +216,10 @@ public final class StagProcessor extends AbstractProcessor {
                          "}\n")
                 .build();
 
-        MethodSpec getAdapterMethod = MethodSpec.methodBuilder("getTypeAdapter")
-                .addModifiers(Modifier.STATIC, Modifier.PUBLIC)
-                .returns(TypeAdapter.class)
-                .addParameter(Class.class, "clazz")
-                .addCode("return (com.google.gson.TypeAdapter) sTypeAdapterMap.get(clazz.getName());\n")
-                .build();
-
-        adaptersBuilder.addMethod(registerMethod);
         adaptersBuilder.addMethod(readAdapterMethod);
         adaptersBuilder.addMethod(readListAdapterMethod);
         adaptersBuilder.addMethod(writeListAdapterMethod);
         adaptersBuilder.addMethod(writeAdapterMethod);
-        adaptersBuilder.addMethod(getAdapterMethod);
-
-        StringBuilder staticBuilder = new StringBuilder(types.size());
 
         StringBuilder factoryReturnBuilder = new StringBuilder(types.size());
 
@@ -258,12 +228,6 @@ public final class StagProcessor extends AbstractProcessor {
 
             String packageName = clazz.substring(0, clazz.lastIndexOf('.'));
             String clazzName = clazz.substring(packageName.length() + 1, clazz.length());
-
-            staticBuilder.append("registerTypeAdapter(")
-                    .append(clazz)
-                    .append(".class, new ")
-                    .append(clazzName)
-                    .append("Adapter(null));\n");
 
             factoryReturnBuilder.append("if (clazz.equals(")
                     .append(clazz)
@@ -310,8 +274,6 @@ public final class StagProcessor extends AbstractProcessor {
 
             adaptersBuilder.addType(innerAdapterBuilder.build());
         }
-
-        adaptersBuilder.addStaticBlock(CodeBlock.of(staticBuilder.toString()));
 
         TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(CLASS_TYPE_ADAPTER_FACTORY)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
