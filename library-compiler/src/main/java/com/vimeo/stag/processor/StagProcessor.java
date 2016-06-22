@@ -130,6 +130,7 @@ public final class StagProcessor extends AbstractProcessor {
                 TypeSpec.classBuilder(CLASS_PARSE_UTILS).addModifiers(Modifier.FINAL);
 
         typeSpecBuilder.addMethod(generateParseArraySpec());
+        typeSpecBuilder.addMethod(generateWriteArraySpec());
 
         for (Map.Entry<TypeMirror, List<VariableElement>> entry : map.entrySet()) {
             generateParseAndWriteMethods(typeSpecBuilder, entry.getKey(), entry.getValue());
@@ -176,6 +177,24 @@ public final class StagProcessor extends AbstractProcessor {
                          "return null;\n")
                 .build();
 
+        MethodSpec writeListAdapterMethod = MethodSpec.methodBuilder("writeListToAdapter")
+                .addModifiers(Modifier.STATIC)
+                .returns(void.class)
+                .addTypeVariable(genericTypeName)
+                .addParameter(String.class, "clazz")
+                .addParameter(JsonWriter.class, "out")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(List.class), genericTypeName), "list")
+                .addCode("try {\n" +
+                         "\tcom.google.gson.TypeAdapter typeAdapter = (com.google.gson.TypeAdapter) sTypeAdapterMap.get(clazz);\n" +
+                         "\n" +
+                         "\tfor (T object : list) {\n" +
+                         "\t\ttypeAdapter.write(out, object);\n" +
+                         "\t}\n" +
+                         "} catch (IOException e) {\n" +
+                         "\te.printStackTrace();\n" +
+                         "}\n")
+                .build();
+
         MethodSpec readListAdapterMethod = MethodSpec.methodBuilder("readListFromAdapter")
                 .addModifiers(Modifier.STATIC)
                 .returns(List.class)
@@ -220,6 +239,7 @@ public final class StagProcessor extends AbstractProcessor {
         adaptersBuilder.addMethod(registerMethod);
         adaptersBuilder.addMethod(readAdapterMethod);
         adaptersBuilder.addMethod(readListAdapterMethod);
+        adaptersBuilder.addMethod(writeListAdapterMethod);
         adaptersBuilder.addMethod(writeAdapterMethod);
         adaptersBuilder.addMethod(getAdapterMethod);
 
@@ -335,7 +355,7 @@ public final class StagProcessor extends AbstractProcessor {
                 writeBuilder.addCode("\t\tif (object." + variableName + " != null) {\n");
             }
             writeBuilder.addCode("\t\t\twriter.name(\"" + name + "\");\n");
-            writeBuilder.addCode("\t\t\t" + getWriteType(variableType, variableName) + '\n');
+            writeBuilder.addCode("\t\t\t" + getWriteType(element.asType(), variableName) + '\n');
             if (!isPrimitive) {
                 writeBuilder.addCode("\t\t}\n");
             }
@@ -364,12 +384,31 @@ public final class StagProcessor extends AbstractProcessor {
                 .addException(IOException.class)
                 .addCode("reader.beginArray();\n" +
                          "\n" +
-                         "List<Object> list = new java.util.ArrayList<>();\n" +
-                         "\n" +
-                         "list.addAll(" + CLASS_STAG + ".readListFromAdapter(clazz, reader));\n" +
+                         "List<Object> list = " + CLASS_STAG + ".readListFromAdapter(clazz, reader);\n" +
                          "\n" +
                          "reader.endArray();\n" +
                          "return list;\n")
+                .build();
+    }
+
+    private static MethodSpec generateWriteArraySpec() {
+        TypeVariableName genericType = TypeVariableName.get("T");
+        return MethodSpec.methodBuilder("write")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(void.class)
+                .addTypeVariable(genericType)
+                .addException(IOException.class)
+                .addParameter(JsonWriter.class, "writer")
+                .addParameter(String.class, "clazz")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(List.class), genericType), "list")
+                .addCode("if (list == null) {\n" +
+                         "\treturn;\n" +
+                         "}\n" +
+                         "writer.beginArray();\n" +
+                         "\n" +
+                         "Stag.writeListToAdapter(clazz, writer, list);\n" +
+                         "\n" +
+                         "writer.endArray();\n")
                 .build();
     }
 
@@ -475,16 +514,19 @@ public final class StagProcessor extends AbstractProcessor {
         }
     }
 
-    private String getWriteType(String type, String variableName) {
-        if (type.equals(long.class.getName()) ||
-            type.equals(double.class.getName()) ||
-            type.equals(boolean.class.getName()) ||
-            type.equals(String.class.getName()) ||
-            type.equals(int.class.getName())) {
+    private String getWriteType(TypeMirror type, String variableName) {
+        if (type.toString().equals(long.class.getName()) ||
+            type.toString().equals(double.class.getName()) ||
+            type.toString().equals(boolean.class.getName()) ||
+            type.toString().equals(String.class.getName()) ||
+            type.toString().equals(int.class.getName())) {
             return "writer.value(object." + variableName + ");";
+        } else if (getOuterClassType(type).equals(List.class.getName())) {
+            return "ParseUtils.write(writer, \"" + getInnerListType(type).toString() + "\", object." +
+                   variableName + ");";
         } else {
-            log("Supported type: " + mSupportedTypes.contains(type));
-            if (!mSupportedTypes.contains(type)) {
+            log("Supported type: " + mSupportedTypes.contains(type.toString()));
+            if (!mSupportedTypes.contains(type.toString())) {
                 return CLASS_STAG + ".writeToAdapter(\"" + type + "\", writer, object);";
             } else {
                 return "ParseUtils.write(writer, object." + variableName + ");";
