@@ -11,6 +11,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.vimeo.sample.model.DateParser;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
 import com.vimeo.stag.generated.Stag;
@@ -21,6 +22,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 
@@ -91,7 +93,9 @@ public final class NetworkRequest {
                     builder.append(line);
                 }
 
-                Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();
+                Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateParser())
+                        .registerTypeAdapterFactory(new Stag.Factory())
+                        .create();
 
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
 

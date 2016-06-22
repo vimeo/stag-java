@@ -1,5 +1,8 @@
 package com.vimeo.stag;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+
 /**
  * The MIT License (MIT)
  * <p/>
@@ -23,8 +26,9 @@ package com.vimeo.stag;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@Target(ElementType.FIELD)
 public @interface GsonAdapterKey {
 
     String value() default "";
-    
+
 }

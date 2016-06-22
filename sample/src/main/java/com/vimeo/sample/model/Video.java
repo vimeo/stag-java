@@ -2,6 +2,8 @@ package com.vimeo.sample.model;
 
 import com.vimeo.stag.GsonAdapterKey;
 
+import java.util.Date;
+
 public class Video {
 
     @GsonAdapterKey("user")
@@ -14,7 +16,7 @@ public class Video {
     public String mName;
 
     @GsonAdapterKey("created_time")
-    public String mCreatedTime;
+    public Date mCreatedTime;
 
     @GsonAdapterKey("stats")
     public Stats mStats;
