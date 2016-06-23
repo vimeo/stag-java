@@ -35,7 +35,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.4.0'
 
-    compile project(':library')
-    apt project(':library-compiler')
+    compile project(':stag-library')
+    apt project(':stag-library-compiler')
     compile 'com.google.code.gson:gson:2.6.2'
 }

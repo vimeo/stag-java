@@ -6,7 +6,7 @@ compileJava {
 }
 
 dependencies {
-    compile project(':library')
+    compile project(':stag-library')
 
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.squareup:javapoet:1.7.0'

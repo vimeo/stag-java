@@ -1,1 +1,1 @@
-include ':library', ':library-compiler', ':sample'
+include ':stag-library', ':stag-library-compiler', ':sample'
