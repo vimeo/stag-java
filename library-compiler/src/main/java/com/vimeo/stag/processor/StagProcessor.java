@@ -81,6 +81,18 @@ public final class StagProcessor extends AbstractProcessor {
     private final Set<String> mSupportedTypes = new HashSet<>();
 
     @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        Set<String> set = new HashSet<>();
+        set.add(GsonAdapterKey.class.getCanonicalName());
+        return set;
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.RELEASE_7;
+    }
+
+    @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (mHasBeenProcessed) {
             return true;
