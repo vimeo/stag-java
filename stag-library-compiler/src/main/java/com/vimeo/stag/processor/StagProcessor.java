@@ -300,7 +300,7 @@ public final class StagProcessor extends AbstractProcessor {
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
                               "type")
                 .addCode("Class<? super T> clazz = type.getRawType();\n" +
-                         "System.out.println(\"Gson is valid: \" + (gson != null));\n" +
+//                         "System.out.println(\"Gson is valid: \" + (gson != null));\n" +
                          "\n" +
                          factoryReturnBuilder.toString() +
                          "\n" + "return null;")
