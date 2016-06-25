@@ -35,6 +35,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
@@ -116,8 +117,15 @@ public final class StagProcessor extends AbstractProcessor {
                                                variableElement.getEnclosingElement().asType() +
                                                ", field must public.");
                 }
-                mSupportedTypes.add(variableElement.getEnclosingElement().asType().toString());
-                addToListMap(variableMap, variableElement.getEnclosingElement().asType(), variableElement);
+
+                TypeMirror enclosingClass = variableElement.getEnclosingElement().asType();
+
+                if (isParameterizedType(enclosingClass) && isParameterizedTypeGeneric(enclosingClass)) {
+                    throw new RuntimeException("Generic parameterized classes are currently unsupported");
+                }
+
+                mSupportedTypes.add(enclosingClass.toString());
+                addToListMap(variableMap, enclosingClass, variableElement);
             }
         }
 
@@ -482,6 +490,16 @@ public final class StagProcessor extends AbstractProcessor {
         } else {
             log("unknown type: " + type.toString());
         }
+    }
+
+    private static boolean isParameterizedType(TypeMirror type) {
+        return !((DeclaredType) type).getTypeArguments().isEmpty();
+    }
+
+    private static boolean isParameterizedTypeGeneric(TypeMirror type) {
+        TypeMirror typeMirror = ((DeclaredType) type).getTypeArguments().get(0);
+        log(typeMirror.toString());
+        return typeMirror.getKind() == TypeKind.TYPEVAR;
     }
 
     private static TypeMirror getInnerListType(TypeMirror type) {
