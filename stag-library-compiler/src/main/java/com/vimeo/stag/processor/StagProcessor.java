@@ -181,7 +181,7 @@ public final class StagProcessor extends AbstractProcessor {
                 .addParameter(ParameterizedTypeName.get(ClassName.get(ArrayList.class), genericTypeName), "list")
                 .addCode("try {\n" +
                          "\tcom.google.gson.TypeAdapter<T> typeAdapter = gson.getAdapter(clazz);\n" +
-                         "\n" +
+                        '\n' +
                          "\tfor (T object : list) {\n" +
                          "\t\ttypeAdapter.write(out, object);\n" +
                          "\t}\n" +
@@ -200,11 +200,11 @@ public final class StagProcessor extends AbstractProcessor {
                 .addCode("try {\n" +
                          "\tArrayList<T> list = new java.util.ArrayList<>();\n" +
                          "\tcom.google.gson.TypeAdapter<T> typeAdapter = gson.getAdapter(clazz);\n" +
-                         "\n" +
+                        '\n' +
                          "\twhile(in.hasNext()){\n" +
                          "\t\tlist.add(typeAdapter.read(in));\n" +
                          "\t}\n" +
-                         "\n" +
+                        '\n' +
                          "\treturn list;\n" +
                          "} catch (IOException e) {\n" +
                          "\te.printStackTrace();\n" +
@@ -301,9 +301,9 @@ public final class StagProcessor extends AbstractProcessor {
                               "type")
                 .addCode("Class<? super T> clazz = type.getRawType();\n" +
 //                         "System.out.println(\"Gson is valid: \" + (gson != null));\n" +
-                         "\n" +
-                         factoryReturnBuilder.toString() +
-                         "\n" + "return null;")
+                        '\n' +
+                        factoryReturnBuilder +
+                        '\n' + "return null;")
                 .build();
 
         adapterFactoryBuilder.addMethod(createTypeAdapterMethod);
@@ -388,10 +388,10 @@ public final class StagProcessor extends AbstractProcessor {
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addException(IOException.class)
                 .addCode("reader.beginArray();\n" +
-                         "\n" +
+                        '\n' +
                          "ArrayList<" + genericTypeName.name + "> list = " + CLASS_STAG +
                          ".readListFromAdapter(gson, clazz, reader);\n" +
-                         "\n" +
+                        '\n' +
                          "reader.endArray();\n" +
                          "return list;\n")
                 .build();
@@ -412,9 +412,9 @@ public final class StagProcessor extends AbstractProcessor {
                          "\treturn;\n" +
                          "}\n" +
                          "writer.beginArray();\n" +
-                         "\n" +
+                        '\n' +
                          "Stag.writeListToAdapter(gson, clazz, writer, list);\n" +
-                         "\n" +
+                        '\n' +
                          "writer.endArray();\n")
                 .build();
     }
