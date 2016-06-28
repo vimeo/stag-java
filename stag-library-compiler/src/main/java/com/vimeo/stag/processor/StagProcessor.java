@@ -49,7 +49,6 @@ import javax.tools.Diagnostic;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-@SuppressWarnings("StringConcatenationMissingWhitespace")
 @SupportedAnnotationTypes("com.vimeo.stag.GsonAdapterKey")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {

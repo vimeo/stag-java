@@ -17,6 +17,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +52,7 @@ import javax.lang.model.type.TypeMirror;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@SuppressWarnings("StringConcatenationMissingWhitespace")
 public class ParseGenerator {
 
     private static final String CLASS_PARSE_UTILS = "ParseUtils";
@@ -65,9 +68,9 @@ public class ParseGenerator {
 
     public ParseGenerator(@NotNull Set<String> supportedTypes, @NotNull Filer filer,
                           @NotNull Map<TypeMirror, List<VariableElement>> variableMap) {
-        mSupportedTypes = supportedTypes;
+        mSupportedTypes = new HashSet<>(supportedTypes);
         mFiler = filer;
-        mVariableMap = variableMap;
+        mVariableMap = new HashMap<>(variableMap);
     }
 
     private static MethodSpec generateParseArraySpec() {

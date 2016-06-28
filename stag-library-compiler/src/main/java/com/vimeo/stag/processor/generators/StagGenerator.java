@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
@@ -61,7 +62,7 @@ public class StagGenerator {
 
     public StagGenerator(@NotNull Filer filer, @NotNull Set<TypeMirror> types) {
         mFiler = filer;
-        mTypes = types;
+        mTypes = new HashSet<>(types);
     }
 
     /**

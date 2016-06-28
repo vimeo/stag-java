@@ -35,9 +35,12 @@ import javax.tools.JavaFileObject;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-public class FileGenUtils {
+public final class FileGenUtils {
 
     public static final String GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
+
+    private FileGenUtils() {
+    }
 
     /**
      * Writes a Java file to the file system after

@@ -58,7 +58,7 @@ public class ClassInfo {
      * The full unmodified package name
      * and class name of this class object.
      *
-     * @return a valid class and packagename.
+     * @return a valid class and package name.
      */
     @NotNull
     public String getClassAndPackage() {

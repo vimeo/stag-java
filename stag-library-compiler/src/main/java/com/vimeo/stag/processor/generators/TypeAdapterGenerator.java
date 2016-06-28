@@ -41,6 +41,7 @@ import javax.lang.model.element.Modifier;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@SuppressWarnings("StringConcatenationMissingWhitespace")
 class TypeAdapterGenerator {
 
     private static final String CLASS_SUFFIX_ADAPTER = "Adapter";
