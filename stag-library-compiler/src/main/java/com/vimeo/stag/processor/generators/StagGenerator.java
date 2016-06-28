@@ -106,15 +106,12 @@ public class StagGenerator {
                 .addModifiers(Modifier.STATIC)
                 .returns(void.class)
                 .addTypeVariable(genericTypeName)
+                .addException(IOException.class)
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addParameter(JsonWriter.class, "out")
                 .addParameter(genericTypeName, "value")
-                .addCode("try {\n" +
-                         "\tgson.getAdapter(clazz).write(out, value);\n" +
-                         "} catch (IOException e) {\n" +
-                         "\te.printStackTrace();\n" +
-                         "}\n")
+                .addCode("gson.getAdapter(clazz).write(out, value);\n")
                 .build();
     }
 
@@ -124,15 +121,11 @@ public class StagGenerator {
                 .addModifiers(Modifier.STATIC)
                 .returns(genericTypeName)
                 .addTypeVariable(genericTypeName)
+                .addException(IOException.class)
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addParameter(JsonReader.class, "in")
-                .addCode("try {\n" +
-                         "\treturn gson.getAdapter(clazz).read(in);\n" +
-                         "} catch (IOException e) {\n" +
-                         "\te.printStackTrace();\n" +
-                         "}\n" +
-                         "return null;\n")
+                .addCode("return gson.getAdapter(clazz).read(in);\n")
                 .build();
     }
 
@@ -142,19 +135,16 @@ public class StagGenerator {
                 .addModifiers(Modifier.STATIC)
                 .returns(void.class)
                 .addTypeVariable(genericTypeName)
+                .addException(IOException.class)
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addParameter(JsonWriter.class, "out")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(ArrayList.class), genericTypeName),
                               "list")
-                .addCode("try {\n" +
-                         "\tcom.google.gson.TypeAdapter<T> typeAdapter = gson.getAdapter(clazz);\n" +
+                .addCode("com.google.gson.TypeAdapter<T> typeAdapter = gson.getAdapter(clazz);\n" +
                          '\n' +
-                         "\tfor (T object : list) {\n" +
-                         "\t\ttypeAdapter.write(out, object);\n" +
-                         "\t}\n" +
-                         "} catch (IOException e) {\n" +
-                         "\te.printStackTrace();\n" +
+                         "for (T object : list) {\n" +
+                         "\ttypeAdapter.write(out, object);\n" +
                          "}\n")
                 .build();
     }
@@ -165,22 +155,18 @@ public class StagGenerator {
                 .addModifiers(Modifier.STATIC)
                 .returns(ParameterizedTypeName.get(ClassName.get(ArrayList.class), genericTypeName))
                 .addTypeVariable(genericTypeName)
+                .addException(IOException.class)
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addParameter(JsonReader.class, "in")
-                .addCode("try {\n" +
-                         "\tArrayList<T> list = new java.util.ArrayList<>();\n" +
-                         "\tcom.google.gson.TypeAdapter<T> typeAdapter = gson.getAdapter(clazz);\n" +
+                .addCode("ArrayList<T> list = new java.util.ArrayList<>();\n" +
+                         "com.google.gson.TypeAdapter<T> typeAdapter = gson.getAdapter(clazz);\n" +
                          '\n' +
-                         "\twhile(in.hasNext()){\n" +
-                         "\t\tlist.add(typeAdapter.read(in));\n" +
-                         "\t}\n" +
-                         '\n' +
-                         "\treturn list;\n" +
-                         "} catch (IOException e) {\n" +
-                         "\te.printStackTrace();\n" +
+                         "while(in.hasNext()){\n" +
+                         "\tlist.add(typeAdapter.read(in));\n" +
                          "}\n" +
-                         "return null;\n")
+                         '\n' +
+                         "return list;\n")
                 .build();
     }
 
@@ -197,9 +183,9 @@ public class StagGenerator {
 
             ClassInfo classInfo = new ClassInfo(type);
 
-            factoryReturnBuilder.append("if (clazz.equals(")
+            factoryReturnBuilder.append("if (clazz == ")
                     .append(classInfo.getClassAndPackage())
-                    .append(".class)) {\n\treturn (TypeAdapter<T>) new ")
+                    .append(".class) {\n\treturn (TypeAdapter<T>) new ")
                     .append(classInfo.getClassName())
                     .append("Adapter(gson);\n}\n");
         }
@@ -215,7 +201,7 @@ public class StagGenerator {
                 .addCode("Class<? super T> clazz = type.getRawType();\n" +
                          '\n' +
                          factoryReturnBuilder +
-                         '\n' + "return null;")
+                         '\n' + "return null;\n")
                 .build();
 
         adapterFactoryBuilder.addMethod(createTypeAdapterMethod);
