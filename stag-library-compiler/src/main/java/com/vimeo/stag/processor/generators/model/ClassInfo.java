@@ -29,8 +29,11 @@ import javax.lang.model.type.TypeMirror;
  */
 public class ClassInfo {
 
-    @NotNull private final String mClassName;
-    @NotNull private final TypeMirror mType;
+    @NotNull
+    private final String mClassName;
+
+    @NotNull
+    private final TypeMirror mType;
 
     public ClassInfo(@NotNull TypeMirror typeMirror) {
         mType = typeMirror;

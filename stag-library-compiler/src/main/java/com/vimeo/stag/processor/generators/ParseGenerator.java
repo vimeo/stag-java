@@ -54,12 +54,16 @@ public class ParseGenerator {
 
     private static final String CLASS_PARSE_UTILS = "ParseUtils";
 
-    @NotNull private final Set<String> mSupportedTypes;
-    @NotNull private final Filer mFiler;
-    @NotNull private final Map<TypeMirror, List<VariableElement>> mVariableMap;
+    @NotNull
+    private final Set<String> mSupportedTypes;
 
-    public ParseGenerator(@NotNull Set<String> supportedTypes,
-                          @NotNull Filer filer,
+    @NotNull
+    private final Filer mFiler;
+
+    @NotNull
+    private final Map<TypeMirror, List<VariableElement>> mVariableMap;
+
+    public ParseGenerator(@NotNull Set<String> supportedTypes, @NotNull Filer filer,
                           @NotNull Map<TypeMirror, List<VariableElement>> variableMap) {
         mSupportedTypes = supportedTypes;
         mFiler = filer;
@@ -79,12 +83,12 @@ public class ParseGenerator {
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addException(IOException.class)
                 .addCode("reader.beginArray();\n" +
-                        '\n' +
-                        "ArrayList<" + genericTypeName.name + "> list = " + StagGenerator.CLASS_STAG +
-                        ".readListFromAdapter(gson, clazz, reader);\n" +
-                        '\n' +
-                        "reader.endArray();\n" +
-                        "return list;\n")
+                         '\n' +
+                         "ArrayList<" + genericTypeName.name + "> list = " + StagGenerator.CLASS_STAG +
+                         ".readListFromAdapter(gson, clazz, reader);\n" +
+                         '\n' +
+                         "reader.endArray();\n" +
+                         "return list;\n")
                 .build();
     }
 
@@ -100,13 +104,13 @@ public class ParseGenerator {
                 .addParameter(Class.class, "clazz")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(ArrayList.class), genericType), "list")
                 .addCode("if (list == null) {\n" +
-                        "\treturn;\n" +
-                        "}\n" +
-                        "writer.beginArray();\n" +
-                        '\n' +
-                        "Stag.writeListToAdapter(gson, clazz, writer, list);\n" +
-                        '\n' +
-                        "writer.endArray();\n")
+                         "\treturn;\n" +
+                         "}\n" +
+                         "writer.beginArray();\n" +
+                         '\n' +
+                         "Stag.writeListToAdapter(gson, clazz, writer, list);\n" +
+                         '\n' +
+                         "writer.endArray();\n")
                 .build();
     }
 
@@ -136,7 +140,8 @@ public class ParseGenerator {
             typeSpecBuilder.addMethod(generateParseSpec(type, elements));
         }
 
-        JavaFile javaFile = JavaFile.builder(FileGenUtils.GENERATED_PACKAGE_NAME, typeSpecBuilder.build()).build();
+        JavaFile javaFile =
+                JavaFile.builder(FileGenUtils.GENERATED_PACKAGE_NAME, typeSpecBuilder.build()).build();
 
         FileGenUtils.writeToFile(javaFile, mFiler);
     }
@@ -150,9 +155,9 @@ public class ParseGenerator {
                 .addException(IOException.class)
                 .returns(void.class)
                 .addCode("\twriter.beginObject();\n" +
-                        "\tif (object == null) {\n" +
-                        "\t\treturn;\n" +
-                        "\t} else {\n");
+                         "\tif (object == null) {\n" +
+                         "\t\treturn;\n" +
+                         "\t} else {\n");
 
         for (VariableElement element : elements) {
             String name = getJsonName(element);
@@ -194,17 +199,18 @@ public class ParseGenerator {
                 .addParameter(JsonReader.class, "reader")
                 .addException(IOException.class)
                 .addCode("\treader.beginObject();\n" +
-                        '\n' +
-                        '\t' + info.getClassAndPackage() + " object = new " + info.getClassAndPackage() + "();\n" +
-                        "\twhile (reader.hasNext()) {\n" +
-                        "\t\tString name = reader.nextName();\n" +
-                        "\t\tcom.google.gson.stream.JsonToken jsonToken = reader.peek();\n" +
-                        "\t\tif (jsonToken == com.google.gson.stream.JsonToken.NULL) {\n" +
-                        "\t\t\treader.skipValue();\n" +
-                        "\t\t\tcontinue;\n" +
-                        "\t\t}\n" +
+                         '\n' +
+                         '\t' + info.getClassAndPackage() + " object = new " + info.getClassAndPackage() +
+                         "();\n" +
+                         "\twhile (reader.hasNext()) {\n" +
+                         "\t\tString name = reader.nextName();\n" +
+                         "\t\tcom.google.gson.stream.JsonToken jsonToken = reader.peek();\n" +
+                         "\t\tif (jsonToken == com.google.gson.stream.JsonToken.NULL) {\n" +
+                         "\t\t\treader.skipValue();\n" +
+                         "\t\t\tcontinue;\n" +
+                         "\t\t}\n" +
 //                        "java.lang.System.out.println(jsonToken.toString());" +
-                        "\t\tswitch (name) {\n");
+                         "\t\tswitch (name) {\n");
 
         for (VariableElement element : elements) {
             String name = getJsonName(element);
@@ -217,19 +223,19 @@ public class ParseGenerator {
 //            }
 
             parseBuilder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                    "\t\t\t\tobject." + variableName + " = " + getReadType(element.asType()) +
-                    '\n' +
-                    "\t\t\t\tbreak;\n");
+                                 "\t\t\t\tobject." + variableName + " = " + getReadType(element.asType()) +
+                                 '\n' +
+                                 "\t\t\t\tbreak;\n");
         }
 
         parseBuilder.addCode("\t\t\tdefault:\n" +
-                "\t\t\t\treader.skipValue();\n" +
-                "\t\t\t\tbreak;\n" +
-                "\t\t}\n" +
-                "\t}\n" +
-                '\n' +
-                "\treader.endObject();\n" +
-                "\treturn object;\n");
+                             "\t\t\t\treader.skipValue();\n" +
+                             "\t\t\t\tbreak;\n" +
+                             "\t\t}\n" +
+                             "\t}\n" +
+                             '\n' +
+                             "\treader.endObject();\n" +
+                             "\treturn object;\n");
 
         return parseBuilder.build();
     }
@@ -260,18 +266,19 @@ public class ParseGenerator {
 
     private String getWriteType(TypeMirror type, String variableName) {
         if (type.toString().equals(long.class.getName()) ||
-                type.toString().equals(double.class.getName()) ||
-                type.toString().equals(boolean.class.getName()) ||
-                type.toString().equals(String.class.getName()) ||
-                type.toString().equals(int.class.getName())) {
+            type.toString().equals(double.class.getName()) ||
+            type.toString().equals(boolean.class.getName()) ||
+            type.toString().equals(String.class.getName()) ||
+            type.toString().equals(int.class.getName())) {
             return "writer.value(object." + variableName + ");";
         } else if (getOuterClassType(type).equals(ArrayList.class.getName())) {
             return "ParseUtils.write(gson, writer, " + getInnerListType(type).toString() + ".class, object." +
-                    variableName + ");";
+                   variableName + ");";
         } else {
             if (!mSupportedTypes.contains(type.toString())) {
-                return StagGenerator.CLASS_STAG + ".writeToAdapter(gson, " + type + ".class, writer, object." +
-                        variableName + ");";
+                return StagGenerator.CLASS_STAG + ".writeToAdapter(gson, " + type +
+                       ".class, writer, object." +
+                       variableName + ");";
             } else {
                 return "ParseUtils.write(gson, writer, object." + variableName + ");";
             }
@@ -280,9 +287,9 @@ public class ParseGenerator {
 
     private static boolean isPrimitive(String type) {
         return type.equals(long.class.getName()) ||
-                type.equals(double.class.getName()) ||
-                type.equals(boolean.class.getName()) ||
-                type.equals(int.class.getName());
+               type.equals(double.class.getName()) ||
+               type.equals(boolean.class.getName()) ||
+               type.equals(int.class.getName());
     }
 
     private static TypeMirror getInnerListType(TypeMirror type) {

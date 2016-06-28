@@ -86,14 +86,14 @@ public final class StagProcessor extends AbstractProcessor {
                 Set<Modifier> modifiers = variableElement.getModifiers();
                 if (modifiers.contains(Modifier.FINAL)) {
                     throw new RuntimeException("Unable to access field \"" +
-                            variableElement.getSimpleName().toString() + "\" in class " +
-                            variableElement.getEnclosingElement().asType() +
-                            ", field must not be final.");
+                                               variableElement.getSimpleName().toString() + "\" in class " +
+                                               variableElement.getEnclosingElement().asType() +
+                                               ", field must not be final.");
                 } else if (!modifiers.contains(Modifier.PUBLIC)) {
                     throw new RuntimeException("Unable to access field \"" +
-                            variableElement.getSimpleName().toString() + "\" in class " +
-                            variableElement.getEnclosingElement().asType() +
-                            ", field must public.");
+                                               variableElement.getSimpleName().toString() + "\" in class " +
+                                               variableElement.getEnclosingElement().asType() +
+                                               ", field must public.");
                 }
 
                 TypeMirror enclosingClass = variableElement.getEnclosingElement().asType();
@@ -108,9 +108,11 @@ public final class StagProcessor extends AbstractProcessor {
         }
 
         try {
-            ParseGenerator parseGenerator = new ParseGenerator(mSupportedTypes, processingEnv.getFiler(), variableMap);
+            ParseGenerator parseGenerator =
+                    new ParseGenerator(mSupportedTypes, processingEnv.getFiler(), variableMap);
             parseGenerator.generateParsingCode();
-            StagGenerator adapterGenerator = new StagGenerator(processingEnv.getFiler(), variableMap.keySet());
+            StagGenerator adapterGenerator =
+                    new StagGenerator(processingEnv.getFiler(), variableMap.keySet());
             adapterGenerator.generateTypeAdapters();
         } catch (IOException e) {
             logError("Error while processing annotations");

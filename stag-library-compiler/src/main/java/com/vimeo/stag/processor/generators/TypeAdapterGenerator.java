@@ -45,7 +45,8 @@ class TypeAdapterGenerator {
 
     private static final String CLASS_SUFFIX_ADAPTER = "Adapter";
 
-    @NotNull private final ClassInfo mInfo;
+    @NotNull
+    private final ClassInfo mInfo;
 
     public TypeAdapterGenerator(@NotNull ClassInfo info) {
         mInfo = info;
@@ -67,12 +68,13 @@ class TypeAdapterGenerator {
                 .addStatement("mGson = gson")
                 .build();
 
-        TypeSpec.Builder innerAdapterBuilder = TypeSpec.classBuilder(mInfo.getClassName() + CLASS_SUFFIX_ADAPTER)
-                .addModifiers(Modifier.STATIC)
-                .addField(Gson.class, "mGson", Modifier.PRIVATE, Modifier.FINAL)
-                .addMethod(constructor)
-                .superclass(
-                        ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
+        TypeSpec.Builder innerAdapterBuilder =
+                TypeSpec.classBuilder(mInfo.getClassName() + CLASS_SUFFIX_ADAPTER)
+                        .addModifiers(Modifier.STATIC)
+                        .addField(Gson.class, "mGson", Modifier.PRIVATE, Modifier.FINAL)
+                        .addMethod(constructor)
+                        .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class),
+                                                              typeVariableName));
 
         MethodSpec writeMethod = getWriteMethodSpec(typeVariableName);
         MethodSpec readMethod = getReadMethodSpec(typeVariableName);
