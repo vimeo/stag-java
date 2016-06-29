@@ -58,6 +58,7 @@ import javax.lang.model.type.TypeMirror;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
 
+    public static final boolean DEBUG = false;
     private boolean mHasBeenProcessed;
     private final Set<String> mSupportedTypes = new HashSet<>();
 

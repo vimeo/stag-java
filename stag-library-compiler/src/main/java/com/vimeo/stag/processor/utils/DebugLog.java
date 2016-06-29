@@ -1,5 +1,7 @@
 package com.vimeo.stag.processor.utils;
 
+import com.vimeo.stag.processor.StagProcessor;
+
 /**
  * The MIT License (MIT)
  * <p/>
@@ -25,20 +27,18 @@ package com.vimeo.stag.processor.utils;
  */
 public final class DebugLog {
 
-    private static final boolean DEBUG = true;
-
     private DebugLog() {
     }
 
     public static void log(CharSequence message) {
-        if (DEBUG) {
+        if (StagProcessor.DEBUG) {
             //noinspection UseOfSystemOutOrSystemErr
             System.out.println(message);
         }
     }
 
     public static void log(CharSequence tag, CharSequence message) {
-        if (DEBUG) {
+        if (StagProcessor.DEBUG) {
             //noinspection UseOfSystemOutOrSystemErr
             System.out.println(tag + ": " + message);
         }

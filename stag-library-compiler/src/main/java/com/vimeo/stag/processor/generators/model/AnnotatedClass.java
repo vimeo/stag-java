@@ -1,5 +1,6 @@
 package com.vimeo.stag.processor.generators.model;
 
+import com.vimeo.stag.processor.StagProcessor;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
@@ -103,8 +104,10 @@ public class AnnotatedClass {
                                                             .getMemberVariables()));
         }
 
-        for (Entry<Element, TypeMirror> entry : map.entrySet()) {
-            DebugLog.log(TAG, "\t\tMember variables - " + entry.toString());
+        if (StagProcessor.DEBUG) {
+            for (Entry<Element, TypeMirror> entry : map.entrySet()) {
+                DebugLog.log(TAG, "\t\tMember variables - " + entry.toString());
+            }
         }
 
         return map;
