@@ -1,7 +1,4 @@
-package com.vimeo.stag;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
+package com.vimeo.stag.processor.utils;
 
 /**
  * The MIT License (MIT)
@@ -26,9 +23,15 @@ import java.lang.annotation.Target;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-@Target({ElementType.FIELD, ElementType.TYPE})
-public @interface GsonAdapterKey {
+final class Preconditions {
 
-    String value() default "";
+    private Preconditions() {
+    }
+
+    public static void checkNotNull(Object o) {
+        if (o == null) {
+            throw new NullPointerException("Object must not be null");
+        }
+    }
 
 }

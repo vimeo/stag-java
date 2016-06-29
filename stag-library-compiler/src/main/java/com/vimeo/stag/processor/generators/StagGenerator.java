@@ -14,17 +14,18 @@ import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.utils.FileGenUtils;
+import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
+import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.type.TypeMirror;
 
 /**
  * The MIT License (MIT)
@@ -57,12 +58,8 @@ public class StagGenerator {
     @NotNull
     private final Filer mFiler;
 
-    @NotNull
-    private final Set<TypeMirror> mTypes;
-
-    public StagGenerator(@NotNull Filer filer, @NotNull Set<TypeMirror> types) {
+    public StagGenerator(@NotNull Filer filer) {
         mFiler = filer;
-        mTypes = new HashSet<>(types);
     }
 
     /**
@@ -85,14 +82,18 @@ public class StagGenerator {
         adaptersBuilder.addMethod(getWriteListToAdapterSpec(genericTypeName));
         adaptersBuilder.addMethod(getReadListFromAdapterSpec(genericTypeName));
 
-        for (TypeMirror type : mTypes) {
-            ClassInfo classInfo = new ClassInfo(type);
-            TypeAdapterGenerator typeAdapter = new TypeAdapterGenerator(classInfo);
+        Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
 
-            adaptersBuilder.addType(typeAdapter.getTypeAdapterSpec());
+        for (Element element : list) {
+            if (TypeUtils.isConcreteType(element)) {
+                ClassInfo classInfo = new ClassInfo(element.asType());
+                TypeAdapterGenerator typeAdapter = new TypeAdapterGenerator(classInfo);
+
+                adaptersBuilder.addType(typeAdapter.getTypeAdapterSpec());
+            }
         }
 
-        adaptersBuilder.addType(getAdapterFactorySpec(mTypes));
+        adaptersBuilder.addType(getAdapterFactorySpec(list));
 
         JavaFile javaFile =
                 JavaFile.builder(FileGenUtils.GENERATED_PACKAGE_NAME, adaptersBuilder.build()).build();
@@ -171,7 +172,7 @@ public class StagGenerator {
     }
 
     @NotNull
-    private static TypeSpec getAdapterFactorySpec(Set<TypeMirror> types) {
+    private static TypeSpec getAdapterFactorySpec(Set<Element> types) {
         TypeVariableName genericTypeName = TypeVariableName.get("T");
         TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(CLASS_TYPE_ADAPTER_FACTORY)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -179,15 +180,16 @@ public class StagGenerator {
 
         StringBuilder factoryReturnBuilder = new StringBuilder(types.size());
 
-        for (TypeMirror type : types) {
+        for (Element element : types) {
+            if (TypeUtils.isConcreteType(element)) {
+                ClassInfo classInfo = new ClassInfo(element.asType());
 
-            ClassInfo classInfo = new ClassInfo(type);
-
-            factoryReturnBuilder.append("if (clazz == ")
-                    .append(classInfo.getClassAndPackage())
-                    .append(".class) {\n\treturn (TypeAdapter<T>) new ")
-                    .append(classInfo.getClassName())
-                    .append("Adapter(gson);\n}\n");
+                factoryReturnBuilder.append("if (clazz == ")
+                        .append(classInfo.getClassAndPackage())
+                        .append(".class) {\n\treturn (TypeAdapter<T>) new ")
+                        .append(classInfo.getClassName())
+                        .append("Adapter(gson);\n}\n");
+            }
         }
 
         MethodSpec createTypeAdapterMethod = MethodSpec.methodBuilder("create")

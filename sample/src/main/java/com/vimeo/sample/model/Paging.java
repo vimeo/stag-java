@@ -2,7 +2,9 @@ package com.vimeo.sample.model;
 
 import com.vimeo.stag.GsonAdapterKey;
 
-@GsonAdapterKey
-public class VideoList extends AbstractDataList<Video> {
+public class Paging {
+
+    @GsonAdapterKey
+    public String first;
 
 }
