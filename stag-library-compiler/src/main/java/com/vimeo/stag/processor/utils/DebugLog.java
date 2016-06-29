@@ -1,7 +1,6 @@
-package com.vimeo.stag;
+package com.vimeo.stag.processor.utils;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
+import com.vimeo.stag.processor.StagProcessor;
 
 /**
  * The MIT License (MIT)
@@ -26,9 +25,23 @@ import java.lang.annotation.Target;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-@Target({ElementType.FIELD, ElementType.TYPE})
-public @interface GsonAdapterKey {
+public final class DebugLog {
 
-    String value() default "";
+    private DebugLog() {
+    }
+
+    public static void log(CharSequence message) {
+        if (StagProcessor.DEBUG) {
+            //noinspection UseOfSystemOutOrSystemErr
+            System.out.println(message);
+        }
+    }
+
+    public static void log(CharSequence tag, CharSequence message) {
+        if (StagProcessor.DEBUG) {
+            //noinspection UseOfSystemOutOrSystemErr
+            System.out.println(tag + ": " + message);
+        }
+    }
 
 }
