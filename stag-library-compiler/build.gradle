@@ -6,9 +6,17 @@ compileJava {
 }
 
 dependencies {
+    testCompile 'junit:junit:4.12'
+    testCompile 'com.google.testing.compile:compile-testing:0.8'
+
     compile project(':stag-library')
 
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.squareup:javapoet:1.7.0'
     compile 'com.intellij:annotations:12.0@jar'
+}
+
+test {
+    testLogging.showStandardStreams = true
+    testLogging.exceptionFormat = 'full'
 }

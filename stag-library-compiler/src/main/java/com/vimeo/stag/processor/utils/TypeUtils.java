@@ -59,7 +59,9 @@ public final class TypeUtils {
     /**
      * Retrieves the outer type of a parameterized class.
      * e.g. an ArrayList{@literal <T>} would be returned as
-     * just ArrayList.
+     * just ArrayList. If an interface is passed in, i.e. a
+     * List, the underlying implementation will be returned,
+     * i.e. ArrayList.
      *
      * @param type the type to get the outer class from/
      * @return the outer class of the type passed in, or the
