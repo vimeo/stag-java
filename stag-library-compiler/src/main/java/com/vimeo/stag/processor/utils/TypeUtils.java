@@ -87,24 +87,6 @@ public final class TypeUtils {
     }
 
     /**
-     * Determines whether or not the parameterized type passed
-     * in contains any generic parameters.
-     *
-     * @param type the type to check for generic parameters.
-     * @return true if the parameterized type contains generics,
-     * false otherwise.
-     */
-    public static boolean isParameterizedTypeGeneric(@NotNull TypeMirror type) {
-        List<? extends TypeMirror> typeArguments = ((DeclaredType) type).getTypeArguments();
-        for (TypeMirror typeMirror : typeArguments) {
-            if (typeMirror.getKind() == TypeKind.TYPEVAR) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Determines whether or not the Element is a concrete type.
      * If the element is a generic type or contains generic type
      * arguments, this method will return false.
@@ -120,7 +102,8 @@ public final class TypeUtils {
     /**
      * Determines whether or not the TypeMirror is a concrete type.
      * If the type is a generic type or contains generic type
-     * arguments, this method will return false.
+     * arguments (i.e. a paramenterized type), this method will
+     * return false.
      *
      * @param typeMirror the element to check.
      * @return true if the type is not generic and
@@ -134,11 +117,13 @@ public final class TypeUtils {
         if (isPrimitive(typeMirror, sTypeUtils)) {
             return true;
         }
-        List<? extends TypeMirror> typeMirrors = ((DeclaredType) typeMirror).getTypeArguments();
+        if (typeMirror instanceof DeclaredType) {
+            List<? extends TypeMirror> typeMirrors = ((DeclaredType) typeMirror).getTypeArguments();
 
-        for (TypeMirror type : typeMirrors) {
-            if (type.getKind() == TypeKind.TYPEVAR) {
-                return false;
+            for (TypeMirror type : typeMirrors) {
+                if (type.getKind() == TypeKind.TYPEVAR) {
+                    return false;
+                }
             }
         }
         return true;

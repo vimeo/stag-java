@@ -106,7 +106,7 @@ public final class StagProcessor extends AbstractProcessor {
                 TypeMirror enclosingClass = enclosingClassElement.asType();
 
                 if (!TypeUtils.isParameterizedType(enclosingClass) ||
-                    !TypeUtils.isParameterizedTypeGeneric(enclosingClass)) {
+                    TypeUtils.isConcreteType(enclosingClass)) {
                     mSupportedTypes.add(enclosingClass.toString());
                 }
 
