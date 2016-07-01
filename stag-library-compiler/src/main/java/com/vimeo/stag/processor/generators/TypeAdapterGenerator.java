@@ -1,23 +1,3 @@
-package com.vimeo.stag.processor.generators;
-
-import com.google.gson.Gson;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import com.squareup.javapoet.TypeVariableName;
-import com.vimeo.stag.processor.generators.model.ClassInfo;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
-
-import javax.lang.model.element.Modifier;
-
 /**
  * The MIT License (MIT)
  * <p/>
@@ -41,6 +21,26 @@ import javax.lang.model.element.Modifier;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.vimeo.stag.processor.generators;
+
+import com.google.gson.Gson;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.processor.generators.model.ClassInfo;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+
+import javax.lang.model.element.Modifier;
+
 @SuppressWarnings("StringConcatenationMissingWhitespace")
 class TypeAdapterGenerator {
 

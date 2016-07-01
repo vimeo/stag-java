@@ -1,21 +1,3 @@
-package com.vimeo.stag.processor.generators.model;
-
-import com.vimeo.stag.processor.utils.TypeUtils;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.lang.model.element.Element;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
-
 /**
  * The MIT License (MIT)
  * <p/>
@@ -39,6 +21,24 @@ import javax.lang.model.type.TypeMirror;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.vimeo.stag.processor.generators.model;
+
+import com.vimeo.stag.processor.utils.TypeUtils;
+
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
+
 public final class SupportedTypesModel {
 
     private SupportedTypesModel() {

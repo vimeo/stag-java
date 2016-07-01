@@ -1,5 +1,3 @@
-package com.vimeo.stag.processor.utils;
-
 /**
  * The MIT License (MIT)
  * <p/>
@@ -23,6 +21,8 @@ package com.vimeo.stag.processor.utils;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.vimeo.stag.processor.utils;
+
 final class Preconditions {
 
     private Preconditions() {

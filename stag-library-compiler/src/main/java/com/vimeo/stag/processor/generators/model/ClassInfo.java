@@ -1,9 +1,3 @@
-package com.vimeo.stag.processor.generators.model;
-
-import org.jetbrains.annotations.NotNull;
-
-import javax.lang.model.type.TypeMirror;
-
 /**
  * The MIT License (MIT)
  * <p/>
@@ -27,6 +21,12 @@ import javax.lang.model.type.TypeMirror;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.vimeo.stag.processor.generators.model;
+
+import org.jetbrains.annotations.NotNull;
+
+import javax.lang.model.type.TypeMirror;
+
 public class ClassInfo {
 
     @NotNull

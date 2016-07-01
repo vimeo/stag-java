@@ -1,7 +1,3 @@
-package com.vimeo.stag.processor.utils;
-
-import com.vimeo.stag.processor.StagProcessor;
-
 /**
  * The MIT License (MIT)
  * <p/>
@@ -25,6 +21,10 @@ import com.vimeo.stag.processor.StagProcessor;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.vimeo.stag.processor.utils;
+
+import com.vimeo.stag.processor.StagProcessor;
+
 public final class DebugLog {
 
     private static final String TAG = "Stag";

@@ -1,17 +1,3 @@
-package com.vimeo.stag.processor.utils;
-
-import com.squareup.javapoet.JavaFile;
-
-import org.jetbrains.annotations.NotNull;
-
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-
-import javax.annotation.processing.Filer;
-import javax.lang.model.element.Element;
-import javax.tools.JavaFileObject;
-
 /**
  * The MIT License (MIT)
  * <p/>
@@ -35,6 +21,20 @@ import javax.tools.JavaFileObject;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package com.vimeo.stag.processor.utils;
+
+import com.squareup.javapoet.JavaFile;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.util.List;
+
+import javax.annotation.processing.Filer;
+import javax.lang.model.element.Element;
+import javax.tools.JavaFileObject;
+
 public final class FileGenUtils {
 
     public static final String GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
