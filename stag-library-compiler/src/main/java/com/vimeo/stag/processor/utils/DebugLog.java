@@ -27,20 +27,22 @@ import com.vimeo.stag.processor.StagProcessor;
  */
 public final class DebugLog {
 
+    private static final String TAG = "Stag";
+
     private DebugLog() {
     }
 
     public static void log(CharSequence message) {
         if (StagProcessor.DEBUG) {
             //noinspection UseOfSystemOutOrSystemErr
-            System.out.println(message);
+            System.out.println(TAG + ": " + message);
         }
     }
 
     public static void log(CharSequence tag, CharSequence message) {
         if (StagProcessor.DEBUG) {
             //noinspection UseOfSystemOutOrSystemErr
-            System.out.println(tag + ": " + message);
+            System.out.println(TAG + ":" + tag + ": " + message);
         }
     }
 

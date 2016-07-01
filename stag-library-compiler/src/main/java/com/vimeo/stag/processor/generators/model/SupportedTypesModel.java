@@ -92,6 +92,8 @@ public final class SupportedTypesModel {
 
     /**
      * A list of all supported AnnotatedClasses.
+     * This may return both generic and concrete
+     * types.
      *
      * @return the list of all supported types.
      */
@@ -102,7 +104,8 @@ public final class SupportedTypesModel {
 
     /**
      * A set of all supported elements (these map 1 to 1
-     * to an AnnotatedClass).
+     * to an AnnotatedClass). This may return both generic
+     * and concrete types.
      *
      * @return the set of supported types.
      */

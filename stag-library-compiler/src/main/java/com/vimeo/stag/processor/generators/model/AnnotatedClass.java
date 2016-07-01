@@ -97,11 +97,12 @@ public class AnnotatedClass {
 
         if (mInheritedType != null) {
             DebugLog.log(TAG, "\t\tInherited Type - " + mInheritedType.toString());
-            map.putAll(TypeUtils.getConcreteMembers(mInheritedType, SupportedTypesModel.getInstance()
-                    .getSupportedType(mInheritedType)
-                    .getElement(), SupportedTypesModel.getInstance()
-                                                            .getSupportedType(mInheritedType)
-                                                            .getMemberVariables()));
+
+            AnnotatedClass genericInheritedType =
+                    SupportedTypesModel.getInstance().getSupportedType(mInheritedType);
+
+            map.putAll(TypeUtils.getConcreteMembers(mInheritedType, genericInheritedType.getElement(),
+                                                    genericInheritedType.getMemberVariables()));
         }
 
         if (StagProcessor.DEBUG) {
