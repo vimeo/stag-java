@@ -23,11 +23,18 @@
  */
 package com.vimeo.stag.processor.utils;
 
-final class Preconditions {
+public final class Preconditions {
 
     private Preconditions() {
     }
 
+    /**
+     * Asserts that the object is not null.
+     * Throws a null pointer exception if
+     * it is null.
+     *
+     * @param o the object to check.
+     */
     public static void checkNotNull(Object o) {
         if (o == null) {
             throw new NullPointerException("Object must not be null");

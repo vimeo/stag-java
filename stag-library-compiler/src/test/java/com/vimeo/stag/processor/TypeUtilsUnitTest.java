@@ -24,6 +24,8 @@
 package com.vimeo.stag.processor;
 
 import com.google.testing.compile.CompilationRule;
+import com.vimeo.stag.processor.dummy.DummyConcreteClass;
+import com.vimeo.stag.processor.dummy.DummyGenericClass;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -48,7 +51,7 @@ import static org.junit.Assert.assertTrue;
  * Unit tests for the annotation processor.
  * Run using: {@code ./gradlew :stag-library-compiler:test --continue}
  */
-public class ProcessorUnitTest {
+public class TypeUtilsUnitTest {
 
     @Rule
     public CompilationRule rule = new CompilationRule();
@@ -60,6 +63,8 @@ public class ProcessorUnitTest {
     public void setup() {
         elements = rule.getElements();
         types = rule.getTypes();
+
+        TypeUtils.initialize(types);
     }
 
     @Test
@@ -92,6 +97,48 @@ public class ProcessorUnitTest {
 
         Object testObject = new Object();
         assertTrue(Object.class.getName().equals(TypeUtils.getOuterClassType(getTypeMirror(testObject))));
+    }
+
+    @Test
+    public void isConcreteType_Element_isCorrect() throws Exception {
+
+        Element concreteElement = getElementFromClass(DummyConcreteClass.class);
+        for (Element element : concreteElement.getEnclosedElements()) {
+            if (element instanceof VariableElement) {
+                assertTrue(TypeUtils.isConcreteType(element));
+            }
+        }
+
+        Element genericElement = getElementFromClass(DummyGenericClass.class);
+        for (Element element : genericElement.getEnclosedElements()) {
+            if (element instanceof VariableElement) {
+                assertFalse(TypeUtils.isConcreteType(element));
+            }
+        }
+
+    }
+
+    @Test
+    public void isConcreteType_TypeMirror_isCorrect() throws Exception {
+
+        Element concreteElement = getElementFromClass(DummyConcreteClass.class);
+        for (Element element : concreteElement.getEnclosedElements()) {
+            if (element instanceof VariableElement) {
+                assertTrue(TypeUtils.isConcreteType(element.asType()));
+            }
+        }
+
+        Element genericElement = getElementFromClass(DummyGenericClass.class);
+        for (Element element : genericElement.getEnclosedElements()) {
+            if (element instanceof VariableElement) {
+                assertFalse(TypeUtils.isConcreteType(element.asType()));
+            }
+        }
+
+    }
+
+    private Element getElementFromClass(@NotNull Class clazz) {
+        return elements.getTypeElement(clazz.getName());
     }
 
     private Element getElement(@NotNull Object object) {
