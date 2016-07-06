@@ -26,6 +26,7 @@ package com.vimeo.stag.processor;
 import com.google.testing.compile.CompilationRule;
 import com.vimeo.stag.processor.dummy.DummyConcreteClass;
 import com.vimeo.stag.processor.dummy.DummyGenericClass;
+import com.vimeo.stag.processor.dummy.DummyInheritedClass;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -35,16 +36,23 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -68,35 +76,149 @@ public class TypeUtilsUnitTest {
     }
 
     @Test
+    public void testFinalClass_constructorFails() throws Exception {
+        Utils.testZeroArgumentConstructorFinalClass(TypeUtils.class);
+    }
+
+    @Test
+    public void testInitialize_works() throws Exception {
+        // Initialize it to null in order to test correctly
+        //noinspection ConstantConditions
+        TypeUtils.initialize(null);
+
+        boolean exceptionThrown = false;
+
+        try {
+            TypeUtils.getUtils();
+        } catch (NullPointerException e) {
+            exceptionThrown = true;
+        }
+
+        assertTrue(exceptionThrown);
+
+        TypeUtils.initialize(types);
+        assertNotNull(TypeUtils.getUtils());
+    }
+
+    @Test
+    public void getInheritedType_isCorrect() throws Exception {
+        TypeMirror concreteType = TypeUtils.getInheritedType(getElementFromClass(DummyInheritedClass.class));
+        assertNotNull(concreteType);
+
+        TypeMirror realConcreteType =
+                types.getDeclaredType((TypeElement) getElementFromClass(DummyGenericClass.class),
+                                      getTypeMirrorFromClass(String.class));
+
+        assertTrue(realConcreteType.toString().equals(concreteType.toString()));
+
+        TypeMirror stringInheritedType = TypeUtils.getInheritedType(getElementFromClass(String.class));
+        assertNull(stringInheritedType);
+    }
+
+    /**
+     * This test is particularly susceptible to changes
+     * in the DummyGenericClass. Any fields
+     * added, removed, renamed, or changed, will probably
+     * break this test either explicitly, or implicitly.
+     * Any changes to that class need to be reflected here.
+     *
+     * @throws Exception thrown if the test fails.
+     */
+    @Test
+    public void getConcreteMembers_isCorrect() throws Exception {
+        Element genericElement = getElementFromClass(DummyGenericClass.class);
+        Map<Element, TypeMirror> genericMembers = new HashMap<>();
+        for (Element element : genericElement.getEnclosedElements()) {
+            if (element instanceof VariableElement) {
+                genericMembers.put(element, element.asType());
+            }
+        }
+
+        TypeMirror concreteType = TypeUtils.getInheritedType(getElementFromClass(DummyInheritedClass.class));
+
+        assertNotNull(concreteType);
+
+        TypeMirror genericType = getGenericVersionOfClass(DummyGenericClass.class);
+
+        assertNotNull(genericType);
+
+        Map<Element, TypeMirror> members =
+                TypeUtils.getConcreteMembers(concreteType, types.asElement(genericType), genericMembers);
+
+
+        TypeMirror stringType = getTypeMirrorFromClass(String.class);
+
+        for (Entry<Element, TypeMirror> entry : members.entrySet()) {
+            if (entry.getKey().getSimpleName().contentEquals("testObject")) {
+
+                assertTrue(entry.getValue().toString().equals(stringType.toString()));
+
+            } else if (entry.getKey().getSimpleName().contentEquals("testList")) {
+
+                assertTrue(entry.getValue()
+                                   .toString()
+                                   .equals(types.getDeclaredType(
+                                           (TypeElement) getElementFromClass(ArrayList.class), stringType)
+                                                   .toString()));
+
+            } else if (entry.getKey().getSimpleName().contentEquals("testMap")) {
+
+                assertTrue(entry.getValue()
+                                   .toString()
+                                   .equals(types.getDeclaredType(
+                                           (TypeElement) getElementFromClass(HashMap.class), stringType,
+                                           stringType).toString()));
+
+            } else if (entry.getKey().getSimpleName().contentEquals("testSet")) {
+
+                assertTrue(entry.getValue()
+                                   .toString()
+                                   .equals(types.getDeclaredType(
+                                           (TypeElement) getElementFromClass(HashSet.class), stringType)
+                                                   .toString()));
+            }
+        }
+    }
+
+    @Test
     public void isParameterizedType_isCorrect() throws Exception {
 
         Map<String, List<Object>> testMap = new HashMap<>();
-        assertTrue(TypeUtils.isParameterizedType(getTypeMirror(testMap)));
+        assertTrue(TypeUtils.isParameterizedType(getTypeMirrorFromObject(testMap)));
 
         List<Object> testList = new ArrayList<>();
-        assertTrue(TypeUtils.isParameterizedType(getTypeMirror(testList)));
+        assertTrue(TypeUtils.isParameterizedType(getTypeMirrorFromObject(testList)));
 
         String testString = "test";
-        assertFalse(TypeUtils.isParameterizedType(getTypeMirror(testString)));
+        assertFalse(TypeUtils.isParameterizedType(getTypeMirrorFromObject(testString)));
 
         Object testObject = new Object();
-        assertFalse(TypeUtils.isParameterizedType(getTypeMirror(testObject)));
+        assertFalse(TypeUtils.isParameterizedType(getTypeMirrorFromObject(testObject)));
     }
 
     @Test
     public void getOuterClassType_isCorrect() throws Exception {
 
+        // Test different objects
         HashMap<String, List<Object>> testMap = new HashMap<>();
-        assertTrue(HashMap.class.getName().equals(TypeUtils.getOuterClassType(getTypeMirror(testMap))));
+        assertTrue(HashMap.class.getName()
+                           .equals(TypeUtils.getOuterClassType(getTypeMirrorFromObject(testMap))));
 
         ArrayList<Object> testList = new ArrayList<>();
-        assertTrue(ArrayList.class.getName().equals(TypeUtils.getOuterClassType(getTypeMirror(testList))));
+        assertTrue(ArrayList.class.getName()
+                           .equals(TypeUtils.getOuterClassType(getTypeMirrorFromObject(testList))));
 
         String testString = "test";
-        assertTrue(String.class.getName().equals(TypeUtils.getOuterClassType(getTypeMirror(testString))));
+        assertTrue(String.class.getName()
+                           .equals(TypeUtils.getOuterClassType(getTypeMirrorFromObject(testString))));
 
         Object testObject = new Object();
-        assertTrue(Object.class.getName().equals(TypeUtils.getOuterClassType(getTypeMirror(testObject))));
+        assertTrue(Object.class.getName()
+                           .equals(TypeUtils.getOuterClassType(getTypeMirrorFromObject(testObject))));
+
+        // Test primitives
+        assertTrue(int.class.getName()
+                           .equals(TypeUtils.getOuterClassType(types.getPrimitiveType(TypeKind.INT))));
     }
 
     @Test
@@ -112,7 +234,11 @@ public class TypeUtilsUnitTest {
         Element genericElement = getElementFromClass(DummyGenericClass.class);
         for (Element element : genericElement.getEnclosedElements()) {
             if (element instanceof VariableElement) {
-                assertFalse(TypeUtils.isConcreteType(element));
+                if ("testString".equals(element.getSimpleName().toString())) {
+                    assertTrue(TypeUtils.isConcreteType(element));
+                } else {
+                    assertFalse(TypeUtils.isConcreteType(element));
+                }
             }
         }
 
@@ -131,7 +257,11 @@ public class TypeUtilsUnitTest {
         Element genericElement = getElementFromClass(DummyGenericClass.class);
         for (Element element : genericElement.getEnclosedElements()) {
             if (element instanceof VariableElement) {
-                assertFalse(TypeUtils.isConcreteType(element.asType()));
+                if ("testString".equals(element.getSimpleName().toString())) {
+                    assertTrue(TypeUtils.isConcreteType(element.asType()));
+                } else {
+                    assertFalse(TypeUtils.isConcreteType(element.asType()));
+                }
             }
         }
 
@@ -141,11 +271,26 @@ public class TypeUtilsUnitTest {
         return elements.getTypeElement(clazz.getName());
     }
 
-    private Element getElement(@NotNull Object object) {
+    private TypeMirror getTypeMirrorFromClass(@NotNull Class clazz) {
+        return getElementFromClass(clazz).asType();
+    }
+
+    private Element getElementFromObject(@NotNull Object object) {
         return elements.getTypeElement(object.getClass().getName());
     }
 
-    private TypeMirror getTypeMirror(@NotNull Object object) {
-        return getElement(object).asType();
+    private TypeMirror getTypeMirrorFromObject(@NotNull Object object) {
+        return getElementFromObject(object).asType();
+    }
+
+    private TypeMirror getGenericVersionOfClass(@NotNull Class clazz) {
+        List<? extends TypeParameterElement> params =
+                elements.getTypeElement(clazz.getName()).getTypeParameters();
+        TypeMirror[] genericTypes = new TypeMirror[params.size()];
+        for (int n = 0; n < genericTypes.length; n++) {
+            genericTypes[n] = params.get(n).asType();
+        }
+        return types.getDeclaredType(elements.getTypeElement(DummyGenericClass.class.getName()),
+                                     genericTypes);
     }
 }

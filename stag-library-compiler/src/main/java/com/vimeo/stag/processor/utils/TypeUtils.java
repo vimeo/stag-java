@@ -45,6 +45,7 @@ public final class TypeUtils {
     private static Types sTypeUtils;
 
     private TypeUtils() {
+        throw new UnsupportedOperationException("This class is instantiable");
     }
 
     public static void initialize(@NotNull Types typeUtils) {
@@ -130,6 +131,24 @@ public final class TypeUtils {
     }
 
     /**
+     * Gets the inherited type from the element. If
+     * the inherited type is Object, then this method
+     * will return null.
+     *
+     * @param element the element to get the inherited type.
+     * @return the inherited type, or null if the element
+     * inherits from Object.
+     */
+    @Nullable
+    public static TypeMirror getInheritedType(@Nullable Element element) {
+        TypeElement typeElement = (TypeElement) element;
+        if (typeElement != null && !typeElement.getSuperclass().toString().equals(Object.class.getName())) {
+            return typeElement.getSuperclass();
+        }
+        return null;
+    }
+
+    /**
      * Retrieves a Map of the inherited concrete member variables of an Element. This takes all the
      * member variables that were inherited from the generic parent class and evaluates what their concrete
      * type will be based on the concrete inherited type. For instance, take the following code example:
@@ -192,12 +211,20 @@ public final class TypeUtils {
 
                 if (isParameterizedType(member.getValue())) {
 
-                    List<TypeMirror> genericTypes = getGenericTypes(member.getValue());
+                    // HashMap<String, T> ...
+
+                    List<TypeMirror> genericTypes = getMemberTypes(member.getValue());
+
+
                     List<TypeMirror> concreteGenericTypes = new ArrayList<>();
 
                     for (TypeMirror genericType : genericTypes) {
-                        int index = inheritedTypes.indexOf(genericType);
-                        concreteGenericTypes.add(concreteTypes.get(index));
+                        if (isConcreteType(genericType)) {
+                            concreteGenericTypes.add(genericType);
+                        } else {
+                            int index = inheritedTypes.indexOf(genericType);
+                            concreteGenericTypes.add(concreteTypes.get(index));
+                        }
                     }
 
                     TypeElement typeElement = (TypeElement) sTypeUtils.asElement(member.getValue());
@@ -233,18 +260,24 @@ public final class TypeUtils {
         }
     }
 
-    private static List<TypeMirror> getGenericTypes(@NotNull TypeMirror element) {
+    private static List<TypeMirror> getMemberTypes(@NotNull TypeMirror element) {
         List<TypeMirror> genericTypes = new ArrayList<>();
         if (element.getKind() != TypeKind.TYPEVAR) {
             List<? extends TypeMirror> typeMirrors = ((DeclaredType) element).getTypeArguments();
-            for (TypeMirror type : typeMirrors) {
-                if (type.getKind() == TypeKind.TYPEVAR) {
-                    genericTypes.add(type);
+            if (typeMirrors.isEmpty()) {
+                genericTypes.add(element);
+            } else {
+                for (TypeMirror type : typeMirrors) {
+                    if (type.getKind() == TypeKind.TYPEVAR) {
+                        genericTypes.add(type);
+                    } else {
+                        genericTypes.addAll(getMemberTypes(type));
+                    }
                 }
             }
-        } else {
-            genericTypes.add(element);
         }
+
+        // if the type is not parameterized, we will return an empty list
 
         return genericTypes;
     }
@@ -256,6 +289,5 @@ public final class TypeUtils {
     private static List<? extends TypeMirror> getParameterizedTypes(@NotNull TypeMirror typeMirror) {
         return ((DeclaredType) typeMirror).getTypeArguments();
     }
-
 
 }

@@ -6,6 +6,11 @@ import org.junit.Test;
 
 public class PreconditionsUnitTest {
 
+    @Test
+    public void testFinalClass_isNotInstantiable() throws Exception {
+        Utils.testZeroArgumentConstructorFinalClass(Preconditions.class);
+    }
+
     @SuppressWarnings("ConstantConditions")
     @Test(expected = NullPointerException.class)
     public void checkNotNull_Null_throwsNullPointer() {

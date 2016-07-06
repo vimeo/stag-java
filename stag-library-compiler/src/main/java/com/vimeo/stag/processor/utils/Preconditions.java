@@ -26,6 +26,7 @@ package com.vimeo.stag.processor.utils;
 public final class Preconditions {
 
     private Preconditions() {
+        throw new UnsupportedOperationException("This class is instantiable");
     }
 
     /**

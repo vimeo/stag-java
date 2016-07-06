@@ -37,7 +37,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -60,7 +59,7 @@ public class AnnotatedClass {
     public AnnotatedClass(@NotNull Element element, @NotNull List<VariableElement> members) {
         mType = element.asType();
         mElement = element;
-        mInheritedType = getInheritedType(element);
+        mInheritedType = TypeUtils.getInheritedType(element);
         mMemberVariables = new ArrayList<>(members);
     }
 
@@ -112,14 +111,6 @@ public class AnnotatedClass {
         }
 
         return map;
-    }
-
-    private static TypeMirror getInheritedType(@Nullable Element element) {
-        TypeElement typeElement = (TypeElement) element;
-        if (typeElement != null && !typeElement.getSuperclass().toString().equals(Object.class.getName())) {
-            return typeElement.getSuperclass();
-        }
-        return null;
     }
 
 }
