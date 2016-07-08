@@ -68,6 +68,4 @@ MyParsingClass {
 
 ### TO-DO
 
-- need to add support for `ArrayList<?>`
 - generate code in such a way that member variables only need to be package local
-- generate `TypeAdapterFactory` so that consumer of the library does not need to register each adapter
