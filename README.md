@@ -15,7 +15,7 @@ Gson is the essential JSON parsing library. It's widely used and greatly simplif
 
 But... if you have a lot of model objects, and you want to remove the use of reflection for (de)serialization of your model objects, suddenly you have to write many, many TypeAdapters. If you've ever written one or many of these TypeAdapters, you will know that it is a tedious process. In fact, if you end up writing your own you might ask what you are doing using Gson in the first place!!!
 
-The Stag library solves this problem. It generates TypeAdapters for your model objects that don't use reflection. Instead of writing your own custom TypeAdapters for each model object, or forgoing the performance gain of eliminating reflection, using Stag and the `@GsonAdapterKey` annotation on your model fields will do all the work for you.
+The Stag library solves this problem. It generates TypeAdapters that don't use reflection for your model objects. Instead of writing your own custom TypeAdapters for each model object, or forgoing the performance gain of eliminating reflection, using Stag and the `@GsonAdapterKey` annotation on your model fields will do all the work for you.
 
 ### How to use
 
@@ -25,6 +25,11 @@ The Stag library solves this problem. It generates TypeAdapters for your model o
 - The member variables of your model class that you wish to be filled must be annotated with `@GsonAdapterKey`.
     - If you want to use the variable name as the JSON key, just use `@GsonAdapterKey`.
     - If you want to use a different name as the JSON key, use `@GsonAdapterKey("json_key")`.
+- Supported types - Various types and their support shown below:
+    - YES: All native types supported by Gson (boolean, double, int, long)
+    - YES: String
+    - YES: ArrayList (List interface or other types of lists are currently not supported)
+    - NO: Enums are not supported, we will fall back to Gson for parsing them
 
 ### Example
 
@@ -66,6 +71,6 @@ MyParsingClass {
 
 ```
 
-### TO-DO
+### Future Enhancements
 
 - generate code in such a way that member variables only need to be package local
