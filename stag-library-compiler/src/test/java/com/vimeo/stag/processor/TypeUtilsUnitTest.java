@@ -30,6 +30,7 @@ import com.vimeo.stag.processor.dummy.DummyInheritedClass;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -127,6 +128,7 @@ public class TypeUtilsUnitTest {
     @Test
     public void getConcreteMembers_isCorrect() throws Exception {
         Element genericElement = getElementFromClass(DummyGenericClass.class);
+        assertNotNull(genericElement);
         Map<Element, TypeMirror> genericMembers = new HashMap<>();
         for (Element element : genericElement.getEnclosedElements()) {
             if (element instanceof VariableElement) {
@@ -147,6 +149,7 @@ public class TypeUtilsUnitTest {
 
 
         TypeMirror stringType = getTypeMirrorFromClass(String.class);
+        assertNotNull(stringType);
 
         for (Entry<Element, TypeMirror> entry : members.entrySet()) {
             if (entry.getKey().getSimpleName().contentEquals("testObject")) {
@@ -201,20 +204,24 @@ public class TypeUtilsUnitTest {
 
         // Test different objects
         HashMap<String, List<Object>> testMap = new HashMap<>();
-        assertTrue(HashMap.class.getName()
-                           .equals(TypeUtils.getOuterClassType(getTypeMirrorFromObject(testMap))));
+        TypeMirror mapMirror = getTypeMirrorFromObject(testMap);
+        assertNotNull(mapMirror);
+        assertTrue(HashMap.class.getName().equals(TypeUtils.getOuterClassType(mapMirror)));
 
         ArrayList<Object> testList = new ArrayList<>();
-        assertTrue(ArrayList.class.getName()
-                           .equals(TypeUtils.getOuterClassType(getTypeMirrorFromObject(testList))));
+        TypeMirror listMirror = getTypeMirrorFromObject(testList);
+        assertNotNull(listMirror);
+        assertTrue(ArrayList.class.getName().equals(TypeUtils.getOuterClassType(listMirror)));
 
         String testString = "test";
-        assertTrue(String.class.getName()
-                           .equals(TypeUtils.getOuterClassType(getTypeMirrorFromObject(testString))));
+        TypeMirror stringMirror = getTypeMirrorFromObject(testString);
+        assertNotNull(stringMirror);
+        assertTrue(String.class.getName().equals(TypeUtils.getOuterClassType(stringMirror)));
 
         Object testObject = new Object();
-        assertTrue(Object.class.getName()
-                           .equals(TypeUtils.getOuterClassType(getTypeMirrorFromObject(testObject))));
+        TypeMirror objectMirror = getTypeMirrorFromObject(testObject);
+        assertNotNull(objectMirror);
+        assertTrue(Object.class.getName().equals(TypeUtils.getOuterClassType(objectMirror)));
 
         // Test primitives
         assertTrue(int.class.getName()
@@ -225,6 +232,7 @@ public class TypeUtilsUnitTest {
     public void isConcreteType_Element_isCorrect() throws Exception {
 
         Element concreteElement = getElementFromClass(DummyConcreteClass.class);
+        assertNotNull(concreteElement);
         for (Element element : concreteElement.getEnclosedElements()) {
             if (element instanceof VariableElement) {
                 assertTrue(TypeUtils.isConcreteType(element));
@@ -232,6 +240,7 @@ public class TypeUtilsUnitTest {
         }
 
         Element genericElement = getElementFromClass(DummyGenericClass.class);
+        assertNotNull(genericElement);
         for (Element element : genericElement.getEnclosedElements()) {
             if (element instanceof VariableElement) {
                 if ("testString".equals(element.getSimpleName().toString())) {
@@ -248,6 +257,7 @@ public class TypeUtilsUnitTest {
     public void isConcreteType_TypeMirror_isCorrect() throws Exception {
 
         Element concreteElement = getElementFromClass(DummyConcreteClass.class);
+        assertNotNull(concreteElement);
         for (Element element : concreteElement.getEnclosedElements()) {
             if (element instanceof VariableElement) {
                 assertTrue(TypeUtils.isConcreteType(element.asType()));
@@ -255,6 +265,7 @@ public class TypeUtilsUnitTest {
         }
 
         Element genericElement = getElementFromClass(DummyGenericClass.class);
+        assertNotNull(genericElement);
         for (Element element : genericElement.getEnclosedElements()) {
             if (element instanceof VariableElement) {
                 if ("testString".equals(element.getSimpleName().toString())) {
@@ -267,22 +278,29 @@ public class TypeUtilsUnitTest {
 
     }
 
+    @Nullable
     private Element getElementFromClass(@NotNull Class clazz) {
         return elements.getTypeElement(clazz.getName());
     }
 
+    @Nullable
     private TypeMirror getTypeMirrorFromClass(@NotNull Class clazz) {
-        return getElementFromClass(clazz).asType();
+        Element element = getElementFromClass(clazz);
+        return element != null ? element.asType() : null;
     }
 
+    @Nullable
     private Element getElementFromObject(@NotNull Object object) {
         return elements.getTypeElement(object.getClass().getName());
     }
 
+    @Nullable
     private TypeMirror getTypeMirrorFromObject(@NotNull Object object) {
-        return getElementFromObject(object).asType();
+        Element element = getElementFromObject(object);
+        return element != null ? element.asType() : null;
     }
 
+    @NotNull
     private TypeMirror getGenericVersionOfClass(@NotNull Class clazz) {
         List<? extends TypeParameterElement> params =
                 elements.getTypeElement(clazz.getName()).getTypeParameters();
