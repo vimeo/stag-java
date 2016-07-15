@@ -50,7 +50,7 @@ public class Deer {
 
 public class Herd {
     @GsonAdapterKey("data_list")
-    List<Deer> mIndividuals;
+    ArrayList<Deer> mIndividuals;
 }
 
 /**
@@ -64,7 +64,7 @@ MyParsingClass {
                                  .registerTypeAdapterFactory(new Stag.Factory())
                                  .create();
 
-    public List<Deer> fromJson(String json) {
+    public Herd fromJson(String json) {
         return gson.fromJson(json, Herd.class);
     }
 }
