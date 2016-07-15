@@ -37,5 +37,5 @@ dependencies {
 
     compile project(':stag-library')
     apt project(':stag-library-compiler')
-    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.google.code.gson:gson:2.7'
 }
