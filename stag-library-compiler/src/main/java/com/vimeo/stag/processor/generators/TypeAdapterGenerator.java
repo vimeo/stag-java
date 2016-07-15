@@ -60,6 +60,7 @@ class TypeAdapterGenerator {
      * @return a valid TypeSpec that can be written
      * to a file or added to another class.
      */
+    @NotNull
     public TypeSpec getTypeAdapterSpec() {
         TypeName typeVariableName = TypeVariableName.get(mInfo.getType());
 
@@ -86,6 +87,7 @@ class TypeAdapterGenerator {
         return innerAdapterBuilder.build();
     }
 
+    @NotNull
     private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName) {
         return MethodSpec.methodBuilder("write")
                 .addParameter(JsonWriter.class, "out")
@@ -98,6 +100,7 @@ class TypeAdapterGenerator {
                 .build();
     }
 
+    @NotNull
     private MethodSpec getReadMethodSpec(@NotNull TypeName typeName) {
         return MethodSpec.methodBuilder("read")
                 .addParameter(JsonReader.class, "in")

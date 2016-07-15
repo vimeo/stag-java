@@ -68,6 +68,7 @@ public final class TypeUtils {
      * @return the outer class of the type passed in, or the
      * type itself if it is not parameterized.
      */
+    @NotNull
     public static String getOuterClassType(@NotNull TypeMirror type) {
         if (type instanceof DeclaredType) {
             return ((DeclaredType) type).asElement().toString();
@@ -187,6 +188,7 @@ public final class TypeUtils {
      * @return returns a map of the member variables mapped to their concrete types for the concrete
      * inherited class.
      */
+    @NotNull
     public static Map<Element, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
                                                               @NotNull Element genericInherited,
                                                               @NotNull Map<Element, TypeMirror> members) {
@@ -260,6 +262,7 @@ public final class TypeUtils {
         }
     }
 
+    @NotNull
     private static List<TypeMirror> getMemberTypes(@NotNull TypeMirror element) {
         List<TypeMirror> genericTypes = new ArrayList<>();
         if (element.getKind() != TypeKind.TYPEVAR) {
@@ -282,10 +285,12 @@ public final class TypeUtils {
         return genericTypes;
     }
 
+    @NotNull
     private static List<? extends TypeMirror> getParameterizedTypes(@NotNull Element element) {
         return ((DeclaredType) element.asType()).getTypeArguments();
     }
 
+    @NotNull
     private static List<? extends TypeMirror> getParameterizedTypes(@NotNull TypeMirror typeMirror) {
         return ((DeclaredType) typeMirror).getTypeArguments();
     }

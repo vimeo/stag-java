@@ -71,6 +71,7 @@ public class ParseGenerator {
         mFiler = filer;
     }
 
+    @NotNull
     private static MethodSpec generateParseArraySpec() {
 
         TypeVariableName genericTypeName = TypeVariableName.get("T");
@@ -93,6 +94,7 @@ public class ParseGenerator {
                 .build();
     }
 
+    @NotNull
     private static MethodSpec generateWriteArraySpec() {
         TypeVariableName genericType = TypeVariableName.get("T");
         return MethodSpec.methodBuilder("write")
@@ -149,6 +151,7 @@ public class ParseGenerator {
         FileGenUtils.writeToFile(javaFile, mFiler);
     }
 
+    @NotNull
     private MethodSpec generateWriteSpec(TypeMirror type, Map<Element, TypeMirror> elements) {
         MethodSpec.Builder writeBuilder = MethodSpec.methodBuilder("write")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -183,6 +186,7 @@ public class ParseGenerator {
         return writeBuilder.build();
     }
 
+    @NotNull
     private static String getJsonName(Element element) {
         String name = element.getAnnotation(GsonAdapterKey.class).value();
 
@@ -192,6 +196,7 @@ public class ParseGenerator {
         return name;
     }
 
+    @NotNull
     private MethodSpec generateParseSpec(TypeMirror type, Map<Element, TypeMirror> elements) {
         ClassInfo info = new ClassInfo(type);
 
@@ -241,7 +246,8 @@ public class ParseGenerator {
         return parseBuilder.build();
     }
 
-    private String getReadType(TypeMirror type) {
+    @NotNull
+    private String getReadType(@NotNull TypeMirror type) {
         if (type.toString().equals(long.class.getName())) {
             return "reader.nextLong();";
         } else if (type.toString().equals(double.class.getName())) {
@@ -265,7 +271,8 @@ public class ParseGenerator {
         }
     }
 
-    private String getWriteType(TypeMirror type, String variableName) {
+    @NotNull
+    private String getWriteType(@NotNull TypeMirror type, @NotNull String variableName) {
         if (type.toString().equals(long.class.getName()) ||
             type.toString().equals(double.class.getName()) ||
             type.toString().equals(boolean.class.getName()) ||
@@ -286,14 +293,14 @@ public class ParseGenerator {
         }
     }
 
-    private static boolean isPrimitive(String type) {
+    private static boolean isPrimitive(@NotNull String type) {
         return type.equals(long.class.getName()) ||
                type.equals(double.class.getName()) ||
                type.equals(boolean.class.getName()) ||
                type.equals(int.class.getName());
     }
 
-    private static TypeMirror getInnerListType(TypeMirror type) {
+    private static TypeMirror getInnerListType(@NotNull TypeMirror type) {
         return ((DeclaredType) type).getTypeArguments().get(0);
     }
 

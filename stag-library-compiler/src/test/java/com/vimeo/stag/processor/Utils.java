@@ -28,14 +28,17 @@ import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.Assert.assertTrue;
 
-public class Utils {
+final class Utils {
+
+    private Utils() {
+    }
 
     public static <T> void testZeroArgumentConstructorFinalClass(Class<T> clazz) throws Exception {
         boolean exceptionThrown = false;
         try {
             Constructor<T> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
-            T instance = constructor.newInstance();
+            constructor.newInstance();
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof UnsupportedOperationException) {
                 exceptionThrown = true;

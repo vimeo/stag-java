@@ -79,7 +79,7 @@ public final class SupportedTypesModel {
      * with the class type.
      */
     @NotNull
-    public AnnotatedClass getSupportedType(TypeMirror type) {
+    public AnnotatedClass getSupportedType(@NotNull TypeMirror type) {
         AnnotatedClass model = mSupportedTypesMap.get(TypeUtils.getOuterClassType(type));
 
         if (model == null) {

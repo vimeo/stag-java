@@ -25,6 +25,9 @@ package com.vimeo.stag.processor.utils;
 
 import com.vimeo.stag.processor.StagProcessor;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public final class DebugLog {
 
     private static final String TAG = "Stag";
@@ -32,14 +35,14 @@ public final class DebugLog {
     private DebugLog() {
     }
 
-    public static void log(CharSequence message) {
+    public static void log(@Nullable CharSequence message) {
         if (StagProcessor.DEBUG) {
             //noinspection UseOfSystemOutOrSystemErr
             System.out.println(TAG + ": " + message);
         }
     }
 
-    public static void log(CharSequence tag, CharSequence message) {
+    public static void log(@NotNull CharSequence tag, @Nullable CharSequence message) {
         if (StagProcessor.DEBUG) {
             //noinspection UseOfSystemOutOrSystemErr
             System.out.println(TAG + ":" + tag + ": " + message);

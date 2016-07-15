@@ -41,7 +41,6 @@ public class PreconditionsUnitTest {
         Preconditions.checkNotNull(o);
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Test
     public void checkNotNull_NotNull() throws Exception {
         Object o = new Object();

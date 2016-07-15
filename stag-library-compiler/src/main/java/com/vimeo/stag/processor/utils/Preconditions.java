@@ -23,6 +23,8 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import org.jetbrains.annotations.Nullable;
+
 public final class Preconditions {
 
     private Preconditions() {
@@ -36,7 +38,7 @@ public final class Preconditions {
      *
      * @param o the object to check.
      */
-    public static void checkNotNull(Object o) {
+    public static void checkNotNull(@Nullable Object o) {
         if (o == null) {
             throw new NullPointerException("Object must not be null");
         }
