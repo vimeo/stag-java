@@ -7,11 +7,11 @@ compile project(':stag-library')
 apt project(':stag-library-compiler')
 ```
 
-Additionally, if you are using this on an Android project, you will need to use the android apt plugin (`com.neenbedankt.gradle.plugins:android-apt:1.8`). You must apply the plugin (`apply plugin: 'com.neenbedankt.android-apt'`) on the `build.gradle` file of the module you wish to use this on.
+Additionally, if you are using this for an Android project, you will need to use the android apt plugin (`com.neenbedankt.gradle.plugins:android-apt:1.8`). You must apply the plugin (`apply plugin: 'com.neenbedankt.android-apt'`) in the `build.gradle` file of the module you wish to use this in.
 
-### Why
+### Why build Stag?
 
-Gson is the essential JSON parsing library. It's widely used and greatly simplifies what can be the verbose and boilerplate-ridden process of parsing JSON into your model objects. It accomplishes this simplicity and unobtrusiveness through use of reflection. Unfortunately, using reflection is not fast on all systems (particulary on the Android OS). Gson also includes the concept of creating your own custom `TypeAdapter` that tells Gson how to (de)serialize an object. The main use case is for classes that you don't have control over (e.g. parsing a string passed in JSON into a `Date` object), but if you really need to reduce the (de)serialization time of Gson in a performance critical part of your code, you can create a TypeAdapter that doesn't use reflection.
+Gson is the essential JSON parsing library. It greatly simplifies what can be the verbose and boilerplate-ridden process of parsing JSON into model objects. It does this by leveraging reflection. Unfortunately, using reflection can be slow (particularly on the Android OS). Gson also includes the concept of creating your own custom `TypeAdapter` that tells Gson how to (de)serialize an object. The main use case is for classes that you don't have control over (e.g. parsing a string passed in JSON into a `Date` object), but if you really need to reduce the (de)serialization time of Gson in a performance critical part of your code, you can create a TypeAdapter that doesn't use reflection.
 
 But... if you have a lot of model objects, and you want to remove the use of reflection for (de)serialization of your model objects, suddenly you have to write many, many TypeAdapters. If you've ever written one or many of these TypeAdapters, you will know that it is a tedious process. In fact, if you end up writing your own you might ask what you are doing using Gson in the first place!!!
 
