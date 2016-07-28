@@ -30,9 +30,8 @@ import java.lang.annotation.Target;
  * Use this annotation to tell Stag that a member variable
  * or a class should be processed.
  * <p/>
- * If a member variable of
- * a class is annotated, Stag will generate a TypeAdapter for
- * that class.
+ * If a member variable of a class is annotated, Stag will
+ * generate a TypeAdapter for that class.
  * <p/>
  * If the class is generic, but there is a concrete
  * class that also has annotated fields, Stag will ignore the
@@ -44,8 +43,8 @@ import java.lang.annotation.Target;
  * class with annotated members, but has no annotated members
  * itself, Stag will not know to generate a TypeAdapter for that
  * child class. In that case, apply the annotation to the child
- * class and Stag will pick it up and generate a TypeAdapter for
- * it. In this case, the value that can be specified in the
+ * class and Stag will pick it up and generate a TypeAdapter
+ * for it. In this case, the value that can be specified in the
  * annotation will just be ignored.
  * <p/>
  * See the sample code for examples of each.
