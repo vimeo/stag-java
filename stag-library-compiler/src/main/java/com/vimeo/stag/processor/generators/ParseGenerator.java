@@ -33,13 +33,14 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.GsonAdapterKey;
-import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
-import com.vimeo.stag.processor.utils.FileGenUtils;
+import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
+import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -84,7 +85,10 @@ public class ParseGenerator {
                 .addParameter(JsonReader.class, "reader")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addException(IOException.class)
-                .addCode("reader.beginArray();\n" +
+                .addCode("if(reader.peek() != com.google.gson.stream.JsonToken.BEGIN_ARRAY) {\n" +
+                         "\treader.skipValue();\n" +
+                         "\treturn null;\n}\n" +
+                         "reader.beginArray();\n" +
                          '\n' +
                          "ArrayList<" + genericTypeName.name + "> list = " + StagGenerator.CLASS_STAG +
                          ".readListFromAdapter(gson, clazz, reader);\n" +
@@ -210,6 +214,10 @@ public class ParseGenerator {
                          "\t\treader.nextNull();\n" +
                          "\t\treturn null;\n" +
                          "\t}\n" +
+                         "\tif(reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
+                         "\t\treader.skipValue();\n" +
+                         "\t\treturn null;\n" +
+                         "\t}\n" +
                          "\treader.beginObject();\n" +
                          '\n' +
                          '\t' + info.getClassAndPackage() + " object = new " + info.getClassAndPackage() +
@@ -227,11 +235,31 @@ public class ParseGenerator {
             String name = getJsonName(element.getKey());
 
             String variableName = element.getKey().getSimpleName().toString();
+            String jsonTokenType = getReadTokenType(element.getValue());
 
-            parseBuilder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                                 "\t\t\t\tobject." + variableName + " = " + getReadType(element.getValue()) +
-                                 '\n' +
-                                 "\t\t\t\tbreak;\n");
+            if (jsonTokenType != null) {
+                parseBuilder.addCode("\t\t\tcase \"" + name + "\":\n" +
+                                     "\t\t\t\tif(jsonToken == " + jsonTokenType +
+                                     ") {\n" +
+                                     "\t\t\t\t\tobject." + variableName + " = " +
+                                     getReadType(element.getValue()) +
+                                     "\n\t\t\t\t} else {" +
+                                     "\n\t\t\t\t\treader.skipValue();" +
+                                     "\n\t\t\t\t}" +
+                                     '\n' +
+                                     "\t\t\t\tbreak;\n");
+            } else {
+                parseBuilder.addCode("\t\t\tcase \"" + name + "\":\n" +
+                                     "\t\t\t\ttry {\n" +
+                                     "\t\t\t\t\tobject." + variableName + " = " +
+                                     getReadType(element.getValue()) +
+                                     "\n\t\t\t\t} catch(Exception e) {" +
+                                     "\n\t\t\t\t\tthrow new IOException(\"Error parsing " +
+                                     info.getClassName() + "." + variableName + " JSON!\");" +
+                                     "\n\t\t\t\t}" +
+                                     '\n' +
+                                     "\t\t\t\tbreak;\n");
+            }
         }
 
         parseBuilder.addCode("\t\t\tdefault:\n" +
@@ -244,6 +272,26 @@ public class ParseGenerator {
                              "\treturn object;\n");
 
         return parseBuilder.build();
+    }
+
+    @Nullable
+    private static String getReadTokenType(@NotNull TypeMirror type) {
+        if (type.toString().equals(long.class.getName())) {
+            return "com.google.gson.stream.JsonToken.NUMBER";
+        } else if (type.toString().equals(double.class.getName())) {
+            return "com.google.gson.stream.JsonToken.NUMBER";
+        } else if (type.toString().equals(boolean.class.getName())) {
+            return "com.google.gson.stream.JsonToken.BOOLEAN";
+        } else if (type.toString().equals(String.class.getName())) {
+            return "com.google.gson.stream.JsonToken.STRING";
+        } else if (type.toString().equals(int.class.getName())) {
+            return "com.google.gson.stream.JsonToken.NUMBER";
+        } else if (TypeUtils.getOuterClassType(type).equals(ArrayList.class.getName())) {
+            return "com.google.gson.stream.JsonToken.BEGIN_ARRAY";
+        } else {
+            return null;
+        }
+
     }
 
     @NotNull
