@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'maven-publish'
 
 compileJava {
     sourceCompatibility = 1.7
@@ -6,4 +7,68 @@ compileJava {
 }
 
 dependencies {
+}
+
+// custom tasks for creating source/javadoc jars
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar, javadocJar
+}
+
+// Requires apply plugin: maven-publish
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            // We dont have any complex artifacts, so let's just reference the fact that we
+            // rely on plugin java
+            from components.java
+            groupId project.group
+            artifactId 'stag-library'
+            version project.version
+
+            artifact sourcesJar
+            artifact javadocJar
+        }
+    }
+}
+
+// Only execute the bintray task if this is the actual stag-library project (not an include)
+allprojects {
+    afterEvaluate { project ->
+        def bintrayProject = project.plugins.hasPlugin('com.jfrog.bintray')
+        if (bintrayProject) {
+            bintray {
+                Properties properties = new Properties()
+                properties.load(project.rootProject.file('local.properties').newDataInputStream())
+                user = properties.getProperty('bintray.user')
+                key = properties.getProperty('bintray.apikey')
+                publications = ['mavenJava']
+                dryRun = false // Whether to run this as dry-run, without deploying
+                pkg {
+                    repo = 'maven'
+                    name = 'stag-library'
+                    userOrg = 'vimeo'
+                    licenses = ['MIT']
+                    websiteUrl = 'https://github.com/vimeo/stag-java'
+                    issueTrackerUrl = 'https://github.com/vimeo/stag-java/issues'
+                    vcsUrl = 'https://github.com/vimeo/stag-java.git'
+                    labels = ['vimeo', 'gson', 'annotation']
+                    publicDownloadNumbers = true
+                    version {
+                        name = project.version
+                        vcsTag = project.version
+                    }
+                }
+            }
+        }
+    }
 }

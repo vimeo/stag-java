@@ -6,6 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
     }
 }
 
@@ -13,6 +14,18 @@ allprojects {
     repositories {
         jcenter()
     }
+    apply plugin: "com.jfrog.bintray"
+
+    tasks.withType(Javadoc).all { enabled = false }
 
     tasks.withType(JavaCompile) { options.fork = true }
+
+    task wrapper(type: Wrapper) {
+        gradleVersion = '2.2.1'
+    }
+}
+
+subprojects {
+    group = 'com.vimeo.stag'
+    version = '1.0.0'
 }
