@@ -44,6 +44,7 @@ dependencies {
 ```
 
 #### Include Stag as a Submodule
+To add Stag as a submodule, you must clone this repository into your project. Next, add the following dependencies:
 ```groovy
 dependencies {
     compile project(':stag-library')
