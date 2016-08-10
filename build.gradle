@@ -19,4 +19,13 @@ allprojects {
     tasks.withType(Javadoc).all { enabled = false }
 
     tasks.withType(JavaCompile) { options.fork = true }
+
+    task wrapper(type: Wrapper) {
+        gradleVersion = '2.2.1'
+    }
+}
+
+subprojects {
+    group = 'com.vimeo.stag'
+    version = '1.0.0'
 }

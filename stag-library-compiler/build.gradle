@@ -22,9 +22,6 @@ test {
     testLogging.exceptionFormat = 'full'
 }
 
-group = 'com.vimeo.stag'
-version = '1.0.0'
-
 // custom tasks for creating source/javadoc jars
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
@@ -57,7 +54,7 @@ publishing {
     }
 }
 
-// Only execute the bintray task if this is the actual networking project (not an include)
+// Only execute the bintray task if this is the actual stag-library-compilers project (not an include)
 allprojects {
     afterEvaluate { project ->
         def bintrayProject = project.plugins.hasPlugin('com.jfrog.bintray')
@@ -87,8 +84,4 @@ allprojects {
             }
         }
     }
-}
-
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
 }
