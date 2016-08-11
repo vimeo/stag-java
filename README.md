@@ -1,6 +1,6 @@
 # Stag
 
-Gson uses reflection to map JSON data to an object's fields; Stag eliminates this usage of reflection and speeds up object creation by generating fast Gson type adapters.
+Stag improves Gson performance by generating reflection-less TypeAdapters for your model objects.
 
 ### Why Build Stag?
 
