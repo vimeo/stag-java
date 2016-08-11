@@ -64,38 +64,43 @@ apply plugin: 'com.neenbedankt.android-apt'
 
 ### Usage
 
-- You do not need to use `@SerializedName("json_key")`.
-- Your model class must have a zero argument constructor.
-- The member variables of your model class need to have `public` visibility ([for now](#future-enhancements)).
-- The member variables of your model class that you wish to be populated must be annotated with `@GsonAdapterKey`.
-    - If you want to use the variable name as the JSON key, just use `@GsonAdapterKey`.
-    - If you want to use a different name as the JSON key, use `@GsonAdapterKey("json_key")`.
-- Supported types - Various types and their support shown below:
+1. Make sure the member variables of your model class are public ([for now](#future-enhancements))
+2. Make sure your model class is public and has a zero argument public constructor
+3. Annotate each member variable you want populated
+    - `@GsonAdapterKey("json_key")`: populates the field using the JSON value with the specified key
+    - `@GsonAdapterKey`: populates the field using the JSON value with the key named the same as the member variable
+4. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
+5. You're done!
+
+Miscellaneous
+- `@SerializedName("json_key")` annotations you might be using will be ignored.
+- Variable types supported by Stag:
     - YES: All native types supported by Gson (boolean, double, int, long)
     - YES: String
     - YES: ArrayList (List interface or other types of lists are currently not supported)
     - NO: Enums are not supported, we will fall back to Gson for parsing them
+- See the [sample app](sample) for a working example of how to use Stag
 
 ### Example
 
 ```java
 public class Deer {
     @GsonAdapterKey("name")
-    public String mName;
+    public String mName;    // mName = json value with key "name"
     
     @GsonAdapterKey("species")
-    public String mSpecies;
+    public String mSpecies; // mSpecies = json value with key "species"
     
-    @GsonAdapterKey("age")
+    @GsonAdapterKey("age")  // mAge = json value with key "age"
     public int mAge;
     
     @GsonAdapterKey("points")
-    public int mPoints;
+    public int mPoints;     // mPoints = json value with key "points"
 }
 
 public class Herd {
-    @GsonAdapterKey("data_list")
-    ArrayList<Deer> mIndividuals;
+    @GsonAdapterKey
+    public ArrayList<Deer> data_list;  // data_list = json value with key "data_list"
 }
 
 /**
