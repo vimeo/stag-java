@@ -2,7 +2,7 @@
 
 Stag improves Gson performance by automatically generating reflection-less TypeAdapters for your model objects.
 
-### Why Build Stag?
+## Why Build Stag?
 
 Gson is the essential JSON parsing library. It greatly simplifies what can be the verbose and boilerplate-ridden process of parsing JSON into model objects. It does this by leveraging reflection. Unfortunately, using reflection can be slow (particularly on the Android OS). 
 
@@ -12,7 +12,7 @@ But... if you have a lot of model objects, and you want to remove the use of ref
 
 The Stag library solves this problem. It leverages annotations to automatically generate reflection-less TypeAdapters for your model objects at compile time. Instead of spending time writing your own custom TypeAdapters for each model object, or forgoing the performance gain of eliminating reflection, using Stag and the `@GsonAdapterKey` annotation on your model fields will do all the work for you.
 
-### Gradle Usage
+## Gradle Usage
 
 #### Add the Stag dependencies
 
@@ -64,7 +64,7 @@ buildscript {
 apply plugin: 'com.neenbedankt.android-apt'
 ```
 
-### Usage
+## Usage
 
 1. Make sure the member variables of your model class are public ([for now](#future-enhancements))
 2. Make sure your model class is public and has a zero argument public constructor
@@ -84,7 +84,7 @@ Note:
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 
-### Example
+## Example
 
 ```java
 public class Deer {
@@ -124,12 +124,12 @@ MyParsingClass {
 
 ```
 
-### Future Enhancements
+## Future Enhancements
 
 - Generate code so that member variables only need to be package local
 
-### License
+## License
 `stag-java` is available under the MIT license. See the [LICENSE](LICENSE) file for more information.
 
-### Questions
+## Questions
 Post on [Stack Overflow](http://stackoverflow.com/questions/tagged/vimeo-android) with the tag `vimeo-android`.
