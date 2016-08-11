@@ -74,14 +74,15 @@ apply plugin: 'com.neenbedankt.android-apt'
 4. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
 5. You're done!
 
-Miscellaneous
+Note:
 - `@SerializedName("json_key")` annotations you might be using will be ignored.
 - Variable types supported by Stag:
     - YES: All native types supported by Gson (boolean, double, int, long)
     - YES: String
     - YES: ArrayList (List interface or other types of lists are currently not supported)
     - NO: Enums are not supported, we will fall back to Gson for parsing them
-- See the [sample app](sample) for a working example of how to use Stag
+
+See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 
 ### Example
 
@@ -129,3 +130,6 @@ MyParsingClass {
 
 ### License
 `stag-java` is available under the MIT license. See the [LICENSE](LICENSE) file for more information.
+
+### Questions
+Post on [Stack Overflow](http://stackoverflow.com/questions/tagged/vimeo-android) with the tag `vimeo-android`.
