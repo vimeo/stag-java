@@ -91,8 +91,8 @@ public class Deer {
     @GsonAdapterKey("species")
     public String mSpecies; // mSpecies = json value with key "species"
     
-    @GsonAdapterKey("age")  // mAge = json value with key "age"
-    public int mAge;
+    @GsonAdapterKey("age")
+    public int mAge;        // mAge = json value with key "age"
     
     @GsonAdapterKey("points")
     public int mPoints;     // mPoints = json value with key "points"
