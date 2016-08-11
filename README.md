@@ -1,5 +1,6 @@
 # Stag
-####Using Gson Without Reflection####
+
+Gson uses reflection to map JSON data to an object's fields; Stag eliminates this usage of reflection and speeds up object creation by generating fast Gson type adapters.
 
 ### Gradle usage
 Stag can be easily incorporated into your projects using Gradle; it is available on jCenter but can also be built as a submodule. In addition to including Stag, you will need to apply a plugin that allows you to use Java annotation processors.
@@ -65,7 +66,7 @@ The Stag library solves this problem. It leverages annotations to automatically 
 
 - You do not need to use `@SerializedName("json_key")`.
 - Your model class must have a zero argument constructor.
-- The member variables of your model class need to have `public` visibility (for now).
+- The member variables of your model class need to have `public` visibility ([for now](#future-enhancements)).
 - The member variables of your model class that you wish to be populated must be annotated with `@GsonAdapterKey`.
     - If you want to use the variable name as the JSON key, just use `@GsonAdapterKey`.
     - If you want to use a different name as the JSON key, use `@GsonAdapterKey("json_key")`.
@@ -118,3 +119,6 @@ MyParsingClass {
 ### Future Enhancements
 
 - Generate code in such a way that member variables only need to be package local
+
+### License
+`stag-java` is available under the MIT license. See the [LICENSE](LICENSE) file for more information.
