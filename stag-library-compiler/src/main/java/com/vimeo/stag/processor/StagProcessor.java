@@ -23,6 +23,7 @@
  */
 package com.vimeo.stag.processor;
 
+import com.google.auto.service.AutoService;
 import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.processor.generators.ParseGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
@@ -44,6 +45,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -54,6 +56,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+@AutoService(Processor.class)
 @SupportedAnnotationTypes("com.vimeo.stag.GsonAdapterKey")
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
