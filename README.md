@@ -127,6 +127,7 @@ MyParsingClass {
 ## Future Enhancements
 
 - Generate code so that member variables only need to be package local
+- Add an option to absorb parsing errors rather than re-throwing them
 
 ## License
 `stag-java` is available under the MIT license. See the [LICENSE](LICENSE) file for more information.
