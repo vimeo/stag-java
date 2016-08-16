@@ -253,9 +253,9 @@ public class ParseGenerator {
                                      "\t\t\t\ttry {\n" +
                                      "\t\t\t\t\tobject." + variableName + " = " +
                                      getReadType(element.getValue()) +
-                                     "\n\t\t\t\t} catch(Exception e) {" +
+                                     "\n\t\t\t\t} catch(Exception exception) {" +
                                      "\n\t\t\t\t\tthrow new IOException(\"Error parsing " +
-                                     info.getClassName() + "." + variableName + " JSON!\");" +
+                                     info.getClassName() + "." + variableName + " JSON!\", exception);" +
                                      "\n\t\t\t\t}" +
                                      '\n' +
                                      "\t\t\t\tbreak;\n");

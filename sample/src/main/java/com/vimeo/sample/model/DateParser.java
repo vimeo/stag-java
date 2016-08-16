@@ -48,8 +48,7 @@ public class DateParser extends TypeAdapter<Date> {
         try {
             return dateFormat.parse(in.nextString());
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new IOException("Date parsing failed", e);
         }
-        return null;
     }
 }
