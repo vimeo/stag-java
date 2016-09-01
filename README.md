@@ -19,8 +19,8 @@ The Stag library solves this problem. It leverages annotations to automatically 
 from jCenter
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:1.0.0'
-    apt 'com.vimeo.stag:stag-library-compiler:1.0.0'
+    compile 'com.vimeo.stag:stag-library:1.0.1'
+    apt 'com.vimeo.stag:stag-library-compiler:1.0.1'
 }
 ```
 
@@ -127,6 +127,7 @@ MyParsingClass {
 ## Future Enhancements
 
 - Generate code so that member variables only need to be package local
+- Add an option to absorb parsing errors rather than re-throwing them
 
 ## License
 `stag-java` is available under the MIT license. See the [LICENSE](LICENSE) file for more information.
