@@ -108,7 +108,7 @@ public class ParseGenerator {
                 .addException(IOException.class)
                 .addParameter(Gson.class, "gson")
                 .addParameter(JsonWriter.class, "writer")
-                .addParameter(Class.class, "clazz")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericType), "clazz")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(ArrayList.class), genericType), "list")
                 .addCode("if (list == null) {\n" +
                          "\treturn;\n" +
