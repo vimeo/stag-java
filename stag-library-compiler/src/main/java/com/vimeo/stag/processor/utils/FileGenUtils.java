@@ -27,13 +27,16 @@ import com.squareup.javapoet.JavaFile;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
+import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
+import javax.tools.StandardLocation;
 
 public final class FileGenUtils {
 
@@ -65,6 +68,40 @@ public final class FileGenUtils {
         } catch (Exception e) {
             try {
                 filerSourceFile.delete();
+            } catch (Exception ignored) {
+            }
+            throw e;
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    static CharSequence readResource(@NotNull Filer filer, @NotNull String resourceName) throws IOException {
+        try {
+            FileObject file = filer.getResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
+            return file.getCharContent(false);
+        } catch (FileNotFoundException e) {
+            DebugLog.log("Resource not found: " + resourceName);
+            return null;
+        }
+    }
+
+    static void writeToResource(@NotNull Filer filer, @NotNull String resourceName, @NotNull CharSequence content) throws IOException {
+        FileObject file = filer.createResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
+        file.delete();
+        Writer writer = null;
+        try {
+            writer = file.openWriter();
+            writer.append(content);
+            DebugLog.log("Wrote to resource '" + resourceName + "':\n" + content);
+        } catch (Exception e) {
+            try {
+                file.delete();
             } catch (Exception ignored) {
             }
             throw e;

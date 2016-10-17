@@ -33,14 +33,17 @@ public class ClassInfo {
     private final String mClassName;
 
     @NotNull
+    private final String mPackageName;
+
+    @NotNull
     private final TypeMirror mType;
 
     public ClassInfo(@NotNull TypeMirror typeMirror) {
         mType = typeMirror;
         String classAndPackage = typeMirror.toString();
 
-        String packageName = classAndPackage.substring(0, classAndPackage.lastIndexOf('.'));
-        mClassName = classAndPackage.substring(packageName.length() + 1, classAndPackage.length());
+        mPackageName = classAndPackage.substring(0, classAndPackage.lastIndexOf('.'));
+        mClassName = classAndPackage.substring(mPackageName.length() + 1, classAndPackage.length());
     }
 
     /**
@@ -52,6 +55,16 @@ public class ClassInfo {
     @NotNull
     public String getClassName() {
         return mClassName;
+    }
+
+    /**
+     * The package name of the class.
+     *
+     * @return a valid package name.
+     */
+    @NotNull
+    public String getPackageName() {
+        return mPackageName;
     }
 
     /**
