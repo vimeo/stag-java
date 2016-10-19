@@ -26,13 +26,14 @@ package com.vimeo.stag.processor;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import com.vimeo.stag.GsonAdapterKey;
-import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterFactoryGenerator;
+import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.utils.DebugLog;
+import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
@@ -89,6 +90,7 @@ public final class StagProcessor extends AbstractProcessor {
             return true;
         }
         TypeUtils.initialize(processingEnv.getTypeUtils());
+        ElementUtils.initialize(processingEnv.getElementUtils());
 
         DebugLog.log("\nBeginning @GsonAdapterKey annotation processing\n");
 

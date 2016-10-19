@@ -55,8 +55,6 @@ import javax.lang.model.type.TypeMirror;
 @SuppressWarnings("StringConcatenationMissingWhitespace")
 public class TypeAdapterGenerator {
 
-    static final String CLASS_SUFFIX_ADAPTER = "TypeAdapter";
-
     @NotNull
     private final ClassInfo mInfo;
 
@@ -81,7 +79,7 @@ public class TypeAdapterGenerator {
                 .addParameter(Gson.class, "gson");
 
         TypeSpec.Builder adapterBuilder =
-                TypeSpec.classBuilder(mInfo.getClassName() + CLASS_SUFFIX_ADAPTER)
+                TypeSpec.classBuilder(mInfo.getTypeAdapterClassName())
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                         .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class),
                                                               typeVariableName));
@@ -237,7 +235,7 @@ public class TypeAdapterGenerator {
 
     private String getAdapterField(TypeMirror type) {
         ClassInfo classInfo = new ClassInfo(type);
-        return "m" + classInfo.getClassName() + CLASS_SUFFIX_ADAPTER;
+        return "m" + classInfo.getTypeAdapterClassName();
     }
 
 

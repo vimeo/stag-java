@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -40,8 +41,6 @@ import javax.lang.model.element.Modifier;
 
 @SuppressWarnings("StringConcatenationMissingWhitespace")
 public class TypeAdapterFactoryGenerator {
-
-    static final String CLASS_SUFFIX_FACTORY = TypeAdapterGenerator.CLASS_SUFFIX_ADAPTER + "Factory";
 
     @NotNull
     private final ClassInfo mInfo;
@@ -60,7 +59,7 @@ public class TypeAdapterFactoryGenerator {
     @NotNull
     public TypeSpec getTypeAdapterFactorySpec() {
         TypeSpec.Builder adapterBuilder =
-                TypeSpec.classBuilder(mInfo.getClassName() + CLASS_SUFFIX_FACTORY)
+                TypeSpec.classBuilder(mInfo.getTypeAdapterFactoryClassName())
                         .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                         .addSuperinterface(ClassName.get(TypeAdapterFactory.class))
                 .addMethod(getCreateMethodSpec());
@@ -71,16 +70,20 @@ public class TypeAdapterFactoryGenerator {
     @NotNull
     private MethodSpec getCreateMethodSpec() {
         TypeVariableName genericType = TypeVariableName.get("T");
+        AnnotationSpec suppressions = AnnotationSpec.builder(SuppressWarnings.class)
+                .addMember("value", "\"unchecked\" /* Protected by TypeToken */")
+                .build();
         return MethodSpec.methodBuilder("create")
                 .addTypeVariable(genericType)
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericType), "type")
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericType))
                 .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(suppressions)
                 .addAnnotation(Override.class)
                 .addCode("Class<? super T> clazz = type.getRawType();\n" +
                         "if (clazz == " + mInfo.getClassAndPackage() + ".class) {\n" +
-                        "\treturn (TypeAdapter<T>) new " + mInfo.getClassName() + TypeAdapterGenerator.CLASS_SUFFIX_ADAPTER + "(gson);\n" +
+                        "\treturn (TypeAdapter<T>) new " + mInfo.getTypeAdapterQualifiedClassName() + "(gson);\n" +
                         "}\n" +
                         "return null;\n")
                 .build();

@@ -23,6 +23,8 @@
  */
 package com.vimeo.stag.processor.generators.model;
 
+import com.vimeo.stag.processor.utils.ElementUtils;
+
 import org.jetbrains.annotations.NotNull;
 
 import javax.lang.model.type.TypeMirror;
@@ -40,10 +42,12 @@ public class ClassInfo {
 
     public ClassInfo(@NotNull TypeMirror typeMirror) {
         mType = typeMirror;
-        String classAndPackage = typeMirror.toString();
 
-        mPackageName = classAndPackage.substring(0, classAndPackage.lastIndexOf('.'));
-        mClassName = classAndPackage.substring(mPackageName.length() + 1, classAndPackage.length());
+        mPackageName = ElementUtils.getPackage(typeMirror);
+
+        String classAndPackage = typeMirror.toString();
+        String simplePackage = classAndPackage.substring(0, classAndPackage.lastIndexOf('.'));
+        mClassName = classAndPackage.substring(simplePackage.length() + 1, classAndPackage.length());
     }
 
     /**
@@ -65,6 +69,49 @@ public class ClassInfo {
     @NotNull
     public String getPackageName() {
         return mPackageName;
+    }
+
+    /**
+     * The simple class name of the {@link com.google.gson.TypeAdapter} class for this model class.
+     *
+     * @return simple class name
+     */
+    @NotNull
+    public String getTypeAdapterClassName() {
+        return mClassName + "TypeAdapter";
+    }
+
+    /**
+     * The fully qualified class name of the {@link com.google.gson.TypeAdapter} class for this
+     * model class.
+     *
+     * @return qualified class name
+     */
+    @NotNull
+    public String getTypeAdapterQualifiedClassName() {
+        return mPackageName + "." + getTypeAdapterClassName();
+    }
+
+    /**
+     * The simple class name of the {@link com.google.gson.TypeAdapterFactory} class for this
+     * model class.
+     *
+     * @return simple class name
+     */
+    @NotNull
+    public String getTypeAdapterFactoryClassName() {
+        return mClassName + "TypeAdapterFactory";
+    }
+
+    /**
+     * The fully qualified class name of the {@link com.google.gson.TypeAdapterFactory} class for this
+     * model class.
+     *
+     * @return qualified class name
+     */
+    @NotNull
+    public String getTypeAdapterFactoryQualifiedClassName() {
+        return mPackageName + "." + getTypeAdapterFactoryClassName();
     }
 
     /**

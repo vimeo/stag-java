@@ -34,6 +34,8 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.processor.generators.model.ClassInfo;
+import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +48,7 @@ import java.util.Set;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.TypeMirror;
 
 public class StagGenerator {
 
@@ -62,7 +65,11 @@ public class StagGenerator {
         mFiler = filer;
 
         for (String knownType : knownTypes) {
-            mKnownTypeAdapterFactories.add(knownType + TypeAdapterFactoryGenerator.CLASS_SUFFIX_FACTORY);
+            TypeMirror typeMirror = ElementUtils.getTypeFromQualifiedName(knownType);
+            if (typeMirror != null) {
+                ClassInfo classInfo = new ClassInfo(typeMirror);
+                mKnownTypeAdapterFactories.add(classInfo.getTypeAdapterFactoryQualifiedClassName());
+            }
         }
     }
 
