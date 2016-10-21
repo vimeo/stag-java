@@ -74,15 +74,14 @@ public class StagGenerator {
     }
 
     /**
-     * Generates the type adapters and the
-     * type adapter factory to be used by
-     * the consumer of this library.
+     * Generates the public API in the form of the {@code Stag.Factory} type adapter factory
+     * for the annotated classes.
      *
      * @throws IOException throws an exception
      *                     if we are unable to write the file
      *                     to the filesystem.
      */
-    public void generateTypeAdapters() throws IOException {
+    public void generateTypeAdapterFactory() throws IOException {
         TypeSpec.Builder adaptersBuilder =
                 TypeSpec.classBuilder(CLASS_STAG).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 

@@ -137,7 +137,7 @@ public final class StagProcessor extends AbstractProcessor {
             mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv));
 
             StagGenerator adapterGenerator = new StagGenerator(filer, mSupportedTypes);
-            adapterGenerator.generateTypeAdapters();
+            adapterGenerator.generateTypeAdapterFactory();
 
             Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
             for (Element element : list) {
