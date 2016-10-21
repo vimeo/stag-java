@@ -106,11 +106,11 @@ public final class StagProcessor extends AbstractProcessor {
                                                variableElement.getSimpleName().toString() + "\" in class " +
                                                variableElement.getEnclosingElement().asType() +
                                                ", field must not be final.");
-                } else if (!modifiers.contains(Modifier.PUBLIC)) {
+                } else if (modifiers.contains(Modifier.PRIVATE)) {
                     throw new RuntimeException("Unable to access field \"" +
                                                variableElement.getSimpleName().toString() + "\" in class " +
                                                variableElement.getEnclosingElement().asType() +
-                                               ", field must public.");
+                                               ", field must not be private.");
                 }
 
                 Element enclosingClassElement = variableElement.getEnclosingElement();
