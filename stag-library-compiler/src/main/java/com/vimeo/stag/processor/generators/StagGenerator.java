@@ -27,28 +27,28 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
+import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
-import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
-import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.TypeMirror;
 
 public class StagGenerator {
 
@@ -58,42 +58,34 @@ public class StagGenerator {
     @NotNull
     private final Filer mFiler;
 
-    public StagGenerator(@NotNull Filer filer) {
+    @NotNull
+    private Set<String> mKnownTypeAdapterFactories = new HashSet<>();
+
+    public StagGenerator(@NotNull Filer filer, @NotNull Set<String> knownTypes) {
         mFiler = filer;
+
+        for (String knownType : knownTypes) {
+            TypeMirror typeMirror = ElementUtils.getTypeFromQualifiedName(knownType);
+            if (typeMirror != null) {
+                ClassInfo classInfo = new ClassInfo(typeMirror);
+                mKnownTypeAdapterFactories.add(classInfo.getTypeAdapterFactoryQualifiedClassName());
+            }
+        }
     }
 
     /**
-     * Generates the type adapters and the
-     * type adapter factory to be used by
-     * the consumer of this library.
+     * Generates the public API in the form of the {@code Stag.Factory} type adapter factory
+     * for the annotated classes.
      *
      * @throws IOException throws an exception
      *                     if we are unable to write the file
      *                     to the filesystem.
      */
-    public void generateTypeAdapters() throws IOException {
+    public void generateTypeAdapterFactory() throws IOException {
         TypeSpec.Builder adaptersBuilder =
                 TypeSpec.classBuilder(CLASS_STAG).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
-        TypeVariableName genericTypeName = TypeVariableName.get("T");
-
-        adaptersBuilder.addMethod(getWriteToAdapterSpec(genericTypeName));
-        adaptersBuilder.addMethod(getReadFromAdapterSpec(genericTypeName));
-        adaptersBuilder.addMethod(getWriteListToAdapterSpec(genericTypeName));
-        adaptersBuilder.addMethod(getReadListFromAdapterSpec(genericTypeName));
-
-        Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
-
-        for (Element element : list) {
-            if (TypeUtils.isConcreteType(element)) {
-                ClassInfo classInfo = new ClassInfo(element.asType());
-                TypeAdapterGenerator typeAdapter = new TypeAdapterGenerator(classInfo);
-
-                adaptersBuilder.addType(typeAdapter.getTypeAdapterSpec());
-            }
-        }
-
-        adaptersBuilder.addType(getAdapterFactorySpec(list));
+        adaptersBuilder.addType(getAdapterFactorySpec());
 
         JavaFile javaFile =
                 JavaFile.builder(FileGenUtils.GENERATED_PACKAGE_NAME, adaptersBuilder.build()).build();
@@ -102,111 +94,50 @@ public class StagGenerator {
     }
 
     @NotNull
-    private static MethodSpec getWriteToAdapterSpec(@NotNull TypeVariableName genericTypeName) {
-        return MethodSpec.methodBuilder("writeToAdapter")
-                .addModifiers(Modifier.STATIC)
-                .returns(void.class)
-                .addTypeVariable(genericTypeName)
-                .addException(IOException.class)
-                .addParameter(Gson.class, "gson")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
-                .addParameter(JsonWriter.class, "out")
-                .addParameter(genericTypeName, "value")
-                .addCode("gson.getAdapter(clazz).write(out, value);\n")
-                .build();
-    }
-
-    @NotNull
-    private static MethodSpec getReadFromAdapterSpec(@NotNull TypeVariableName genericTypeName) {
-        return MethodSpec.methodBuilder("readFromAdapter")
-                .addModifiers(Modifier.STATIC)
-                .returns(genericTypeName)
-                .addTypeVariable(genericTypeName)
-                .addException(IOException.class)
-                .addParameter(Gson.class, "gson")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
-                .addParameter(JsonReader.class, "in")
-                .addCode("return gson.getAdapter(clazz).read(in);\n")
-                .build();
-    }
-
-    @NotNull
-    private static MethodSpec getWriteListToAdapterSpec(@NotNull TypeVariableName genericTypeName) {
-        return MethodSpec.methodBuilder("writeListToAdapter")
-                .addModifiers(Modifier.STATIC)
-                .returns(void.class)
-                .addTypeVariable(genericTypeName)
-                .addException(IOException.class)
-                .addParameter(Gson.class, "gson")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
-                .addParameter(JsonWriter.class, "out")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(ArrayList.class), genericTypeName),
-                              "list")
-                .addCode("com.google.gson.TypeAdapter<T> typeAdapter = gson.getAdapter(clazz);\n" +
-                         '\n' +
-                         "for (T object : list) {\n" +
-                         "\ttypeAdapter.write(out, object);\n" +
-                         "}\n")
-                .build();
-    }
-
-    @NotNull
-    private static MethodSpec getReadListFromAdapterSpec(@NotNull TypeVariableName genericTypeName) {
-        return MethodSpec.methodBuilder("readListFromAdapter")
-                .addModifiers(Modifier.STATIC)
-                .returns(ParameterizedTypeName.get(ClassName.get(ArrayList.class), genericTypeName))
-                .addTypeVariable(genericTypeName)
-                .addException(IOException.class)
-                .addParameter(Gson.class, "gson")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
-                .addParameter(JsonReader.class, "in")
-                .addCode("ArrayList<T> list = new java.util.ArrayList<>();\n" +
-                         "com.google.gson.TypeAdapter<T> typeAdapter = gson.getAdapter(clazz);\n" +
-                         '\n' +
-                         "while(in.hasNext()){\n" +
-                         "\tlist.add(typeAdapter.read(in));\n" +
-                         "}\n" +
-                         '\n' +
-                         "return list;\n")
-                .build();
-    }
-
-    @NotNull
-    private static TypeSpec getAdapterFactorySpec(Set<Element> types) {
+    private TypeSpec getAdapterFactorySpec() {
         TypeVariableName genericTypeName = TypeVariableName.get("T");
-        TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(CLASS_TYPE_ADAPTER_FACTORY)
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addSuperinterface(TypeAdapterFactory.class);
+        TypeName factoryTypeName = TypeVariableName.get(TypeAdapterFactory.class);
 
-        StringBuilder factoryReturnBuilder = new StringBuilder(types.size());
+        ParameterizedTypeName factoryListTypeName =
+                ParameterizedTypeName.get(ClassName.get(List.class), factoryTypeName);
 
-        for (Element element : types) {
-            if (TypeUtils.isConcreteType(element)) {
-                ClassInfo classInfo = new ClassInfo(element.asType());
-
-                factoryReturnBuilder.append("if (clazz == ")
-                        .append(classInfo.getClassAndPackage())
-                        .append(".class) {\n\treturn (TypeAdapter<T>) new ")
-                        .append(classInfo.getClassName())
-                        .append("Adapter(gson);\n}\n");
+        MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addCode("mTypeAdapterFactories = java.util.Arrays.<TypeAdapterFactory>asList(\n");
+        Iterator<String> knownFactoriesIterator = mKnownTypeAdapterFactories.iterator();
+        while (knownFactoriesIterator.hasNext()) {
+            String knownFactory = knownFactoriesIterator.next();
+            constructorBuilder.addCode("\tnew " + knownFactory + "()");
+            if (knownFactoriesIterator.hasNext()) {
+                constructorBuilder.addCode(",\n");
+            } else {
+                constructorBuilder.addCode(");\n");
             }
         }
+        MethodSpec constructorSpec = constructorBuilder.build();
 
-        MethodSpec createTypeAdapterMethod = MethodSpec.methodBuilder("create")
+        TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(CLASS_TYPE_ADAPTER_FACTORY)
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addSuperinterface(TypeAdapterFactory.class)
+                .addField(factoryListTypeName, "mTypeAdapterFactories", Modifier.PRIVATE, Modifier.FINAL)
+                .addMethod(constructorSpec);
+
+        MethodSpec.Builder createMethodBuilder = MethodSpec.methodBuilder("create")
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addTypeVariable(genericTypeName)
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
                 .addParameter(Gson.class, "gson")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
-                              "type")
-                .addCode("Class<? super T> clazz = type.getRawType();\n" +
-                         '\n' +
-                         factoryReturnBuilder +
-                         '\n' + "return null;\n")
-                .build();
+                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName), "type")
+                .addCode("for (TypeAdapterFactory adapterFactory : mTypeAdapterFactories) {\n" +
+                        "\tTypeAdapter<T> typeAdapter = adapterFactory.create(gson, type);\n" +
+                        "\tif (typeAdapter != null) {\n" +
+                        "\t\treturn typeAdapter;\n" +
+                        "\t}\n" +
+                        "}\n" +
+                        "return null;\n");
 
-        adapterFactoryBuilder.addMethod(createTypeAdapterMethod);
+        adapterFactoryBuilder.addMethod(createMethodBuilder.build());
         return adapterFactoryBuilder.build();
     }
 
