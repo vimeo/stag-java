@@ -101,7 +101,7 @@ public class TypeAdapterGenerator {
 
     @NotNull
     private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName,
-                                                 Map<Element, TypeMirror> memberVariables) {
+                                                 @NotNull Map<Element, TypeMirror> memberVariables) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
                 .addParameter(JsonWriter.class, "writer")
                 .addParameter(typeName, "object")
@@ -137,7 +137,8 @@ public class TypeAdapterGenerator {
     }
 
     @NotNull
-    private MethodSpec getReadMethodSpec(TypeName typeName, Map<Element, TypeMirror> elements) {
+    private MethodSpec getReadMethodSpec(@NotNull TypeName typeName,
+                                         @NotNull Map<Element, TypeMirror> elements) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("read")
                 .addParameter(JsonReader.class, "reader")
                 .returns(typeName)
@@ -206,9 +207,9 @@ public class TypeAdapterGenerator {
         return builder.build();
     }
 
-    private static void addAdapterFields(TypeSpec.Builder adapterBuilder,
-                                         MethodSpec.Builder constructorBuilder,
-                                         Map<Element, TypeMirror> memberVariables) {
+    private static void addAdapterFields(@NotNull TypeSpec.Builder adapterBuilder,
+                                         @NotNull MethodSpec.Builder constructorBuilder,
+                                         @NotNull Map<Element, TypeMirror> memberVariables) {
         HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
         for (TypeMirror fieldType : typeSet) {
             if (isNative(fieldType.toString())) {
@@ -228,12 +229,12 @@ public class TypeAdapterGenerator {
         }
     }
 
-    private static TypeName getAdapterFieldTypeName(TypeMirror type) {
+    private static TypeName getAdapterFieldTypeName(@NotNull TypeMirror type) {
         TypeName typeName = TypeVariableName.get(type);
         return ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
     }
 
-    private static String getAdapterField(TypeMirror type) {
+    private static String getAdapterField(@NotNull TypeMirror type) {
         ClassInfo classInfo = new ClassInfo(type);
         return "m" + classInfo.getTypeAdapterClassName();
     }
@@ -255,7 +256,7 @@ public class TypeAdapterGenerator {
     }
 
     @NotNull
-    private static String getJsonName(Element element) {
+    private static String getJsonName(@NotNull Element element) {
         String name = element.getAnnotation(GsonAdapterKey.class).value();
 
         if (name.isEmpty()) {
@@ -284,7 +285,9 @@ public class TypeAdapterGenerator {
 
     }
 
-    private static String getReadCode(String prefix, String variableName, TypeMirror type) {
+    @NotNull
+    private static String getReadCode(@NotNull String prefix, @NotNull String variableName,
+                                      @NotNull TypeMirror type) {
         if (TypeUtils.getOuterClassType(type).equals(ArrayList.class.getName())) {
             TypeMirror innerType = getInnerListType(type);
             String innerRead = getAdapterRead(innerType);
@@ -349,12 +352,12 @@ public class TypeAdapterGenerator {
         }
     }
 
-    private static String getAdapterWrite(TypeMirror type, String variableName) {
+    private static String getAdapterWrite(@NotNull TypeMirror type, @NotNull String variableName) {
         String adapterField = getAdapterField(type);
         return adapterField + ".write(writer, " + variableName + ")";
     }
 
-    private static String getAdapterRead(TypeMirror type) {
+    private static String getAdapterRead(@NotNull TypeMirror type) {
         String adapterField = getAdapterField(type);
         return adapterField + ".read(reader)";
     }

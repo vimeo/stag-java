@@ -23,6 +23,8 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +48,8 @@ public final class KnownTypeAdapterFactoriesUtils {
     private KnownTypeAdapterFactoriesUtils() {
     }
 
-    public static Set<String> loadKnownTypes(ProcessingEnvironment processingEnv) throws IOException {
+    public static Set<String> loadKnownTypes(@NotNull ProcessingEnvironment processingEnv)
+            throws IOException {
         Filer filer = processingEnv.getFiler();
         LinkedHashSet<String> knownTypes = new LinkedHashSet<>();
         loadKnownTypesFromFiler(filer, knownTypes);
@@ -66,8 +69,8 @@ public final class KnownTypeAdapterFactoriesUtils {
         return knownTypes;
     }
 
-    public static void writeKnownTypes(ProcessingEnvironment processingEnv, Set<String> knownTypes)
-            throws IOException {
+    public static void writeKnownTypes(@NotNull ProcessingEnvironment processingEnv,
+                                       @NotNull Set<String> knownTypes) throws IOException {
         Filer filer = processingEnv.getFiler();
         StringBuilder knownTypesBuilder = new StringBuilder();
         for (String knownType : knownTypes) {
@@ -76,7 +79,8 @@ public final class KnownTypeAdapterFactoriesUtils {
         FileGenUtils.writeToResource(filer, KNOWN_FACTORIES_RESOURCE, knownTypesBuilder.toString());
     }
 
-    private static void loadKnownTypesFromFiler(Filer filer, Set<String> resultSet) throws IOException {
+    private static void loadKnownTypesFromFiler(@NotNull Filer filer, @NotNull Set<String> resultSet)
+            throws IOException {
         CharSequence content = FileGenUtils.readResource(filer, KNOWN_FACTORIES_RESOURCE);
         if (content == null) {
             return;
@@ -85,7 +89,7 @@ public final class KnownTypeAdapterFactoriesUtils {
         Collections.addAll(resultSet, knownFactories);
     }
 
-    private static void loadKnownTypesFromClasspath(Set<String> resultSet) throws IOException {
+    private static void loadKnownTypesFromClasspath(@NotNull Set<String> resultSet) throws IOException {
         ClassLoader classLoader = KnownTypeAdapterFactoriesUtils.class.getClassLoader();
         String resourcePath = FileGenUtils.GENERATED_PACKAGE_NAME.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(resourcePath + "/" + KNOWN_FACTORIES_RESOURCE);
