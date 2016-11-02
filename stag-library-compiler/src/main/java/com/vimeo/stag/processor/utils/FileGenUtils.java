@@ -26,7 +26,9 @@ package com.vimeo.stag.processor.utils;
 import com.squareup.javapoet.JavaFile;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
@@ -116,6 +118,22 @@ public final class FileGenUtils {
 
                 }
             }
+        }
+    }
+
+    /**
+     * Safely closes a closeable.
+     *
+     * @param closeable object to close.
+     */
+    static void close(@Nullable Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (IOException e) {
+            // ignored
         }
     }
 

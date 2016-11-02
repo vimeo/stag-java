@@ -52,14 +52,14 @@ import javax.lang.model.type.TypeMirror;
 
 public class StagGenerator {
 
-    public static final String CLASS_STAG = "Stag";
+    private static final String CLASS_STAG = "Stag";
     private static final String CLASS_TYPE_ADAPTER_FACTORY = "Factory";
 
     @NotNull
     private final Filer mFiler;
 
     @NotNull
-    private Set<String> mKnownTypeAdapterFactories = new HashSet<>();
+    private final Set<String> mKnownTypeAdapterFactories = new HashSet<>();
 
     public StagGenerator(@NotNull Filer filer, @NotNull Set<String> knownTypes) {
         mFiler = filer;

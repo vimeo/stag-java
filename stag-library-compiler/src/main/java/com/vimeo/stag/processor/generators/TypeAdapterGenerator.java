@@ -254,7 +254,7 @@ public class TypeAdapterGenerator {
     private static String getJsonName(Element element) {
         String name = element.getAnnotation(GsonAdapterKey.class).value();
 
-        if (name == null || name.length() == 0) {
+        if (name.isEmpty()) {
             name = element.getSimpleName().toString();
         }
         return name;

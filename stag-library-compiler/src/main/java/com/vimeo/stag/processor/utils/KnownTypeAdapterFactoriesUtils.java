@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -78,9 +79,7 @@ public class KnownTypeAdapterFactoriesUtils {
             return;
         }
         String[] knownFactories = content.toString().split("[\\n\\r]+");
-        for (String knownFactory : knownFactories) {
-            resultSet.add(knownFactory);
-        }
+        Collections.addAll(resultSet, knownFactories);
     }
 
     private static void loadKnownTypesFromClasspath(Set<String> resultSet) throws IOException {
@@ -97,7 +96,7 @@ public class KnownTypeAdapterFactoriesUtils {
                     resultSet.add(line.trim());
                 }
             } finally {
-                inputStream.close();
+                FileGenUtils.close(inputStream);
             }
         }
     }
