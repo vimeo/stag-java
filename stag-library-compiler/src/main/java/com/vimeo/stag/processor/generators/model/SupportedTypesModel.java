@@ -31,7 +31,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -88,18 +87,6 @@ public final class SupportedTypesModel {
             addSupportedType(model);
         }
         return model;
-    }
-
-    /**
-     * A list of all supported AnnotatedClasses.
-     * This may return both generic and concrete
-     * types.
-     *
-     * @return the list of all supported types.
-     */
-    @NotNull
-    public List<AnnotatedClass> getSupportedTypes() {
-        return new ArrayList<>(mSupportedTypesMap.values());
     }
 
     /**

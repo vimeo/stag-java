@@ -24,12 +24,18 @@
 package com.vimeo.stag.processor;
 
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.JavaFile;
 import com.vimeo.stag.GsonAdapterKey;
-import com.vimeo.stag.processor.generators.ParseGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
+import com.vimeo.stag.processor.generators.TypeAdapterFactoryGenerator;
+import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
-import com.vimeo.stag.processor.utils.DebugLog;
+import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
+import com.vimeo.stag.processor.utils.DebugLog;
+import com.vimeo.stag.processor.utils.ElementUtils;
+import com.vimeo.stag.processor.utils.FileGenUtils;
+import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -45,6 +51,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Filer;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -83,6 +90,7 @@ public final class StagProcessor extends AbstractProcessor {
             return true;
         }
         TypeUtils.initialize(processingEnv.getTypeUtils());
+        ElementUtils.initialize(processingEnv.getElementUtils());
 
         DebugLog.log("\nBeginning @GsonAdapterKey annotation processing\n");
 
@@ -98,11 +106,11 @@ public final class StagProcessor extends AbstractProcessor {
                                                variableElement.getSimpleName().toString() + "\" in class " +
                                                variableElement.getEnclosingElement().asType() +
                                                ", field must not be final.");
-                } else if (!modifiers.contains(Modifier.PUBLIC)) {
+                } else if (modifiers.contains(Modifier.PRIVATE)) {
                     throw new RuntimeException("Unable to access field \"" +
                                                variableElement.getSimpleName().toString() + "\" in class " +
                                                variableElement.getEnclosingElement().asType() +
-                                               ", field must public.");
+                                               ", field must not be private.");
                 }
 
                 Element enclosingClassElement = variableElement.getEnclosingElement();
@@ -120,15 +128,34 @@ public final class StagProcessor extends AbstractProcessor {
             }
         }
 
+        Filer filer = processingEnv.getFiler();
         try {
             for (Entry<Element, List<VariableElement>> entry : variableMap.entrySet()) {
                 SupportedTypesModel.getInstance()
                         .addSupportedType(new AnnotatedClass(entry.getKey(), entry.getValue()));
             }
-            ParseGenerator parseGenerator = new ParseGenerator(mSupportedTypes, processingEnv.getFiler());
-            parseGenerator.generateParsingCode();
-            StagGenerator adapterGenerator = new StagGenerator(processingEnv.getFiler());
-            adapterGenerator.generateTypeAdapters();
+            mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv));
+
+            StagGenerator adapterGenerator = new StagGenerator(filer, mSupportedTypes);
+            adapterGenerator.generateTypeAdapterFactory();
+
+            Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
+            for (Element element : list) {
+                if (TypeUtils.isConcreteType(element)) {
+                    ClassInfo classInfo = new ClassInfo(element.asType());
+                    TypeAdapterGenerator independentAdapter = new TypeAdapterGenerator(classInfo);
+                    JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(),
+                                                         independentAdapter.getTypeAdapterSpec()).build();
+                    FileGenUtils.writeToFile(javaFile, filer);
+
+                    TypeAdapterFactoryGenerator factoryGenerator = new TypeAdapterFactoryGenerator(classInfo);
+                    javaFile = JavaFile.builder(classInfo.getPackageName(),
+                                                factoryGenerator.getTypeAdapterFactorySpec()).build();
+                    FileGenUtils.writeToFile(javaFile, filer);
+                }
+            }
+
+            KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, mSupportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

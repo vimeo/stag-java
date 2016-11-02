@@ -23,25 +23,44 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class Preconditions {
+import javax.lang.model.element.Element;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
 
-    private Preconditions() {
+public final class ElementUtils {
+
+    private static Elements sElementUtils;
+
+    private ElementUtils() {
         throw new UnsupportedOperationException("This class is not instantiable");
     }
 
-    /**
-     * Asserts that the object is not null.
-     * Throws a null pointer exception if
-     * it is null.
-     *
-     * @param o the object to check.
-     */
-    public static void checkNotNull(@Nullable Object o) {
-        if (o == null) {
-            throw new NullPointerException("Object must not be null");
-        }
+    public static void initialize(@NotNull Elements elementUtils) {
+        sElementUtils = elementUtils;
+    }
+
+    private static Elements getUtils() {
+        Preconditions.checkNotNull(sElementUtils);
+        return sElementUtils;
+    }
+
+    @Nullable
+    public static TypeMirror getTypeFromQualifiedName(@NotNull String qualifiedName) {
+        Elements elements = ElementUtils.getUtils();
+        TypeElement typeElement = elements.getTypeElement(qualifiedName);
+        return typeElement.asType();
+    }
+
+    @NotNull
+    public static String getPackage(@NotNull TypeMirror type) {
+        Element element = TypeUtils.getUtils().asElement(type);
+        PackageElement packageElement = sElementUtils.getPackageOf(element);
+        return packageElement.getQualifiedName().toString();
     }
 
 }

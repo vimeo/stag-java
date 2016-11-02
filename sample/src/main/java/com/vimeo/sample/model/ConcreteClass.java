@@ -21,27 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.utils;
+package com.vimeo.sample.model;
 
-import org.jetbrains.annotations.Nullable;
+import com.vimeo.stag.GsonAdapterKey;
 
-public final class Preconditions {
+public class ConcreteClass {
 
-    private Preconditions() {
-        throw new UnsupportedOperationException("This class is not instantiable");
-    }
+    public static class NestedModel {
 
-    /**
-     * Asserts that the object is not null.
-     * Throws a null pointer exception if
-     * it is null.
-     *
-     * @param o the object to check.
-     */
-    public static void checkNotNull(@Nullable Object o) {
-        if (o == null) {
-            throw new NullPointerException("Object must not be null");
+        @GsonAdapterKey
+        public String message;
+
+        public static class DoublyNestedModel {
+
+            @GsonAdapterKey
+            public String message;
+
         }
+
     }
 
 }

@@ -45,7 +45,7 @@ public final class TypeUtils {
     private static Types sTypeUtils;
 
     private TypeUtils() {
-        throw new UnsupportedOperationException("This class is instantiable");
+        throw new UnsupportedOperationException("This class is not instantiable");
     }
 
     public static void initialize(@NotNull Types typeUtils) {
@@ -104,7 +104,7 @@ public final class TypeUtils {
     /**
      * Determines whether or not the TypeMirror is a concrete type.
      * If the type is a generic type or contains generic type
-     * arguments (i.e. a paramenterized type), this method will
+     * arguments (i.e. a parameterized type), this method will
      * return false.
      *
      * @param typeMirror the element to check.

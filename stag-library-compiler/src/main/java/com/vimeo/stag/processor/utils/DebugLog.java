@@ -33,6 +33,7 @@ public final class DebugLog {
     private static final String TAG = "Stag";
 
     private DebugLog() {
+        throw new UnsupportedOperationException("This class is not instantiable");
     }
 
     public static void log(@Nullable CharSequence message) {
