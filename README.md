@@ -19,8 +19,8 @@ The Stag library solves this problem. It leverages annotations to automatically 
 from jCenter
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:1.0.1'
-    apt 'com.vimeo.stag:stag-library-compiler:1.0.1'
+    compile 'com.vimeo.stag:stag-library:1.1.0'
+    apt 'com.vimeo.stag:stag-library-compiler:1.1.0'
 }
 ```
 
@@ -66,8 +66,8 @@ apply plugin: 'com.neenbedankt.android-apt'
 
 ## Usage
 
-1. Make sure the member variables of your model class are public ([for now](#future-enhancements))
-2. Make sure your model class is public and has a zero argument public constructor
+1. Make sure the member variables of your model class are not private (i.e. public, protected, or package-local visibility)
+2. Make sure your model class is not private and has a zero argument non-private constructor
 3. Annotate each member variable you want populated
     - `@GsonAdapterKey("json_key")`: populates the field using the JSON value with the specified key
     - `@GsonAdapterKey`: populates the field using the JSON value with the key named the same as the member variable
@@ -89,21 +89,21 @@ See the [example below](#example) or the [sample app](sample) to get more info o
 ```java
 public class Deer {
     @GsonAdapterKey("name")
-    public String mName;    // mName = json value with key "name"
+    String mName;    // mName = json value with key "name"
     
     @GsonAdapterKey("species")
-    public String mSpecies; // mSpecies = json value with key "species"
+    String mSpecies; // mSpecies = json value with key "species"
     
     @GsonAdapterKey("age")
-    public int mAge;        // mAge = json value with key "age"
+    int mAge;        // mAge = json value with key "age"
     
     @GsonAdapterKey("points")
-    public int mPoints;     // mPoints = json value with key "points"
+    int mPoints;     // mPoints = json value with key "points"
 }
 
 public class Herd {
     @GsonAdapterKey
-    public ArrayList<Deer> data_list;  // data_list = json value with key "data_list"
+    ArrayList<Deer> data_list;  // data_list = json value with key "data_list"
 }
 
 /**
@@ -126,7 +126,7 @@ MyParsingClass {
 
 ## Future Enhancements
 
-- Generate code so that member variables only need to be package local
+- HashMap parsing support
 - Add an option to absorb parsing errors rather than re-throwing them
 
 ## License
