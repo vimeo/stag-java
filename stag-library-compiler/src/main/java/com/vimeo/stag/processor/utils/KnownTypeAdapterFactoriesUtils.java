@@ -62,7 +62,8 @@ public class KnownTypeAdapterFactoriesUtils {
         return knownTypes;
     }
 
-    public static void writeKnownTypes(ProcessingEnvironment processingEnv, Set<String> knownTypes) throws IOException {
+    public static void writeKnownTypes(ProcessingEnvironment processingEnv, Set<String> knownTypes)
+            throws IOException {
         Filer filer = processingEnv.getFiler();
         StringBuilder knownTypesBuilder = new StringBuilder();
         for (String knownType : knownTypes) {

@@ -83,7 +83,8 @@ public final class FileGenUtils {
 
     static CharSequence readResource(@NotNull Filer filer, @NotNull String resourceName) throws IOException {
         try {
-            FileObject file = filer.getResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
+            FileObject file =
+                    filer.getResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
             return file.getCharContent(false);
         } catch (FileNotFoundException e) {
             DebugLog.log("Resource not found: " + resourceName);
@@ -91,8 +92,10 @@ public final class FileGenUtils {
         }
     }
 
-    static void writeToResource(@NotNull Filer filer, @NotNull String resourceName, @NotNull CharSequence content) throws IOException {
-        FileObject file = filer.createResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
+    static void writeToResource(@NotNull Filer filer, @NotNull String resourceName,
+                                @NotNull CharSequence content) throws IOException {
+        FileObject file =
+                filer.createResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
         file.delete();
         Writer writer = null;
         try {

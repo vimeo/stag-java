@@ -58,10 +58,9 @@ public class TypeAdapterFactoryGenerator {
      */
     @NotNull
     public TypeSpec getTypeAdapterFactorySpec() {
-        TypeSpec.Builder adapterBuilder =
-                TypeSpec.classBuilder(mInfo.getTypeAdapterFactoryClassName())
-                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                        .addSuperinterface(ClassName.get(TypeAdapterFactory.class))
+        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(mInfo.getTypeAdapterFactoryClassName())
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addSuperinterface(ClassName.get(TypeAdapterFactory.class))
                 .addMethod(getCreateMethodSpec());
 
         return adapterBuilder.build();
@@ -82,10 +81,11 @@ public class TypeAdapterFactoryGenerator {
                 .addAnnotation(suppressions)
                 .addAnnotation(Override.class)
                 .addCode("Class<? super T> clazz = type.getRawType();\n" +
-                        "if (clazz == " + mInfo.getClassAndPackage() + ".class) {\n" +
-                        "\treturn (TypeAdapter<T>) new " + mInfo.getTypeAdapterQualifiedClassName() + "(gson);\n" +
-                        "}\n" +
-                        "return null;\n")
+                         "if (clazz == " + mInfo.getClassAndPackage() + ".class) {\n" +
+                         "\treturn (TypeAdapter<T>) new " + mInfo.getTypeAdapterQualifiedClassName() +
+                         "(gson);\n" +
+                         "}\n" +
+                         "return null;\n")
                 .build();
     }
 

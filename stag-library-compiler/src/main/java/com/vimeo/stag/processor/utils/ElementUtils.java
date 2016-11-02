@@ -51,7 +51,7 @@ public final class ElementUtils {
     public static TypeMirror getTypeFromQualifiedName(@NotNull String qualifiedName) {
         Elements elements = ElementUtils.getUtils();
         TypeElement typeElement = elements.getTypeElement(qualifiedName);
-        return  typeElement.asType();
+        return typeElement.asType();
     }
 
     public static String getPackage(@NotNull TypeMirror type) {
