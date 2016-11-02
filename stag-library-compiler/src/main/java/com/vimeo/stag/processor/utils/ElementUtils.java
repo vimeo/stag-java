@@ -24,6 +24,7 @@
 package com.vimeo.stag.processor.utils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.PackageElement;
@@ -43,17 +44,19 @@ public final class ElementUtils {
         sElementUtils = elementUtils;
     }
 
-    public static Elements getUtils() {
+    private static Elements getUtils() {
         Preconditions.checkNotNull(sElementUtils);
         return sElementUtils;
     }
 
+    @Nullable
     public static TypeMirror getTypeFromQualifiedName(@NotNull String qualifiedName) {
         Elements elements = ElementUtils.getUtils();
         TypeElement typeElement = elements.getTypeElement(qualifiedName);
-        return  typeElement.asType();
+        return typeElement.asType();
     }
 
+    @NotNull
     public static String getPackage(@NotNull TypeMirror type) {
         Element element = TypeUtils.getUtils().asElement(type);
         PackageElement packageElement = sElementUtils.getPackageOf(element);

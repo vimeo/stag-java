@@ -23,10 +23,13 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
@@ -41,8 +44,11 @@ import javax.tools.StandardLocation;
 public final class FileGenUtils {
 
     public static final String GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
+    private static final String UNESCAPED_SEPARATOR = "$";
+    private static final String CODE_BLOCK_ESCAPED_SEPARATOR = "$$";
 
     private FileGenUtils() {
+        throw new UnsupportedOperationException("This class is not instantiable");
     }
 
     /**
@@ -83,7 +89,8 @@ public final class FileGenUtils {
 
     static CharSequence readResource(@NotNull Filer filer, @NotNull String resourceName) throws IOException {
         try {
-            FileObject file = filer.getResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
+            FileObject file =
+                    filer.getResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
             return file.getCharContent(false);
         } catch (FileNotFoundException e) {
             DebugLog.log("Resource not found: " + resourceName);
@@ -91,8 +98,10 @@ public final class FileGenUtils {
         }
     }
 
-    static void writeToResource(@NotNull Filer filer, @NotNull String resourceName, @NotNull CharSequence content) throws IOException {
-        FileObject file = filer.createResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
+    static void writeToResource(@NotNull Filer filer, @NotNull String resourceName,
+                                @NotNull CharSequence content) throws IOException {
+        FileObject file =
+                filer.createResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
         file.delete();
         Writer writer = null;
         try {
@@ -114,6 +123,47 @@ public final class FileGenUtils {
                 }
             }
         }
+    }
+
+    /**
+     * Safely closes a closeable.
+     *
+     * @param closeable object to close.
+     */
+    static void close(@Nullable Closeable closeable) {
+        if (closeable == null) {
+            return;
+        }
+        try {
+            closeable.close();
+        } catch (IOException e) {
+            // ignored
+        }
+    }
+
+    /**
+     * Takes a String input and escapes it for use
+     * in the {@link CodeBlock} class.
+     *
+     * @param string the string to escape.
+     * @return a String safe to use in a {@link CodeBlock}
+     */
+    @NotNull
+    public static String escapeStringForCodeBlock(@NotNull String string) {
+        return string.replace(UNESCAPED_SEPARATOR, CODE_BLOCK_ESCAPED_SEPARATOR);
+    }
+
+    /**
+     * Takes a String input that was escaped for
+     * use in the {@link CodeBlock} class and
+     * unescapes it for normal use.
+     *
+     * @param string the String to unescape,
+     * @return a String safe for normal use.
+     */
+    @NotNull
+    public static String unescapeEscapedString(@NotNull String string) {
+        return string.replace(CODE_BLOCK_ESCAPED_SEPARATOR, UNESCAPED_SEPARATOR);
     }
 
 }

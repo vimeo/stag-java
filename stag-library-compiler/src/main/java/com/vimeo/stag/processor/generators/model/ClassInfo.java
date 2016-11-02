@@ -24,6 +24,7 @@
 package com.vimeo.stag.processor.generators.model;
 
 import com.vimeo.stag.processor.utils.ElementUtils;
+import com.vimeo.stag.processor.utils.FileGenUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -78,7 +79,7 @@ public class ClassInfo {
      */
     @NotNull
     public String getTypeAdapterClassName() {
-        return mClassName + "TypeAdapter";
+        return FileGenUtils.escapeStringForCodeBlock(mClassName + "$TypeAdapter");
     }
 
     /**
@@ -100,7 +101,7 @@ public class ClassInfo {
      */
     @NotNull
     public String getTypeAdapterFactoryClassName() {
-        return mClassName + "TypeAdapterFactory";
+        return FileGenUtils.escapeStringForCodeBlock(mClassName + "$TypeAdapterFactory");
     }
 
     /**

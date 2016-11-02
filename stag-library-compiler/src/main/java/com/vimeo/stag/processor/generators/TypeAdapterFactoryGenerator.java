@@ -34,12 +34,12 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
+import com.vimeo.stag.processor.utils.FileGenUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import javax.lang.model.element.Modifier;
 
-@SuppressWarnings("StringConcatenationMissingWhitespace")
 public class TypeAdapterFactoryGenerator {
 
     @NotNull
@@ -58,10 +58,10 @@ public class TypeAdapterFactoryGenerator {
      */
     @NotNull
     public TypeSpec getTypeAdapterFactorySpec() {
-        TypeSpec.Builder adapterBuilder =
-                TypeSpec.classBuilder(mInfo.getTypeAdapterFactoryClassName())
-                        .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                        .addSuperinterface(ClassName.get(TypeAdapterFactory.class))
+        String className = FileGenUtils.unescapeEscapedString(mInfo.getTypeAdapterFactoryClassName());
+        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addSuperinterface(ClassName.get(TypeAdapterFactory.class))
                 .addMethod(getCreateMethodSpec());
 
         return adapterBuilder.build();
@@ -82,10 +82,11 @@ public class TypeAdapterFactoryGenerator {
                 .addAnnotation(suppressions)
                 .addAnnotation(Override.class)
                 .addCode("Class<? super T> clazz = type.getRawType();\n" +
-                        "if (clazz == " + mInfo.getClassAndPackage() + ".class) {\n" +
-                        "\treturn (TypeAdapter<T>) new " + mInfo.getTypeAdapterQualifiedClassName() + "(gson);\n" +
-                        "}\n" +
-                        "return null;\n")
+                         "if (clazz == " + mInfo.getClassAndPackage() + ".class) {\n" +
+                         "\treturn (TypeAdapter<T>) new " + mInfo.getTypeAdapterQualifiedClassName() +
+                         "(gson);\n" +
+                         "}\n" +
+                         "return null;\n")
                 .build();
     }
 

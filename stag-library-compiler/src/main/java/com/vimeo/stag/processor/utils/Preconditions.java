@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 public final class Preconditions {
 
     private Preconditions() {
-        throw new UnsupportedOperationException("This class is instantiable");
+        throw new UnsupportedOperationException("This class is not instantiable");
     }
 
     /**

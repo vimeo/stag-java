@@ -23,11 +23,14 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -38,11 +41,16 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 
-public class KnownTypeAdapterFactoriesUtils {
+public final class KnownTypeAdapterFactoriesUtils {
 
     private static final String KNOWN_FACTORIES_RESOURCE = "StagTypeAdapterFactory.list";
 
-    public static Set<String> loadKnownTypes(ProcessingEnvironment processingEnv) throws IOException {
+    private KnownTypeAdapterFactoriesUtils() {
+        throw new UnsupportedOperationException("This class is not instantiable");
+    }
+
+    public static Set<String> loadKnownTypes(@NotNull ProcessingEnvironment processingEnv)
+            throws IOException {
         Filer filer = processingEnv.getFiler();
         LinkedHashSet<String> knownTypes = new LinkedHashSet<>();
         loadKnownTypesFromFiler(filer, knownTypes);
@@ -62,7 +70,8 @@ public class KnownTypeAdapterFactoriesUtils {
         return knownTypes;
     }
 
-    public static void writeKnownTypes(ProcessingEnvironment processingEnv, Set<String> knownTypes) throws IOException {
+    public static void writeKnownTypes(@NotNull ProcessingEnvironment processingEnv,
+                                       @NotNull Set<String> knownTypes) throws IOException {
         Filer filer = processingEnv.getFiler();
         StringBuilder knownTypesBuilder = new StringBuilder();
         for (String knownType : knownTypes) {
@@ -71,18 +80,17 @@ public class KnownTypeAdapterFactoriesUtils {
         FileGenUtils.writeToResource(filer, KNOWN_FACTORIES_RESOURCE, knownTypesBuilder.toString());
     }
 
-    private static void loadKnownTypesFromFiler(Filer filer, Set<String> resultSet) throws IOException {
+    private static void loadKnownTypesFromFiler(@NotNull Filer filer, @NotNull Set<String> resultSet)
+            throws IOException {
         CharSequence content = FileGenUtils.readResource(filer, KNOWN_FACTORIES_RESOURCE);
         if (content == null) {
             return;
         }
         String[] knownFactories = content.toString().split("[\\n\\r]+");
-        for (String knownFactory : knownFactories) {
-            resultSet.add(knownFactory);
-        }
+        Collections.addAll(resultSet, knownFactories);
     }
 
-    private static void loadKnownTypesFromClasspath(Set<String> resultSet) throws IOException {
+    private static void loadKnownTypesFromClasspath(@NotNull Set<String> resultSet) throws IOException {
         ClassLoader classLoader = KnownTypeAdapterFactoriesUtils.class.getClassLoader();
         String resourcePath = FileGenUtils.GENERATED_PACKAGE_NAME.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(resourcePath + "/" + KNOWN_FACTORIES_RESOURCE);
@@ -96,7 +104,7 @@ public class KnownTypeAdapterFactoriesUtils {
                     resultSet.add(line.trim());
                 }
             } finally {
-                inputStream.close();
+                FileGenUtils.close(inputStream);
             }
         }
     }

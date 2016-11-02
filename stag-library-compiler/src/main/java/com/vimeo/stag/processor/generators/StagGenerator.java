@@ -52,14 +52,14 @@ import javax.lang.model.type.TypeMirror;
 
 public class StagGenerator {
 
-    public static final String CLASS_STAG = "Stag";
+    private static final String CLASS_STAG = "Stag";
     private static final String CLASS_TYPE_ADAPTER_FACTORY = "Factory";
 
     @NotNull
     private final Filer mFiler;
 
     @NotNull
-    private Set<String> mKnownTypeAdapterFactories = new HashSet<>();
+    private final Set<String> mKnownTypeAdapterFactories = new HashSet<>();
 
     public StagGenerator(@NotNull Filer filer, @NotNull Set<String> knownTypes) {
         mFiler = filer;
@@ -128,14 +128,15 @@ public class StagGenerator {
                 .addTypeVariable(genericTypeName)
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
                 .addParameter(Gson.class, "gson")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName), "type")
+                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
+                              "type")
                 .addCode("for (TypeAdapterFactory adapterFactory : mTypeAdapterFactories) {\n" +
-                        "\tTypeAdapter<T> typeAdapter = adapterFactory.create(gson, type);\n" +
-                        "\tif (typeAdapter != null) {\n" +
-                        "\t\treturn typeAdapter;\n" +
-                        "\t}\n" +
-                        "}\n" +
-                        "return null;\n");
+                         "\tTypeAdapter<T> typeAdapter = adapterFactory.create(gson, type);\n" +
+                         "\tif (typeAdapter != null) {\n" +
+                         "\t\treturn typeAdapter;\n" +
+                         "\t}\n" +
+                         "}\n" +
+                         "return null;\n");
 
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
         return adapterFactoryBuilder.build();
