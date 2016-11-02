@@ -34,6 +34,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
+import com.vimeo.stag.processor.utils.FileGenUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -57,7 +58,8 @@ public class TypeAdapterFactoryGenerator {
      */
     @NotNull
     public TypeSpec getTypeAdapterFactorySpec() {
-        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(mInfo.getTypeAdapterFactoryClassName())
+        String className = FileGenUtils.desanitizeCode(mInfo.getTypeAdapterFactoryClassName());
+        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(ClassName.get(TypeAdapterFactory.class))
                 .addMethod(getCreateMethodSpec());

@@ -23,6 +23,7 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
 
 import org.jetbrains.annotations.NotNull;
@@ -135,6 +136,31 @@ public final class FileGenUtils {
         } catch (IOException e) {
             // ignored
         }
+    }
+
+    /**
+     * Takes a String input and sanitizes it for use
+     * in the {@link CodeBlock} class.
+     *
+     * @param string the string to sanitize.
+     * @return a String safe to use in a {@link CodeBlock}
+     */
+    @NotNull
+    public static String sanitizeCode(@NotNull String string) {
+        return string.replace("$", "$$");
+    }
+
+    /**
+     * Takes a String input that was sanitized for
+     * use in the {@link CodeBlock} class and
+     * desanitizes it for normal use.
+     *
+     * @param string the String to desanitize,
+     * @return a String safe for normal use.
+     */
+    @NotNull
+    public static String desanitizeCode(@NotNull String string) {
+        return string.replace("$$", "$");
     }
 
 }

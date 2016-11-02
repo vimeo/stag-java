@@ -37,6 +37,7 @@ import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
+import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -78,7 +79,8 @@ public class TypeAdapterGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Gson.class, "gson");
 
-        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(mInfo.getTypeAdapterClassName())
+        String className = FileGenUtils.desanitizeCode(mInfo.getTypeAdapterClassName());
+        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
 
@@ -204,8 +206,9 @@ public class TypeAdapterGenerator {
         return builder.build();
     }
 
-    private static void addAdapterFields(TypeSpec.Builder adapterBuilder, MethodSpec.Builder constructorBuilder,
-                                  Map<Element, TypeMirror> memberVariables) {
+    private static void addAdapterFields(TypeSpec.Builder adapterBuilder,
+                                         MethodSpec.Builder constructorBuilder,
+                                         Map<Element, TypeMirror> memberVariables) {
         HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
         for (TypeMirror fieldType : typeSet) {
             if (isNative(fieldType.toString())) {
@@ -219,7 +222,8 @@ public class TypeAdapterGenerator {
             TypeName typeName = getAdapterFieldTypeName(fieldType);
             String fieldName = getAdapterField(fieldType);
 
-            adapterBuilder.addField(typeName, fieldName, Modifier.PRIVATE, Modifier.FINAL);
+            String originalFieldName = FileGenUtils.desanitizeCode(fieldName);
+            adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
             constructorBuilder.addStatement(fieldName + " = gson.getAdapter(" + fieldType + ".class)");
         }
     }
@@ -313,8 +317,8 @@ public class TypeAdapterGenerator {
         }
     }
 
-    private static String getWriteCode(@NotNull String prefix, @NotNull TypeMirror type, @NotNull String jsonName,
-                                @NotNull String variableName) {
+    private static String getWriteCode(@NotNull String prefix, @NotNull TypeMirror type,
+                                       @NotNull String jsonName, @NotNull String variableName) {
         if (TypeUtils.getOuterClassType(type).equals(ArrayList.class.getName())) {
             TypeMirror innerType = getInnerListType(type);
             String innerWrite = getAdapterWrite(innerType, "item");
