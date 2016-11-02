@@ -43,17 +43,19 @@ public final class ElementUtils {
         sElementUtils = elementUtils;
     }
 
-    public static Elements getUtils() {
+    private static Elements getUtils() {
         Preconditions.checkNotNull(sElementUtils);
         return sElementUtils;
     }
 
+    @NotNull
     public static TypeMirror getTypeFromQualifiedName(@NotNull String qualifiedName) {
         Elements elements = ElementUtils.getUtils();
         TypeElement typeElement = elements.getTypeElement(qualifiedName);
         return typeElement.asType();
     }
 
+    @NotNull
     public static String getPackage(@NotNull TypeMirror type) {
         Element element = TypeUtils.getUtils().asElement(type);
         PackageElement packageElement = sElementUtils.getPackageOf(element);

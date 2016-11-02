@@ -98,8 +98,8 @@ public class TypeAdapterGenerator {
     }
 
     @NotNull
-    private MethodSpec getWriteMethodSpec(@NotNull TypeName typeName,
-                                          Map<Element, TypeMirror> memberVariables) {
+    private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName,
+                                                 Map<Element, TypeMirror> memberVariables) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
                 .addParameter(JsonWriter.class, "writer")
                 .addParameter(typeName, "object")
@@ -204,7 +204,7 @@ public class TypeAdapterGenerator {
         return builder.build();
     }
 
-    private void addAdapterFields(TypeSpec.Builder adapterBuilder, MethodSpec.Builder constructorBuilder,
+    private static void addAdapterFields(TypeSpec.Builder adapterBuilder, MethodSpec.Builder constructorBuilder,
                                   Map<Element, TypeMirror> memberVariables) {
         HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
         for (TypeMirror fieldType : typeSet) {
@@ -224,12 +224,12 @@ public class TypeAdapterGenerator {
         }
     }
 
-    private TypeName getAdapterFieldTypeName(TypeMirror type) {
+    private static TypeName getAdapterFieldTypeName(TypeMirror type) {
         TypeName typeName = TypeVariableName.get(type);
         return ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
     }
 
-    private String getAdapterField(TypeMirror type) {
+    private static String getAdapterField(TypeMirror type) {
         ClassInfo classInfo = new ClassInfo(type);
         return "m" + classInfo.getTypeAdapterClassName();
     }
@@ -280,7 +280,7 @@ public class TypeAdapterGenerator {
 
     }
 
-    private String getReadCode(String prefix, String variableName, TypeMirror type) {
+    private static String getReadCode(String prefix, String variableName, TypeMirror type) {
         if (TypeUtils.getOuterClassType(type).equals(ArrayList.class.getName())) {
             TypeMirror innerType = getInnerListType(type);
             String innerRead = getAdapterRead(innerType);
@@ -297,7 +297,7 @@ public class TypeAdapterGenerator {
     }
 
     @NotNull
-    private String getReadType(@NotNull TypeMirror type) {
+    private static String getReadType(@NotNull TypeMirror type) {
         if (type.toString().equals(long.class.getName())) {
             return "reader.nextLong();";
         } else if (type.toString().equals(double.class.getName())) {
@@ -313,7 +313,7 @@ public class TypeAdapterGenerator {
         }
     }
 
-    private String getWriteCode(@NotNull String prefix, @NotNull TypeMirror type, @NotNull String jsonName,
+    private static String getWriteCode(@NotNull String prefix, @NotNull TypeMirror type, @NotNull String jsonName,
                                 @NotNull String variableName) {
         if (TypeUtils.getOuterClassType(type).equals(ArrayList.class.getName())) {
             TypeMirror innerType = getInnerListType(type);
@@ -333,7 +333,7 @@ public class TypeAdapterGenerator {
 
 
     @NotNull
-    private String getWriteType(@NotNull TypeMirror type, @NotNull String variableName) {
+    private static String getWriteType(@NotNull TypeMirror type, @NotNull String variableName) {
         if (type.toString().equals(long.class.getName()) ||
             type.toString().equals(double.class.getName()) ||
             type.toString().equals(boolean.class.getName()) ||
@@ -345,12 +345,12 @@ public class TypeAdapterGenerator {
         }
     }
 
-    private String getAdapterWrite(TypeMirror type, String variableName) {
+    private static String getAdapterWrite(TypeMirror type, String variableName) {
         String adapterField = getAdapterField(type);
         return adapterField + ".write(writer, " + variableName + ")";
     }
 
-    private String getAdapterRead(TypeMirror type) {
+    private static String getAdapterRead(TypeMirror type) {
         String adapterField = getAdapterField(type);
         return adapterField + ".read(reader)";
     }

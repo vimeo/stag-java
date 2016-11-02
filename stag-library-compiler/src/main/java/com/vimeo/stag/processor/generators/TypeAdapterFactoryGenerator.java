@@ -39,7 +39,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.lang.model.element.Modifier;
 
-@SuppressWarnings("StringConcatenationMissingWhitespace")
 public class TypeAdapterFactoryGenerator {
 
     @NotNull

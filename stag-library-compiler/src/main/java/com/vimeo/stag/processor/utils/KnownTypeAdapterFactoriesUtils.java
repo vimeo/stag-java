@@ -39,9 +39,12 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 
-public class KnownTypeAdapterFactoriesUtils {
+public final class KnownTypeAdapterFactoriesUtils {
 
     private static final String KNOWN_FACTORIES_RESOURCE = "StagTypeAdapterFactory.list";
+
+    private KnownTypeAdapterFactoriesUtils() {
+    }
 
     public static Set<String> loadKnownTypes(ProcessingEnvironment processingEnv) throws IOException {
         Filer filer = processingEnv.getFiler();
