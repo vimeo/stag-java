@@ -79,7 +79,7 @@ public class ClassInfo {
      */
     @NotNull
     public String getTypeAdapterClassName() {
-        return FileGenUtils.sanitizeCode(mClassName + "$TypeAdapter");
+        return FileGenUtils.escapeStringForCodeBlock(mClassName + "$TypeAdapter");
     }
 
     /**
@@ -101,7 +101,7 @@ public class ClassInfo {
      */
     @NotNull
     public String getTypeAdapterFactoryClassName() {
-        return FileGenUtils.sanitizeCode(mClassName + "$TypeAdapterFactory");
+        return FileGenUtils.escapeStringForCodeBlock(mClassName + "$TypeAdapterFactory");
     }
 
     /**

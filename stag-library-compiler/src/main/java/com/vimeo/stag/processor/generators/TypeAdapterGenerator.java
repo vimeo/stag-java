@@ -79,7 +79,7 @@ public class TypeAdapterGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Gson.class, "gson");
 
-        String className = FileGenUtils.desanitizeCode(mInfo.getTypeAdapterClassName());
+        String className = FileGenUtils.unescapeEscapedString(mInfo.getTypeAdapterClassName());
         TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
@@ -223,7 +223,7 @@ public class TypeAdapterGenerator {
             TypeName typeName = getAdapterFieldTypeName(fieldType);
             String fieldName = getAdapterField(fieldType);
 
-            String originalFieldName = FileGenUtils.desanitizeCode(fieldName);
+            String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
             adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
             constructorBuilder.addStatement(fieldName + " = gson.getAdapter(" + fieldType + ".class)");
         }

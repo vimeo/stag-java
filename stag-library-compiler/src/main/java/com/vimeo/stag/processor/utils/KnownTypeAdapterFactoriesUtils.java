@@ -46,6 +46,7 @@ public final class KnownTypeAdapterFactoriesUtils {
     private static final String KNOWN_FACTORIES_RESOURCE = "StagTypeAdapterFactory.list";
 
     private KnownTypeAdapterFactoriesUtils() {
+        throw new UnsupportedOperationException("This class is not instantiable");
     }
 
     public static Set<String> loadKnownTypes(@NotNull ProcessingEnvironment processingEnv)

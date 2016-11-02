@@ -58,7 +58,7 @@ public class TypeAdapterFactoryGenerator {
      */
     @NotNull
     public TypeSpec getTypeAdapterFactorySpec() {
-        String className = FileGenUtils.desanitizeCode(mInfo.getTypeAdapterFactoryClassName());
+        String className = FileGenUtils.unescapeEscapedString(mInfo.getTypeAdapterFactoryClassName());
         TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(ClassName.get(TypeAdapterFactory.class))

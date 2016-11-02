@@ -44,8 +44,11 @@ import javax.tools.StandardLocation;
 public final class FileGenUtils {
 
     public static final String GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
+    private static final String UNESCAPED_SEPARATOR = "$";
+    private static final String CODE_BLOCK_ESCAPED_SEPARATOR = "$$";
 
     private FileGenUtils() {
+        throw new UnsupportedOperationException("This class is not instantiable");
     }
 
     /**
@@ -139,28 +142,28 @@ public final class FileGenUtils {
     }
 
     /**
-     * Takes a String input and sanitizes it for use
+     * Takes a String input and escapes it for use
      * in the {@link CodeBlock} class.
      *
-     * @param string the string to sanitize.
+     * @param string the string to escape.
      * @return a String safe to use in a {@link CodeBlock}
      */
     @NotNull
-    public static String sanitizeCode(@NotNull String string) {
-        return string.replace("$", "$$");
+    public static String escapeStringForCodeBlock(@NotNull String string) {
+        return string.replace(UNESCAPED_SEPARATOR, CODE_BLOCK_ESCAPED_SEPARATOR);
     }
 
     /**
-     * Takes a String input that was sanitized for
+     * Takes a String input that was escaped for
      * use in the {@link CodeBlock} class and
-     * desanitizes it for normal use.
+     * unescapes it for normal use.
      *
-     * @param string the String to desanitize,
+     * @param string the String to unescape,
      * @return a String safe for normal use.
      */
     @NotNull
-    public static String desanitizeCode(@NotNull String string) {
-        return string.replace("$$", "$");
+    public static String unescapeEscapedString(@NotNull String string) {
+        return string.replace(CODE_BLOCK_ESCAPED_SEPARATOR, UNESCAPED_SEPARATOR);
     }
 
 }
