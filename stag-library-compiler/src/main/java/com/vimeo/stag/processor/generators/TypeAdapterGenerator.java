@@ -245,11 +245,11 @@ public class TypeAdapterGenerator {
         return "m" + classInfo.getTypeAdapterClassName();
     }
 
-
     private static boolean isPrimitive(@NotNull String type) {
         return type.equals(long.class.getName()) ||
                type.equals(double.class.getName()) ||
                type.equals(boolean.class.getName()) ||
+                type.equals(float.class.getName()) ||
                type.equals(int.class.getName());
     }
 
@@ -283,12 +283,13 @@ public class TypeAdapterGenerator {
             return "com.google.gson.stream.JsonToken.STRING";
         } else if (type.toString().equals(int.class.getName())) {
             return "com.google.gson.stream.JsonToken.NUMBER";
+        } else if (type.toString().equals(float.class.getName())) {
+            return "com.google.gson.stream.JsonToken.NUMBER";
         } else if (TypeUtils.getOuterClassType(type).equals(ArrayList.class.getName())) {
             return "com.google.gson.stream.JsonToken.BEGIN_ARRAY";
         } else {
             return null;
         }
-
     }
 
     @NotNull
@@ -328,6 +329,8 @@ public class TypeAdapterGenerator {
             return "reader.nextString();";
         } else if (type.toString().equals(int.class.getName())) {
             return "reader.nextInt();";
+        } else if (type.toString().equals(float.class.getName())) {
+            return "(float) reader.nextDouble();";
         } else {
             return getAdapterRead(type) + ";";
         }
@@ -351,14 +354,14 @@ public class TypeAdapterGenerator {
         }
     }
 
-
     @NotNull
     private static String getWriteType(@NotNull TypeMirror type, @NotNull String variableName) {
         if (type.toString().equals(long.class.getName()) ||
             type.toString().equals(double.class.getName()) ||
             type.toString().equals(boolean.class.getName()) ||
             type.toString().equals(String.class.getName()) ||
-            type.toString().equals(int.class.getName())) {
+                type.toString().equals(int.class.getName()) ||
+                type.toString().equals(float.class.getName())) {
             return "writer.value(" + variableName + ");";
         } else {
             return getAdapterWrite(type, variableName) + ";";
@@ -374,5 +377,4 @@ public class TypeAdapterGenerator {
         String adapterField = getAdapterField(type);
         return adapterField + ".read(reader)";
     }
-
 }
