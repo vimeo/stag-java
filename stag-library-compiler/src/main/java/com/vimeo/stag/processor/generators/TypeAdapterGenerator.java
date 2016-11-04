@@ -66,6 +66,42 @@ public class TypeAdapterGenerator {
         mInfo = info;
     }
 
+    /**
+     * Generates the TypeSpec for the TypeAdapter
+     * that this class generates.
+     *
+     * @return a valid TypeSpec that can be written
+     * to a file or added to another class.
+     */
+    @NotNull
+    public TypeSpec getTypeAdapterSpec(TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
+        TypeMirror typeMirror = mInfo.getType();
+        TypeName typeVariableName = TypeVariableName.get(typeMirror);
+
+        MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(Gson.class, "gson");
+
+        String className = FileGenUtils.unescapeEscapedString(mInfo.getTypeAdapterClassName());
+        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
+
+        AnnotatedClass annotatedClass = SupportedTypesModel.getInstance().getSupportedType(typeMirror);
+        Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
+
+        Map<String, String> adapterFieldMap = addAdapterFields(adapterBuilder, constructorBuilder, memberVariables, typeTokenConstantsGenerator);
+        adapterBuilder.addMethod(constructorBuilder.build());
+
+        MethodSpec writeMethod = getWriteMethodSpec(typeVariableName, memberVariables, adapterFieldMap);
+        MethodSpec readMethod = getReadMethodSpec(typeVariableName, memberVariables, adapterFieldMap);
+
+        adapterBuilder.addMethod(writeMethod);
+        adapterBuilder.addMethod(readMethod);
+
+        return adapterBuilder.build();
+    }
+
     @NotNull
     private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName,
                                                  @NotNull Map<Element, TypeMirror> memberVariables,
@@ -104,13 +140,15 @@ public class TypeAdapterGenerator {
         return builder.build();
     }
 
-    private static Map<String, String> addAdapterFields(@NotNull TypeSpec.Builder adapterBuilder, @NotNull MethodSpec.Builder constructorBuilder,
-                                                        @NotNull Map<Element, TypeMirror> memberVariables) {
-        HashSet<TypeMirror> inclusiveTypeSet = new HashSet<>(memberVariables.values());
+    private static Map<String, String> addAdapterFields(@NotNull TypeSpec.Builder adapterBuilder,
+                                                            @NotNull MethodSpec.Builder constructorBuilder,
+                                                            @NotNull Map<Element, TypeMirror> memberVariables,
+                                                        @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
+        HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
+        HashMap<String, String> typeAdapterNamesMap = new HashMap<>(typeSet.size());
         HashSet<TypeMirror> exclusiveTypeSet = new HashSet<>();
-        HashMap<String, String> typeAdapterNamesMap = new HashMap<>(inclusiveTypeSet.size());
 
-        for (TypeMirror fieldType : inclusiveTypeSet) {
+        for (TypeMirror fieldType : typeSet) {
             if (isNative(fieldType.toString())) {
                 continue;
             }
@@ -129,7 +167,7 @@ public class TypeAdapterGenerator {
 
             String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
             adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-            constructorBuilder.addStatement(fieldName + " = gson.getAdapter(new com.google.gson.reflect.TypeToken<" + fieldType + ">(){})");
+            constructorBuilder.addStatement(fieldName + " = gson.getAdapter(" + typeTokenConstantsGenerator.addTypeToken(fieldType) + ")");
         }
 
         return typeAdapterNamesMap;
@@ -272,43 +310,6 @@ public class TypeAdapterGenerator {
     private static String getAdapterRead(@NotNull TypeMirror type, @NotNull Map<String, String> typeAdapterFieldMap) {
         String adapterField = typeAdapterFieldMap.get(type.toString());
         return adapterField + ".read(reader)";
-    }
-
-    /**
-     * Generates the TypeSpec for the TypeAdapter
-     * that this class generates.
-     *
-     * @return a valid TypeSpec that can be written
-     * to a file or added to another class.
-     */
-    @NotNull
-    public TypeSpec getTypeAdapterSpec() {
-        HashMap<String, String> typeAdapterMap = new HashMap<>();
-        TypeMirror typeMirror = mInfo.getType();
-        TypeName typeVariableName = TypeVariableName.get(typeMirror);
-
-        MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(Gson.class, "gson");
-
-        String className = FileGenUtils.unescapeEscapedString(mInfo.getTypeAdapterClassName());
-        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
-
-        AnnotatedClass annotatedClass = SupportedTypesModel.getInstance().getSupportedType(typeMirror);
-        Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
-
-        Map<String, String> adapterFieldMap = addAdapterFields(adapterBuilder, constructorBuilder, memberVariables);
-        adapterBuilder.addMethod(constructorBuilder.build());
-
-        MethodSpec writeMethod = getWriteMethodSpec(typeVariableName, memberVariables, adapterFieldMap);
-        MethodSpec readMethod = getReadMethodSpec(typeVariableName, memberVariables, adapterFieldMap);
-
-        adapterBuilder.addMethod(writeMethod);
-        adapterBuilder.addMethod(readMethod);
-
-        return adapterBuilder.build();
     }
 
     @NotNull

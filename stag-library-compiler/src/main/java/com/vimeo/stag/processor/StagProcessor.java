@@ -29,6 +29,7 @@ import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterFactoryGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
+import com.vimeo.stag.processor.generators.TypeTokenConstantsGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
@@ -139,13 +140,15 @@ public final class StagProcessor extends AbstractProcessor {
             StagGenerator adapterGenerator = new StagGenerator(filer, mSupportedTypes);
             adapterGenerator.generateTypeAdapterFactory();
 
+            TypeTokenConstantsGenerator typeTokenConstantsGenerator = new TypeTokenConstantsGenerator(filer);
+
             Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
             for (Element element : list) {
                 if (TypeUtils.isConcreteType(element)) {
                     ClassInfo classInfo = new ClassInfo(element.asType());
                     TypeAdapterGenerator independentAdapter = new TypeAdapterGenerator(classInfo);
                     JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(),
-                                                         independentAdapter.getTypeAdapterSpec()).build();
+                                                         independentAdapter.getTypeAdapterSpec(typeTokenConstantsGenerator)).build();
                     FileGenUtils.writeToFile(javaFile, filer);
 
                     TypeAdapterFactoryGenerator factoryGenerator = new TypeAdapterFactoryGenerator(classInfo);
@@ -155,6 +158,7 @@ public final class StagProcessor extends AbstractProcessor {
                 }
             }
 
+            typeTokenConstantsGenerator.generateTypeTokenConstants();
             KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, mSupportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
