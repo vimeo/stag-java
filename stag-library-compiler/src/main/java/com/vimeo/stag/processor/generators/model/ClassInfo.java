@@ -47,8 +47,7 @@ public class ClassInfo {
         mPackageName = ElementUtils.getPackage(typeMirror);
 
         String classAndPackage = typeMirror.toString();
-        String simplePackage = classAndPackage.substring(0, classAndPackage.lastIndexOf('.'));
-        mClassName = classAndPackage.substring(simplePackage.length() + 1, classAndPackage.length());
+        mClassName = classAndPackage.substring(mPackageName.length() + 1, classAndPackage.length()).replaceAll("\\.", "\\$");
     }
 
     /**
