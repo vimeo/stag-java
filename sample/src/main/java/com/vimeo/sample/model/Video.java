@@ -25,12 +25,25 @@ package com.vimeo.sample.model;
 
 import com.vimeo.stag.GsonAdapterKey;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Video {
 
     @GsonAdapterKey("user")
     public User mUser;
+
+    @GsonAdapterKey("secondUser")
+    public User mSecondUser;
+
+    @GsonAdapterKey
+    ArrayList<User> mUsersList;
+
+    @GsonAdapterKey
+    ArrayList<User> mSecondUsersList;
+
+    @GsonAdapterKey
+    public ArrayList<Stats> mStatsArrayList;
 
     @GsonAdapterKey("link")
     public String mLink;
