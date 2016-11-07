@@ -210,8 +210,10 @@ public class TypeAdapterGenerator {
     private static void addAdapterFields(@NotNull TypeSpec.Builder adapterBuilder,
                                          @NotNull MethodSpec.Builder constructorBuilder,
                                          @NotNull Map<Element, TypeMirror> memberVariables) {
-        HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
-        for (TypeMirror fieldType : typeSet) {
+        HashSet<TypeMirror> inclusiveTypeSet = new HashSet<>(memberVariables.values());
+        HashSet<TypeMirror> exclusiveTypeSet = new HashSet<>();
+
+        for (TypeMirror fieldType : inclusiveTypeSet) {
             if (isNative(fieldType.toString())) {
                 continue;
             }
@@ -220,6 +222,10 @@ public class TypeAdapterGenerator {
                 fieldType = getInnerListType(fieldType);
             }
 
+            exclusiveTypeSet.add(fieldType);
+        }
+
+        for (TypeMirror fieldType : exclusiveTypeSet) {
             TypeName typeName = getAdapterFieldTypeName(fieldType);
             String fieldName = getAdapterField(fieldType);
 
@@ -288,13 +294,20 @@ public class TypeAdapterGenerator {
     @NotNull
     private static String getReadCode(@NotNull String prefix, @NotNull String variableName,
                                       @NotNull TypeMirror type) {
-        if (TypeUtils.getOuterClassType(type).equals(ArrayList.class.getName())) {
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        if (outerClassType.equals(ArrayList.class.getName())) {
             TypeMirror innerType = getInnerListType(type);
             String innerRead = getAdapterRead(innerType);
             return prefix + "reader.beginArray();\n" +
                    prefix + "object." + variableName + " = new java.util.ArrayList<>();\n" +
                    prefix + "while (reader.hasNext()) {\n" +
-                   prefix + "\tobject." + variableName + ".add(" + innerRead + ");\n" +
+
+                   prefix + "\ttry {\n" +
+                   prefix + "\t\tobject." + variableName + ".add(" + innerRead + ");\n" +
+                   prefix + "\t} catch(Exception exception) {\n" +
+                   prefix + "\t\tthrow new IOException(\"Error parsing " +
+                   outerClassType + "." + variableName + " JSON!\", exception)\n;" +
+                   prefix + "\t}" +
                    prefix + "}\n" +
                    prefix + "reader.endArray();";
         } else {
