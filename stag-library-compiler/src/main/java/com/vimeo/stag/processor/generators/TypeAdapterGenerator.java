@@ -162,12 +162,14 @@ public class TypeAdapterGenerator {
 
         for (TypeMirror fieldType : exclusiveTypeSet) {
             TypeName typeName = getAdapterFieldTypeName(fieldType);
-            String fieldName = TYPE_ADAPTER_FIELD_PREFIX + typeAdapterNamesMap.size();
-            typeAdapterNamesMap.put(fieldType.toString(), fieldName);
-
-            String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
-            adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-            constructorBuilder.addStatement(fieldName + " = gson.getAdapter(" + typeTokenConstantsGenerator.addTypeToken(fieldType) + ")");
+            String fieldName = typeAdapterNamesMap.get(fieldType.toString());
+            if (null == fieldName) {
+                fieldName = TYPE_ADAPTER_FIELD_PREFIX + typeAdapterNamesMap.size();
+                typeAdapterNamesMap.put(fieldType.toString(), fieldName);
+                String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
+                adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
+                constructorBuilder.addStatement(fieldName + " = gson.getAdapter(" + typeTokenConstantsGenerator.addTypeToken(fieldType) + ")");
+            }
         }
 
         return typeAdapterNamesMap;
