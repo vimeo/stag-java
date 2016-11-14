@@ -363,10 +363,6 @@ public class TypeAdapterGenerator {
                 builder.addCode("\t\t\tcase \"" + name + "\":\n" +
                         "\t\t\t\ttry {\n" +
                         getReadCode("\t\t\t\t\t", variableName, element.getValue(), typeAdapterFieldMap) +
-                        "\n\t\t\t\t} catch(Exception exception) {" +
-                        "\n\t\t\t\t\tthrow new IOException(\"Error parsing " +
-                        mInfo.getClassName() + "." + variableName + " JSON!\", exception);" +
-                        "\n\t\t\t\t}" +
                         '\n' +
                         "\t\t\t\tbreak;\n");
             }
