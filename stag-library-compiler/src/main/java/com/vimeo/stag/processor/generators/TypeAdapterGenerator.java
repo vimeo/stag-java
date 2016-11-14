@@ -237,7 +237,6 @@ public class TypeAdapterGenerator {
     @NotNull
     private static String getReadCode(@NotNull String prefix, @NotNull String variableName,
                                       @NotNull TypeMirror type, @NotNull Map<String, String> typeAdapterFieldMap) {
-        String outerClassType = TypeUtils.getOuterClassType(type);
         if (isArray(type)) {
             TypeMirror innerType = getInnerListType(type);
             String innerRead = getReadType(innerType, typeAdapterFieldMap);
@@ -364,7 +363,6 @@ public class TypeAdapterGenerator {
                         "\t\t\t\tbreak;\n");
             } else {
                 builder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                        "\t\t\t\ttry {\n" +
                         getReadCode("\t\t\t\t\t", variableName, element.getValue(), typeAdapterFieldMap) +
                         '\n' +
                         "\t\t\t\tbreak;\n");
