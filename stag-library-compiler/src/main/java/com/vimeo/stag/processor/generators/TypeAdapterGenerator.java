@@ -114,10 +114,11 @@ public class TypeAdapterGenerator {
                 .addAnnotation(Override.class)
                 .addException(IOException.class);
 
-        builder.addCode("\tif (object == null) {\n" +
+        builder.addCode("\twriter.beginObject();\n" +
+                "\tif (object == null) {\n" +
+                "\t\twriter.endObject();\n" +
                 "\t\treturn;\n" +
-                "\t}\n" +
-                "\twriter.beginObject();\n");
+                "\t}\n");
 
         for (Map.Entry<Element, TypeMirror> element : memberVariables.entrySet()) {
             String name = getJsonName(element.getKey());
