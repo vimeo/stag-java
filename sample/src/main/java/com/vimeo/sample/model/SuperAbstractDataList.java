@@ -29,7 +29,7 @@ import com.vimeo.stag.GsonAdapterKey;
  * Ensures that retrieving fields from
  * parent classes works correctly and
  * that adapters are not created for
- * parameterized classes who's parameters
+ * parameterized classes whose parameters
  * have not been resolved.
  *
  * @param <T> the paging type.
