@@ -20,7 +20,7 @@ from jCenter
 ```groovy
 dependencies {
     compile 'com.vimeo.stag:stag-library:1.1.1'
-    apt 'com.vimeo.stag:stag-library-compiler:1.1.1'
+    apt 'com.vimeo.stag:stag-library-compiler:1.1.2'
 }
 ```
 
@@ -74,13 +74,16 @@ apply plugin: 'com.neenbedankt.android-apt'
 4. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
 5. You're done!
 
-Note:
+## Supported Types
+- YES: All native types supported by Gson (boolean, double, int, long, float)
+- YES: String Types
+- YES: ArrayList or any other List Interfaces are supported
+- YES: HashMaps or any other Map Interfaces are supported
+- YES: Complex Data structures supported
+- NO: Enums are not supported, we will fall back to Gson for parsing them
+
+Note : 
 - `@SerializedName("json_key")` annotations you might be using will be ignored.
-- Variable types supported by Stag:
-    - YES: All native types supported by Gson (boolean, double, int, long)
-    - YES: String
-    - YES: ArrayList (List interface or other types of lists are currently not supported)
-    - NO: Enums are not supported, we will fall back to Gson for parsing them
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 
@@ -99,11 +102,20 @@ public class Deer {
     
     @GsonAdapterKey("points")
     int mPoints;     // mPoints = json value with key "points"
+    
+    @GsonAdapterKey("weight")
+    float mWeight;     // mWeight = json value with key "weight"
 }
 
 public class Herd {
     @GsonAdapterKey
     ArrayList<Deer> data_list;  // data_list = json value with key "data_list"
+    
+    @GsonAdapterKey
+    List<Deer> data_list_copy;  // data_list_copy = json value with key "data_list_copy"
+    
+    @GsonAdapterKey
+    Map<String, Deer> data_map;  // data_map = json value with key "data_map"
 }
 
 /**
@@ -126,7 +138,6 @@ MyParsingClass {
 
 ## Future Enhancements
 
-- HashMap parsing support
 - Add an option to absorb parsing errors rather than re-throwing them
 
 ## License
