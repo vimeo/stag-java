@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  * <p/>
  * Copyright (c) 2016 Vimeo
@@ -81,16 +81,16 @@ public final class NetworkRequest {
     private static final class Request extends AsyncTask<Void, Void, List<Video>> {
 
         @Nullable
-        private Callback mCallback;
+        Callback mCallback;
         @NonNull
         private final Handler mHandler;
 
-        private Request(@NonNull Callback Callback) {
+        Request(@NonNull Callback Callback) {
             mCallback = Callback;
             mHandler = new Handler(Looper.myLooper());
         }
 
-        public void cancelRequest() {
+        void cancelRequest() {
             mCallback = null;
             cancel(true);
         }

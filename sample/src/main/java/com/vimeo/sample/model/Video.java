@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  * <p/>
  * Copyright (c) 2016 Vimeo
@@ -27,6 +27,9 @@ import com.vimeo.stag.GsonAdapterKey;
 
 import java.util.Date;
 
+/**
+ * Simple video model used by the sample app.
+ */
 public class Video {
 
     @GsonAdapterKey("user")
