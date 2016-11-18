@@ -25,22 +25,20 @@ package com.vimeo.sample.model;
 
 import com.vimeo.stag.GsonAdapterKey;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- * Ensures that retrieving fields from
- * parent classes works correctly and
- * that adapters are not created for
- * parameterized classes whose parameters
- * have not been resolved.
- *
- * @param <T> the paging type.
- * @param <K> the data type.
+ * This class ensures that the generated
+ * adapter properly parses and serializes
+ * the interface fields for Map and List,
+ * according to what stag supports.
  */
-public class SuperAbstractDataList<T, K> {
+public class TypeTokenBasedModels {
 
-    @GsonAdapterKey
-    public T paging;
+    @GsonAdapterKey("videoMap")
+    public Map<String, Video> videoMap;
 
-    @GsonAdapterKey
-    public K data;
-
+    @GsonAdapterKey("videoList")
+    public List<Video> videoList;
 }

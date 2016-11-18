@@ -21,26 +21,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.sample.model;
+package com.vimeo.stag.processor;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.testing.compile.CompilationRule;
+
+import org.junit.Before;
+import org.junit.Rule;
+
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 
 /**
- * Ensures that retrieving fields from
- * parent classes works correctly and
- * that adapters are not created for
- * parameterized classes whose parameters
- * have not been resolved.
- *
- * @param <T> the paging type.
- * @param <K> the data type.
+ * Base unit test that sets up the utils class.
  */
-public class SuperAbstractDataList<T, K> {
+public class BaseUnitTest {
 
-    @GsonAdapterKey
-    public T paging;
+    @Rule
+    public CompilationRule rule = new CompilationRule();
+    protected Elements elements;
+    protected Types types;
 
-    @GsonAdapterKey
-    public K data;
+
+    @Before
+    public void _setup() {
+        elements = rule.getElements();
+        types = rule.getTypes();
+
+        Utils.setup(elements, types);
+    }
 
 }

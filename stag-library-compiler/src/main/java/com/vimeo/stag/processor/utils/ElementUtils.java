@@ -44,6 +44,7 @@ public final class ElementUtils {
         sElementUtils = elementUtils;
     }
 
+    @NotNull
     private static Elements getUtils() {
         Preconditions.checkNotNull(sElementUtils);
         return sElementUtils;

@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  * <p/>
  * Copyright (c) 2016 Vimeo
@@ -27,6 +27,14 @@ import com.vimeo.stag.GsonAdapterKey;
 
 import java.util.ArrayList;
 
+/**
+ * Ensures that partial resolution of an
+ * abstract class' parameters works correctly,
+ * and that an adapter is still not generated
+ * since this class is also parameterized.
+ *
+ * @param <T> the type of the list.
+ */
 public class AbstractDataList<T> extends SuperAbstractDataList<Paging, ArrayList<T>> {
 
     @GsonAdapterKey

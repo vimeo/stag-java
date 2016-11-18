@@ -26,21 +26,12 @@ package com.vimeo.sample.model;
 import com.vimeo.stag.GsonAdapterKey;
 
 /**
- * Ensures that retrieving fields from
- * parent classes works correctly and
- * that adapters are not created for
- * parameterized classes whose parameters
- * have not been resolved.
- *
- * @param <T> the paging type.
- * @param <K> the data type.
+ * This class simulates a scenario where a class with the same
+ * name is also present as a static inner class of another class
+ * in the same package, see {@link ConcreteClass.NestedModel}.
  */
-public class SuperAbstractDataList<T, K> {
+public class NestedModel {
 
     @GsonAdapterKey
-    public T paging;
-
-    @GsonAdapterKey
-    public K data;
-
+    public String test1;
 }
