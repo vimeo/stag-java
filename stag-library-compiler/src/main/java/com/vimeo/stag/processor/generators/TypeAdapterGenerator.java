@@ -127,7 +127,7 @@ public class TypeAdapterGenerator {
             String variableName = element.getKey().getSimpleName().toString();
             String variableType = element.getValue().toString();
 
-            boolean isPrimitive = isPrimitive(variableType);
+            boolean isPrimitive = isSupportedPrimitive(variableType);
 
             String prefix = isPrimitive ? "\t" : "\t\t";
             if (!isPrimitive) {
@@ -154,7 +154,7 @@ public class TypeAdapterGenerator {
         HashSet<TypeMirror> exclusiveTypeSet = new HashSet<>();
 
         for (TypeMirror fieldType : typeSet) {
-            if (isNative(fieldType.toString())) {
+            if (isSupportedNative(fieldType.toString())) {
                 continue;
             }
 
@@ -181,7 +181,7 @@ public class TypeAdapterGenerator {
         return typeAdapterNamesMap;
     }
 
-    private static boolean isPrimitive(@NotNull String type) {
+    static boolean isSupportedPrimitive(@NotNull String type) {
         return type.equals(long.class.getName()) ||
                type.equals(double.class.getName()) ||
                type.equals(boolean.class.getName()) ||
@@ -189,7 +189,7 @@ public class TypeAdapterGenerator {
                type.equals(int.class.getName());
     }
 
-    private static boolean isArray(@NotNull TypeMirror type) {
+    static boolean isArray(@NotNull TypeMirror type) {
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
                outerClassType.equals(List.class.getName());
@@ -210,8 +210,8 @@ public class TypeAdapterGenerator {
         return name;
     }
 
-    private static boolean isNative(@NotNull String type) {
-        return isPrimitive(type) || type.equals(String.class.getName());
+    static boolean isSupportedNative(@NotNull String type) {
+        return isSupportedPrimitive(type) || type.equals(String.class.getName());
     }
 
     @Nullable
@@ -235,6 +235,7 @@ public class TypeAdapterGenerator {
         }
     }
 
+    @NotNull
     private static TypeMirror getInnerListType(@NotNull TypeMirror type) {
         return ((DeclaredType) type).getTypeArguments().get(0);
     }

@@ -52,17 +52,6 @@ public class ClassInfo {
     }
 
     /**
-     * The name of the class without
-     * the package name.
-     *
-     * @return a valid class name.
-     */
-    @NotNull
-    public String getClassName() {
-        return mClassName;
-    }
-
-    /**
      * The package name of the class.
      *
      * @return a valid package name.
