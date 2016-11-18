@@ -39,3 +39,9 @@ dependencies {
     apt project(':stag-library-compiler')
     compile 'com.google.code.gson:gson:2.7'
 }
+
+apt {
+    arguments {
+        stagGeneratedPackageName "com.vimeo.sample.stag.generated"
+    }
+}

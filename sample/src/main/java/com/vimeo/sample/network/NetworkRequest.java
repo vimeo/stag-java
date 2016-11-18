@@ -37,7 +37,7 @@ import com.google.gson.JsonParser;
 import com.vimeo.sample.model.DateParser;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
-import com.vimeo.stag.generated.Stag;
+import com.vimeo.sample.stag.generated.Stag;
 
 import java.io.BufferedReader;
 import java.io.IOException;

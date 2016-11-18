@@ -81,14 +81,14 @@ public class StagGenerator {
      *                     if we are unable to write the file
      *                     to the filesystem.
      */
-    public void generateTypeAdapterFactory() throws IOException {
+    public void generateTypeAdapterFactory(String generatedPackageName) throws IOException {
         TypeSpec.Builder adaptersBuilder =
                 TypeSpec.classBuilder(CLASS_STAG).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
         adaptersBuilder.addType(getAdapterFactorySpec());
 
         JavaFile javaFile =
-                JavaFile.builder(FileGenUtils.GENERATED_PACKAGE_NAME, adaptersBuilder.build()).build();
+                JavaFile.builder(generatedPackageName, adaptersBuilder.build()).build();
 
         FileGenUtils.writeToFile(javaFile, mFiler);
     }
@@ -129,14 +129,14 @@ public class StagGenerator {
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
-                              "type")
+                        "type")
                 .addCode("for (TypeAdapterFactory adapterFactory : mTypeAdapterFactories) {\n" +
-                         "\tTypeAdapter<T> typeAdapter = adapterFactory.create(gson, type);\n" +
-                         "\tif (typeAdapter != null) {\n" +
-                         "\t\treturn typeAdapter;\n" +
-                         "\t}\n" +
-                         "}\n" +
-                         "return null;\n");
+                        "\tTypeAdapter<T> typeAdapter = adapterFactory.create(gson, type);\n" +
+                        "\tif (typeAdapter != null) {\n" +
+                        "\t\treturn typeAdapter;\n" +
+                        "\t}\n" +
+                        "}\n" +
+                        "return null;\n");
 
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
         return adapterFactoryBuilder.build();
