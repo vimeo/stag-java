@@ -100,8 +100,6 @@ public final class StagProcessor extends AbstractProcessor {
             packageName = DEFAULT_GENERATED_PACKAGE_NAME;
         }
 
-        System.out.println("packageName : " + packageName);
-
         TypeUtils.initialize(processingEnv.getTypeUtils());
         ElementUtils.initialize(processingEnv.getElementUtils());
 
