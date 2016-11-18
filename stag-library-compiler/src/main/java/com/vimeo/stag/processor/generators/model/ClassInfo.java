@@ -47,18 +47,8 @@ public class ClassInfo {
         mPackageName = ElementUtils.getPackage(typeMirror);
 
         String classAndPackage = typeMirror.toString();
-        mClassName = classAndPackage.substring(mPackageName.length() + 1, classAndPackage.length()).replaceAll("\\.", "\\$");
-    }
-
-    /**
-     * The name of the class without
-     * the package name.
-     *
-     * @return a valid class name.
-     */
-    @NotNull
-    public String getClassName() {
-        return mClassName;
+        mClassName = classAndPackage.substring(mPackageName.length() + 1, classAndPackage.length())
+                .replaceAll("\\.", "\\$");
     }
 
     /**

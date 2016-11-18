@@ -148,7 +148,8 @@ public final class StagProcessor extends AbstractProcessor {
                     ClassInfo classInfo = new ClassInfo(element.asType());
                     TypeAdapterGenerator independentAdapter = new TypeAdapterGenerator(classInfo);
                     JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(),
-                                                         independentAdapter.getTypeAdapterSpec(typeTokenConstantsGenerator)).build();
+                                                         independentAdapter.getTypeAdapterSpec(
+                                                                 typeTokenConstantsGenerator)).build();
                     FileGenUtils.writeToFile(javaFile, filer);
 
                     TypeAdapterFactoryGenerator factoryGenerator = new TypeAdapterFactoryGenerator(classInfo);

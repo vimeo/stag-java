@@ -1,4 +1,4 @@
-/**
+/*
  * The MIT License (MIT)
  * <p/>
  * Copyright (c) 2016 Vimeo
@@ -33,6 +33,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * The dates returned by the API differ from the
+ * default parser provided by gson. Registering
+ * this parser with gson ensures that we can
+ * correctly handle dates.
+ */
 public class DateParser extends TypeAdapter<Date> {
 
     private static final SimpleDateFormat dateFormat =

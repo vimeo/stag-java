@@ -19,7 +19,7 @@ The Stag library solves this problem. It leverages annotations to automatically 
 from jCenter
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:1.1.1'
+    compile 'com.vimeo.stag:stag-library:1.1.2'
     apt 'com.vimeo.stag:stag-library-compiler:1.1.2'
 }
 ```
@@ -76,10 +76,10 @@ apply plugin: 'com.neenbedankt.android-apt'
 
 ## Supported Types
 - YES: All native types supported by Gson (boolean, double, int, long, float)
-- YES: String Types
-- YES: ArrayList or any other List Interfaces are supported
-- YES: HashMaps or any other Map Interfaces are supported
-- YES: Complex Data structures supported
+- YES: String types
+- YES: ArrayList or any other List interfaces are supported
+- YES: HashMaps or any other Map interfaces are supported
+- YES: Complex data structures supported
 - NO: Enums are not supported, we will fall back to Gson for parsing them
 
 Note : 
@@ -138,7 +138,7 @@ MyParsingClass {
 
 ## Future Enhancements
 
-- Add an option to absorb parsing errors rather than re-throwing them
+- Add an option to absorb parsing errors rather than crashing and halting parsing (default gson behavior)
 
 ## License
 `stag-java` is available under the MIT license. See the [LICENSE](LICENSE) file for more information.
