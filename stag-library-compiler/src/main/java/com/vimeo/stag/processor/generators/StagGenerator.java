@@ -41,9 +41,8 @@ import com.vimeo.stag.processor.utils.FileGenUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
@@ -59,7 +58,7 @@ public class StagGenerator {
     private final Filer mFiler;
 
     @NotNull
-    private final Set<String> mKnownTypeAdapterFactories = new HashSet<>();
+    private final HashMap<ClassInfo, String> classInfoAdapterNameMap = new HashMap<>();
 
     public StagGenerator(@NotNull Filer filer, @NotNull Set<String> knownTypes) {
         mFiler = filer;
@@ -68,7 +67,7 @@ public class StagGenerator {
             TypeMirror typeMirror = ElementUtils.getTypeFromQualifiedName(knownType);
             if (typeMirror != null) {
                 ClassInfo classInfo = new ClassInfo(typeMirror);
-                mKnownTypeAdapterFactories.add(classInfo.getTypeAdapterFactoryQualifiedClassName());
+                classInfoAdapterNameMap.put(classInfo, classInfo.getTypeAdapterQualifiedClassName());
             }
         }
     }
@@ -98,29 +97,9 @@ public class StagGenerator {
         TypeVariableName genericTypeName = TypeVariableName.get("T");
         TypeName factoryTypeName = TypeVariableName.get(TypeAdapterFactory.class);
 
-        ParameterizedTypeName factoryListTypeName =
-                ParameterizedTypeName.get(ClassName.get(List.class), factoryTypeName);
-
-        MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .addCode("mTypeAdapterFactories = java.util.Arrays.<TypeAdapterFactory>asList(\n");
-        Iterator<String> knownFactoriesIterator = mKnownTypeAdapterFactories.iterator();
-        while (knownFactoriesIterator.hasNext()) {
-            String knownFactory = knownFactoriesIterator.next();
-            constructorBuilder.addCode("\tnew " + knownFactory + "()");
-            if (knownFactoriesIterator.hasNext()) {
-                constructorBuilder.addCode(",\n");
-            } else {
-                constructorBuilder.addCode(");\n");
-            }
-        }
-        MethodSpec constructorSpec = constructorBuilder.build();
-
         TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(CLASS_TYPE_ADAPTER_FACTORY)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addSuperinterface(TypeAdapterFactory.class)
-                .addField(factoryListTypeName, "mTypeAdapterFactories", Modifier.PRIVATE, Modifier.FINAL)
-                .addMethod(constructorSpec);
+                .addSuperinterface(TypeAdapterFactory.class);
 
         MethodSpec.Builder createMethodBuilder = MethodSpec.methodBuilder("create")
                 .addModifiers(Modifier.PUBLIC)
@@ -128,18 +107,18 @@ public class StagGenerator {
                 .addTypeVariable(genericTypeName)
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
                 .addParameter(Gson.class, "gson")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
-                        "type")
-                .addCode("for (TypeAdapterFactory adapterFactory : mTypeAdapterFactories) {\n" +
-                        "\tTypeAdapter<T> typeAdapter = adapterFactory.create(gson, type);\n" +
-                        "\tif (typeAdapter != null) {\n" +
-                        "\t\treturn typeAdapter;\n" +
-                        "\t}\n" +
-                        "}\n" +
-                        "return null;\n");
+                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName), "type")
+                .addStatement("Class<? super T> clazz = type.getRawType()");
+
+        Set<Map.Entry<ClassInfo, String>> entries = classInfoAdapterNameMap.entrySet();
+        for (Map.Entry<ClassInfo, String> entry : entries) {
+            createMethodBuilder.beginControlFlow("if (clazz == " + entry.getKey().getClassAndPackage() + ".class)");
+            createMethodBuilder.addStatement("return (TypeAdapter<T>) new " + entry.getValue() + "(gson)");
+            createMethodBuilder.endControlFlow();
+        }
+        createMethodBuilder.addStatement("return null");
 
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
         return adapterFactoryBuilder.build();
     }
-
 }
