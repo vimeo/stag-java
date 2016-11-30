@@ -25,6 +25,7 @@ package com.vimeo.stag.processor.generators;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.ClassName;
@@ -44,6 +45,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +55,9 @@ import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.TypeVariable;
 
 @SuppressWarnings("StringConcatenationMissingWhitespace")
 public class TypeAdapterGenerator {
@@ -78,6 +82,8 @@ public class TypeAdapterGenerator {
         TypeMirror typeMirror = mInfo.getType();
         TypeName typeVariableName = TypeVariableName.get(typeMirror);
 
+        List<? extends TypeMirror> typeArguments = mInfo.getTypeArguments();
+
         MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Gson.class, "gson");
@@ -87,17 +93,38 @@ public class TypeAdapterGenerator {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
 
+        Map<TypeVariable, String> typeVarsMap = new HashMap<>();
+
+        if (null != typeArguments) {
+            int idx = 0;
+            for (TypeMirror argType : typeArguments) {
+                if (argType.getKind() == TypeKind.TYPEVAR) {
+                    TypeVariable typeVariable = (TypeVariable) argType;
+                    String simpleName = typeVariable.asElement().getSimpleName().toString();
+                    adapterBuilder.addTypeVariable(TypeVariableName.get(simpleName, TypeVariableName.get(typeVariable.getUpperBound())));
+
+                    String paramName = "type" + "[" + String.valueOf(idx) + "]";
+                    typeVarsMap.put(typeVariable, paramName);
+                    idx++;
+                }
+            }
+
+            if (idx > 0) {
+                constructorBuilder.addParameter(Type[].class, "type");
+                constructorBuilder.varargs(true);
+            }
+        }
+
         AnnotatedClass annotatedClass = SupportedTypesModel.getInstance().getSupportedType(typeMirror);
         Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
 
-        Map<String, String> adapterFieldMap =
-                addAdapterFields(adapterBuilder, constructorBuilder, memberVariables,
-                                 typeTokenConstantsGenerator);
-        adapterBuilder.addMethod(constructorBuilder.build());
+        Map<String, String> adapterFieldMap = addAdapterFields(adapterBuilder, constructorBuilder, memberVariables,
+                typeTokenConstantsGenerator, typeVarsMap);
 
         MethodSpec writeMethod = getWriteMethodSpec(typeVariableName, memberVariables, adapterFieldMap);
         MethodSpec readMethod = getReadMethodSpec(typeVariableName, memberVariables, adapterFieldMap);
 
+        adapterBuilder.addMethod(constructorBuilder.build());
         adapterBuilder.addMethod(writeMethod);
         adapterBuilder.addMethod(readMethod);
 
@@ -147,8 +174,8 @@ public class TypeAdapterGenerator {
     private static Map<String, String> addAdapterFields(@NotNull TypeSpec.Builder adapterBuilder,
                                                         @NotNull MethodSpec.Builder constructorBuilder,
                                                         @NotNull Map<Element, TypeMirror> memberVariables,
-                                                        @NotNull
-                                                                TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
+                                                        @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+                                                        @NotNull Map<TypeVariable, String> typeVarsMap) {
         HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
         HashMap<String, String> typeAdapterNamesMap = new HashMap<>(typeSet.size());
         HashSet<TypeMirror> exclusiveTypeSet = new HashSet<>();
@@ -157,11 +184,9 @@ public class TypeAdapterGenerator {
             if (isSupportedNative(fieldType.toString())) {
                 continue;
             }
-
             if (isArray(fieldType)) {
                 fieldType = getInnerListType(fieldType);
             }
-
             exclusiveTypeSet.add(fieldType);
         }
 
@@ -173,12 +198,38 @@ public class TypeAdapterGenerator {
                 typeAdapterNamesMap.put(fieldType.toString(), fieldName);
                 String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
                 adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-                constructorBuilder.addStatement(fieldName + " = gson.getAdapter(" +
-                                                typeTokenConstantsGenerator.addTypeToken(fieldType) + ")");
+                constructorBuilder.addStatement(fieldName + " = gson.getAdapter(" + getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")");
             }
         }
 
         return typeAdapterNamesMap;
+    }
+
+    @NotNull
+    private static String getTypeTokenCode(@NotNull TypeMirror fieldType, @NotNull Map<TypeVariable, String> typeVarsMap, @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
+        String result = null;
+        if (!TypeUtils.isConcreteType(fieldType)) {
+            if (fieldType.getKind() == TypeKind.TYPEVAR) {
+                result = "(" + ClassName.get(TypeToken.class) + "<" + fieldType + ">)" + ClassName.get(TypeToken.class) + ".get(" + typeVarsMap.get(fieldType) + ")";
+            } else if (fieldType instanceof DeclaredType) {
+                DeclaredType decaredFieldType = (DeclaredType) fieldType;
+                List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
+                result = "com.vimeo.sample.stag.generated." + ParameterizedTypeGenerator.CLASS_NAME + ".getTypeToken(" + decaredFieldType.asElement().toString() + ".class";
+                for (TypeMirror parameterTypeMirror : typeMirrors) {
+                    if (isSupportedNative(parameterTypeMirror.toString())) {
+                        result += ", " + parameterTypeMirror.toString() + ".class";
+                    } else if (parameterTypeMirror.getKind() == TypeKind.TYPEVAR) {
+                        result += ", " + typeVarsMap.get(parameterTypeMirror);
+                    } else {
+                        result += ",\n" + getTypeTokenCode(parameterTypeMirror, typeVarsMap, typeTokenConstantsGenerator) + ".getType()";
+                    }
+                }
+                result += ")";
+            }
+        } else {
+            result = typeTokenConstantsGenerator.addTypeToken(fieldType);
+        }
+        return result;
     }
 
     static boolean isSupportedPrimitive(@NotNull String type) {

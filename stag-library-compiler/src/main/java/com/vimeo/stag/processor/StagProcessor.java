@@ -26,8 +26,8 @@ package com.vimeo.stag.processor;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.processor.generators.ParameterizedTypeGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
-import com.vimeo.stag.processor.generators.TypeAdapterFactoryGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.TypeTokenConstantsGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
@@ -36,7 +36,6 @@ import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
-import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +74,7 @@ public final class StagProcessor extends AbstractProcessor {
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
     public static final boolean DEBUG = false;
     private boolean mHasBeenProcessed;
-    private final Set<String> mSupportedTypes = new HashSet<>();
+    private final Set<TypeMirror> mSupportedTypes = new HashSet<>();
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
@@ -127,14 +126,14 @@ public final class StagProcessor extends AbstractProcessor {
                 Element enclosingClassElement = variableElement.getEnclosingElement();
                 TypeMirror enclosingClass = enclosingClassElement.asType();
 
-                if (!TypeUtils.isParameterizedType(enclosingClass) ||
+                if (TypeUtils.isParameterizedType(enclosingClass) ||
                         TypeUtils.isConcreteType(enclosingClass)) {
-                    mSupportedTypes.add(enclosingClass.toString());
+                    mSupportedTypes.add(enclosingClass);
                 }
 
                 addToListMap(variableMap, enclosingClassElement, variableElement);
             } else if (element instanceof TypeElement) {
-                mSupportedTypes.add(element.asType().toString());
+                mSupportedTypes.add(element.asType());
                 addToListMap(variableMap, element, null);
             }
         }
@@ -145,16 +144,16 @@ public final class StagProcessor extends AbstractProcessor {
                 SupportedTypesModel.getInstance()
                         .addSupportedType(new AnnotatedClass(entry.getKey(), entry.getValue()));
             }
-            mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
 
             StagGenerator adapterGenerator = new StagGenerator(filer, mSupportedTypes);
             adapterGenerator.generateTypeAdapterFactory(packageName);
+            ParameterizedTypeGenerator.generateParameterizedUtilClass(filer, packageName);
 
             TypeTokenConstantsGenerator typeTokenConstantsGenerator = new TypeTokenConstantsGenerator(filer, packageName);
 
             Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
             for (Element element : list) {
-                if (TypeUtils.isConcreteType(element)) {
+                if (TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) {
                     ClassInfo classInfo = new ClassInfo(element.asType());
                     TypeAdapterGenerator independentAdapter = new TypeAdapterGenerator(classInfo);
                     JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(),
@@ -164,7 +163,6 @@ public final class StagProcessor extends AbstractProcessor {
             }
 
             typeTokenConstantsGenerator.generateTypeTokenConstants();
-            KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, mSupportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

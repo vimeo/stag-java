@@ -85,7 +85,13 @@ public final class TypeUtils {
      * false otherwise.
      */
     public static boolean isParameterizedType(@Nullable TypeMirror type) {
-        return type instanceof DeclaredType && !((DeclaredType) type).getTypeArguments().isEmpty();
+        List<? extends TypeMirror> typeArguments = getTypeArguments(type);
+        return null != typeArguments && !typeArguments.isEmpty();
+    }
+
+    @Nullable
+    public static List<? extends TypeMirror> getTypeArguments(@Nullable TypeMirror type) {
+        return type instanceof DeclaredType ? ((DeclaredType) type).getTypeArguments() : null;
     }
 
     /**
@@ -123,7 +129,7 @@ public final class TypeUtils {
             List<? extends TypeMirror> typeMirrors = ((DeclaredType) typeMirror).getTypeArguments();
 
             for (TypeMirror type : typeMirrors) {
-                if (type.getKind() == TypeKind.TYPEVAR) {
+                if (!isConcreteType(type)) {
                     return false;
                 }
             }
@@ -238,7 +244,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), declaredType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                                      " resolved to - " + declaredType.toString());
+                            " resolved to - " + declaredType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -246,7 +252,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                                      " resolved to - " + concreteType.toString());
+                            " resolved to - " + concreteType.toString());
                 }
             }
         }
@@ -295,4 +301,7 @@ public final class TypeUtils {
         return ((DeclaredType) typeMirror).getTypeArguments();
     }
 
+    public static boolean isParameterizedType(Element element) {
+        return isParameterizedType(element.asType());
+    }
 }
