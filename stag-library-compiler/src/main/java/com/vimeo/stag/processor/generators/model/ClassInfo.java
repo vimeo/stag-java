@@ -25,8 +25,12 @@ package com.vimeo.stag.processor.generators.model;
 
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
+import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 import javax.lang.model.type.TypeMirror;
 
@@ -39,14 +43,21 @@ public class ClassInfo {
     private final String mPackageName;
 
     @NotNull
-    private final TypeMirror mType;
+    private final String mTypeName;
+
+    @NotNull
+    private TypeMirror mType;
 
     public ClassInfo(@NotNull TypeMirror typeMirror) {
         mType = typeMirror;
+        mPackageName = ElementUtils.getPackage(mType);
 
-        mPackageName = ElementUtils.getPackage(typeMirror);
-
-        String classAndPackage = typeMirror.toString();
+        String classAndPackage = mType.toString();
+        int idx = classAndPackage.indexOf("<");
+        if (idx > 0) {
+            classAndPackage = classAndPackage.substring(0, idx);
+        }
+        mTypeName = classAndPackage;
         mClassName = classAndPackage.substring(mPackageName.length() + 1, classAndPackage.length())
                 .replaceAll("\\.", "\\$");
     }
@@ -83,28 +94,6 @@ public class ClassInfo {
     }
 
     /**
-     * The simple class name of the {@link com.google.gson.TypeAdapterFactory} class for this
-     * model class.
-     *
-     * @return simple class name
-     */
-    @NotNull
-    public String getTypeAdapterFactoryClassName() {
-        return FileGenUtils.escapeStringForCodeBlock(mClassName + "$TypeAdapterFactory");
-    }
-
-    /**
-     * The fully qualified class name of the {@link com.google.gson.TypeAdapterFactory} class for this
-     * model class.
-     *
-     * @return qualified class name
-     */
-    @NotNull
-    public String getTypeAdapterFactoryQualifiedClassName() {
-        return mPackageName + "." + getTypeAdapterFactoryClassName();
-    }
-
-    /**
      * The full unmodified package name
      * and class name of this class object.
      *
@@ -112,7 +101,7 @@ public class ClassInfo {
      */
     @NotNull
     public String getClassAndPackage() {
-        return mType.toString();
+        return mTypeName;
     }
 
     /**
@@ -127,4 +116,8 @@ public class ClassInfo {
         return mType;
     }
 
+    @Nullable
+    public List<? extends TypeMirror> getTypeArguments() {
+        return TypeUtils.getTypeArguments(mType);
+    }
 }
