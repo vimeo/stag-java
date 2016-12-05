@@ -52,6 +52,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.DeclaredType;
@@ -164,6 +165,16 @@ public class TypeAdapterGenerator {
                                          typeAdapterVariableNames));
             if (!isPrimitive) {
                 builder.addCode("\t}\n");
+            }
+
+            for (AnnotationMirror annotationMirror : element.getKey().getAnnotationMirrors()) {
+                switch (annotationMirror.toString()) {
+                    case "@android.support.annotation.NonNull":
+                        builder.addCode("\telse if (object." + variableName + " == null) {");
+                        builder.addCode("\n\t\tthrow new java.io.IOException(\"" + variableName + " cannot be null\");");
+                        builder.addCode("\n\t}\n");
+                        break;
+                }
             }
         }
         builder.addCode("\twriter.endObject();\n");
@@ -412,6 +423,8 @@ public class TypeAdapterGenerator {
                         "\t\t}\n" +
                         "\t\tswitch (name) {\n");
 
+        List<String> nonNullFields = new ArrayList<>();
+
         for (Map.Entry<Element, TypeMirror> element : elements.entrySet()) {
             String name = getJsonName(element.getKey());
             String variableName = element.getKey().getSimpleName().toString();
@@ -435,16 +448,31 @@ public class TypeAdapterGenerator {
                                 '\n' +
                                 "\t\t\t\tbreak;\n");
             }
+
+            for (AnnotationMirror annotationMirror : element.getKey().getAnnotationMirrors()) {
+                switch (annotationMirror.toString()) {
+                    case "@android.support.annotation.NonNull":
+                        nonNullFields.add(variableName);
+                        break;
+                }
+            }
         }
 
         builder.addCode("\t\t\tdefault:\n" +
-                        "\t\t\t\treader.skipValue();\n" +
-                        "\t\t\t\tbreak;\n" +
-                        "\t\t}\n" +
-                        "\t}\n" +
-                        '\n' +
-                        "\treader.endObject();\n" +
-                        "\treturn object;\n");
+                "\t\t\t\treader.skipValue();\n" +
+                "\t\t\t\tbreak;\n" +
+                "\t\t}\n" +
+                "\t}\n" +
+                '\n' +
+                "\treader.endObject();\n");
+
+        for (String nonNullField : nonNullFields) {
+            builder.addCode("\n\tif (object." + nonNullField + " == null) {");
+            builder.addCode("\n\t\tthrow new java.io.IOException(\"" + nonNullField + " cannot be null\");");
+            builder.addCode("\n\t}\n");
+        }
+
+        builder.addCode("\treturn object;\n");
 
         return builder.build();
     }
