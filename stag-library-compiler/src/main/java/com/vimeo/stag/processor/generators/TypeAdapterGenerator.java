@@ -246,6 +246,7 @@ public class TypeAdapterGenerator {
                outerClassType.equals(List.class.getName());
     }
 
+    @NotNull
     private static TypeName getAdapterFieldTypeName(@NotNull TypeMirror type) {
         TypeName typeName = TypeVariableName.get(type);
         return ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
@@ -330,6 +331,7 @@ public class TypeAdapterGenerator {
         }
     }
 
+    @NotNull
     private static String getWriteCode(@NotNull String prefix, @NotNull TypeMirror type,
                                        @NotNull String jsonName, @NotNull String variableName,
                                        @NotNull Map<String, String> typeAdapterFieldMap) {
@@ -364,12 +366,14 @@ public class TypeAdapterGenerator {
         }
     }
 
+    @NotNull
     private static String getAdapterWrite(@NotNull TypeMirror type, @NotNull String variableName,
                                           @NotNull Map<String, String> typeAdapterFieldMap) {
         String adapterField = typeAdapterFieldMap.get(type.toString());
         return adapterField + ".write(writer, " + variableName + ")";
     }
 
+    @NotNull
     private static String getAdapterRead(@NotNull TypeMirror type,
                                          @NotNull Map<String, String> typeAdapterFieldMap) {
         String adapterField = typeAdapterFieldMap.get(type.toString());
@@ -397,7 +401,7 @@ public class TypeAdapterGenerator {
                         "\t}\n" +
                         "\treader.beginObject();\n" +
                         '\n' +
-                        '\t' + mInfo.getClassAndPackage() + " object = new " + mInfo.getClassAndPackage() +
+                        '\t' + typeName + " object = new " + mInfo.getClassAndPackage() +
                         "();\n" +
                         "\twhile (reader.hasNext()) {\n" +
                         "\t\tString name = reader.nextName();\n" +
