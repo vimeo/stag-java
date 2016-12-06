@@ -26,7 +26,6 @@ package com.vimeo.stag.processor;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import com.vimeo.stag.GsonAdapterKey;
-import com.vimeo.stag.processor.generators.ParameterizedTypeGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.TypeTokenConstantsGenerator;
@@ -149,7 +148,6 @@ public final class StagProcessor extends AbstractProcessor {
 
             StagGenerator adapterGenerator = new StagGenerator(filer, mSupportedTypes);
             adapterGenerator.generateTypeAdapterFactory(packageName);
-            ParameterizedTypeGenerator.generateParameterizedUtilClass(filer, packageName);
 
             TypeTokenConstantsGenerator typeTokenConstantsGenerator = new TypeTokenConstantsGenerator(filer, packageName);
 
