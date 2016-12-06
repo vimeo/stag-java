@@ -35,11 +35,9 @@ import java.util.Date;
 public class Video {
 
     @GsonAdapterKey("user")
-    @NonNull
     public User mUser;
 
     @GsonAdapterKey("link")
-    @NonNull
     public String mLink;
 
     @GsonAdapterKey("name")

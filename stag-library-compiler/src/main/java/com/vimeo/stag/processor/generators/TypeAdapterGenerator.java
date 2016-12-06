@@ -36,6 +36,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
@@ -216,14 +217,12 @@ public class TypeAdapterGenerator {
      */
     @NotNull
     private static String getJsonName(@NotNull Element element) {
-        String value;
-        SerializedName annotation = element.getAnnotation(SerializedName.class);
-        if (annotation != null) {
-            value = annotation.value();
-        } else {
-            value = element.getSimpleName().toString();
+        String name = element.getAnnotation(GsonAdapterKey.class).value();
+
+        if (name.isEmpty()) {
+            name = element.getSimpleName().toString();
         }
-        return value;
+        return name;
     }
 
     static boolean isSupportedNative(@NotNull String type) {
