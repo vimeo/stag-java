@@ -89,7 +89,6 @@ public class TypeTokenConstantsGenerator {
             mTypesToBeGenerated.put(typeString, typeTokenInfo);
         }
 
-        System.out.println("Yasir : " + mGeneratedPackageName + "." + CLASS_STAG_TYPE_TOKEN_CONSTANTS + "." + typeTokenInfo.mMethodName);
         return mGeneratedPackageName + "." + CLASS_STAG_TYPE_TOKEN_CONSTANTS + "." + typeTokenInfo.mMethodName;
     }
 
