@@ -2,6 +2,7 @@ package com.vimeo.sample.model;
 
 import com.vimeo.stag.UseStag;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -18,6 +19,10 @@ public class RecursiveClass {
     public Integer integerObject;
 
     public List<Integer> integerArray;
+
+    public Collection<Integer> collection;
+
+    public int[] nativeIntegerArray;
 
     public RecursiveClass innerSum;
 }

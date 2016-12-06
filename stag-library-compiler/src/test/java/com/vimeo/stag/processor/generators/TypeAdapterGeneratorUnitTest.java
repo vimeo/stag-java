@@ -30,6 +30,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -66,6 +67,7 @@ public class TypeAdapterGeneratorUnitTest extends BaseUnitTest {
         // Check supported list types
         Assert.assertTrue(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(List.class)));
         Assert.assertTrue(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(ArrayList.class)));
+        Assert.assertTrue(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(Collection.class)));
 
         // Check unsupported list types
         Assert.assertFalse(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(LinkedList.class)));

@@ -24,6 +24,7 @@
 package com.vimeo.stag.processor.generators;
 
 import com.google.gson.Gson;
+import com.google.gson.LongSerializationPolicy;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
@@ -49,6 +50,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -201,7 +203,8 @@ public class TypeAdapterGenerator {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-                outerClassType.equals(List.class.getName());
+                outerClassType.equals(List.class.getName())  ||
+                outerClassType.equals(Collection.class.getName());
     }
 
     @NotNull
@@ -400,6 +403,24 @@ public class TypeAdapterGenerator {
     }
 
     @NotNull
+    private String getArrayListType(@NotNull TypeMirror innerArrayType) {
+        String innerArrayTypeString = innerArrayType.toString();
+        if(innerArrayTypeString.equals(long.class.getName())) {
+            return Long.class.getName();
+        } if(innerArrayTypeString.equals(double.class.getName())) {
+            return Double.class.getName();
+        } if(innerArrayTypeString.equals(Boolean.class.getName())) {
+            return Boolean.class.getName();
+        } if(innerArrayTypeString.equals(float.class.getName())) {
+            return Float.class.getName();
+        } if(innerArrayTypeString.equals(int.class.getName())) {
+            return Integer.class.getName();
+        } else {
+            return innerArrayType.toString();
+        }
+    }
+
+    @NotNull
     private String getReadCode(@NotNull String prefix, @NotNull String variableName, @NotNull Element key,
                                @NotNull TypeMirror type, @NotNull Map<String, String> typeAdapterFieldMap) {
         if (isArray(type)) {
@@ -407,13 +428,19 @@ public class TypeAdapterGenerator {
             boolean isNativeArray = isNativeArray(type);
             String innerRead = getReadType(key, innerType, typeAdapterFieldMap);
             String arrayListVariableName = isNativeArray ? "tmpArray" : "object." + variableName;
-            return prefix + "reader.beginArray();\n" +
-                    prefix + (isNativeArray ? "java.util.ArrayList<" + innerType.toString() + ">" : "") +  arrayListVariableName + " = new java.util.ArrayList<>();\n" +
+            String result =  prefix + "reader.beginArray();\n" +
+                    prefix + (isNativeArray ? "java.util.ArrayList<" + getArrayListType(innerType) + "> " : "") +  arrayListVariableName + " = new java.util.ArrayList<>();\n" +
                     prefix + "while (reader.hasNext()) {\n" +
                     prefix + "\t" + arrayListVariableName + ".add(" + innerRead + ");\n" +
                     prefix + "}\n" +
-                    prefix + "reader.endArray();\n" +
-                    (isNativeArray ? prefix + "object." + variableName + "= " +  arrayListVariableName + ".toArray(new " + innerType.toString() + "[" + arrayListVariableName + ".size()]);" : "");
+                    prefix + "reader.endArray();\n";
+            if(isNativeArray) {
+                result += prefix + "object." + variableName + "= new "+  innerType.toString() + "[" + arrayListVariableName + ".size()];\n";
+                result += prefix + "for(int idx = 0; idx < " + arrayListVariableName + ".size(); idx++) {\n";
+                result += prefix + "\tobject." + variableName + "[idx] = " + arrayListVariableName + ".get(idx);\n";
+                result += prefix + "}\n";
+            }
+            return result;
         } else {
             return prefix + "object." + variableName + " = " +
                     getReadType(key, type, typeAdapterFieldMap) + ";";
