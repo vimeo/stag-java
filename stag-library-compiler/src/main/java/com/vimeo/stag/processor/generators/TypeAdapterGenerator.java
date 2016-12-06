@@ -24,7 +24,6 @@
 package com.vimeo.stag.processor.generators;
 
 import com.google.gson.Gson;
-import com.google.gson.LongSerializationPolicy;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
@@ -37,7 +36,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.vimeo.stag.WriteRuntimeType;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
@@ -167,7 +165,7 @@ public class TypeAdapterGenerator {
             } else if (fieldType instanceof DeclaredType) {
                 DeclaredType decaredFieldType = (DeclaredType) fieldType;
                 List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
-                result = "com.vimeo.sample.stag.generated." + ParameterizedTypeGenerator.CLASS_NAME + ".getTypeToken(" + decaredFieldType.asElement().toString() + ".class";
+                result = "com.vimeo.stag.utils.ParameterizedTypeUtil.getTypeToken(" + decaredFieldType.asElement().toString() + ".class";
                 for (TypeMirror parameterTypeMirror : typeMirrors) {
                     if (isSupportedNative(parameterTypeMirror.toString())) {
                         result += ", " + parameterTypeMirror.toString() + ".class";
@@ -503,13 +501,8 @@ public class TypeAdapterGenerator {
     @NotNull
     private String getAdapterWrite(@NotNull Element key, @NotNull TypeMirror type, @NotNull String variableName,
                                    @NotNull Map<String, String> typeAdapterFieldMap) {
-        if (key.getAnnotation(WriteRuntimeType.class) != null) {
-            mGsonVariableUsed = true;
-            return "((TypeAdapter)mGson.getAdapter(" + variableName + ".getClass())).write(writer, " + variableName + ")";
-        } else {
-            String adapterField = typeAdapterFieldMap.get(type.toString());
-            return adapterField + ".write(writer, " + variableName + ")";
-        }
+        String adapterField = typeAdapterFieldMap.get(type.toString());
+        return adapterField + ".write(writer, " + variableName + ")";
     }
 
     @NotNull
