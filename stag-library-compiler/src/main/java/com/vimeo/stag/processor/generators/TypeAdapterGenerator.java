@@ -225,7 +225,7 @@ public class TypeAdapterGenerator {
             } else if (fieldType instanceof DeclaredType) {
                 DeclaredType decaredFieldType = (DeclaredType) fieldType;
                 List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
-                result = "com.vimeo.sample.stag.generated." + ParameterizedTypeGenerator.CLASS_NAME + ".getTypeToken(" + decaredFieldType.asElement().toString() + ".class";
+                result = "com.vimeo.stag.utils.ParameterizedTypeUtil.getTypeToken(" + decaredFieldType.asElement().toString() + " .class";
                 for (TypeMirror parameterTypeMirror : typeMirrors) {
                     if (isSupportedNative(parameterTypeMirror.toString())) {
                         result += ", " + parameterTypeMirror.toString() + ".class";
