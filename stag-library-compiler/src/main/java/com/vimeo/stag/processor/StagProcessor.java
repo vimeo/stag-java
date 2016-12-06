@@ -70,11 +70,26 @@ import javax.lang.model.type.TypeMirror;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
 
+    public static final boolean DEBUG = false;
     private static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
-    public static final boolean DEBUG = false;
-    private boolean mHasBeenProcessed;
     private final Set<TypeMirror> mSupportedTypes = new HashSet<>();
+    private boolean mHasBeenProcessed;
+
+    private static void addToListMap(@NotNull Map<Element, List<VariableElement>> map, @Nullable Element key,
+                                     @Nullable VariableElement value) {
+        if (key == null) {
+            return;
+        }
+        List<VariableElement> list = map.get(key);
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        if (value != null) {
+            list.add(value);
+        }
+        map.put(key, list);
+    }
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
@@ -110,31 +125,33 @@ public final class StagProcessor extends AbstractProcessor {
             if (element instanceof VariableElement) {
                 final VariableElement variableElement = (VariableElement) element;
 
-                Set<Modifier> modifiers = variableElement.getModifiers();
-                if (modifiers.contains(Modifier.FINAL)) {
-                    throw new RuntimeException("Unable to access field \"" +
-                                                variableElement.getSimpleName().toString() + "\" in class " +
-                                                variableElement.getEnclosingElement().asType() +
-                                                ", field must not be final.");
-                } else if (modifiers.contains(Modifier.PRIVATE)) {
-                    throw new RuntimeException("Unable to access field \"" +
-                                                variableElement.getSimpleName().toString() + "\" in class " +
-                                                variableElement.getEnclosingElement().asType() +
-                                                ", field must not be private.");
-                }
-
                 Element enclosingClassElement = variableElement.getEnclosingElement();
                 TypeMirror enclosingClass = enclosingClassElement.asType();
 
-                if (TypeUtils.isParameterizedType(enclosingClass) ||
-                        TypeUtils.isConcreteType(enclosingClass)) {
-                    mSupportedTypes.add(enclosingClass);
-                }
+                if (!ElementUtils.isEnum(enclosingClassElement) && !TypeUtils.isAbstract(enclosingClassElement)) {
+                    Set<Modifier> modifiers = variableElement.getModifiers();
+                    if (modifiers.contains(Modifier.FINAL)) {
+                        throw new RuntimeException("Unable to access field \"" +
+                                variableElement.getSimpleName().toString() + "\" in class " +
+                                variableElement.getEnclosingElement().asType() +
+                                ", field must not be final.");
+                    } else if (modifiers.contains(Modifier.PRIVATE)) {
+                        throw new RuntimeException("Unable to access field \"" +
+                                variableElement.getSimpleName().toString() + "\" in class " +
+                                variableElement.getEnclosingElement().asType() +
+                                ", field must not be private.");
+                    }
 
-                addToListMap(variableMap, enclosingClassElement, variableElement);
+                    if (TypeUtils.isParameterizedType(enclosingClass) || TypeUtils.isConcreteType(enclosingClass)) {
+                        mSupportedTypes.add(enclosingClass);
+                        addToListMap(variableMap, enclosingClassElement, variableElement);
+                    }
+                }
             } else if (element instanceof TypeElement) {
-                mSupportedTypes.add(element.asType());
-                addToListMap(variableMap, element, null);
+                if (!ElementUtils.isEnum(element) && !TypeUtils.isAbstract(element)) {
+                    mSupportedTypes.add(element.asType());
+                    addToListMap(variableMap, element, null);
+                }
             }
         }
 
@@ -172,21 +189,6 @@ public final class StagProcessor extends AbstractProcessor {
         DebugLog.log("\nSuccessfully processed @GsonAdapterKey annotations\n");
 
         return true;
-    }
-
-    private static void addToListMap(@NotNull Map<Element, List<VariableElement>> map, @Nullable Element key,
-                                     @Nullable VariableElement value) {
-        if (key == null) {
-            return;
-        }
-        List<VariableElement> list = map.get(key);
-        if (list == null) {
-            list = new ArrayList<>();
-        }
-        if (value != null) {
-            list.add(value);
-        }
-        map.put(key, list);
     }
 
 }
