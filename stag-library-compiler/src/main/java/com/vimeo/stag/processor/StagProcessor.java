@@ -163,7 +163,7 @@ public final class StagProcessor extends AbstractProcessor {
             }
             mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
 
-            StagGenerator adapterGenerator = new StagGenerator(filer, mSupportedTypes);
+            StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes);
             adapterGenerator.generateTypeAdapterFactory(packageName);
 
             TypeTokenConstantsGenerator typeTokenConstantsGenerator = new TypeTokenConstantsGenerator(filer, packageName);
@@ -173,15 +173,13 @@ public final class StagProcessor extends AbstractProcessor {
                 if (TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) {
                     ClassInfo classInfo = new ClassInfo(element.asType());
                     TypeAdapterGenerator independentAdapter = new TypeAdapterGenerator(classInfo);
-                    JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(),
-                            independentAdapter.getTypeAdapterSpec(typeTokenConstantsGenerator)).build();
+                    JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(), independentAdapter.getTypeAdapterSpec(typeTokenConstantsGenerator, adapterGenerator)).build();
                     FileGenUtils.writeToFile(javaFile, filer);
                 }
             }
 
             typeTokenConstantsGenerator.generateTypeTokenConstants();
             KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, mSupportedTypes);
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -190,5 +188,4 @@ public final class StagProcessor extends AbstractProcessor {
 
         return true;
     }
-
 }

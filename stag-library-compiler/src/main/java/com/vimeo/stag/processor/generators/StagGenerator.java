@@ -28,20 +28,25 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.utils.FileGenUtils;
+import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.Filer;
@@ -57,15 +62,38 @@ public class StagGenerator {
     private final Filer mFiler;
 
     @NotNull
-    private final HashMap<ClassInfo, String> classInfoAdapterNameMap = new HashMap<>();
+    private final List<ClassInfo> mKnownClasses;
 
-    public StagGenerator(@NotNull Filer filer, @NotNull Set<TypeMirror> knownTypes) {
+    @NotNull
+    private final HashMap<TypeMirror, String> mFieldNameMap = new HashMap<>();
+
+    @NotNull
+    private final String mGeneratedPackageName;
+
+    public StagGenerator(String generatedPackageName, @NotNull Filer filer, @NotNull Set<TypeMirror> knownTypes) {
         mFiler = filer;
-
+        mGeneratedPackageName = generatedPackageName;
+        mKnownClasses = new ArrayList<>(knownTypes.size());
+        Set<String> knownNames = new HashSet<>(knownTypes.size());
         for (TypeMirror knownType : knownTypes) {
+            String getAdapterFactoryMethodName = null;
             ClassInfo classInfo = new ClassInfo(knownType);
-            classInfoAdapterNameMap.put(classInfo, classInfo.getTypeAdapterQualifiedClassName());
+            List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
+            if (null == typeArguments || typeArguments.isEmpty()) {
+                getAdapterFactoryMethodName = classInfo.getTypeAdapterClassName();
+                if(knownNames.contains(getAdapterFactoryMethodName)) {
+                    getAdapterFactoryMethodName = getAdapterFactoryMethodName + String.valueOf(knownNames.size());
+                }
+                knownNames.add(getAdapterFactoryMethodName);
+            }
+            mKnownClasses.add(classInfo);
+            mFieldNameMap.put(knownType, getAdapterFactoryMethodName);
         }
+    }
+
+    @Nullable
+    public String getClassAdapterFactoryMethod(TypeMirror fieldType) {
+        return TypeUtils.isConcreteType(fieldType) ? mFieldNameMap.get(fieldType) : null;
     }
 
     /**
@@ -105,22 +133,44 @@ public class StagGenerator {
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName), "type")
                 .addStatement("Class<? super T> clazz = type.getRawType()");
 
-        Set<Map.Entry<ClassInfo, String>> entries = classInfoAdapterNameMap.entrySet();
-        for (Map.Entry<ClassInfo, String> entry : entries) {
-            ClassInfo classInfo = entry.getKey();
+        for (ClassInfo classInfo : mKnownClasses) {
+            String qualifiedTypeAdapterName = classInfo.getTypeAdapterQualifiedClassName();
             List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
             if (null == typeArguments || typeArguments.isEmpty()) {
+                String variableName = mFieldNameMap.get(classInfo.getType());
+                //Add a member variable
+                TypeName typeName = TypeVariableName.get(classInfo.getType());
+                TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
+                String fieldName = "mAdapter" + variableName;
+                FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, FileGenUtils.unescapeEscapedString(fieldName), Modifier.PRIVATE);
+                adapterFactoryBuilder.addField(fieldSpecBuilder.build());
+                String getAdapterFactoryMethodName = "get" + variableName;
+                        //Build a getter method
+                MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder(FileGenUtils.unescapeEscapedString(getAdapterFactoryMethodName))
+                        .addModifiers(Modifier.PUBLIC)
+                        .addParameter(Gson.class, "gson")
+                        .returns(parameterizedTypeName);
+
+                getAdapterMethodBuilder.beginControlFlow("if (null == " + fieldName + ")");
+                getAdapterMethodBuilder.addStatement(fieldName + " = new " + qualifiedTypeAdapterName + "(gson, this)");
+                getAdapterMethodBuilder.endControlFlow();
+                getAdapterMethodBuilder.addStatement("return " + fieldName);
+                adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
+
+
+
                 createMethodBuilder.beginControlFlow("if (clazz == " + classInfo.getClassAndPackage() + ".class)");
-                createMethodBuilder.addStatement("return (TypeAdapter<T>) new " + entry.getValue() + "(gson)");
+                createMethodBuilder.addStatement("return (TypeAdapter<T>) " + getAdapterFactoryMethodName + "(gson)");
                 createMethodBuilder.endControlFlow();
                 createMethodBuilder.addCode("\n");
+
             } else {
                 createMethodBuilder.beginControlFlow("if (clazz == " + classInfo.getClassAndPackage() + ".class)");
                 createMethodBuilder.addStatement("java.lang.reflect.Type parameters = type.getType()");
                 createMethodBuilder.beginControlFlow("if (parameters instanceof java.lang.reflect.ParameterizedType)");
                 createMethodBuilder.addStatement("java.lang.reflect.ParameterizedType parameterizedType = (java.lang.reflect.ParameterizedType) parameters");
                 createMethodBuilder.addStatement("java.lang.reflect.Type[] parametersType = parameterizedType.getActualTypeArguments()");
-                String statement = "return (TypeAdapter<T>) new " + entry.getValue() + "(gson";
+                String statement = "return (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson, this";
                 for (int idx = 0; idx < typeArguments.size(); idx++) {
                     statement += ", parametersType[" + idx + "]";
                 }
@@ -130,7 +180,7 @@ public class StagGenerator {
                 createMethodBuilder.beginControlFlow("else");
                 createMethodBuilder.addStatement("TypeToken objectToken = TypeToken.get(Object.class)");
                 createMethodBuilder.addStatement("java.lang.reflect.Type objectType = objectToken.getType()");
-                statement = "return (TypeAdapter<T>) new " + entry.getValue() + "(gson";
+                statement = "return (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson, this";
                 for (int idx = 0; idx < typeArguments.size(); idx++) {
                     statement += ", objectType";
                 }
@@ -140,10 +190,17 @@ public class StagGenerator {
                 createMethodBuilder.endControlFlow();
                 createMethodBuilder.addCode("\n");
             }
+
         }
         createMethodBuilder.addStatement("return null");
 
+
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
         return adapterFactoryBuilder.build();
+    }
+
+
+    public TypeVariableName getGeneratedClassName() {
+        return TypeVariableName.get(mGeneratedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY);
     }
 }

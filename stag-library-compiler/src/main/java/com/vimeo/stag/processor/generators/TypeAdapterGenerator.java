@@ -25,16 +25,18 @@ package com.vimeo.stag.processor.generators;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.WriteRuntimeType;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
@@ -67,126 +69,34 @@ public class TypeAdapterGenerator {
     @NotNull
     private final ClassInfo mInfo;
 
+    private boolean mGsonVariableUsed = false;
+    private boolean mStagFactoryUsed = false;
+
     public TypeAdapterGenerator(@NotNull ClassInfo info) {
         mInfo = info;
     }
 
-    /**
-     * Generates the TypeSpec for the TypeAdapter
-     * that this class generates.
-     *
-     * @return a valid TypeSpec that can be written
-     * to a file or added to another class.
-     */
-    @NotNull
-    public TypeSpec getTypeAdapterSpec(TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
-        TypeMirror typeMirror = mInfo.getType();
-        TypeName typeVariableName = TypeVariableName.get(typeMirror);
+    private static class AdapterFieldInfo {
+        @NotNull
+        Map<String, String> mAdapterFields;
 
-        List<? extends TypeMirror> typeArguments = mInfo.getTypeArguments();
+        @Nullable
+        MethodSpec.Builder mInitializerBuilder;
 
-        MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .addParameter(Gson.class, "gson");
-
-        String className = FileGenUtils.unescapeEscapedString(mInfo.getTypeAdapterClassName());
-        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
-
-        Map<TypeVariable, String> typeVarsMap = new HashMap<>();
-
-        if (null != typeArguments) {
-            int idx = 0;
-            for (TypeMirror argType : typeArguments) {
-                if (argType.getKind() == TypeKind.TYPEVAR) {
-                    TypeVariable typeVariable = (TypeVariable) argType;
-                    String simpleName = typeVariable.asElement().getSimpleName().toString();
-                    adapterBuilder.addTypeVariable(TypeVariableName.get(simpleName, TypeVariableName.get(typeVariable.getUpperBound())));
-
-                    String paramName = "type" + "[" + String.valueOf(idx) + "]";
-                    typeVarsMap.put(typeVariable, paramName);
-                    idx++;
-                }
-            }
-
-            if (idx > 0) {
-                constructorBuilder.addParameter(Type[].class, "type");
-                constructorBuilder.varargs(true);
-            }
+        public AdapterFieldInfo(@NotNull HashMap<String, String> typeAdapterNamesMap, @Nullable MethodSpec.Builder initializerBuilder) {
+            mAdapterFields = typeAdapterNamesMap;
+            mInitializerBuilder = initializerBuilder;
         }
-
-        AnnotatedClass annotatedClass = SupportedTypesModel.getInstance().getSupportedType(typeMirror);
-        Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
-
-        Map<String, String> adapterFieldMap = addAdapterFields(adapterBuilder, constructorBuilder, memberVariables,
-                typeTokenConstantsGenerator, typeVarsMap);
-
-        MethodSpec writeMethod = getWriteMethodSpec(typeVariableName, memberVariables, adapterFieldMap);
-        MethodSpec readMethod = getReadMethodSpec(typeVariableName, memberVariables, adapterFieldMap);
-
-        adapterBuilder.addMethod(constructorBuilder.build());
-        adapterBuilder.addMethod(writeMethod);
-        adapterBuilder.addMethod(readMethod);
-
-        return adapterBuilder.build();
     }
 
     @NotNull
-    private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName,
-                                                 @NotNull Map<Element, TypeMirror> memberVariables,
-                                                 @NotNull Map<String, String> typeAdapterVariableNames) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
-                .addParameter(JsonWriter.class, "writer")
-                .addParameter(typeName, "object")
-                .returns(void.class)
-                .addModifiers(Modifier.PUBLIC)
-                .addAnnotation(Override.class)
-                .addException(IOException.class);
-
-        builder.addCode("\twriter.beginObject();\n" +
-                        "\tif (object == null) {\n" +
-                        "\t\twriter.endObject();\n" +
-                        "\t\treturn;\n" +
-                        "\t}\n");
-
-        for (Map.Entry<Element, TypeMirror> element : memberVariables.entrySet()) {
-            String name = getJsonName(element.getKey());
-            String variableName = element.getKey().getSimpleName().toString();
-            String variableType = element.getValue().toString();
-
-            boolean isPrimitive = isSupportedPrimitive(variableType);
-
-            String prefix = isPrimitive ? "\t" : "\t\t";
-            if (!isPrimitive) {
-                builder.addCode("\tif (object." + variableName + " != null) {\n");
-            }
-            builder.addCode(getWriteCode(prefix, element.getValue(), name, "object." + variableName,
-                                         typeAdapterVariableNames));
-            if (!isPrimitive) {
-                builder.addCode("\t}\n");
-            }
-
-            for (AnnotationMirror annotationMirror : element.getKey().getAnnotationMirrors()) {
-                switch (annotationMirror.toString()) {
-                    case "@android.support.annotation.NonNull":
-                        builder.addCode("\telse if (object." + variableName + " == null) {");
-                        builder.addCode("\n\t\tthrow new java.io.IOException(\"" + variableName + " cannot be null\");");
-                        builder.addCode("\n\t}\n");
-                        break;
-                }
-            }
-        }
-        builder.addCode("\twriter.endObject();\n");
-
-        return builder.build();
-    }
-
-    private static Map<String, String> addAdapterFields(@NotNull TypeSpec.Builder adapterBuilder,
+    private AdapterFieldInfo addAdapterFields(@NotNull TypeSpec.Builder adapterBuilder,
                                                         @NotNull MethodSpec.Builder constructorBuilder,
                                                         @NotNull Map<Element, TypeMirror> memberVariables,
                                                         @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                                        @NotNull Map<TypeVariable, String> typeVarsMap) {
+                                                        @NotNull Map<TypeVariable, String> typeVarsMap,
+                                                        @NotNull StagGenerator stagGenerator) {
+        MethodSpec.Builder initializerBuilder = null;
         HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
         HashMap<String, String> typeAdapterNamesMap = new HashMap<>(typeSet.size());
         HashSet<TypeMirror> exclusiveTypeSet = new HashSet<>();
@@ -208,16 +118,41 @@ public class TypeAdapterGenerator {
                 fieldName = TYPE_ADAPTER_FIELD_PREFIX + typeAdapterNamesMap.size();
                 typeAdapterNamesMap.put(fieldType.toString(), fieldName);
                 String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
-                adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-                constructorBuilder.addStatement(fieldName + " = gson.getAdapter(" + getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")");
+                String getterField = stagGenerator.getClassAdapterFactoryMethod(fieldType);
+                if(null != getterField) {
+                    if(null == initializerBuilder) {
+                        adapterBuilder.addField(FieldSpec.builder(TypeName.BOOLEAN, "mIsInitialized", Modifier.PRIVATE, Modifier.VOLATILE)
+                                .initializer("false").build());
+                        initializerBuilder = MethodSpec.methodBuilder("initialize")
+                                .addModifiers(Modifier.PRIVATE);
+                        initializerBuilder.beginControlFlow("if(false == mIsInitialized)");
+                        initializerBuilder.beginControlFlow("synchronized(this)");
+                        initializerBuilder.beginControlFlow("if(false == mIsInitialized)");
+                    }
+
+                    adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE);
+                    initializerBuilder.addStatement(fieldName + " = mStagFactory.get" + getterField + "(mGson)");
+                    mGsonVariableUsed = true;
+                    mStagFactoryUsed = true;
+                } else {
+                    adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
+                    constructorBuilder.addStatement(fieldName + " = gson.getAdapter(" + getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")");
+                }
             }
         }
 
-        return typeAdapterNamesMap;
+        if(null != initializerBuilder) {
+            initializerBuilder.addStatement("mIsInitialized = true");
+            initializerBuilder.endControlFlow();
+            initializerBuilder.endControlFlow();
+            initializerBuilder.endControlFlow();
+        }
+        return new AdapterFieldInfo(typeAdapterNamesMap, initializerBuilder);
     }
 
     @NotNull
-    private static String getTypeTokenCode(@NotNull TypeMirror fieldType, @NotNull Map<TypeVariable, String> typeVarsMap, @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
+    private static String getTypeTokenCode(@NotNull TypeMirror fieldType, @NotNull Map<TypeVariable,
+            String> typeVarsMap, @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
         String result = null;
         if (!TypeUtils.isConcreteType(fieldType)) {
             if (fieldType.getKind() == TypeKind.TYPEVAR) {
@@ -225,7 +160,7 @@ public class TypeAdapterGenerator {
             } else if (fieldType instanceof DeclaredType) {
                 DeclaredType decaredFieldType = (DeclaredType) fieldType;
                 List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
-                result = "com.vimeo.stag.utils.ParameterizedTypeUtil.getTypeToken(" + decaredFieldType.asElement().toString() + " .class";
+                result = "com.vimeo.sample.stag.generated." + ParameterizedTypeGenerator.CLASS_NAME + ".getTypeToken(" + decaredFieldType.asElement().toString() + ".class";
                 for (TypeMirror parameterTypeMirror : typeMirrors) {
                     if (isSupportedNative(parameterTypeMirror.toString())) {
                         result += ", " + parameterTypeMirror.toString() + ".class";
@@ -245,16 +180,16 @@ public class TypeAdapterGenerator {
 
     static boolean isSupportedPrimitive(@NotNull String type) {
         return type.equals(long.class.getName()) ||
-               type.equals(double.class.getName()) ||
-               type.equals(boolean.class.getName()) ||
-               type.equals(float.class.getName()) ||
-               type.equals(int.class.getName());
+                type.equals(double.class.getName()) ||
+                type.equals(boolean.class.getName()) ||
+                type.equals(float.class.getName()) ||
+                type.equals(int.class.getName());
     }
 
     static boolean isArray(@NotNull TypeMirror type) {
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-               outerClassType.equals(List.class.getName());
+                outerClassType.equals(List.class.getName());
     }
 
     @NotNull
@@ -263,14 +198,19 @@ public class TypeAdapterGenerator {
         return ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
     }
 
+    /**
+     * If the element is not annotated with {@link SerializedName}, the variable name is used.
+     */
     @NotNull
     private static String getJsonName(@NotNull Element element) {
-        String name = element.getAnnotation(GsonAdapterKey.class).value();
-
-        if (name.isEmpty()) {
-            name = element.getSimpleName().toString();
+        String value;
+        SerializedName annotation = element.getAnnotation(SerializedName.class);
+        if (annotation != null) {
+            value = annotation.value();
+        } else {
+            value = element.getSimpleName().toString();
         }
-        return name;
+        return value;
     }
 
     static boolean isSupportedNative(@NotNull String type) {
@@ -304,27 +244,155 @@ public class TypeAdapterGenerator {
     }
 
     @NotNull
-    private static String getReadCode(@NotNull String prefix, @NotNull String variableName,
-                                      @NotNull TypeMirror type,
-                                      @NotNull Map<String, String> typeAdapterFieldMap) {
+    private MethodSpec getWriteMethodSpec(@NotNull TypeName typeName, @NotNull Map<Element, TypeMirror> memberVariables,
+                                          @NotNull AdapterFieldInfo adapterFieldInfo) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
+                .addParameter(JsonWriter.class, "writer")
+                .addParameter(typeName, "object")
+                .returns(void.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addException(IOException.class);
+
+        if(null != adapterFieldInfo.mInitializerBuilder) {
+            builder.addCode("\tinitialize();\n");
+        }
+
+        builder.addCode("\twriter.beginObject();\n" +
+                "\tif (object == null) {\n" +
+                "\t\twriter.endObject();\n" +
+                "\t\treturn;\n" +
+                "\t}\n");
+
+        for (Map.Entry<Element, TypeMirror> element : memberVariables.entrySet()) {
+            String name = getJsonName(element.getKey());
+            String variableName = element.getKey().getSimpleName().toString();
+            String variableType = element.getValue().toString();
+
+            boolean isPrimitive = isSupportedPrimitive(variableType);
+
+            String prefix = isPrimitive ? "\t" : "\t\t";
+            if (!isPrimitive) {
+                builder.addCode("\tif (object." + variableName + " != null) {\n");
+            }
+            builder.addCode(getWriteCode(element.getKey(), prefix, element.getValue(), name, "object." + variableName, adapterFieldInfo.mAdapterFields));
+            if (!isPrimitive) {
+                builder.addCode("\t}\n");
+            }
+            if (element.getKey().getAnnotation(NotNull.class) != null) {
+                builder.addCode("\telse if (object." + variableName + " == null) {");
+                builder.addCode("\n\t\tthrow new com.google.gson.JsonParseException(\"" + name + " cannot be null\");");
+                builder.addCode("\n\t}\n");
+            }
+        }
+
+        builder.addCode("\twriter.endObject();\n");
+
+        return builder.build();
+    }
+
+    /**
+     * Generates the TypeSpec for the TypeAdapter
+     * that this class generates.
+     *
+     * @return a valid TypeSpec that can be written
+     * to a file or added to another class.
+     */
+    @NotNull
+    public TypeSpec getTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+    @NotNull StagGenerator stagGenerator) {
+        mGsonVariableUsed = false;
+        mStagFactoryUsed = false;
+        TypeMirror typeMirror = mInfo.getType();
+        TypeName typeVariableName = TypeVariableName.get(typeMirror);
+
+        List<? extends TypeMirror> typeArguments = mInfo.getTypeArguments();
+
+        TypeVariableName stagFactoryTypeName = stagGenerator.getGeneratedClassName();
+        MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(Gson.class, "gson")
+                .addParameter(stagFactoryTypeName, "stagFactory");
+
+
+        String className = FileGenUtils.unescapeEscapedString(mInfo.getTypeAdapterClassName());
+        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
+
+        Map<TypeVariable, String> typeVarsMap = new HashMap<>();
+
+        int idx = 0;
+        if (null != typeArguments) {
+
+            for (TypeMirror argType : typeArguments) {
+                if (argType.getKind() == TypeKind.TYPEVAR) {
+                    TypeVariable typeVariable = (TypeVariable) argType;
+                    String simpleName = typeVariable.asElement().getSimpleName().toString();
+                    adapterBuilder.addTypeVariable(TypeVariableName.get(simpleName, TypeVariableName.get(typeVariable.getUpperBound())));
+
+                    String paramName = "type" + "[" + String.valueOf(idx) + "]";
+                    typeVarsMap.put(typeVariable, paramName);
+                    idx++;
+                }
+            }
+
+            if (idx > 0) {
+                constructorBuilder.addParameter(Type[].class, "type");
+                constructorBuilder.varargs(true);
+            }
+        }
+
+        AnnotatedClass annotatedClass = SupportedTypesModel.getInstance().getSupportedType(typeMirror);
+        Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
+
+        AdapterFieldInfo adapterFieldInfo = addAdapterFields(adapterBuilder, constructorBuilder, memberVariables,
+                typeTokenConstantsGenerator, typeVarsMap, stagGenerator);
+
+        MethodSpec writeMethod = getWriteMethodSpec(typeVariableName, memberVariables, adapterFieldInfo);
+        MethodSpec readMethod = getReadMethodSpec(typeVariableName, memberVariables, adapterFieldInfo);
+
+
+        if(mGsonVariableUsed) {
+            adapterBuilder.addField(Gson.class, "mGson", Modifier.FINAL, Modifier.PRIVATE);
+            constructorBuilder.addStatement("this.mGson = gson");
+        }
+
+        if(mStagFactoryUsed) {
+            adapterBuilder.addField(stagFactoryTypeName, "mStagFactory", Modifier.FINAL, Modifier.PRIVATE);
+            constructorBuilder.addStatement("this.mStagFactory = stagFactory");
+        }
+
+        adapterBuilder.addMethod(constructorBuilder.build());
+        if(null != adapterFieldInfo.mInitializerBuilder) {
+            adapterBuilder.addMethod(adapterFieldInfo.mInitializerBuilder.build());
+        }
+        adapterBuilder.addMethod(writeMethod);
+        adapterBuilder.addMethod(readMethod);
+
+        return adapterBuilder.build();
+    }
+
+    @NotNull
+    private String getReadCode(@NotNull String prefix, @NotNull String variableName, @NotNull Element key,
+                               @NotNull TypeMirror type, @NotNull Map<String, String> typeAdapterFieldMap) {
         if (isArray(type)) {
             TypeMirror innerType = getInnerListType(type);
-            String innerRead = getReadType(innerType, typeAdapterFieldMap);
+            String innerRead = getReadType(key, innerType, typeAdapterFieldMap);
             return prefix + "reader.beginArray();\n" +
-                   prefix + "object." + variableName + " = new java.util.ArrayList<>();\n" +
-                   prefix + "while (reader.hasNext()) {\n" +
-                   prefix + "\tobject." + variableName + ".add(" + innerRead + ");\n" +
-                   prefix + "}\n" +
-                   prefix + "reader.endArray();";
+                    prefix + "object." + variableName + " = new java.util.ArrayList<>();\n" +
+                    prefix + "while (reader.hasNext()) {\n" +
+                    prefix + "\tobject." + variableName + ".add(" + innerRead + ");\n" +
+                    prefix + "}\n" +
+                    prefix + "reader.endArray();";
         } else {
             return prefix + "object." + variableName + " = " +
-                   getReadType(type, typeAdapterFieldMap) + ";";
+                    getReadType(key, type, typeAdapterFieldMap) + ";";
         }
     }
 
     @NotNull
-    private static String getReadType(@NotNull TypeMirror type,
-                                      @NotNull Map<String, String> typeAdapterFieldMap) {
+    private String getReadType(@NotNull Element key, @NotNull TypeMirror type, @NotNull Map<String, String> typeAdapterFieldMap) {
         if (type.toString().equals(long.class.getName())) {
             return "reader.nextLong()";
         } else if (type.toString().equals(double.class.getName())) {
@@ -343,58 +411,59 @@ public class TypeAdapterGenerator {
     }
 
     @NotNull
-    private static String getWriteCode(@NotNull String prefix, @NotNull TypeMirror type,
-                                       @NotNull String jsonName, @NotNull String variableName,
-                                       @NotNull Map<String, String> typeAdapterFieldMap) {
+    private String getWriteCode(@NotNull Element key, @NotNull String prefix, @NotNull TypeMirror type,
+                                @NotNull String jsonName, @NotNull String variableName,
+                                @NotNull Map<String, String> typeAdapterFieldMap) {
         if (isArray(type)) {
             TypeMirror innerType = getInnerListType(type);
-            String innerWrite = getWriteType(innerType, "item", typeAdapterFieldMap);
+            String innerWrite = getWriteType(key, innerType, "item", typeAdapterFieldMap);
             return prefix + "writer.name(\"" + jsonName + "\");\n" +
-                   prefix + "writer.beginArray();\n" +
-                   prefix + "for (" + innerType + " item : " + variableName + ") {\n" +
-                   prefix + "\t" + innerWrite + ";\n" +
-                   prefix + "}\n" +
-                   prefix + "writer.endArray();\n";
+                    prefix + "writer.beginArray();\n" +
+                    prefix + "for (" + innerType + " item : " + variableName + ") {\n" +
+                    prefix + "\t" + innerWrite + ";\n" +
+                    prefix + "}\n" +
+                    prefix + "writer.endArray();\n";
         } else {
             return prefix + "writer.name(\"" + jsonName + "\");\n" +
-                   prefix + getWriteType(type, variableName, typeAdapterFieldMap) + '\n';
-
+                    prefix + getWriteType(key, type, variableName, typeAdapterFieldMap) + '\n';
         }
     }
 
     @NotNull
-    private static String getWriteType(@NotNull TypeMirror type, @NotNull String variableName,
-                                       @NotNull Map<String, String> typeAdapterFieldMap) {
+    private String getWriteType(@NotNull Element key, @NotNull TypeMirror type, @NotNull String variableName, @NotNull Map<String, String> typeAdapterFieldMap) {
         if (type.toString().equals(long.class.getName()) ||
-            type.toString().equals(double.class.getName()) ||
-            type.toString().equals(boolean.class.getName()) ||
-            type.toString().equals(String.class.getName()) ||
-            type.toString().equals(int.class.getName()) ||
-            type.toString().equals(float.class.getName())) {
+                type.toString().equals(double.class.getName()) ||
+                type.toString().equals(boolean.class.getName()) ||
+                type.toString().equals(String.class.getName()) ||
+                type.toString().equals(int.class.getName()) ||
+                type.toString().equals(float.class.getName())) {
             return "writer.value(" + variableName + ");";
         } else {
-            return getAdapterWrite(type, variableName, typeAdapterFieldMap) + ";";
+            return getAdapterWrite(key, type, variableName, typeAdapterFieldMap) + ";";
         }
     }
 
     @NotNull
-    private static String getAdapterWrite(@NotNull TypeMirror type, @NotNull String variableName,
-                                          @NotNull Map<String, String> typeAdapterFieldMap) {
-        String adapterField = typeAdapterFieldMap.get(type.toString());
-        return adapterField + ".write(writer, " + variableName + ")";
+    private String getAdapterWrite(@NotNull Element key, @NotNull TypeMirror type, @NotNull String variableName,
+                                   @NotNull Map<String, String> typeAdapterFieldMap) {
+        if (key.getAnnotation(WriteRuntimeType.class) != null) {
+            mGsonVariableUsed = true;
+            return "((TypeAdapter)mGson.getAdapter(" + variableName + ".getClass())).write(writer, " + variableName + ")";
+        } else {
+            String adapterField = typeAdapterFieldMap.get(type.toString());
+            return adapterField + ".write(writer, " + variableName + ")";
+        }
     }
 
     @NotNull
-    private static String getAdapterRead(@NotNull TypeMirror type,
-                                         @NotNull Map<String, String> typeAdapterFieldMap) {
+    private String getAdapterRead(@NotNull TypeMirror type, @NotNull Map<String, String> typeAdapterFieldMap) {
         String adapterField = typeAdapterFieldMap.get(type.toString());
         return adapterField + ".read(reader)";
     }
 
     @NotNull
-    private MethodSpec getReadMethodSpec(@NotNull TypeName typeName,
-                                         @NotNull Map<Element, TypeMirror> elements,
-                                         @NotNull Map<String, String> typeAdapterFieldMap) {
+    private MethodSpec getReadMethodSpec(@NotNull TypeName typeName, @NotNull Map<Element, TypeMirror> elements,
+                                         @NotNull AdapterFieldInfo adapterFieldInfo) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("read")
                 .addParameter(JsonReader.class, "reader")
                 .returns(typeName)
@@ -402,26 +471,30 @@ public class TypeAdapterGenerator {
                 .addAnnotation(Override.class)
                 .addException(IOException.class);
 
+        if(null != adapterFieldInfo.mInitializerBuilder) {
+            builder.addCode("\tinitialize();\n");
+        }
+
         builder.addCode("\tif (reader.peek() == com.google.gson.stream.JsonToken.NULL) {\n" +
-                        "\t\treader.nextNull();\n" +
-                        "\t\treturn null;\n" +
-                        "\t}\n" +
-                        "\tif (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
-                        "\t\treader.skipValue();\n" +
-                        "\t\treturn null;\n" +
-                        "\t}\n" +
-                        "\treader.beginObject();\n" +
-                        '\n' +
-                        '\t' + typeName + " object = new " + mInfo.getClassAndPackage() +
-                        "();\n" +
-                        "\twhile (reader.hasNext()) {\n" +
-                        "\t\tString name = reader.nextName();\n" +
-                        "\t\tcom.google.gson.stream.JsonToken jsonToken = reader.peek();\n" +
-                        "\t\tif (jsonToken == com.google.gson.stream.JsonToken.NULL) {\n" +
-                        "\t\t\treader.skipValue();\n" +
-                        "\t\t\tcontinue;\n" +
-                        "\t\t}\n" +
-                        "\t\tswitch (name) {\n");
+                "\t\treader.nextNull();\n" +
+                "\t\treturn null;\n" +
+                "\t}\n" +
+                "\tif (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
+                "\t\treader.skipValue();\n" +
+                "\t\treturn null;\n" +
+                "\t}\n" +
+                "\treader.beginObject();\n" +
+                '\n' +
+                '\t' + typeName + " object = new " + typeName +
+                "();\n" +
+                "\twhile (reader.hasNext()) {\n" +
+                "\t\tString name = reader.nextName();\n" +
+                "\t\tcom.google.gson.stream.JsonToken jsonToken = reader.peek();\n" +
+                "\t\tif (jsonToken == com.google.gson.stream.JsonToken.NULL) {\n" +
+                "\t\t\treader.skipValue();\n" +
+                "\t\t\tcontinue;\n" +
+                "\t\t}\n" +
+                "\t\tswitch (name) {\n");
 
         List<String> nonNullFields = new ArrayList<>();
 
@@ -432,23 +505,20 @@ public class TypeAdapterGenerator {
 
             if (jsonTokenType != null) {
                 builder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                                "\t\t\t\tif (jsonToken == " + jsonTokenType +
-                                ") {\n" +
-                                getReadCode("\t\t\t\t\t", variableName, element.getValue(),
-                                            typeAdapterFieldMap) +
-                                "\n\t\t\t\t} else {" +
-                                "\n\t\t\t\t\treader.skipValue();" +
-                                "\n\t\t\t\t}" +
-                                '\n' +
-                                "\t\t\t\tbreak;\n");
+                        "\t\t\t\tif (jsonToken == " + jsonTokenType +
+                        ") {\n" +
+                        getReadCode("\t\t\t\t\t", variableName, element.getKey(), element.getValue(),
+                                adapterFieldInfo.mAdapterFields) +
+                        "\n\t\t\t\t} else {" +
+                        "\n\t\t\t\t\treader.skipValue();" +
+                        "\n\t\t\t\t}");
             } else {
                 builder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                                getReadCode("\t\t\t\t\t", variableName, element.getValue(),
-                                            typeAdapterFieldMap) +
-                                '\n' +
-                                "\t\t\t\tbreak;\n");
+                        getReadCode("\t\t\t\t\t", variableName, element.getKey(), element.getValue(),
+                                adapterFieldInfo.mAdapterFields));
             }
 
+            builder.addCode("\n\t\t\t\tbreak;\n");
             for (AnnotationMirror annotationMirror : element.getKey().getAnnotationMirrors()) {
                 switch (annotationMirror.toString()) {
                     case "@android.support.annotation.NonNull":
@@ -469,7 +539,7 @@ public class TypeAdapterGenerator {
         for (String nonNullField : nonNullFields) {
             builder.addCode("\n\tif (object." + nonNullField + " == null) {");
             builder.addCode("\n\t\tthrow new java.io.IOException(\"" + nonNullField + " cannot be null\");");
-            builder.addCode("\n\t}\n");
+            builder.addCode("\n\t}\n\n");
         }
 
         builder.addCode("\treturn object;\n");
