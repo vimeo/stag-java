@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -89,6 +90,13 @@ public final class TypeUtils {
         return null != typeArguments && !typeArguments.isEmpty();
     }
 
+    /**
+     * Determines whether or not the type has type parameters.
+     *
+     * @param type the type to check.
+     * @return true if the type is not null and has type parameters,
+     * false otherwise.
+     */
     @Nullable
     public static List<? extends TypeMirror> getTypeArguments(@Nullable TypeMirror type) {
         return type instanceof DeclaredType ? ((DeclaredType) type).getTypeArguments() : null;
@@ -105,6 +113,30 @@ public final class TypeUtils {
      */
     public static boolean isConcreteType(@NotNull Element element) {
         return isConcreteType(element.asType());
+    }
+
+    /**
+     * Determines whether or not the Element is a abstract type.
+     *
+     * @param element the element to check.
+     * @return true if the element is abstract and
+     * contains no generic type arguments, false otherwise.
+     */
+    public static boolean isAbstract(@NotNull Element element) {
+        return element.getModifiers().contains(Modifier.ABSTRACT);
+    }
+
+    /**
+     * Determines whether or not the Element is a parameterized type.
+     * If the element is a parameterized type or contains parameterized type
+     * arguments, this method will return false.
+     *
+     * @param element the element to check.
+     * @return true if the element is not generic and
+     * contains no generic type arguments, false otherwise.
+     */
+    public static boolean isParameterizedType(@NotNull Element element) {
+        return isParameterizedType(element.asType());
     }
 
     /**
@@ -300,8 +332,5 @@ public final class TypeUtils {
     private static List<? extends TypeMirror> getParameterizedTypes(@NotNull TypeMirror typeMirror) {
         return ((DeclaredType) typeMirror).getTypeArguments();
     }
-
-    public static boolean isParameterizedType(Element element) {
-        return isParameterizedType(element.asType());
-    }
 }
+
