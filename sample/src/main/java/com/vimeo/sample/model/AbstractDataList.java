@@ -35,7 +35,7 @@ import java.util.ArrayList;
  *
  * @param <T> the type of the list.
  */
-public class AbstractDataList<T> extends SuperAbstractDataList<Paging, ArrayList<T>> {
+public abstract class AbstractDataList<T> extends SuperAbstractDataList<Paging, ArrayList<T>> {
 
     @GsonAdapterKey
     public int page;

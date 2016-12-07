@@ -35,7 +35,7 @@ import com.vimeo.stag.GsonAdapterKey;
  * @param <T> the paging type.
  * @param <K> the data type.
  */
-public class SuperAbstractDataList<T, K> {
+public abstract class SuperAbstractDataList<T, K> {
 
     @GsonAdapterKey
     public T paging;

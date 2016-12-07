@@ -128,7 +128,7 @@ public final class StagProcessor extends AbstractProcessor {
                 Element enclosingClassElement = variableElement.getEnclosingElement();
                 TypeMirror enclosingClass = enclosingClassElement.asType();
 
-                if (!ElementUtils.isEnum(enclosingClassElement) && !TypeUtils.isAbstract(enclosingClassElement)) {
+                if (!ElementUtils.isEnum(enclosingClassElement)) {
                     Set<Modifier> modifiers = variableElement.getModifiers();
                     if (modifiers.contains(Modifier.FINAL)) {
                         throw new RuntimeException("Unable to access field \"" +
@@ -143,13 +143,17 @@ public final class StagProcessor extends AbstractProcessor {
                     }
 
                     if (TypeUtils.isParameterizedType(enclosingClass) || TypeUtils.isConcreteType(enclosingClass)) {
-                        mSupportedTypes.add(enclosingClass);
+                        if(!TypeUtils.isAbstract(enclosingClassElement)) {
+                            mSupportedTypes.add(enclosingClass);
+                        }
                         addToListMap(variableMap, enclosingClassElement, variableElement);
                     }
                 }
             } else if (element instanceof TypeElement) {
-                if (!ElementUtils.isEnum(element) && !TypeUtils.isAbstract(element)) {
-                    mSupportedTypes.add(element.asType());
+                if (!ElementUtils.isEnum(element)) {
+                    if(!TypeUtils.isAbstract(element)) {
+                        mSupportedTypes.add(element.asType());
+                    }
                     addToListMap(variableMap, element, null);
                 }
             }
@@ -170,7 +174,8 @@ public final class StagProcessor extends AbstractProcessor {
 
             Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
             for (Element element : list) {
-                if (TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) {
+                if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) &&
+                        !TypeUtils.isAbstract(element)) {
                     ClassInfo classInfo = new ClassInfo(element.asType());
                     TypeAdapterGenerator independentAdapter = new TypeAdapterGenerator(classInfo);
                     JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(), independentAdapter.getTypeAdapterSpec(typeTokenConstantsGenerator, adapterGenerator)).build();
