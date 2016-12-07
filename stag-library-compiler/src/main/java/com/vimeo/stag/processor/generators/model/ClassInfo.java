@@ -53,6 +53,11 @@ public class ClassInfo {
         mPackageName = ElementUtils.getPackage(mType);
 
         String classAndPackage = mType.toString();
+
+        /**
+         * This is done to avoid the generic template from being included in the file name to be generated
+         * (since it will be an invalid file name)
+         */
         int idx = classAndPackage.indexOf("<");
         if (idx > 0) {
             classAndPackage = classAndPackage.substring(0, idx);
