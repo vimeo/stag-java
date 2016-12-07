@@ -39,6 +39,7 @@ import java.util.Set;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 
 public final class KnownTypeAdapterFactoriesUtils {
@@ -49,20 +50,19 @@ public final class KnownTypeAdapterFactoriesUtils {
         throw new UnsupportedOperationException("This class is not instantiable");
     }
 
-    public static Set<String> loadKnownTypes(@NotNull ProcessingEnvironment processingEnv)
+    public static Set<TypeMirror> loadKnownTypes(@NotNull ProcessingEnvironment processingEnv, @NotNull String generatedPackageName)
             throws IOException {
         Filer filer = processingEnv.getFiler();
-        LinkedHashSet<String> knownTypes = new LinkedHashSet<>();
-        loadKnownTypesFromFiler(filer, knownTypes);
-        loadKnownTypesFromClasspath(knownTypes);
+        LinkedHashSet<TypeMirror> knownTypes = new LinkedHashSet<>();
+        Elements elementUtils = processingEnv.getElementUtils();
+        loadKnownTypesFromFiler(elementUtils, filer, generatedPackageName, knownTypes);
+        loadKnownTypesFromClasspath(elementUtils, knownTypes, generatedPackageName);
 
         // Filter out types which used to be present but are no longer available:
-        Elements elementUtils = processingEnv.getElementUtils();
-        Iterator<String> iterator = knownTypes.iterator();
+        Iterator<TypeMirror> iterator = knownTypes.iterator();
         while (iterator.hasNext()) {
-            String knownType = iterator.next();
-            TypeElement typeElement = elementUtils.getTypeElement(knownType);
-            if (typeElement == null) {
+            TypeMirror knownType = iterator.next();
+            if (knownType == null) {
                 iterator.remove();
             }
         }
@@ -70,29 +70,34 @@ public final class KnownTypeAdapterFactoriesUtils {
         return knownTypes;
     }
 
-    public static void writeKnownTypes(@NotNull ProcessingEnvironment processingEnv,
-                                       @NotNull Set<String> knownTypes) throws IOException {
+    public static void writeKnownTypes(@NotNull ProcessingEnvironment processingEnv, @NotNull String generatedPackageName,
+                                       @NotNull Set<TypeMirror> knownTypes) throws IOException {
         Filer filer = processingEnv.getFiler();
         StringBuilder knownTypesBuilder = new StringBuilder();
-        for (String knownType : knownTypes) {
+        for (TypeMirror knownType : knownTypes) {
             knownTypesBuilder.append(knownType).append("\n");
         }
-        FileGenUtils.writeToResource(filer, KNOWN_FACTORIES_RESOURCE, knownTypesBuilder.toString());
+        FileGenUtils.writeToResource(filer, generatedPackageName, KNOWN_FACTORIES_RESOURCE, knownTypesBuilder.toString());
     }
 
-    private static void loadKnownTypesFromFiler(@NotNull Filer filer, @NotNull Set<String> resultSet)
+    private static void loadKnownTypesFromFiler(@NotNull Elements elementUtils, @NotNull Filer filer, @NotNull String generatedPackageName, @NotNull Set<TypeMirror> resultSet)
             throws IOException {
-        CharSequence content = FileGenUtils.readResource(filer, KNOWN_FACTORIES_RESOURCE);
+        CharSequence content = FileGenUtils.readResource(filer, generatedPackageName, KNOWN_FACTORIES_RESOURCE);
         if (content == null) {
             return;
         }
         String[] knownFactories = content.toString().split("[\\n\\r]+");
-        Collections.addAll(resultSet, knownFactories);
+        for(String knownFactory : knownFactories) {
+            TypeElement element = elementUtils.getTypeElement(knownFactory);
+            if(null != element) {
+                resultSet.add(element.asType());
+            }
+        }
     }
 
-    private static void loadKnownTypesFromClasspath(@NotNull Set<String> resultSet) throws IOException {
+    private static void loadKnownTypesFromClasspath(@NotNull Elements elementUtils, @NotNull Set<TypeMirror> resultSet, @NotNull String generatedPackageName) throws IOException {
         ClassLoader classLoader = KnownTypeAdapterFactoriesUtils.class.getClassLoader();
-        String resourcePath = FileGenUtils.GENERATED_PACKAGE_NAME.replace('.', '/');
+        String resourcePath = generatedPackageName.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(resourcePath + "/" + KNOWN_FACTORIES_RESOURCE);
         while (resources.hasMoreElements()) {
             URL typeAdapterFactoryUrl = resources.nextElement();
@@ -101,7 +106,11 @@ public final class KnownTypeAdapterFactoriesUtils {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
-                    resultSet.add(line.trim());
+                    TypeElement element = elementUtils.getTypeElement(line.trim());
+                    if(null != element) {
+                        resultSet.add(element.asType());
+                    }
+
                 }
             } finally {
                 FileGenUtils.close(inputStream);

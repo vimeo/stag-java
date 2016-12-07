@@ -26,6 +26,7 @@ package com.vimeo.sample.model;
 import com.vimeo.stag.GsonAdapterKey;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class simulates the scenario where
@@ -53,6 +54,9 @@ public class IdenticalFieldTypes {
     @GsonAdapterKey
     ArrayList<Stats> mStatsArrayList;
 
-    @GsonAdapterKey
+    @GsonAdapterKey("mListOfList")
+    List<List<Stats>> mListOfList;
+
+    @GsonAdapterKey("mStats")
     Stats mStats;
 }

@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -64,4 +65,8 @@ public final class ElementUtils {
         return packageElement.getQualifiedName().toString();
     }
 
+    @NotNull
+    public static boolean isEnum(Element element) {
+        return element != null && element.getKind() == ElementKind.ENUM;
+    }
 }

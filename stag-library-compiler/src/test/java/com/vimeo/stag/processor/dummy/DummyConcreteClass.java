@@ -35,4 +35,6 @@ public class DummyConcreteClass {
     List<Object> testList;
 
     Map<String, Object> testMap;
+
+    DummyGenericClass<DummyGenericClass<DummyInheritedClass>> dummyInheritedClass;
 }
