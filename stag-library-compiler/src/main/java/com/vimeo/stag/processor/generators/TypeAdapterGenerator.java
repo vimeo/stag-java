@@ -160,6 +160,11 @@ public class TypeAdapterGenerator {
                 result.addTypeToFunctionName(fieldType.toString(), "mStagFactory.get" + getterField + "(mGson)");
                 mGsonVariableUsed = true;
                 mStagFactoryUsed = true;
+            } else if (TypeUtils.isConcreteType(fieldType)) {
+                getterField = stagGenerator.addFieldType(fieldType);
+                result.addTypeToFunctionName(fieldType.toString(), "mStagFactory.get" + getterField + "(mGson)");
+                mGsonVariableUsed = true;
+                mStagFactoryUsed = true;
             } else {
                 String fieldName = result.getFieldName(fieldType);
                 if (null == fieldName) {

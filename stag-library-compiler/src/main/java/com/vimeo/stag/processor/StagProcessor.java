@@ -168,8 +168,6 @@ public final class StagProcessor extends AbstractProcessor {
             mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
 
             StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes);
-            adapterGenerator.generateTypeAdapterFactory(packageName);
-
             TypeTokenConstantsGenerator typeTokenConstantsGenerator = new TypeTokenConstantsGenerator(filer, packageName);
 
             Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
@@ -182,6 +180,7 @@ public final class StagProcessor extends AbstractProcessor {
                     FileGenUtils.writeToFile(javaFile, filer);
                 }
             }
+            adapterGenerator.generateTypeAdapterFactory(packageName);
 
             typeTokenConstantsGenerator.generateTypeTokenConstants();
             KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, mSupportedTypes);
