@@ -30,7 +30,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -87,6 +86,11 @@ public class TypeAdapterGenerator {
 
         public AdapterFieldInfo(int capacity) {
             mAdapterFields = new HashMap<>(capacity);
+        }
+
+        @Nullable
+        public String getKnownAdapterStagFunctionCalls(TypeMirror typeMirror) {
+            return mKnownAdapterStagFunctionCalls != null ? mKnownAdapterStagFunctionCalls.get(typeMirror.toString()) : null;
         }
 
         public void addTypeToFunctionName(String name, String functionName) {
@@ -423,10 +427,12 @@ public class TypeAdapterGenerator {
         if (isArray(type)) {
             TypeMirror innerType = getArrayInnerType(type);
             boolean isNativeArray = isNativeArray(type);
-            String innerRead = getReadType(key, innerType, adapterFieldInfo);
+            String innerRead = getReadType(type, innerType, adapterFieldInfo);
             String arrayListVariableName = isNativeArray ? "tmpArray" : "object." + variableName;
+            String stagGetterName = adapterFieldInfo.getKnownAdapterStagFunctionCalls(innerType);
             String result =  prefix + "reader.beginArray();\n" +
                     prefix + (isNativeArray ? "java.util.ArrayList<" + getArrayListType(innerType) + "> " : "") +  arrayListVariableName + " = new java.util.ArrayList<>();\n" +
+                    (stagGetterName != null ? prefix + "TypeAdapter<" + innerType + "> adapter = " + stagGetterName + ";\n" : "") +
                     prefix + "while (reader.hasNext()) {\n" +
                     prefix + "\t" + arrayListVariableName + ".add(" + innerRead + ");\n" +
                     prefix + "}\n" +
@@ -440,12 +446,12 @@ public class TypeAdapterGenerator {
             return result;
         } else {
             return prefix + "object." + variableName + " = " +
-                    getReadType(key, type, adapterFieldInfo) + ";";
+                    getReadType(type, type, adapterFieldInfo) + ";";
         }
     }
 
     @NotNull
-    private String getReadType(@NotNull Element key, @NotNull TypeMirror type, @NotNull AdapterFieldInfo adapterFieldInfo) {
+    private String getReadType(@NotNull TypeMirror parentType, @NotNull TypeMirror type, @NotNull AdapterFieldInfo adapterFieldInfo) {
         String typeString = type.toString();
         if (typeString.equals(long.class.getName()) ||
                 typeString.equals(Long.class.getName())) {
@@ -465,7 +471,7 @@ public class TypeAdapterGenerator {
                 typeString.equals(Float.class.getName())) {
             return "(float) reader.nextDouble()";
         } else {
-            return getAdapterRead(type, adapterFieldInfo);
+            return getAdapterRead(parentType, type, adapterFieldInfo);
         }
     }
 
@@ -506,9 +512,14 @@ public class TypeAdapterGenerator {
     }
 
     @NotNull
-    private String getAdapterRead(@NotNull TypeMirror type, @NotNull AdapterFieldInfo adapterFieldInfo) {
-        String adapterField = adapterFieldInfo.getAdapter(type);
-        return adapterField + ".read(reader)";
+    private String getAdapterRead(@NotNull TypeMirror parentType, @NotNull TypeMirror type, @NotNull AdapterFieldInfo adapterFieldInfo) {
+        String adapterCode;
+        if(adapterFieldInfo.getKnownAdapterStagFunctionCalls(type) != null && isArray(parentType)){
+            adapterCode = "adapter.read(reader)";
+        }else{
+            adapterCode = adapterFieldInfo.getAdapter(type) + ".read(reader)";
+        }
+        return adapterCode;
     }
 
     @NotNull
