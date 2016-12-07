@@ -44,9 +44,7 @@ public final class ParameterizedTypeUtil {
         return obj;
     }
 
-    private static final class ParameterizedTypeImpl implements ParameterizedType, Serializable {
-        private static final long serialVersionUID = 0;
-
+    private static final class ParameterizedTypeImpl implements ParameterizedType {
         private final Type ownerType;
 
         private final Type rawType;
