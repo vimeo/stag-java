@@ -146,7 +146,7 @@ public final class StagProcessor extends AbstractProcessor {
                     if (enclosedElement instanceof VariableElement) {
                         final VariableElement variableElement = (VariableElement) enclosedElement;
                         Element enclosingElement = variableElement.getEnclosingElement();
-                        if (!ElementUtils.isEnum(enclosingElement) && !TypeUtils.isAbstract(enclosingElement)) {
+                        if (!ElementUtils.isEnum(enclosingElement)) {
                             Set<Modifier> modifiers = variableElement.getModifiers();
                             TypeMirror enclosingClass = enclosingElement.asType();
                             if (TypeUtils.isParameterizedType(enclosingClass) || TypeUtils.isConcreteType(enclosingClass)) {
