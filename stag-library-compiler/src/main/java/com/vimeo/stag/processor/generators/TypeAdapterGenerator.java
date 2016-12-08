@@ -25,8 +25,6 @@ package com.vimeo.stag.processor.generators;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.ClassName;
@@ -35,7 +33,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
@@ -65,7 +62,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 
 @SuppressWarnings("StringConcatenationMissingWhitespace")
-public class TypeAdapterGenerator {
+public class TypeAdapterGenerator extends AdapterGenerator {
 
     private static final String TYPE_ADAPTER_FIELD_PREFIX = "mTypeAdapter";
     @NotNull
@@ -263,19 +260,6 @@ public class TypeAdapterGenerator {
         return ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
     }
 
-    /**
-     * If the element is not annotated with {@link SerializedName}, the variable name is used.
-     */
-    @NotNull
-    private static String getJsonName(@NotNull Element element) {
-        String name = element.getAnnotation(GsonAdapterKey.class).value();
-
-        if (name.isEmpty()) {
-            name = element.getSimpleName().toString();
-        }
-        return name;
-    }
-
     static boolean isSupportedNative(@NotNull String type) {
         return isSupportedPrimitive(type)
                 || type.equals(String.class.getName())
@@ -381,6 +365,7 @@ public class TypeAdapterGenerator {
      * @return a valid TypeSpec that can be written
      * to a file or added to another class.
      */
+    @Override
     @NotNull
     public TypeSpec getTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
     @NotNull StagGenerator stagGenerator) {

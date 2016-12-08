@@ -25,7 +25,10 @@ package com.vimeo.stag.processor;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.TypeSpec;
 import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.processor.generators.AdapterGenerator;
+import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.TypeTokenConstantsGenerator;
@@ -59,6 +62,7 @@ import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -149,13 +153,12 @@ public final class StagProcessor extends AbstractProcessor {
                         addToListMap(variableMap, enclosingClassElement, variableElement);
                     }
                 }
+
             } else if (element instanceof TypeElement) {
-                if (!ElementUtils.isEnum(element)) {
-                    if(!TypeUtils.isAbstract(element)) {
-                        mSupportedTypes.add(element.asType());
-                    }
-                    addToListMap(variableMap, element, null);
+                if(!TypeUtils.isAbstract(element)) {
+                    mSupportedTypes.add(element.asType());
                 }
+                addToListMap(variableMap, element, null);
             }
         }
 
@@ -175,7 +178,7 @@ public final class StagProcessor extends AbstractProcessor {
                 if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) &&
                         !TypeUtils.isAbstract(element)) {
                     ClassInfo classInfo = new ClassInfo(element.asType());
-                    TypeAdapterGenerator independentAdapter = new TypeAdapterGenerator(classInfo);
+                    AdapterGenerator independentAdapter = element.getKind() == ElementKind.ENUM ? new EnumTypeAdapterGenerator(classInfo, element) : new TypeAdapterGenerator(classInfo);
                     JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(), independentAdapter.getTypeAdapterSpec(typeTokenConstantsGenerator, adapterGenerator)).build();
                     FileGenUtils.writeToFile(javaFile, filer);
                 }
