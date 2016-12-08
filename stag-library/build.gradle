@@ -73,3 +73,80 @@ allprojects {
         }
     }
 }
+
+
+group = ARTIFACTORY_GROUP
+version = VERSION_NAME_STAG
+status = STATUS
+
+apply plugin: 'artifactory'
+apply plugin: 'com.github.dcendents.android-maven'
+
+configurations {
+    published
+}
+
+task sourceJar(type: Jar) {
+    from 'src/main/java'
+    classifier "sources"
+}
+
+artifactoryPublish {
+    dependsOn sourceJar
+}
+
+artifacts {
+    published sourceJar
+}
+
+configure(install.repositories.mavenInstaller) {
+    pom.project {
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+    }
+}
+
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:2.2.3'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+artifactory {
+    contextUrl = ARTIFACTORY_REPO_URL
+    publish {
+        repository {
+            repoKey = REPO_KEY //The Artifactory repository key to publish to
+            //username = artifactory_user //The publisher user name, property taken from gradle.properties
+            //password = artifactory_password //The publisher password, property taken from gradle.properties
+        }
+        defaults {
+            publishConfigs('archives', 'published')
+            properties = ['build.status': "$it.project.status".toString()]
+            publishPom = true //Publish generated POM files to Artifactory (true by default)
+            publishIvy = false
+            //Publish generated Ivy descriptor files to Artifactory (true by default)
+        }
+    }
+    resolve {
+        repository {
+            repoKey = REPO_KEY //The Artifactory (preferably virtual) repository key to resolve from
+            //username = artifactory_user //Optional resolver user name (leave out to use anonymous resolution), property taken from gradle.properties
+            //password = artifactory_password //The resolver password, property taken from gradle.properties
+        }
+    }
+}

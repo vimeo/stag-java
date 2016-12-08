@@ -50,8 +50,8 @@ import java.lang.annotation.Target;
  * <p/>
  * See the sample code for examples of each.
  */
-@Target({ElementType.FIELD, ElementType.TYPE})
-public @interface GsonAdapterKey {
+@Target({ElementType.TYPE})
+public @interface UseStag {
 
     /**
      * The optional value for the JSON key
