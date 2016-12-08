@@ -25,7 +25,7 @@ package com.vimeo.stag.processor;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
-import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.TypeTokenConstantsGenerator;
@@ -65,7 +65,7 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 @AutoService(Processor.class)
-@SupportedAnnotationTypes("com.vimeo.stag.GsonAdapterKey")
+@SupportedAnnotationTypes("com.vimeo.stag.UseStag")
 @SupportedOptions(value = {"stagGeneratedPackageName"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
@@ -94,13 +94,29 @@ public final class StagProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> set = new HashSet<>();
-        set.add(GsonAdapterKey.class.getCanonicalName());
+        set.add(UseStag.class.getCanonicalName());
         return set;
     }
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.RELEASE_7;
+    }
+
+    private static void checkModifiers(VariableElement variableElement, Set<Modifier> modifiers) {
+        if (modifiers.contains(Modifier.FINAL)) {
+            if (!modifiers.contains(Modifier.STATIC)) {
+                throw new RuntimeException("Unable to access field \"" +
+                        variableElement.getSimpleName().toString() + "\" in class " +
+                        variableElement.getEnclosingElement().asType() +
+                        ", field must not be final.");
+            }
+        } else if (modifiers.contains(Modifier.PRIVATE)) {
+            throw new RuntimeException("Unable to access field \"" +
+                    variableElement.getSimpleName().toString() + "\" in class " +
+                    variableElement.getEnclosingElement().asType() +
+                    ", field must not be private.");
+        }
     }
 
     @Override
@@ -117,11 +133,45 @@ public final class StagProcessor extends AbstractProcessor {
         TypeUtils.initialize(processingEnv.getTypeUtils());
         ElementUtils.initialize(processingEnv.getElementUtils());
 
-        DebugLog.log("\nBeginning @GsonAdapterKey annotation processing\n");
+        DebugLog.log("\nBeginning @UseStag annotation processing\n");
 
         mHasBeenProcessed = true;
         Map<Element, List<VariableElement>> variableMap = new HashMap<>();
-        for (Element element : roundEnv.getElementsAnnotatedWith(GsonAdapterKey.class)) {
+
+        Set<? extends Element> rootElements = roundEnv.getRootElements();
+        for (Element rootElement : rootElements) {
+            if (rootElement.getAnnotation(UseStag.class) != null) {
+                List<? extends Element> enclosedElements = rootElement.getEnclosedElements();
+                for (Element enclosedElement : enclosedElements) {
+                    if (enclosedElement instanceof VariableElement) {
+                        final VariableElement variableElement = (VariableElement) enclosedElement;
+                        Element enclosingElement = variableElement.getEnclosingElement();
+                        if (!ElementUtils.isEnum(enclosingElement) && !TypeUtils.isAbstract(enclosingElement)) {
+                            Set<Modifier> modifiers = variableElement.getModifiers();
+                            TypeMirror enclosingClass = enclosingElement.asType();
+                            if (TypeUtils.isParameterizedType(enclosingClass) || TypeUtils.isConcreteType(enclosingClass)) {
+                                if(!modifiers.contains(Modifier.FINAL) || !modifiers.contains(Modifier.STATIC)) {
+                                    if (!TypeUtils.isAbstract(enclosingElement)) {
+                                        checkModifiers(variableElement, modifiers);
+                                        mSupportedTypes.add(enclosingClass);
+                                    }
+                                    addToListMap(variableMap, enclosingElement, variableElement);
+                                }
+                            }
+                        }
+                    } else if (enclosedElement instanceof TypeElement) {
+                        if (!ElementUtils.isEnum(enclosedElement)) {
+                            if(!TypeUtils.isAbstract(enclosedElement)) {
+                                mSupportedTypes.add(enclosedElement.asType());
+                            }
+                            addToListMap(variableMap, enclosedElement, null);
+                        }
+                    }
+                }
+            }
+        }
+
+        for (Element element : roundEnv.getElementsAnnotatedWith(UseStag.class)) {
             if (element instanceof VariableElement) {
                 final VariableElement variableElement = (VariableElement) element;
 
@@ -188,7 +238,7 @@ public final class StagProcessor extends AbstractProcessor {
             throw new RuntimeException(e);
         }
 
-        DebugLog.log("\nSuccessfully processed @GsonAdapterKey annotations\n");
+        DebugLog.log("\nSuccessfully processed @UseStag annotations\n");
 
         return true;
     }
