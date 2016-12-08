@@ -77,15 +77,6 @@ public class ClassInfo {
         return mPackageName;
     }
 
-    /**
-     * The name of the class.
-     *
-     * @return a valid package name.
-     */
-    @NotNull
-    public String getClassName() {
-        return mClassName;
-    }
 
     /**
      * The simple class name of the {@link com.google.gson.TypeAdapter} class for this model class.
