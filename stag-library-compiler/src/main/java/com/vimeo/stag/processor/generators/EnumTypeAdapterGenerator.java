@@ -75,6 +75,7 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
             }
         }
 
+
         MethodSpec writeMethod = getWriteMethodSpec(typeVariableName);
         MethodSpec readMethod = getReadMethodSpec(typeVariableName);
 
@@ -87,15 +88,14 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
         CodeBlock.Builder staticBlockBuilder = CodeBlock.builder();
         staticBlockBuilder.addStatement("NAME_TO_CONSTANT = new HashMap<>(" + nameToConstant.size() + ")");
         for(Map.Entry<String, Element> entry : nameToConstant.entrySet()) {
-            staticBlockBuilder.addStatement("NAME_TO_CONSTANT.put(\"" + entry.getKey() + "\", " + mInfo.getClassName() + "." + entry.getValue().getSimpleName().toString() + ")");
+            staticBlockBuilder.addStatement("NAME_TO_CONSTANT.put(\"" + entry.getKey() + "\", " + typeVariableName + "." + entry.getValue().getSimpleName().toString() + ")");
         }
 
         staticBlockBuilder.add("\n");
         staticBlockBuilder.addStatement("CONSTANT_TO_NAME = new HashMap<>(" + constantToName.size() + ")");
         for(Map.Entry<Element, String> entry : constantToName.entrySet()) {
-            staticBlockBuilder.addStatement("CONSTANT_TO_NAME.put(" + mInfo.getClassName() + "." + entry.getKey().getSimpleName().toString() + ", \""  + entry.getValue() + "\")");
+            staticBlockBuilder.addStatement("CONSTANT_TO_NAME.put(" + typeVariableName + "." + entry.getKey().getSimpleName().toString() + ", \""  + entry.getValue() + "\")");
         }
-
 
         adapterBuilder.addStaticBlock(staticBlockBuilder.build());
 
