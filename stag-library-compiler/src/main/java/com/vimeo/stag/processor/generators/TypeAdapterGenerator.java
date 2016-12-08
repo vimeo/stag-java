@@ -173,7 +173,7 @@ public class TypeAdapterGenerator {
                     String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
                     TypeName typeName = getAdapterFieldTypeName(fieldType);
                     adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-                    constructorBuilder.addStatement(fieldName + " = gson.getAdapter(" + getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")");
+                    constructorBuilder.addStatement(fieldName + " = (TypeAdapter<" + fieldType + ">) gson.getAdapter(" + getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")");
                 }
             }
         }
@@ -195,7 +195,7 @@ public class TypeAdapterGenerator {
                  */
                 DeclaredType declaredFieldType = (DeclaredType) fieldType;
                 List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
-                result = "com.vimeo.stag.utils.ParameterizedTypeUtil.getTypeToken(" + declaredFieldType.asElement().toString() + ".class";
+                result = "com.google.gson.reflect.TypeToken.getParameterized(" + declaredFieldType.asElement().toString() + ".class";
                 /**
                  * Iterate through all the types from the typeArguments and generate typetoken code accordingly
                  */
