@@ -173,7 +173,7 @@ public class TypeAdapterGenerator {
                     String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
                     TypeName typeName = getAdapterFieldTypeName(fieldType);
                     adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-                    constructorBuilder.addStatement(fieldName + " = (TypeAdapter<" + fieldType + ">) gson.getAdapter(" + getTypeTokenCode("$T", fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")", TypeToken.class);
+                    constructorBuilder.addStatement(fieldName + " = (TypeAdapter<" + fieldType + ">) gson.getAdapter(" + getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")");
                 }
             }
         }
@@ -182,12 +182,12 @@ public class TypeAdapterGenerator {
     }
 
     @Nullable
-    private static String getTypeTokenCode(String $T, @NotNull TypeMirror fieldType, @NotNull Map<TypeVariable, String> typeVarsMap,
+    private static String getTypeTokenCode(@NotNull TypeMirror fieldType, @NotNull Map<TypeVariable, String> typeVarsMap,
                                            @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
         String result = null;
         if (!TypeUtils.isConcreteType(fieldType)) {
             if (fieldType.getKind() == TypeKind.TYPEVAR) {
-                result = "$T.get(" + typeVarsMap.get(fieldType) + ")";
+                result = " com.google.gson.reflect.TypeToken.get(" + typeVarsMap.get(fieldType) + ")";
             } else if (fieldType instanceof DeclaredType) {
                 /**
                  * If it is of ParameterizedType, {@link com.vimeo.stag.utils.ParameterizedTypeUtil} is used to get the
@@ -195,7 +195,7 @@ public class TypeAdapterGenerator {
                  */
                 DeclaredType declaredFieldType = (DeclaredType) fieldType;
                 List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
-                result = "TypeToken.getParameterized(" + declaredFieldType.asElement().toString() + ".class";
+                result = "com.google.gson.reflect.TypeToken.getParameterized(" + declaredFieldType.asElement().toString() + ".class";
                 /**
                  * Iterate through all the types from the typeArguments and generate typetoken code accordingly
                  */
@@ -205,7 +205,7 @@ public class TypeAdapterGenerator {
                     } else if (parameterTypeMirror.getKind() == TypeKind.TYPEVAR) {
                         result += ", " + typeVarsMap.get(parameterTypeMirror);
                     } else {
-                        result += ",\n" + getTypeTokenCode("$T", parameterTypeMirror, typeVarsMap, typeTokenConstantsGenerator) + ".getType()";
+                        result += ",\n" + getTypeTokenCode(parameterTypeMirror, typeVarsMap, typeTokenConstantsGenerator) + ".getType()";
                     }
                 }
                 result += ")";
