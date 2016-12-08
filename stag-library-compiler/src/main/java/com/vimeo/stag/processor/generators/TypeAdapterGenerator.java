@@ -35,7 +35,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.WriteRuntimeType;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
@@ -250,11 +250,17 @@ public class TypeAdapterGenerator {
      */
     @NotNull
     private static String getJsonName(@NotNull Element element) {
-        String name = element.getAnnotation(GsonAdapterKey.class).value();
+        SerializedName annotation = element.getAnnotation(SerializedName.class);
+        String name = null;
 
-        if (name.isEmpty()) {
+        if (annotation != null) {
+            name = annotation.value();
+        }
+
+        if (name == null) {
             name = element.getSimpleName().toString();
         }
+
         return name;
     }
 
@@ -537,8 +543,13 @@ public class TypeAdapterGenerator {
     @NotNull
     private String getAdapterWrite(@NotNull Element key, @NotNull TypeMirror type, @NotNull String variableName,
                                    @NotNull AdapterFieldInfo adapterFieldInfo) {
-        String adapterField = adapterFieldInfo.getAdapter(type);
-        return adapterField + ".write(writer, " + variableName + ")";
+        if (key.getAnnotation(WriteRuntimeType.class) != null) {
+            mGsonVariableUsed = true;
+            return "((TypeAdapter) mGson.getAdapter(" + variableName + ".getClass())).write(writer, " + variableName + ")";
+        } else {
+            String adapterField = adapterFieldInfo.getAdapter(type);
+            return adapterField + ".write(writer, " + variableName + ")";
+        }
     }
 
     @NotNull

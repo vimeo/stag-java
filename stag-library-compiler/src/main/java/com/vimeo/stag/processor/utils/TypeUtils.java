@@ -195,7 +195,7 @@ public final class TypeUtils {
      * {@code
      * Factory<T> {
      *
-     *  @literal @GsonAdapterKey
+     *  @literal @UseStag
      *   public T data;
      *
      * }
@@ -208,7 +208,7 @@ public final class TypeUtils {
      * }
      * </pre>
      * In this example, VideoFactory has a public member variable T that is of type Video.
-     * Since the Factory class has the GsonAdapterKey annotation, we cannot just generate
+     * Since the Factory class has the UseStag annotation, we cannot just generate
      * parsing code for the Factory class, since it is generic and we need concrete types.
      * Instead when we generate the adapter for VideoFactory, we crawl the inheritance
      * hierarchy gathering the member variables. When we get to VideoFactory, we see it
