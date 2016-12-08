@@ -1,7 +1,8 @@
 package com.vimeo.sample.model;
 
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
 import java.util.Collection;
 import java.util.List;
@@ -11,25 +12,26 @@ import java.util.List;
  * This can be inside the same class or could be in a class referenced by
  * this class which again refers back to this class
  */
+@UseStag
 public class RecursiveClass {
-    @GsonAdapterKey
+    @SerializedName("checkSum")
     public String checkSum;
 
-    @GsonAdapterKey
+    @SerializedName("stringNativeArray")
     public String[] stringNativeArray;
 
-    @GsonAdapterKey
+    @SerializedName("integerObject")
     public Integer integerObject;
 
-    @GsonAdapterKey
+    @SerializedName("integerArray")
     public List<Integer> integerArray;
 
-    @GsonAdapterKey
+    @SerializedName("collection")
     public Collection<Integer> collection;
 
-    @GsonAdapterKey
+    @SerializedName("nativeIntegerArray")
     public int[] nativeIntegerArray;
 
-    @GsonAdapterKey
+    @SerializedName("innerSum")
     public RecursiveClass innerSum;
 }

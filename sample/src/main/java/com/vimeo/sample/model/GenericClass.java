@@ -1,18 +1,19 @@
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
 import java.util.Map;
 
 /**
  * Created by anirudh.r on 30/11/16.
  */
-
+@UseStag
 public class GenericClass<T> {
 
-    @GsonAdapterKey
+    @SerializedName("name")
     public T name;
 
-    @GsonAdapterKey
+    @SerializedName("map")
     public Map<String, Map<String, T>> mapField;
 }

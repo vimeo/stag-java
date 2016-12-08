@@ -23,7 +23,8 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
 /**
  * This class provides an example of using
@@ -31,17 +32,17 @@ import com.vimeo.stag.GsonAdapterKey;
  */
 public class ConcreteClass {
 
-    @GsonAdapterKey
+    @SerializedName("doublyNestedModel")
     NestedModel.DoublyNestedModel doublyNestedModel;
 
     public static class NestedModel {
 
-        @GsonAdapterKey
+        @SerializedName("message")
         public String message;
 
         public static class DoublyNestedModel {
 
-            @GsonAdapterKey
+            @SerializedName("message")
             public String message;
         }
     }

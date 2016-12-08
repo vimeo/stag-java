@@ -23,15 +23,17 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
 /**
  * This class simulates a scenario where a class with the same
  * name is also present as a static inner class of another class
  * in the same package, see {@link ConcreteClass.NestedModel}.
  */
+@UseStag
 public class NestedModel {
 
-    @GsonAdapterKey
+    @SerializedName("test1")
     public String test1;
 }
