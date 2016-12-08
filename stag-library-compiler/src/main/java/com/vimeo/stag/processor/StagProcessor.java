@@ -26,7 +26,6 @@ package com.vimeo.stag.processor;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import com.vimeo.stag.UseStag;
-import com.squareup.javapoet.TypeSpec;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
@@ -95,18 +94,6 @@ public final class StagProcessor extends AbstractProcessor {
         map.put(key, list);
     }
 
-    @Override
-    public Set<String> getSupportedAnnotationTypes() {
-        Set<String> set = new HashSet<>();
-        set.add(UseStag.class.getCanonicalName());
-        return set;
-    }
-
-    @Override
-    public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_7;
-    }
-
     private static void checkModifiers(VariableElement variableElement, Set<Modifier> modifiers) {
         if (modifiers.contains(Modifier.FINAL)) {
             if (!modifiers.contains(Modifier.STATIC)) {
@@ -121,6 +108,18 @@ public final class StagProcessor extends AbstractProcessor {
                     variableElement.getEnclosingElement().asType() +
                     ", field must not be private.");
         }
+    }
+
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        Set<String> set = new HashSet<>();
+        set.add(UseStag.class.getCanonicalName());
+        return set;
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        return SourceVersion.RELEASE_7;
     }
 
     @Override
@@ -145,29 +144,34 @@ public final class StagProcessor extends AbstractProcessor {
         Set<? extends Element> rootElements = roundEnv.getRootElements();
         for (Element rootElement : rootElements) {
             if (rootElement.getAnnotation(UseStag.class) != null) {
-                List<? extends Element> enclosedElements = rootElement.getEnclosedElements();
-                for (Element enclosedElement : enclosedElements) {
-                    if (enclosedElement instanceof VariableElement) {
-                        final VariableElement variableElement = (VariableElement) enclosedElement;
-                        Element enclosingElement = variableElement.getEnclosingElement();
-                        if (!ElementUtils.isEnum(enclosingElement)) {
-                            Set<Modifier> modifiers = variableElement.getModifiers();
-                            TypeMirror enclosingClass = enclosingElement.asType();
-                            if (TypeUtils.isParameterizedType(enclosingClass) || TypeUtils.isConcreteType(enclosingClass)) {
-                                if(!modifiers.contains(Modifier.FINAL) || !modifiers.contains(Modifier.STATIC)) {
-                                    if (!TypeUtils.isAbstract(enclosingElement)) {
-                                        checkModifiers(variableElement, modifiers);
-                                        mSupportedTypes.add(enclosingClass);
+                if (ElementUtils.isEnum(rootElement)) {
+                    mSupportedTypes.add(rootElement.asType());
+                    addToListMap(variableMap, rootElement, null);
+                } else {
+                    List<? extends Element> enclosedElements = rootElement.getEnclosedElements();
+                    for (Element enclosedElement : enclosedElements) {
+                        if (enclosedElement instanceof VariableElement) {
+                            final VariableElement variableElement = (VariableElement) enclosedElement;
+                            Element enclosingElement = variableElement.getEnclosingElement();
+                            if (!ElementUtils.isEnum(enclosingElement)) {
+                                Set<Modifier> modifiers = variableElement.getModifiers();
+                                TypeMirror enclosingClass = enclosingElement.asType();
+                                if (TypeUtils.isParameterizedType(enclosingClass) || TypeUtils.isConcreteType(enclosingClass)) {
+                                    if (!modifiers.contains(Modifier.FINAL) || !modifiers.contains(Modifier.STATIC)) {
+                                        if (!TypeUtils.isAbstract(enclosingElement)) {
+                                            checkModifiers(variableElement, modifiers);
+                                            mSupportedTypes.add(enclosingClass);
+                                        }
+                                        addToListMap(variableMap, enclosingElement, variableElement);
                                     }
-                                    addToListMap(variableMap, enclosingElement, variableElement);
                                 }
                             }
-                        }
-                    } else if (enclosedElement instanceof TypeElement) {
-                            if(!TypeUtils.isAbstract(enclosedElement)) {
+                        } else if (enclosedElement instanceof TypeElement) {
+                            if (!TypeUtils.isAbstract(enclosedElement)) {
                                 mSupportedTypes.add(enclosedElement.asType());
                             }
                             addToListMap(variableMap, enclosedElement, null);
+                        }
                     }
                 }
             }
@@ -179,7 +183,9 @@ public final class StagProcessor extends AbstractProcessor {
                 SupportedTypesModel.getInstance()
                         .addSupportedType(new AnnotatedClass(entry.getKey(), entry.getValue()));
             }
-            mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
+            try {
+                mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
+            } catch (Exception e){}
 
             StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes);
             TypeTokenConstantsGenerator typeTokenConstantsGenerator = new TypeTokenConstantsGenerator(filer, packageName);
