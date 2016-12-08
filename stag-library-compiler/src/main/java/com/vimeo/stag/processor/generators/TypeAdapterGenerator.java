@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -147,6 +148,15 @@ public class TypeAdapterGenerator {
                 if (isSupportedNative(fieldType.toString())) {
                     continue;
                 }
+            } else if (isMap(fieldType)
+                    && fieldType instanceof DeclaredType) {
+                List<? extends TypeMirror> typeArguments = ((DeclaredType) fieldType).getTypeArguments();
+                if(typeArguments.size() == 2 && isSupportedNative(typeArguments.get(0).toString())) {
+                    fieldType = typeArguments.get(1);
+                    if (isSupportedNative(fieldType.toString())) {
+                        continue;
+                    }
+                }
             }
             exclusiveTypeSet.add(fieldType);
         }
@@ -238,6 +248,14 @@ public class TypeAdapterGenerator {
                 outerClassType.equals(List.class.getName())  ||
                 outerClassType.equals(Collection.class.getName());
     }
+
+    static boolean isMap(@NotNull TypeMirror type) {
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return outerClassType.equals(Map.class.getName()) ||
+                outerClassType.equals(HashMap.class.getName())  ||
+                outerClassType.equals(LinkedHashMap.class.getName());
+    }
+
 
     @NotNull
     private static TypeName getAdapterFieldTypeName(@NotNull TypeMirror type) {
@@ -475,6 +493,45 @@ public class TypeAdapterGenerator {
             }
             return result;
         } else {
+            if(isMap(type) && type instanceof DeclaredType) {
+                List<? extends TypeMirror> typeArguments = ((DeclaredType) type).getTypeArguments();
+                if (typeArguments.size() == 2 && isSupportedNative(typeArguments.get(0).toString())) {
+                    String keyRead = getReadType(type, typeArguments.get(0), adapterFieldInfo);
+                    String valueRead = getReadType(type, typeArguments.get(1), adapterFieldInfo);
+                    String result =  prefix + "if(reader.peek() == com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
+                            prefix + "\tobject." + variableName + "= new " + (TypeUtils.getOuterClassType(type).equals(Map.class.getName()) ? "java.util.LinkedHashMap<>" :  type.toString()) + "();\n" +
+                            prefix + "\treader.beginObject();\n" +
+                            prefix + "\twhile (reader.hasNext()) {\n" +
+                            prefix + "\t\tcom.google.gson.internal.JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);\n" +
+                            prefix + "\t\t" +  typeArguments.get(0).toString() + " key = " + keyRead + ";\n" +
+                            prefix + "\t\t" +  typeArguments.get(1).toString() + " value = " + valueRead + ";\n" +
+                            prefix + "\t\t" +  typeArguments.get(1).toString() + " replaced = object." + variableName + ".put(key, value);\n" +
+                            prefix + "\t\tif (replaced != null) {\n" +
+                            prefix + "\t\t\tthrow new com.google.gson.JsonSyntaxException(\"duplicate key: \" + key);\n" +
+                            prefix + "\t\t}\n" +
+                            prefix + "\t}\n" +
+                            prefix + "\treader.endObject();\n" +
+                            prefix + "} else if(reader.peek() == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {\n" +
+                            prefix + "\tobject." + variableName + "= new " + (TypeUtils.getOuterClassType(type).equals(Map.class.getName()) ? "java.util.LinkedHashMap<>" :  type.toString()) + "();\n" +
+                            prefix + "\treader.beginArray();\n" +
+                            prefix + "\twhile (reader.hasNext()) {\n" +
+                            prefix + "\t\treader.beginArray();\n" +
+                            prefix + "\t\t" +  typeArguments.get(0).toString() + " key = " + keyRead + ";\n" +
+                            prefix + "\t\t" +  typeArguments.get(1).toString() + " value = " + valueRead + ";\n" +
+                            prefix + "\t\t" +  typeArguments.get(1).toString() + " replaced = object." + variableName + ".put(key, value);\n" +
+                            prefix + "\t\tif (replaced != null) {\n" +
+                            prefix + "\t\t\tthrow new com.google.gson.JsonSyntaxException(\"duplicate key: \" + key);\n" +
+                            prefix + "\t\t}\n" +
+                            prefix + "\t\treader.endArray();\n" +
+                            prefix + "\t}\n" +
+                            prefix + "\treader.endArray();\n" +
+                            prefix + "} else {\n" +
+                            prefix + "\treader.skipValue();\n" +
+                            prefix + "}";
+
+                    return result;
+                }
+            }
             return prefix + "object." + variableName + " = " +
                     getReadType(type, type, adapterFieldInfo) + ";";
         }
@@ -519,6 +576,19 @@ public class TypeAdapterGenerator {
                     prefix + "}\n" +
                     prefix + "writer.endArray();\n";
         } else {
+            if(isMap(type) && type instanceof DeclaredType) {
+                List<? extends TypeMirror> typeArguments = ((DeclaredType) type).getTypeArguments();
+                if (typeArguments.size() == 2 && isSupportedNative(typeArguments.get(0).toString())) {
+                    String valueWrite = getWriteType(key, typeArguments.get(1), "entry.getValue()", adapterFieldInfo);
+                    return prefix + "writer.name(\"" + jsonName + "\");\n" +
+                            prefix + "writer.beginObject();\n" +
+                            prefix + "for (" + type.toString().replaceFirst("<", ".Entry<") + " entry : " + variableName + ".entrySet()) {\n" +
+                            prefix + "\twriter.name(String.valueOf(entry.getKey()));\n" +
+                            prefix + "\t" + valueWrite + "\n" +
+                            prefix + "}\n" +
+                            prefix + "writer.endObject();\n";
+                }
+            }
             return prefix + "writer.name(\"" + jsonName + "\");\n" +
                     prefix + getWriteType(key, type, variableName, adapterFieldInfo) + '\n';
         }
