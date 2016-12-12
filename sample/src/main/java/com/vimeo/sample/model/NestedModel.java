@@ -37,10 +37,10 @@ public class NestedModel {
     @SerializedName("test1")
     public String test1;
 
-    @GsonAdapterKey
+    @SerializedName("nestedEnum")
     public NestedEnum nestedEnum;
 
-    @GsonAdapterKey
+    @UseStag
     public enum NestedEnum {
         NESTED_ENUM_VAL1,
         NESTED_ENUM_VAL2,
