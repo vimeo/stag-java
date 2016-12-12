@@ -7,7 +7,6 @@ compileJava {
 }
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.8.0'
 }
 
 // custom tasks for creating source/javadoc jars
