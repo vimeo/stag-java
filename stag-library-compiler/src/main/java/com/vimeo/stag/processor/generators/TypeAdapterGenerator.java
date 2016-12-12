@@ -34,7 +34,6 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.WriteRuntimeType;
-import com.vimeo.stag.WriteRuntimeType;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
@@ -48,6 +47,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -288,16 +288,22 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @Nullable
-    private static String getReadTokenType(@NotNull TypeMirror type) {
+    private static List<String> getReadTokenType(@NotNull TypeMirror type) {
         String typeString = type.toString();
         if (isNumberType(typeString)) {
-            return "com.google.gson.stream.JsonToken.NUMBER";
+            List<String> tokenType = new ArrayList<>(2);
+            tokenType.add("com.google.gson.stream.JsonToken.NUMBER");
+            tokenType.add("com.google.gson.stream.JsonToken.STRING");
+            return tokenType;
         } else if (type.toString().equals(boolean.class.getName())) {
-            return "com.google.gson.stream.JsonToken.BOOLEAN";
+            return Collections.singletonList("com.google.gson.stream.JsonToken.BOOLEAN");
         } else if (type.toString().equals(String.class.getName())) {
-            return "com.google.gson.stream.JsonToken.STRING";
+            List<String> tokenType = new ArrayList<>(2);
+            tokenType.add("com.google.gson.stream.JsonToken.STRING");
+            tokenType.add("com.google.gson.stream.JsonToken.NUMBER");
+            return tokenType;
         } else if (isArray(type)) {
-            return "com.google.gson.stream.JsonToken.BEGIN_ARRAY";
+            return Collections.singletonList("com.google.gson.stream.JsonToken.BEGIN_ARRAY");
         } else {
             return null;
         }
@@ -650,12 +656,23 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         for (Map.Entry<Element, TypeMirror> element : elements.entrySet()) {
             String name = getJsonName(element.getKey());
             String variableName = element.getKey().getSimpleName().toString();
-            String jsonTokenType = getReadTokenType(element.getValue());
+            List<String> jsonTokenType = getReadTokenType(element.getValue());
 
-            if (jsonTokenType != null) {
+            StringBuilder jsonTokenCode = new StringBuilder();
+            jsonTokenCode.append("if (");
+            int size = jsonTokenType != null ? jsonTokenType.size() : 0;
+            for (int i = 0; i < size; i++) {
+                jsonTokenCode.append("jsonToken == ");
+                jsonTokenCode.append(jsonTokenType.get(i));
+                if (i != size - 1) {
+                    jsonTokenCode.append(" || ");
+                }
+            }
+            jsonTokenCode.append(")");
+
+            if (size != 0) {
                 builder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                        "\t\t\t\tif (jsonToken == " + jsonTokenType +
-                        ") {\n" +
+                        "\t\t\t\t" + jsonTokenCode.toString() + " {\n" +
                         getReadCode("\t\t\t\t\t", variableName, element.getKey(), element.getValue(),
                                 adapterFieldInfo) +
                         "\n\t\t\t\t} else {" +
