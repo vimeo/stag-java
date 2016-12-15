@@ -140,7 +140,7 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
     }
 
     @NotNull
-    private MethodSpec getWriteMethodSpec(@NotNull TypeName typeName) {
+    private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
                 .addParameter(JsonWriter.class, "writer")
                 .addParameter(typeName, "object")
@@ -154,7 +154,7 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
     }
 
     @NotNull
-    private MethodSpec getReadMethodSpec(@NotNull TypeName typeName) {
+    private static MethodSpec getReadMethodSpec(@NotNull TypeName typeName) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("read")
                 .addParameter(JsonReader.class, "reader")
                 .returns(typeName)

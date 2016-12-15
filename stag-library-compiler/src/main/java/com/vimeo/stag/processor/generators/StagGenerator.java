@@ -255,8 +255,8 @@ public class StagGenerator {
     }
 
     /**
-     * Returns the {@link TypeVariableName} of Stag.Factory file. This is used to get the typeadapters that are already generated in the stag file,
-     * avoiding recreating the same typeadapters.
+     * Returns the {@link TypeVariableName} of Stag.Factory file. This is used to get the type adapters
+     * that are already generated in the stag file, avoiding recreating the same type adapters.
      *
      * @return {@link TypeVariableName}
      */
@@ -266,7 +266,7 @@ public class StagGenerator {
                 mGeneratedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY);
     }
 
-    public String addFieldType(TypeMirror fieldType) {
+    String addFieldType(@NotNull TypeMirror fieldType) {
         String fieldTypeString = fieldType.toString();
         String result = mUnknownAdapterFieldMap.get(fieldTypeString);
         if (null == result) {

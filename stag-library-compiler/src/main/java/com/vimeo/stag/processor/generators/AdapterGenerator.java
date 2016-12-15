@@ -37,7 +37,7 @@ public abstract class AdapterGenerator {
      * If the element is not annotated with {@link GsonAdapterKey}, the variable name is used.
      */
     @NotNull
-    protected static String getJsonName(@NotNull Element element) {
+    static String getJsonName(@NotNull Element element) {
         String name = (null != element.getAnnotation(GsonAdapterKey.class)) ? element.getAnnotation(
                 GsonAdapterKey.class).value() : null;
 

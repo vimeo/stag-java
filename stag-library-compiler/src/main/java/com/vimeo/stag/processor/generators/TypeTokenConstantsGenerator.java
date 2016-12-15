@@ -59,6 +59,9 @@ public class TypeTokenConstantsGenerator {
         TypeMirror mTypeMirror;
         String mFieldName;
         String mMethodName;
+
+        TypeTokenInfo() {
+        }
     }
 
     @NotNull
@@ -79,7 +82,7 @@ public class TypeTokenConstantsGenerator {
      * @return String
      */
     @NotNull
-    public String addTypeToken(@NotNull TypeMirror type) {
+    String addTypeToken(@NotNull TypeMirror type) {
         String typeString = type.toString();
         TypeTokenInfo typeTokenInfo = mTypesToBeGenerated.get(typeString);
         if (null == typeTokenInfo) {
@@ -124,7 +127,7 @@ public class TypeTokenConstantsGenerator {
         }
     }
 
-    public MethodSpec generateTypeTokenGetters(String name, TypeName typeName) {
+    private static MethodSpec generateTypeTokenGetters(@NotNull String name, @NotNull TypeName typeName) {
         MethodSpec.Builder mBuilder = MethodSpec.methodBuilder(getMethodName(name))
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName))
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -135,7 +138,7 @@ public class TypeTokenConstantsGenerator {
         return mBuilder.build();
     }
 
-    private String getMethodName(String name) {
+    private static String getMethodName(@NotNull String name) {
         return "get" + name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
     }
 }
