@@ -12,7 +12,7 @@ dependencies {
 
     compile project(':stag-library')
 
-    compile 'com.google.code.gson:gson:2.7'
+    compile 'com.google.code.gson:gson:2.8.0'
     compile 'com.squareup:javapoet:1.7.0'
     compile 'com.intellij:annotations:12.0@jar'
     compile 'com.google.auto.service:auto-service:1.0-rc2'

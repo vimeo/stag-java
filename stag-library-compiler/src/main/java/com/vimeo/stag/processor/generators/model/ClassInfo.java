@@ -77,6 +77,7 @@ public class ClassInfo {
         return mPackageName;
     }
 
+
     /**
      * The simple class name of the {@link com.google.gson.TypeAdapter} class for this model class.
      *
