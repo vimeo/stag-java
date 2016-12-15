@@ -42,6 +42,7 @@ import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
 
 public final class FileGenUtils {
+
     private static final String UNESCAPED_SEPARATOR = "$";
     private static final String CODE_BLOCK_ESCAPED_SEPARATOR = "$$";
 
@@ -85,7 +86,8 @@ public final class FileGenUtils {
         }
     }
 
-    static CharSequence readResource(@NotNull Filer filer, @NotNull String generatedPackageName, @NotNull String resourceName) throws IOException {
+    static CharSequence readResource(@NotNull Filer filer, @NotNull String generatedPackageName,
+                                     @NotNull String resourceName) throws IOException {
         try {
             FileObject file =
                     filer.getResource(StandardLocation.CLASS_OUTPUT, generatedPackageName, resourceName);
@@ -96,8 +98,9 @@ public final class FileGenUtils {
         }
     }
 
-    static void writeToResource(@NotNull Filer filer, @NotNull String generatedPackageName, @NotNull String resourceName,
-                                @NotNull CharSequence content) throws IOException {
+    static void writeToResource(@NotNull Filer filer, @NotNull String generatedPackageName,
+                                @NotNull String resourceName, @NotNull CharSequence content)
+            throws IOException {
         FileObject file =
                 filer.createResource(StandardLocation.CLASS_OUTPUT, generatedPackageName, resourceName);
         file.delete();

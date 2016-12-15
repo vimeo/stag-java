@@ -55,6 +55,7 @@ public class TypeTokenConstantsGenerator {
     private final Filer mFiler;
 
     private static class TypeTokenInfo {
+
         TypeMirror mTypeMirror;
         String mFieldName;
         String mMethodName;
@@ -89,7 +90,8 @@ public class TypeTokenConstantsGenerator {
             mTypesToBeGenerated.put(typeString, typeTokenInfo);
         }
 
-        return mGeneratedPackageName + "." + CLASS_STAG_TYPE_TOKEN_CONSTANTS + "." + typeTokenInfo.mMethodName;
+        return mGeneratedPackageName + "." + CLASS_STAG_TYPE_TOKEN_CONSTANTS + "." +
+               typeTokenInfo.mMethodName;
     }
 
     /**
@@ -102,14 +104,17 @@ public class TypeTokenConstantsGenerator {
      */
     public void generateTypeTokenConstants() throws IOException {
         if (!mTypesToBeGenerated.isEmpty()) {
-            TypeSpec.Builder adaptersBuilder =
-                    TypeSpec.classBuilder(CLASS_STAG_TYPE_TOKEN_CONSTANTS).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+            TypeSpec.Builder adaptersBuilder = TypeSpec.classBuilder(CLASS_STAG_TYPE_TOKEN_CONSTANTS)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
             for (Map.Entry<String, TypeTokenInfo> entry : mTypesToBeGenerated.entrySet()) {
                 TypeTokenInfo typeTokenInfo = entry.getValue();
                 TypeName typeName = TypeVariableName.get(typeTokenInfo.mTypeMirror);
-                TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName);
-                FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, typeTokenInfo.mFieldName, Modifier.PUBLIC, Modifier.STATIC);
+                TypeName parameterizedTypeName =
+                        ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName);
+                FieldSpec.Builder fieldSpecBuilder =
+                        FieldSpec.builder(parameterizedTypeName, typeTokenInfo.mFieldName, Modifier.PUBLIC,
+                                          Modifier.STATIC);
                 adaptersBuilder.addField(fieldSpecBuilder.build());
                 adaptersBuilder.addMethod(generateTypeTokenGetters(typeTokenInfo.mFieldName, typeName));
             }

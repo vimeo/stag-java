@@ -122,8 +122,8 @@ public final class TypeUtils {
      * @return true if the element is abstract and
      * contains no generic type arguments, false otherwise.
      */
-    public static boolean isAbstract(@NotNull Element element) {
-        return element.getModifiers().contains(Modifier.ABSTRACT);
+    public static boolean isAbstract(@Nullable Element element) {
+        return element != null && element.getModifiers().contains(Modifier.ABSTRACT);
     }
 
     /**
@@ -135,8 +135,8 @@ public final class TypeUtils {
      * @return true if the element is not generic and
      * contains no generic type arguments, false otherwise.
      */
-    public static boolean isParameterizedType(@NotNull Element element) {
-        return isParameterizedType(element.asType());
+    public static boolean isParameterizedType(@Nullable Element element) {
+        return element != null && isParameterizedType(element.asType());
     }
 
     /**
@@ -276,7 +276,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), declaredType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                            " resolved to - " + declaredType.toString());
+                                      " resolved to - " + declaredType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -284,7 +284,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                            " resolved to - " + concreteType.toString());
+                                      " resolved to - " + concreteType.toString());
                 }
             }
         }

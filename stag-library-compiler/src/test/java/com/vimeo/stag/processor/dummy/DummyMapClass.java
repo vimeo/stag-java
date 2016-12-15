@@ -21,34 +21,76 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.generators;
-
-
-import com.squareup.javapoet.TypeSpec;
-import com.vimeo.stag.GsonAdapterKey;
+package com.vimeo.stag.processor.dummy;
 
 import org.jetbrains.annotations.NotNull;
 
-import javax.lang.model.element.Element;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
-public abstract class AdapterGenerator {
+public class DummyMapClass implements Map {
 
-    /**
-     * If the element is not annotated with {@link GsonAdapterKey}, the variable name is used.
-     */
-    @NotNull
-    protected static String getJsonName(@NotNull Element element) {
-        String name = (null != element.getAnnotation(GsonAdapterKey.class)) ? element.getAnnotation(
-                GsonAdapterKey.class).value() : null;
+    @Override
+    public int size() {
+        return 0;
+    }
 
-        if (null == name || name.isEmpty()) {
-            name = element.getSimpleName().toString();
-        }
-        return name;
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public boolean containsKey(Object o) {
+        return false;
+    }
+
+    @Override
+    public boolean containsValue(Object o) {
+        return false;
+    }
+
+    @Override
+    public Object get(Object o) {
+        return null;
+    }
+
+    @Override
+    public Object put(Object o, Object o2) {
+        return null;
+    }
+
+    @Override
+    public Object remove(Object o) {
+        return null;
+    }
+
+    @Override
+    public void putAll(Map map) {
+
+    }
+
+    @Override
+    public void clear() {
+
     }
 
     @NotNull
-    public abstract TypeSpec getTypeAdapterSpec(
-            @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-            @NotNull StagGenerator stagGenerator);
+    @Override
+    public Set keySet() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public Collection values() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public Set<Entry> entrySet() {
+        return null;
+    }
 }

@@ -1,3 +1,26 @@
+/*
+ * The MIT License (MIT)
+ * <p/>
+ * Copyright (c) 2016 Vimeo
+ * <p/>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * <p/>
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * <p/>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package com.vimeo.stag.processor.generators;
 
 import com.google.gson.Gson;
@@ -67,8 +90,8 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
         Map<String, Element> nameToConstant = new HashMap<>();
         Map<Element, String> constantToName = new HashMap<>();
 
-        for(Element enclosingElement : mElement.getEnclosedElements()) {
-            if(enclosingElement.getKind() == ElementKind.ENUM_CONSTANT) {
+        for (Element enclosingElement : mElement.getEnclosedElements()) {
+            if (enclosingElement.getKind() == ElementKind.ENUM_CONSTANT) {
                 String name = getJsonName(enclosingElement);
                 nameToConstant.put(name, enclosingElement);
                 constantToName.put(enclosingElement, name);
@@ -79,22 +102,31 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
         MethodSpec writeMethod = getWriteMethodSpec(typeVariableName);
         MethodSpec readMethod = getReadMethodSpec(typeVariableName);
 
-        TypeName typeName = ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(String.class), TypeVariableName.get(typeMirror));
-        adapterBuilder.addField(typeName, "NAME_TO_CONSTANT", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+        TypeName typeName =
+                ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(String.class),
+                                          TypeVariableName.get(typeMirror));
+        adapterBuilder.addField(typeName, "NAME_TO_CONSTANT", Modifier.PRIVATE, Modifier.STATIC,
+                                Modifier.FINAL);
 
-        typeName = ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(typeMirror), TypeVariableName.get(String.class));
-        adapterBuilder.addField(typeName, "CONSTANT_TO_NAME", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
+        typeName = ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(typeMirror),
+                                             TypeVariableName.get(String.class));
+        adapterBuilder.addField(typeName, "CONSTANT_TO_NAME", Modifier.PRIVATE, Modifier.STATIC,
+                                Modifier.FINAL);
 
         CodeBlock.Builder staticBlockBuilder = CodeBlock.builder();
         staticBlockBuilder.addStatement("NAME_TO_CONSTANT = new HashMap<>(" + nameToConstant.size() + ")");
-        for(Map.Entry<String, Element> entry : nameToConstant.entrySet()) {
-            staticBlockBuilder.addStatement("NAME_TO_CONSTANT.put(\"" + entry.getKey() + "\", " + typeVariableName + "." + entry.getValue().getSimpleName().toString() + ")");
+        for (Map.Entry<String, Element> entry : nameToConstant.entrySet()) {
+            staticBlockBuilder.addStatement(
+                    "NAME_TO_CONSTANT.put(\"" + entry.getKey() + "\", " + typeVariableName + "." +
+                    entry.getValue().getSimpleName().toString() + ")");
         }
 
         staticBlockBuilder.add("\n");
         staticBlockBuilder.addStatement("CONSTANT_TO_NAME = new HashMap<>(" + constantToName.size() + ")");
-        for(Map.Entry<Element, String> entry : constantToName.entrySet()) {
-            staticBlockBuilder.addStatement("CONSTANT_TO_NAME.put(" + typeVariableName + "." + entry.getKey().getSimpleName().toString() + ", \""  + entry.getValue() + "\")");
+        for (Map.Entry<Element, String> entry : constantToName.entrySet()) {
+            staticBlockBuilder.addStatement("CONSTANT_TO_NAME.put(" + typeVariableName + "." +
+                                            entry.getKey().getSimpleName().toString() + ", \"" +
+                                            entry.getValue() + "\")");
         }
 
         adapterBuilder.addStaticBlock(staticBlockBuilder.build());

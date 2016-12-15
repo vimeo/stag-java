@@ -76,6 +76,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     private static class AdapterFieldInfo {
+
         @NotNull
         private final Map<String, String> mAdapterFields;
 
@@ -91,7 +92,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
          */
         @Nullable
         public String getKnownAdapterStagFunctionCalls(TypeMirror typeMirror) {
-            return mKnownAdapterStagFunctionCalls != null ? mKnownAdapterStagFunctionCalls.get(typeMirror.toString()) : null;
+            return mKnownAdapterStagFunctionCalls != null ? mKnownAdapterStagFunctionCalls.get(
+                    typeMirror.toString()) : null;
         }
 
         /**
@@ -106,7 +108,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         public String getAdapter(@NotNull TypeMirror typeMirror) {
             String typeName = typeMirror.toString();
-            String result = null != mKnownAdapterStagFunctionCalls ? mKnownAdapterStagFunctionCalls.get(typeName) : null;
+            String result = null != mKnownAdapterStagFunctionCalls ? mKnownAdapterStagFunctionCalls.get(
+                    typeName) : null;
             if (null == result) {
                 result = mAdapterFields.get(typeName);
             }
@@ -127,10 +130,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @NotNull
-    private AdapterFieldInfo addAdapterFields(@NotNull TypeSpec.Builder adapterBuilder, @NotNull MethodSpec.Builder constructorBuilder,
-                                              @NotNull Map<Element, TypeMirror> memberVariables,
-                                              @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                              @NotNull Map<TypeVariable, String> typeVarsMap, @NotNull StagGenerator stagGenerator) {
+    private AdapterFieldInfo addAdapterFields(@NotNull TypeSpec.Builder adapterBuilder,
+                                              @NotNull MethodSpec.Builder constructorBuilder,
+                                              @NotNull Map<Element, TypeMirror> memberVariables, @NotNull
+                                                      TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+                                              @NotNull Map<TypeVariable, String> typeVarsMap,
+                                              @NotNull StagGenerator stagGenerator) {
 
         HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
         AdapterFieldInfo result = new AdapterFieldInfo(typeSet.size());
@@ -145,10 +150,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 if (isSupportedNative(fieldType.toString())) {
                     continue;
                 }
-            } else if (isMap(fieldType)
-                    && fieldType instanceof DeclaredType) {
+            } else if (isMap(fieldType) && fieldType instanceof DeclaredType) {
                 List<? extends TypeMirror> typeArguments = ((DeclaredType) fieldType).getTypeArguments();
-                if(typeArguments.size() == 2 && isSupportedNative(typeArguments.get(0).toString())) {
+                if (typeArguments.size() == 2 && isSupportedNative(typeArguments.get(0).toString())) {
                     fieldType = typeArguments.get(1);
                     if (isSupportedNative(fieldType.toString())) {
                         continue;
@@ -160,16 +164,18 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         for (TypeMirror fieldType : exclusiveTypeSet) {
             String getterField = stagGenerator.getClassAdapterFactoryMethod(fieldType);
-            if(null != getterField) {
+            if (null != getterField) {
                 /**
                  * If we already have the adapter generated for the fieldType in Stag.Factory class
                  */
-                result.addTypeToFunctionName(fieldType.toString(), "mStagFactory.get" + getterField + "(mGson)");
+                result.addTypeToFunctionName(fieldType.toString(),
+                                             "mStagFactory.get" + getterField + "(mGson)");
                 mGsonVariableUsed = true;
                 mStagFactoryUsed = true;
             } else if (TypeUtils.isConcreteType(fieldType)) {
                 getterField = stagGenerator.addFieldType(fieldType);
-                result.addTypeToFunctionName(fieldType.toString(), "mStagFactory.get" + getterField + "(mGson)");
+                result.addTypeToFunctionName(fieldType.toString(),
+                                             "mStagFactory.get" + getterField + "(mGson)");
                 mGsonVariableUsed = true;
                 mStagFactoryUsed = true;
             } else {
@@ -180,7 +186,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
                     TypeName typeName = getAdapterFieldTypeName(fieldType);
                     adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-                    constructorBuilder.addStatement(fieldName + " = (TypeAdapter<" + fieldType + ">) gson.getAdapter(" + getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")");
+                    constructorBuilder.addStatement(
+                            fieldName + " = (TypeAdapter<" + fieldType + ">) gson.getAdapter(" +
+                            getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")");
                 }
             }
         }
@@ -189,7 +197,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @Nullable
-    private static String getTypeTokenCode(@NotNull TypeMirror fieldType, @NotNull Map<TypeVariable, String> typeVarsMap,
+    private static String getTypeTokenCode(@NotNull TypeMirror fieldType,
+                                           @NotNull Map<TypeVariable, String> typeVarsMap,
                                            @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
         String result = null;
         if (!TypeUtils.isConcreteType(fieldType)) {
@@ -202,7 +211,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  */
                 DeclaredType declaredFieldType = (DeclaredType) fieldType;
                 List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
-                result = "com.google.gson.reflect.TypeToken.getParameterized(" + declaredFieldType.asElement().toString() + ".class";
+                result = "com.google.gson.reflect.TypeToken.getParameterized(" +
+                         declaredFieldType.asElement().toString() + ".class";
                 /**
                  * Iterate through all the types from the typeArguments and generate typetoken code accordingly
                  */
@@ -212,7 +222,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     } else if (parameterTypeMirror.getKind() == TypeKind.TYPEVAR) {
                         result += ", " + typeVarsMap.get(parameterTypeMirror);
                     } else {
-                        result += ",\n" + getTypeTokenCode(parameterTypeMirror, typeVarsMap, typeTokenConstantsGenerator) + ".getType()";
+                        result += ",\n" + getTypeTokenCode(parameterTypeMirror, typeVarsMap,
+                                                           typeTokenConstantsGenerator) + ".getType()";
                     }
                 }
                 result += ")";
@@ -225,32 +236,36 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     static boolean isSupportedPrimitive(@NotNull String type) {
-        return type.equals(long.class.getName())
-                || type.equals(double.class.getName())
-                || type.equals(boolean.class.getName())
-                || type.equals(float.class.getName())
-                || type.equals(int.class.getName());
+        return type.equals(long.class.getName()) || type.equals(double.class.getName()) ||
+               type.equals(boolean.class.getName()) || type.equals(float.class.getName()) ||
+               type.equals(int.class.getName());
     }
 
     private static boolean isNativeArray(@NotNull TypeMirror type) {
         return (type instanceof ArrayType);
     }
 
-    static boolean isArray(@NotNull TypeMirror type) {
-        if(isNativeArray(type)) {
+    static boolean isArray(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        if (isNativeArray(type)) {
             return true;
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-                outerClassType.equals(List.class.getName())  ||
-                outerClassType.equals(Collection.class.getName());
+               outerClassType.equals(List.class.getName()) ||
+               outerClassType.equals(Collection.class.getName());
     }
 
-    static boolean isMap(@NotNull TypeMirror type) {
+    static boolean isMap(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(Map.class.getName()) ||
-                outerClassType.equals(HashMap.class.getName())  ||
-                outerClassType.equals(LinkedHashMap.class.getName());
+               outerClassType.equals(HashMap.class.getName()) ||
+               outerClassType.equals(LinkedHashMap.class.getName());
     }
 
 
@@ -261,28 +276,20 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     static boolean isSupportedNative(@NotNull String type) {
-        return isSupportedPrimitive(type)
-                || type.equals(String.class.getName())
-                || type.equals(Long.class.getName())
-                || type.equals(Integer.class.getName())
-                || type.equals(Boolean.class.getName())
-                || type.equals(Double.class.getName())
-                || type.equals(Float.class.getName())
-                || type.equals(Number.class.getName());
+        return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
+               type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
+               type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
+               type.equals(Float.class.getName()) || type.equals(Number.class.getName());
     }
 
     /**
      * Check if the type is one of the numbers
      */
-    private static boolean isNumberType(@NotNull String typeString) {
-        return typeString.equals(long.class.getName())
-                || typeString.equals(Long.class.getName())
-                || typeString.equals(double.class.getName())
-                || typeString.equals(Double.class.getName())
-                || typeString.equals(int.class.getName())
-                || typeString.equals(Integer.class.getName())
-                || typeString.equals(float.class.getName())
-                || typeString.equals(Float.class.getName());
+    static boolean isNumberType(@NotNull String typeString) {
+        return typeString.equals(long.class.getName()) || typeString.equals(Long.class.getName()) ||
+               typeString.equals(double.class.getName()) || typeString.equals(Double.class.getName()) ||
+               typeString.equals(int.class.getName()) || typeString.equals(Integer.class.getName()) ||
+               typeString.equals(float.class.getName()) || typeString.equals(Float.class.getName());
     }
 
     @Nullable
@@ -303,11 +310,13 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
     @NotNull
     private static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
-        return (type instanceof ArrayType) ? ((ArrayType)type).getComponentType() : ((DeclaredType) type).getTypeArguments().get(0);
+        return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments()
+                .get(0);
     }
 
     @NotNull
-    private MethodSpec getWriteMethodSpec(@NotNull TypeName typeName, @NotNull Map<Element, TypeMirror> memberVariables,
+    private MethodSpec getWriteMethodSpec(@NotNull TypeName typeName,
+                                          @NotNull Map<Element, TypeMirror> memberVariables,
                                           @NotNull AdapterFieldInfo adapterFieldInfo) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
                 .addParameter(JsonWriter.class, "writer")
@@ -318,10 +327,10 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 .addException(IOException.class);
 
         builder.addCode("\twriter.beginObject();\n" +
-                "\tif (object == null) {\n" +
-                "\t\twriter.endObject();\n" +
-                "\t\treturn;\n" +
-                "\t}\n");
+                        "\tif (object == null) {\n" +
+                        "\t\twriter.endObject();\n" +
+                        "\t\treturn;\n" +
+                        "\t}\n");
 
         for (Map.Entry<Element, TypeMirror> element : memberVariables.entrySet()) {
             String name = getJsonName(element.getKey());
@@ -334,7 +343,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             if (!isPrimitive) {
                 builder.addCode("\tif (object." + variableName + " != null) {\n");
             }
-            builder.addCode(getWriteCode(element.getKey(), prefix, element.getValue(), name, "object." + variableName, adapterFieldInfo));
+            builder.addCode(
+                    getWriteCode(element.getKey(), prefix, element.getValue(), name, "object." + variableName,
+                                 adapterFieldInfo));
             if (!isPrimitive) {
                 builder.addCode("\t}\n");
             }
@@ -346,7 +357,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 switch (annotationMirror.toString()) {
                     case "@android.support.annotation.NonNull":
                         builder.addCode("\n\telse if (object." + variableName + " == null) {");
-                        builder.addCode("\n\t\tthrow new java.io.IOException(\"" + variableName + " cannot be null\");");
+                        builder.addCode("\n\t\tthrow new java.io.IOException(\"" + variableName +
+                                        " cannot be null\");");
                         builder.addCode("\n\t}\n\n");
                         break;
                 }
@@ -368,7 +380,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     @Override
     @NotNull
     public TypeSpec getTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-    @NotNull StagGenerator stagGenerator) {
+                                       @NotNull StagGenerator stagGenerator) {
         mGsonVariableUsed = false;
         mStagFactoryUsed = false;
         TypeMirror typeMirror = mInfo.getType();
@@ -396,7 +408,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 if (argType.getKind() == TypeKind.TYPEVAR) {
                     TypeVariable typeVariable = (TypeVariable) argType;
                     String simpleName = typeVariable.asElement().getSimpleName().toString();
-                    adapterBuilder.addTypeVariable(TypeVariableName.get(simpleName, TypeVariableName.get(typeVariable.getUpperBound())));
+                    adapterBuilder.addTypeVariable(TypeVariableName.get(simpleName, TypeVariableName.get(
+                            typeVariable.getUpperBound())));
 
                     String paramName = "type" + "[" + String.valueOf(idx) + "]";
                     typeVarsMap.put(typeVariable, paramName);
@@ -413,18 +426,19 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         AnnotatedClass annotatedClass = SupportedTypesModel.getInstance().getSupportedType(typeMirror);
         Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
 
-        AdapterFieldInfo adapterFieldInfo = addAdapterFields(adapterBuilder, constructorBuilder, memberVariables,
-                typeTokenConstantsGenerator, typeVarsMap, stagGenerator);
+        AdapterFieldInfo adapterFieldInfo =
+                addAdapterFields(adapterBuilder, constructorBuilder, memberVariables,
+                                 typeTokenConstantsGenerator, typeVarsMap, stagGenerator);
 
         MethodSpec writeMethod = getWriteMethodSpec(typeVariableName, memberVariables, adapterFieldInfo);
         MethodSpec readMethod = getReadMethodSpec(typeVariableName, memberVariables, adapterFieldInfo);
 
-        if(mGsonVariableUsed) {
+        if (mGsonVariableUsed) {
             adapterBuilder.addField(Gson.class, "mGson", Modifier.FINAL, Modifier.PRIVATE);
             constructorBuilder.addStatement("this.mGson = gson");
         }
 
-        if(mStagFactoryUsed) {
+        if (mStagFactoryUsed) {
             adapterBuilder.addField(stagFactoryTypeName, "mStagFactory", Modifier.FINAL, Modifier.PRIVATE);
             constructorBuilder.addStatement("this.mStagFactory = stagFactory");
         }
@@ -439,15 +453,19 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     @NotNull
     private String getArrayListType(@NotNull TypeMirror innerArrayType) {
         String innerArrayTypeString = innerArrayType.toString();
-        if(innerArrayTypeString.equals(long.class.getName())) {
+        if (innerArrayTypeString.equals(long.class.getName())) {
             return Long.class.getName();
-        } if(innerArrayTypeString.equals(double.class.getName())) {
+        }
+        if (innerArrayTypeString.equals(double.class.getName())) {
             return Double.class.getName();
-        } if(innerArrayTypeString.equals(Boolean.class.getName())) {
+        }
+        if (innerArrayTypeString.equals(Boolean.class.getName())) {
             return Boolean.class.getName();
-        } if(innerArrayTypeString.equals(float.class.getName())) {
+        }
+        if (innerArrayTypeString.equals(float.class.getName())) {
             return Float.class.getName();
-        } if(innerArrayTypeString.equals(int.class.getName())) {
+        }
+        if (innerArrayTypeString.equals(int.class.getName())) {
             return Integer.class.getName();
         } else {
             return innerArrayType.toString();
@@ -463,84 +481,103 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             String innerRead = getReadType(type, innerType, adapterFieldInfo);
             String arrayListVariableName = isNativeArray ? "tmpArray" : "object." + variableName;
             String stagGetterName = adapterFieldInfo.getKnownAdapterStagFunctionCalls(innerType);
-            String result =  prefix + "reader.beginArray();\n" +
-                    prefix + (isNativeArray ? "java.util.ArrayList<" + getArrayListType(innerType) + "> " : "") +  arrayListVariableName + " = new java.util.ArrayList<>();\n" +
-                    (stagGetterName != null ? prefix + "TypeAdapter<" + innerType + "> adapter = " + stagGetterName + ";\n" : "") +
-                    prefix + "while (reader.hasNext()) {\n" +
-                    prefix + "\t" + arrayListVariableName + ".add(" + innerRead + ");\n" +
-                    prefix + "}\n" +
-                    prefix + "reader.endArray();\n";
-            if(isNativeArray) {
-                result += prefix + "object." + variableName + "= new "+  innerType.toString() + "[" + arrayListVariableName + ".size()];\n";
+            String result = prefix + "reader.beginArray();\n" +
+                            prefix + (isNativeArray ?
+                    "java.util.ArrayList<" + getArrayListType(innerType) + "> " : "") +
+                            arrayListVariableName + " = new java.util.ArrayList<>();\n" +
+                            (stagGetterName != null ?
+                                    prefix + "TypeAdapter<" + innerType + "> adapter = " + stagGetterName +
+                                    ";\n" : "") +
+                            prefix + "while (reader.hasNext()) {\n" +
+                            prefix + "\t" + arrayListVariableName + ".add(" + innerRead + ");\n" +
+                            prefix + "}\n" +
+                            prefix + "reader.endArray();\n";
+            if (isNativeArray) {
+                result += prefix + "object." + variableName + "= new " + innerType.toString() + "[" +
+                          arrayListVariableName + ".size()];\n";
                 result += prefix + "for(int idx = 0; idx < " + arrayListVariableName + ".size(); idx++) {\n";
-                result += prefix + "\tobject." + variableName + "[idx] = " + arrayListVariableName + ".get(idx);\n";
+                result += prefix + "\tobject." + variableName + "[idx] = " + arrayListVariableName +
+                          ".get(idx);\n";
                 result += prefix + "}\n";
             }
             return result;
         } else {
-            if(isMap(type) && type instanceof DeclaredType) {
+            if (isMap(type) && type instanceof DeclaredType) {
                 List<? extends TypeMirror> typeArguments = ((DeclaredType) type).getTypeArguments();
                 if (typeArguments.size() == 2 && isSupportedNative(typeArguments.get(0).toString())) {
                     String keyRead = getReadType(type, typeArguments.get(0), adapterFieldInfo);
                     String valueRead = getReadType(type, typeArguments.get(1), adapterFieldInfo);
-                    String result =  prefix + "if(reader.peek() == com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
-                            prefix + "\tobject." + variableName + "= new " + (TypeUtils.getOuterClassType(type).equals(Map.class.getName()) ? "java.util.LinkedHashMap<>" :  type.toString()) + "();\n" +
-                            prefix + "\treader.beginObject();\n" +
-                            prefix + "\twhile (reader.hasNext()) {\n" +
-                            prefix + "\t\tcom.google.gson.internal.JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);\n" +
-                            prefix + "\t\t" +  typeArguments.get(0).toString() + " key = " + keyRead + ";\n" +
-                            prefix + "\t\t" +  typeArguments.get(1).toString() + " value = " + valueRead + ";\n" +
-                            prefix + "\t\t" +  typeArguments.get(1).toString() + " replaced = object." + variableName + ".put(key, value);\n" +
-                            prefix + "\t\tif (replaced != null) {\n" +
-                            prefix + "\t\t\tthrow new com.google.gson.JsonSyntaxException(\"duplicate key: \" + key);\n" +
-                            prefix + "\t\t}\n" +
-                            prefix + "\t}\n" +
-                            prefix + "\treader.endObject();\n" +
-                            prefix + "} else if(reader.peek() == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {\n" +
-                            prefix + "\tobject." + variableName + "= new " + (TypeUtils.getOuterClassType(type).equals(Map.class.getName()) ? "java.util.LinkedHashMap<>" :  type.toString()) + "();\n" +
-                            prefix + "\treader.beginArray();\n" +
-                            prefix + "\twhile (reader.hasNext()) {\n" +
-                            prefix + "\t\treader.beginArray();\n" +
-                            prefix + "\t\t" +  typeArguments.get(0).toString() + " key = " + keyRead + ";\n" +
-                            prefix + "\t\t" +  typeArguments.get(1).toString() + " value = " + valueRead + ";\n" +
-                            prefix + "\t\t" +  typeArguments.get(1).toString() + " replaced = object." + variableName + ".put(key, value);\n" +
-                            prefix + "\t\tif (replaced != null) {\n" +
-                            prefix + "\t\t\tthrow new com.google.gson.JsonSyntaxException(\"duplicate key: \" + key);\n" +
-                            prefix + "\t\t}\n" +
-                            prefix + "\t\treader.endArray();\n" +
-                            prefix + "\t}\n" +
-                            prefix + "\treader.endArray();\n" +
-                            prefix + "} else {\n" +
-                            prefix + "\treader.skipValue();\n" +
-                            prefix + "}";
+                    String result = prefix +
+                                    "if(reader.peek() == com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
+                                    prefix + "\tobject." + variableName + "= new " +
+                                    (TypeUtils.getOuterClassType(type)
+                                            .equals(Map.class.getName()) ? "java.util.LinkedHashMap<>" : type.toString()) +
+                                    "();\n" +
+                                    prefix + "\treader.beginObject();\n" +
+                                    prefix + "\twhile (reader.hasNext()) {\n" +
+                                    prefix +
+                                    "\t\tcom.google.gson.internal.JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);\n" +
+                                    prefix + "\t\t" + typeArguments.get(0).toString() + " key = " + keyRead +
+                                    ";\n" +
+                                    prefix + "\t\t" + typeArguments.get(1).toString() + " value = " +
+                                    valueRead + ";\n" +
+                                    prefix + "\t\t" + typeArguments.get(1).toString() +
+                                    " replaced = object." + variableName + ".put(key, value);\n" +
+                                    prefix + "\t\tif (replaced != null) {\n" +
+                                    prefix +
+                                    "\t\t\tthrow new com.google.gson.JsonSyntaxException(\"duplicate key: \" + key);\n" +
+                                    prefix + "\t\t}\n" +
+                                    prefix + "\t}\n" +
+                                    prefix + "\treader.endObject();\n" +
+                                    prefix +
+                                    "} else if(reader.peek() == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {\n" +
+                                    prefix + "\tobject." + variableName + "= new " +
+                                    (TypeUtils.getOuterClassType(type)
+                                            .equals(Map.class.getName()) ? "java.util.LinkedHashMap<>" : type.toString()) +
+                                    "();\n" +
+                                    prefix + "\treader.beginArray();\n" +
+                                    prefix + "\twhile (reader.hasNext()) {\n" +
+                                    prefix + "\t\treader.beginArray();\n" +
+                                    prefix + "\t\t" + typeArguments.get(0).toString() + " key = " + keyRead +
+                                    ";\n" +
+                                    prefix + "\t\t" + typeArguments.get(1).toString() + " value = " +
+                                    valueRead + ";\n" +
+                                    prefix + "\t\t" + typeArguments.get(1).toString() +
+                                    " replaced = object." + variableName + ".put(key, value);\n" +
+                                    prefix + "\t\tif (replaced != null) {\n" +
+                                    prefix +
+                                    "\t\t\tthrow new com.google.gson.JsonSyntaxException(\"duplicate key: \" + key);\n" +
+                                    prefix + "\t\t}\n" +
+                                    prefix + "\t\treader.endArray();\n" +
+                                    prefix + "\t}\n" +
+                                    prefix + "\treader.endArray();\n" +
+                                    prefix + "} else {\n" +
+                                    prefix + "\treader.skipValue();\n" +
+                                    prefix + "}";
 
                     return result;
                 }
             }
             return prefix + "object." + variableName + " = " +
-                    getReadType(type, type, adapterFieldInfo) + ";";
+                   getReadType(type, type, adapterFieldInfo) + ";";
         }
     }
 
     @NotNull
-    private String getReadType(@NotNull TypeMirror parentType, @NotNull TypeMirror type, @NotNull AdapterFieldInfo adapterFieldInfo) {
+    private String getReadType(@NotNull TypeMirror parentType, @NotNull TypeMirror type,
+                               @NotNull AdapterFieldInfo adapterFieldInfo) {
         String typeString = type.toString();
-        if (typeString.equals(long.class.getName()) ||
-                typeString.equals(Long.class.getName())) {
+        if (typeString.equals(long.class.getName()) || typeString.equals(Long.class.getName())) {
             return "reader.nextLong()";
-        } else if (typeString.equals(double.class.getName()) ||
-                typeString.equals(Double.class.getName())) {
+        } else if (typeString.equals(double.class.getName()) || typeString.equals(Double.class.getName())) {
             return "reader.nextDouble()";
-        } else if (typeString.equals(boolean.class.getName()) ||
-                typeString.equals(Boolean.class.getName())) {
+        } else if (typeString.equals(boolean.class.getName()) || typeString.equals(Boolean.class.getName())) {
             return "reader.nextBoolean()";
         } else if (typeString.equals(String.class.getName())) {
             return "reader.nextString()";
-        } else if (typeString.equals(int.class.getName()) ||
-                typeString.equals(Integer.class.getName())) {
+        } else if (typeString.equals(int.class.getName()) || typeString.equals(Integer.class.getName())) {
             return "reader.nextInt()";
-        } else if (typeString.equals(float.class.getName()) ||
-                typeString.equals(Float.class.getName())) {
+        } else if (typeString.equals(float.class.getName()) || typeString.equals(Float.class.getName())) {
             return "(float) reader.nextDouble()";
         } else {
             return getAdapterRead(parentType, type, adapterFieldInfo);
@@ -555,33 +592,35 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             TypeMirror innerType = getArrayInnerType(type);
             String innerWrite = getWriteType(key, innerType, "item", adapterFieldInfo);
             return prefix + "writer.name(\"" + jsonName + "\");\n" +
-                    prefix + "writer.beginArray();\n" +
-                    prefix + "for (" + innerType + " item : " + variableName + ") {\n" +
-                    prefix + "\t" + innerWrite + "\n" +
-                    prefix + "}\n" +
-                    prefix + "writer.endArray();\n";
+                   prefix + "writer.beginArray();\n" +
+                   prefix + "for (" + innerType + " item : " + variableName + ") {\n" +
+                   prefix + "\t" + innerWrite + "\n" +
+                   prefix + "}\n" +
+                   prefix + "writer.endArray();\n";
         } else {
-            if(isMap(type) && type instanceof DeclaredType) {
+            if (isMap(type) && type instanceof DeclaredType) {
                 List<? extends TypeMirror> typeArguments = ((DeclaredType) type).getTypeArguments();
                 if (typeArguments.size() == 2 && isSupportedNative(typeArguments.get(0).toString())) {
-                    String valueWrite = getWriteType(key, typeArguments.get(1), "entry.getValue()", adapterFieldInfo);
+                    String valueWrite =
+                            getWriteType(key, typeArguments.get(1), "entry.getValue()", adapterFieldInfo);
                     return prefix + "writer.name(\"" + jsonName + "\");\n" +
-                            prefix + "writer.beginObject();\n" +
-                            prefix + "for (" + type.toString().replaceFirst("<", ".Entry<") + " entry : " + variableName + ".entrySet()) {\n" +
-                            prefix + "\twriter.name(String.valueOf(entry.getKey()));\n" +
-                            prefix + "\t" + valueWrite + "\n" +
-                            prefix + "}\n" +
-                            prefix + "writer.endObject();\n";
+                           prefix + "writer.beginObject();\n" +
+                           prefix + "for (" + type.toString().replaceFirst("<", ".Entry<") + " entry : " +
+                           variableName + ".entrySet()) {\n" +
+                           prefix + "\twriter.name(String.valueOf(entry.getKey()));\n" +
+                           prefix + "\t" + valueWrite + "\n" +
+                           prefix + "}\n" +
+                           prefix + "writer.endObject();\n";
                 }
             }
             return prefix + "writer.name(\"" + jsonName + "\");\n" +
-                    prefix + getWriteType(key, type, variableName, adapterFieldInfo) + '\n';
+                   prefix + getWriteType(key, type, variableName, adapterFieldInfo) + '\n';
         }
     }
 
     @NotNull
-    private String getWriteType(@NotNull Element key, @NotNull TypeMirror type, @NotNull String variableName
-            , @NotNull AdapterFieldInfo adapterFieldInfo) {
+    private String getWriteType(@NotNull Element key, @NotNull TypeMirror type, @NotNull String variableName,
+                                @NotNull AdapterFieldInfo adapterFieldInfo) {
         if (isSupportedNative(type.toString())) {
             return "writer.value(" + variableName + ");";
         } else {
@@ -590,25 +629,27 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @NotNull
-    private String getAdapterWrite(@NotNull Element key, @NotNull TypeMirror type, @NotNull String variableName,
-                                   @NotNull AdapterFieldInfo adapterFieldInfo) {
+    private String getAdapterWrite(@NotNull Element key, @NotNull TypeMirror type,
+                                   @NotNull String variableName, @NotNull AdapterFieldInfo adapterFieldInfo) {
         String adapterField = adapterFieldInfo.getAdapter(type);
         return adapterField + ".write(writer, " + variableName + ")";
     }
 
     @NotNull
-    private String getAdapterRead(@NotNull TypeMirror parentType, @NotNull TypeMirror type, @NotNull AdapterFieldInfo adapterFieldInfo) {
+    private String getAdapterRead(@NotNull TypeMirror parentType, @NotNull TypeMirror type,
+                                  @NotNull AdapterFieldInfo adapterFieldInfo) {
         String adapterCode;
-        if(adapterFieldInfo.getKnownAdapterStagFunctionCalls(type) != null && isArray(parentType)){
+        if (adapterFieldInfo.getKnownAdapterStagFunctionCalls(type) != null && isArray(parentType)) {
             adapterCode = "adapter.read(reader)";
-        }else{
+        } else {
             adapterCode = adapterFieldInfo.getAdapter(type) + ".read(reader)";
         }
         return adapterCode;
     }
 
     @NotNull
-    private MethodSpec getReadMethodSpec(@NotNull TypeName typeName, @NotNull Map<Element, TypeMirror> elements,
+    private MethodSpec getReadMethodSpec(@NotNull TypeName typeName,
+                                         @NotNull Map<Element, TypeMirror> elements,
                                          @NotNull AdapterFieldInfo adapterFieldInfo) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("read")
                 .addParameter(JsonReader.class, "reader")
@@ -618,25 +659,25 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 .addException(IOException.class);
 
         builder.addCode("\tif (reader.peek() == com.google.gson.stream.JsonToken.NULL) {\n" +
-                "\t\treader.nextNull();\n" +
-                "\t\treturn null;\n" +
-                "\t}\n" +
-                "\tif (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
-                "\t\treader.skipValue();\n" +
-                "\t\treturn null;\n" +
-                "\t}\n" +
-                "\treader.beginObject();\n" +
-                '\n' +
-                '\t' + typeName + " object = new " + typeName +
-                "();\n" +
-                "\twhile (reader.hasNext()) {\n" +
-                "\t\tString name = reader.nextName();\n" +
-                "\t\tcom.google.gson.stream.JsonToken jsonToken = reader.peek();\n" +
-                "\t\tif (jsonToken == com.google.gson.stream.JsonToken.NULL) {\n" +
-                "\t\t\treader.skipValue();\n" +
-                "\t\t\tcontinue;\n" +
-                "\t\t}\n" +
-                "\t\tswitch (name) {\n");
+                        "\t\treader.nextNull();\n" +
+                        "\t\treturn null;\n" +
+                        "\t}\n" +
+                        "\tif (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
+                        "\t\treader.skipValue();\n" +
+                        "\t\treturn null;\n" +
+                        "\t}\n" +
+                        "\treader.beginObject();\n" +
+                        '\n' +
+                        '\t' + typeName + " object = new " + typeName +
+                        "();\n" +
+                        "\twhile (reader.hasNext()) {\n" +
+                        "\t\tString name = reader.nextName();\n" +
+                        "\t\tcom.google.gson.stream.JsonToken jsonToken = reader.peek();\n" +
+                        "\t\tif (jsonToken == com.google.gson.stream.JsonToken.NULL) {\n" +
+                        "\t\t\treader.skipValue();\n" +
+                        "\t\t\tcontinue;\n" +
+                        "\t\t}\n" +
+                        "\t\tswitch (name) {\n");
 
         List<String> nonNullFields = new ArrayList<>();
 
@@ -647,17 +688,17 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
             if (jsonTokenType != null) {
                 builder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                        "\t\t\t\tif (jsonToken == " + jsonTokenType +
-                        ") {\n" +
-                        getReadCode("\t\t\t\t\t", variableName, element.getKey(), element.getValue(),
-                                adapterFieldInfo) +
-                        "\n\t\t\t\t} else {" +
-                        "\n\t\t\t\t\treader.skipValue();" +
-                        "\n\t\t\t\t}");
+                                "\t\t\t\tif (jsonToken == " + jsonTokenType +
+                                ") {\n" +
+                                getReadCode("\t\t\t\t\t", variableName, element.getKey(), element.getValue(),
+                                            adapterFieldInfo) +
+                                "\n\t\t\t\t} else {" +
+                                "\n\t\t\t\t\treader.skipValue();" +
+                                "\n\t\t\t\t}");
             } else {
                 builder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                        getReadCode("\t\t\t\t\t", variableName, element.getKey(), element.getValue(),
-                                adapterFieldInfo));
+                                getReadCode("\t\t\t\t\t", variableName, element.getKey(), element.getValue(),
+                                            adapterFieldInfo));
             }
 
             builder.addCode("\n\t\t\t\tbreak;\n");
@@ -671,12 +712,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         }
 
         builder.addCode("\t\t\tdefault:\n" +
-                "\t\t\t\treader.skipValue();\n" +
-                "\t\t\t\tbreak;\n" +
-                "\t\t}\n" +
-                "\t}\n" +
-                '\n' +
-                "\treader.endObject();\n");
+                        "\t\t\t\treader.skipValue();\n" +
+                        "\t\t\t\tbreak;\n" +
+                        "\t\t}\n" +
+                        "\t}\n" +
+                        '\n' +
+                        "\treader.endObject();\n");
 
         for (String nonNullField : nonNullFields) {
             builder.addCode("\n\tif (object." + nonNullField + " == null) {");

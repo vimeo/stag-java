@@ -23,7 +23,9 @@
  */
 package com.vimeo.stag.processor;
 
+import com.vimeo.stag.processor.dummy.DummyAbstractClass;
 import com.vimeo.stag.processor.dummy.DummyConcreteClass;
+import com.vimeo.stag.processor.dummy.DummyEnumClass;
 import com.vimeo.stag.processor.dummy.DummyGenericClass;
 import com.vimeo.stag.processor.dummy.DummyInheritedClass;
 import com.vimeo.stag.processor.utils.ElementUtils;
@@ -35,6 +37,8 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.lang.model.element.Element;
 
 public class ElementUtilsUnitTest extends BaseUnitTest {
 
@@ -97,6 +101,26 @@ public class ElementUtilsUnitTest extends BaseUnitTest {
                                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(String.class)));
         Assert.assertNotEquals(DummyInheritedClass.class.getPackage().getName(),
                                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(Object.class)));
+    }
+
+    @Test
+    public void testIsEnum() throws Exception {
+        Assert.assertFalse(ElementUtils.isEnum(null));
+
+        Element enumElement = Utils.getElementFromClass(DummyEnumClass.class);
+        Assert.assertTrue(ElementUtils.isEnum(enumElement));
+
+        Element concreteElement = Utils.getElementFromClass(DummyConcreteClass.class);
+        Assert.assertFalse(ElementUtils.isEnum(concreteElement));
+
+        Element genericElement = Utils.getElementFromClass(DummyGenericClass.class);
+        Assert.assertFalse(ElementUtils.isEnum(genericElement));
+
+        Element inheritedElement = Utils.getElementFromClass(DummyInheritedClass.class);
+        Assert.assertFalse(ElementUtils.isEnum(inheritedElement));
+
+        Element abstractElement = Utils.getElementFromClass(DummyAbstractClass.class);
+        Assert.assertFalse(ElementUtils.isEnum(abstractElement));
     }
 
 }
