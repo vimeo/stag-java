@@ -354,6 +354,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
              */
             for (AnnotationMirror annotationMirror : element.getKey().getAnnotationMirrors()) {
                 switch (annotationMirror.toString()) {
+                    case "@javax.validation.constraints.NotNull":
+                    case "@edu.umd.cs.findbugs.annotations.NonNull":
+                    case "@javax.annotation.Nonnull":
+                    case "@lombok.NonNull":
+                    case "@org.eclipse.jdt.annotation.NonNull":
+                    case "@org.jetbrains.annotations.NotNull":
                     case "@android.support.annotation.NonNull":
                         builder.addCode("\n\telse if (object." + variableName + " == null) {");
                         builder.addCode("\n\t\tthrow new java.io.IOException(\"" + variableName +
@@ -702,6 +708,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             builder.addCode("\n\t\t\t\tbreak;\n");
             for (AnnotationMirror annotationMirror : element.getKey().getAnnotationMirrors()) {
                 switch (annotationMirror.toString()) {
+                    case "@javax.validation.constraints.NotNull":
+                    case "@edu.umd.cs.findbugs.annotations.NonNull":
+                    case "@javax.annotation.Nonnull":
+                    case "@lombok.NonNull":
+                    case "@org.eclipse.jdt.annotation.NonNull":
+                    case "@org.jetbrains.annotations.NotNull":
                     case "@android.support.annotation.NonNull":
                         nonNullFields.add(variableName);
                         break;
