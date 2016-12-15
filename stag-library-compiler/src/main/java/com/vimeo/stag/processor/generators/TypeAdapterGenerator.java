@@ -318,7 +318,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName,
                                                  @NotNull Map<Element, TypeMirror> memberVariables,
                                                  @NotNull AdapterFieldInfo adapterFieldInfo) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
+        final MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
                 .addParameter(JsonWriter.class, "writer")
                 .addParameter(typeName, "object")
                 .returns(void.class)
@@ -334,7 +334,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         for (Map.Entry<Element, TypeMirror> element : memberVariables.entrySet()) {
             String name = getJsonName(element.getKey());
-            String variableName = element.getKey().getSimpleName().toString();
+            final String variableName = element.getKey().getSimpleName().toString();
             String variableType = element.getValue().toString();
 
             boolean isPrimitive = isSupportedPrimitive(variableType);
@@ -352,22 +352,15 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             /**
              * If the element is annotated with NonNull annotation, throw {@link IOException} if it is null.
              */
-            for (AnnotationMirror annotationMirror : element.getKey().getAnnotationMirrors()) {
-                switch (annotationMirror.toString()) {
-                    case "@javax.validation.constraints.NotNull":
-                    case "@edu.umd.cs.findbugs.annotations.NonNull":
-                    case "@javax.annotation.Nonnull":
-                    case "@lombok.NonNull":
-                    case "@org.eclipse.jdt.annotation.NonNull":
-                    case "@org.jetbrains.annotations.NotNull":
-                    case "@android.support.annotation.NonNull":
-                        builder.addCode("\n\telse if (object." + variableName + " == null) {");
-                        builder.addCode("\n\t\tthrow new java.io.IOException(\"" + variableName +
-                                        " cannot be null\");");
-                        builder.addCode("\n\t}\n\n");
-                        break;
+            runIfAnnotationSupported(element.getKey().getAnnotationMirrors(), new Runnable() {
+                @Override
+                public void run() {
+                    builder.addCode("\n\telse if (object." + variableName + " == null) {");
+                    builder.addCode("\n\t\tthrow new java.io.IOException(\"" + variableName +
+                                    " cannot be null\");");
+                    builder.addCode("\n\t}\n\n");
                 }
-            }
+            });
         }
 
         builder.addCode("\twriter.endObject();\n");
@@ -683,11 +676,11 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         "\t\t}\n" +
                         "\t\tswitch (name) {\n");
 
-        List<String> nonNullFields = new ArrayList<>();
+        final List<String> nonNullFields = new ArrayList<>();
 
         for (Map.Entry<Element, TypeMirror> element : elements.entrySet()) {
             String name = getJsonName(element.getKey());
-            String variableName = element.getKey().getSimpleName().toString();
+            final String variableName = element.getKey().getSimpleName().toString();
             String jsonTokenType = getReadTokenType(element.getValue());
 
             if (jsonTokenType != null) {
@@ -706,19 +699,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             }
 
             builder.addCode("\n\t\t\t\tbreak;\n");
-            for (AnnotationMirror annotationMirror : element.getKey().getAnnotationMirrors()) {
-                switch (annotationMirror.toString()) {
-                    case "@javax.validation.constraints.NotNull":
-                    case "@edu.umd.cs.findbugs.annotations.NonNull":
-                    case "@javax.annotation.Nonnull":
-                    case "@lombok.NonNull":
-                    case "@org.eclipse.jdt.annotation.NonNull":
-                    case "@org.jetbrains.annotations.NotNull":
-                    case "@android.support.annotation.NonNull":
-                        nonNullFields.add(variableName);
-                        break;
+            runIfAnnotationSupported(element.getKey().getAnnotationMirrors(), new Runnable() {
+                @Override
+                public void run() {
+                    nonNullFields.add(variableName);
                 }
-            }
+            });
         }
 
         builder.addCode("\t\t\tdefault:\n" +
@@ -738,5 +724,22 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         builder.addCode("\treturn object;\n");
 
         return builder.build();
+    }
+
+    private static void runIfAnnotationSupported(@NotNull List<? extends AnnotationMirror> annotationMirrors,
+                                                 @NotNull Runnable runnable) {
+        for (AnnotationMirror annotationMirror : annotationMirrors) {
+            switch (annotationMirror.toString()) {
+                case "@javax.validation.constraints.NotNull":
+                case "@edu.umd.cs.findbugs.annotations.NonNull":
+                case "@javax.annotation.Nonnull":
+                case "@lombok.NonNull":
+                case "@org.eclipse.jdt.annotation.NonNull":
+                case "@org.jetbrains.annotations.NotNull":
+                case "@android.support.annotation.NonNull":
+                    runnable.run();
+                    break;
+            }
+        }
     }
 }

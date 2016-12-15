@@ -23,6 +23,8 @@
  */
 package com.vimeo.sample.model;
 
+import android.support.annotation.NonNull;
+
 import com.vimeo.stag.GsonAdapterKey;
 
 /**
@@ -40,6 +42,7 @@ public abstract class SuperAbstractDataList<T, K> {
     @GsonAdapterKey
     public T paging;
 
+    @NonNull
     @GsonAdapterKey
     public K data;
 
