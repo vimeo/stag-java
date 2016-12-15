@@ -127,6 +127,7 @@ public class TypeTokenConstantsGenerator {
         }
     }
 
+    @NotNull
     private static MethodSpec generateTypeTokenGetters(@NotNull String name, @NotNull TypeName typeName) {
         MethodSpec.Builder mBuilder = MethodSpec.methodBuilder(getMethodName(name))
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName))
@@ -138,6 +139,7 @@ public class TypeTokenConstantsGenerator {
         return mBuilder.build();
     }
 
+    @NotNull
     private static String getMethodName(@NotNull String name) {
         return "get" + name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
     }

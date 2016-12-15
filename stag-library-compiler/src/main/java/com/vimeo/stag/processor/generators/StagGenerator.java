@@ -102,7 +102,7 @@ public class StagGenerator {
     }
 
     @Nullable
-    String getClassAdapterFactoryMethod(TypeMirror fieldType) {
+    String getClassAdapterFactoryMethod(@NotNull TypeMirror fieldType) {
         return TypeUtils.isConcreteType(fieldType) ? mFieldNameMap.get(fieldType.toString()) : null;
     }
 
@@ -114,7 +114,7 @@ public class StagGenerator {
      *                     if we are unable to write the file
      *                     to the filesystem.
      */
-    public void generateTypeAdapterFactory(String generatedPackageName) throws IOException {
+    public void generateTypeAdapterFactory(@NotNull String generatedPackageName) throws IOException {
         TypeSpec.Builder adaptersBuilder =
                 TypeSpec.classBuilder(CLASS_STAG).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
         adaptersBuilder.addType(getAdapterFactorySpec());
@@ -266,6 +266,7 @@ public class StagGenerator {
                 mGeneratedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY);
     }
 
+    @NotNull
     String addFieldType(@NotNull TypeMirror fieldType) {
         String fieldTypeString = fieldType.toString();
         String result = mUnknownAdapterFieldMap.get(fieldTypeString);

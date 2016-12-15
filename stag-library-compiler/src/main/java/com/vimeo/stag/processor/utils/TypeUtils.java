@@ -53,6 +53,7 @@ public final class TypeUtils {
         sTypeUtils = typeUtils;
     }
 
+    @NotNull
     public static Types getUtils() {
         Preconditions.checkNotNull(sTypeUtils);
         return sTypeUtils;

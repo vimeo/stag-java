@@ -46,6 +46,7 @@ public final class SupportedTypesModel {
     @Nullable
     private static SupportedTypesModel sInstance;
 
+    @NotNull
     public static synchronized SupportedTypesModel getInstance() {
         if (sInstance == null) {
             sInstance = new SupportedTypesModel();

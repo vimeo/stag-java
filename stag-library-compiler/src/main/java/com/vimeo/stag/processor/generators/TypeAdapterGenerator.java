@@ -91,7 +91,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
          * Used to get the stag adapter for a typeMirror if it is already generated in Stag.Factory
          */
         @Nullable
-        String getKnownAdapterStagFunctionCalls(TypeMirror typeMirror) {
+        String getKnownAdapterStagFunctionCalls(@NotNull TypeMirror typeMirror) {
             return mKnownAdapterStagFunctionCalls != null ? mKnownAdapterStagFunctionCalls.get(
                     typeMirror.toString()) : null;
         }
@@ -99,7 +99,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         /**
          * Add the getter method name against a field name
          */
-        void addTypeToFunctionName(String name, String functionName) {
+        void addTypeToFunctionName(@NotNull String name, @NotNull String functionName) {
             if (null == mKnownAdapterStagFunctionCalls) {
                 mKnownAdapterStagFunctionCalls = new HashMap<>();
             }
