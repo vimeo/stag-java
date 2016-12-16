@@ -3,6 +3,7 @@ dependencies:
         - bundle install
     cache_directories:
         - "vendor/bundle"
+        - "~/.gradle"
 
 test:
   override:
