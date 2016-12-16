@@ -4,7 +4,7 @@ Stag improves Gson performance by automatically generating reflection-less TypeA
 
 ## Why Build Stag?
 
-Gson is the essential JSON parsing library. It greatly simplifies what can be the verbose and boilerplate-ridden process of parsing JSON into model objects. It does this by leveraging reflection. Unfortunately, using reflection can be slow (particularly on the Android OS). 
+Gson is the essential JSON parsing library. It greatly simplifies what can be the verbose and boilerplate-ridden process of parsing JSON into model objects. It does this by leveraging reflection. Unfortunately, using reflection can be slow (particularly on the Android OS).
 
 You can work around this by writing a custom `TypeAdapter`, a class that Gson uses to (de)serialize an object. The main use case for custom type adapters is for classes that you don't have control over (e.g. parsing a JSON string into a `java.util.Date` object). They are used to manually map JSON to fields in your model object. So, you can just write a custom TypeAdapter to tell Gson how to map data to fields and the performance will improve, since it won't have to use reflection.
 
@@ -12,9 +12,9 @@ But... if you have a lot of model objects, and you want to remove the use of ref
 
 The Stag library solves this problem. It leverages annotations to automatically generate reflection-less TypeAdapters for your model objects at compile time. Instead of spending time writing your own custom TypeAdapters for each model object, or forgoing the performance gain of eliminating reflection, using Stag and the `@GsonAdapterKey` annotation on your model fields will do all the work for you.
 
-## Gradle Usage
+## Gradle Usages
 
-#### Add the Stag dependencies
+#### 1. Add the Stag dependencies
 
 from jCenter
 ```groovy
@@ -32,7 +32,7 @@ dependencies {
 }
 ```
 
-#### Add the Annotation Processor Plugin
+#### 2. Add the Annotation Processor Plugin
 
 In a Java project (see below for Android), apply the 'apt' plugin in your module-level `build.gradle`:
 ```groovy
@@ -64,7 +64,17 @@ buildscript {
 apply plugin: 'com.neenbedankt.android-apt'
 ```
 
-## Usage
+#### 3. Passing package name as an argument for the generated files (Optional)
+By default, the files will be in generated in `com.vimeo.sample.stag.generated` package. But, you can specify your own package for the generated files by passing it as an argument to the apt compiler.
+```groovy
+apt {
+    arguments {
+        stagGeneratedPackageName "com.vimeo.sample.stag.generated"
+    }
+}
+```
+
+## Stag Rules
 
 1. Make sure the member variables of your model class are not private (i.e. public, protected, or package-local visibility)
 2. Make sure your model class is not private and has a zero argument non-private constructor
@@ -75,12 +85,13 @@ apply plugin: 'com.neenbedankt.android-apt'
 5. You're done!
 
 ## Supported Types
+
 - YES: All native types supported by Gson (boolean, double, int, long, float)
 - YES: String types
 - YES: ArrayList or any other List interfaces are supported
 - YES: HashMaps or any other Map interfaces are supported
 - YES: Complex data structures supported
-- NO: Enums are not supported, we will fall back to Gson for parsing them
+- YES: Enumerations (enums)
 
 Note : 
 - `@SerializedName("json_key")` annotations you might be using will be ignored.
