@@ -2,6 +2,8 @@
 
 Stag improves Gson performance by automatically generating reflection-less TypeAdapters for your model objects.
 
+[![Build Status](https://circleci.com/gh/vimeo/stag-java.svg?style=shield&circle-token=4d5dd11678a93587658d1677d0ef2b8c64b56574)](https://circleci.com/gh/vimeo/stag-java)
+
 ## Why Build Stag?
 
 Gson is the essential JSON parsing library. It greatly simplifies what can be the verbose and boilerplate-ridden process of parsing JSON into model objects. It does this by leveraging reflection. Unfortunately, using reflection can be slow (particularly on the Android OS). 
