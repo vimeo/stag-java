@@ -46,7 +46,7 @@ public class ClassInfo {
     private final String mTypeName;
 
     @NotNull
-    private TypeMirror mType;
+    private final TypeMirror mType;
 
     public ClassInfo(@NotNull TypeMirror typeMirror) {
         mType = typeMirror;

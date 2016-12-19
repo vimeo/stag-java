@@ -55,9 +55,13 @@ public class TypeTokenConstantsGenerator {
     private final Filer mFiler;
 
     private static class TypeTokenInfo {
+
         TypeMirror mTypeMirror;
         String mFieldName;
         String mMethodName;
+
+        TypeTokenInfo() {
+        }
     }
 
     @NotNull
@@ -78,7 +82,7 @@ public class TypeTokenConstantsGenerator {
      * @return String
      */
     @NotNull
-    public String addTypeToken(@NotNull TypeMirror type) {
+    String addTypeToken(@NotNull TypeMirror type) {
         String typeString = type.toString();
         TypeTokenInfo typeTokenInfo = mTypesToBeGenerated.get(typeString);
         if (null == typeTokenInfo) {
@@ -89,7 +93,8 @@ public class TypeTokenConstantsGenerator {
             mTypesToBeGenerated.put(typeString, typeTokenInfo);
         }
 
-        return mGeneratedPackageName + "." + CLASS_STAG_TYPE_TOKEN_CONSTANTS + "." + typeTokenInfo.mMethodName;
+        return mGeneratedPackageName + "." + CLASS_STAG_TYPE_TOKEN_CONSTANTS + "." +
+               typeTokenInfo.mMethodName;
     }
 
     /**
@@ -102,14 +107,17 @@ public class TypeTokenConstantsGenerator {
      */
     public void generateTypeTokenConstants() throws IOException {
         if (!mTypesToBeGenerated.isEmpty()) {
-            TypeSpec.Builder adaptersBuilder =
-                    TypeSpec.classBuilder(CLASS_STAG_TYPE_TOKEN_CONSTANTS).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+            TypeSpec.Builder adaptersBuilder = TypeSpec.classBuilder(CLASS_STAG_TYPE_TOKEN_CONSTANTS)
+                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
             for (Map.Entry<String, TypeTokenInfo> entry : mTypesToBeGenerated.entrySet()) {
                 TypeTokenInfo typeTokenInfo = entry.getValue();
                 TypeName typeName = TypeVariableName.get(typeTokenInfo.mTypeMirror);
-                TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName);
-                FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, typeTokenInfo.mFieldName, Modifier.PUBLIC, Modifier.STATIC);
+                TypeName parameterizedTypeName =
+                        ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName);
+                FieldSpec.Builder fieldSpecBuilder =
+                        FieldSpec.builder(parameterizedTypeName, typeTokenInfo.mFieldName, Modifier.PUBLIC,
+                                          Modifier.STATIC);
                 adaptersBuilder.addField(fieldSpecBuilder.build());
                 adaptersBuilder.addMethod(generateTypeTokenGetters(typeTokenInfo.mFieldName, typeName));
             }
@@ -119,7 +127,8 @@ public class TypeTokenConstantsGenerator {
         }
     }
 
-    public MethodSpec generateTypeTokenGetters(String name, TypeName typeName) {
+    @NotNull
+    private static MethodSpec generateTypeTokenGetters(@NotNull String name, @NotNull TypeName typeName) {
         MethodSpec.Builder mBuilder = MethodSpec.methodBuilder(getMethodName(name))
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName))
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -130,7 +139,8 @@ public class TypeTokenConstantsGenerator {
         return mBuilder.build();
     }
 
-    private String getMethodName(String name) {
+    @NotNull
+    private static String getMethodName(@NotNull String name) {
         return "get" + name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
     }
 }

@@ -65,8 +65,7 @@ public final class ElementUtils {
         return packageElement.getQualifiedName().toString();
     }
 
-    @NotNull
-    public static boolean isEnum(Element element) {
+    public static boolean isEnum(@Nullable Element element) {
         return element != null && element.getKind() == ElementKind.ENUM;
     }
 }

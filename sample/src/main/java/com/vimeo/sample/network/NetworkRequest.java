@@ -51,7 +51,7 @@ import java.util.concurrent.Executors;
 
 public final class NetworkRequest {
 
-    private static final String TAG = NetworkRequest.class.getSimpleName();
+    static final String TAG = NetworkRequest.class.getSimpleName();
 
     public interface Callback {
 

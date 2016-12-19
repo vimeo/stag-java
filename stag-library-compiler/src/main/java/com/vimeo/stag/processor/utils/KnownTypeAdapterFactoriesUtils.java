@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -50,8 +49,8 @@ public final class KnownTypeAdapterFactoriesUtils {
         throw new UnsupportedOperationException("This class is not instantiable");
     }
 
-    public static Set<TypeMirror> loadKnownTypes(@NotNull ProcessingEnvironment processingEnv, @NotNull String generatedPackageName)
-            throws IOException {
+    public static Set<TypeMirror> loadKnownTypes(@NotNull ProcessingEnvironment processingEnv,
+                                                 @NotNull String generatedPackageName) throws IOException {
         Filer filer = processingEnv.getFiler();
         LinkedHashSet<TypeMirror> knownTypes = new LinkedHashSet<>();
         Elements elementUtils = processingEnv.getElementUtils();
@@ -70,32 +69,38 @@ public final class KnownTypeAdapterFactoriesUtils {
         return knownTypes;
     }
 
-    public static void writeKnownTypes(@NotNull ProcessingEnvironment processingEnv, @NotNull String generatedPackageName,
+    public static void writeKnownTypes(@NotNull ProcessingEnvironment processingEnv,
+                                       @NotNull String generatedPackageName,
                                        @NotNull Set<TypeMirror> knownTypes) throws IOException {
         Filer filer = processingEnv.getFiler();
         StringBuilder knownTypesBuilder = new StringBuilder();
         for (TypeMirror knownType : knownTypes) {
             knownTypesBuilder.append(knownType).append("\n");
         }
-        FileGenUtils.writeToResource(filer, generatedPackageName, KNOWN_FACTORIES_RESOURCE, knownTypesBuilder.toString());
+        FileGenUtils.writeToResource(filer, generatedPackageName, KNOWN_FACTORIES_RESOURCE,
+                                     knownTypesBuilder.toString());
     }
 
-    private static void loadKnownTypesFromFiler(@NotNull Elements elementUtils, @NotNull Filer filer, @NotNull String generatedPackageName, @NotNull Set<TypeMirror> resultSet)
-            throws IOException {
-        CharSequence content = FileGenUtils.readResource(filer, generatedPackageName, KNOWN_FACTORIES_RESOURCE);
+    private static void loadKnownTypesFromFiler(@NotNull Elements elementUtils, @NotNull Filer filer,
+                                                @NotNull String generatedPackageName,
+                                                @NotNull Set<TypeMirror> resultSet) throws IOException {
+        CharSequence content =
+                FileGenUtils.readResource(filer, generatedPackageName, KNOWN_FACTORIES_RESOURCE);
         if (content == null) {
             return;
         }
         String[] knownFactories = content.toString().split("[\\n\\r]+");
-        for(String knownFactory : knownFactories) {
+        for (String knownFactory : knownFactories) {
             TypeElement element = elementUtils.getTypeElement(knownFactory);
-            if(null != element) {
+            if (null != element) {
                 resultSet.add(element.asType());
             }
         }
     }
 
-    private static void loadKnownTypesFromClasspath(@NotNull Elements elementUtils, @NotNull Set<TypeMirror> resultSet, @NotNull String generatedPackageName) throws IOException {
+    private static void loadKnownTypesFromClasspath(@NotNull Elements elementUtils,
+                                                    @NotNull Set<TypeMirror> resultSet,
+                                                    @NotNull String generatedPackageName) throws IOException {
         ClassLoader classLoader = KnownTypeAdapterFactoriesUtils.class.getClassLoader();
         String resourcePath = generatedPackageName.replace('.', '/');
         Enumeration<URL> resources = classLoader.getResources(resourcePath + "/" + KNOWN_FACTORIES_RESOURCE);
@@ -107,7 +112,7 @@ public final class KnownTypeAdapterFactoriesUtils {
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     TypeElement element = elementUtils.getTypeElement(line.trim());
-                    if(null != element) {
+                    if (null != element) {
                         resultSet.add(element.asType());
                     }
 

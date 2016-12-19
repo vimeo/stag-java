@@ -21,22 +21,76 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.sample.model;
+package com.vimeo.stag.processor.dummy;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
-/**
- * Created by anirudh.r on 30/11/16.
- */
-@UseStag
-public class GenericClass<T> {
+public class DummyMapClass implements Map {
 
-    @SerializedName("name")
-    public T name;
+    @Override
+    public int size() {
+        return 0;
+    }
 
-    @SerializedName("map")
-    public Map<String, Map<String, T>> mapField;
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
+    public boolean containsKey(Object o) {
+        return false;
+    }
+
+    @Override
+    public boolean containsValue(Object o) {
+        return false;
+    }
+
+    @Override
+    public Object get(Object o) {
+        return null;
+    }
+
+    @Override
+    public Object put(Object o, Object o2) {
+        return null;
+    }
+
+    @Override
+    public Object remove(Object o) {
+        return null;
+    }
+
+    @Override
+    public void putAll(Map map) {
+
+    }
+
+    @Override
+    public void clear() {
+
+    }
+
+    @NotNull
+    @Override
+    public Set keySet() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public Collection values() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public Set<Entry> entrySet() {
+        return null;
+    }
 }

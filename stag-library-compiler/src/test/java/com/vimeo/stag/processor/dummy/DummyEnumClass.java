@@ -21,22 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.sample.model;
+package com.vimeo.stag.processor.dummy;
 
-import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.UseStag;
-
-import java.util.Map;
-
-/**
- * Created by anirudh.r on 30/11/16.
- */
-@UseStag
-public class GenericClass<T> {
-
-    @SerializedName("name")
-    public T name;
-
-    @SerializedName("map")
-    public Map<String, Map<String, T>> mapField;
+public enum DummyEnumClass {
+    A,
+    B,
+    C
 }
