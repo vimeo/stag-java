@@ -253,9 +253,16 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             return true;
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
+        return isSupportedList(type) || outerClassType.equals(Collection.class.getName());
+    }
+
+    static boolean isSupportedList(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-               outerClassType.equals(List.class.getName()) ||
-               outerClassType.equals(Collection.class.getName());
+               outerClassType.equals(List.class.getName());
     }
 
     static boolean isMap(@Nullable TypeMirror type) {
@@ -266,13 +273,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         return outerClassType.equals(Map.class.getName()) ||
                outerClassType.equals(HashMap.class.getName()) ||
                outerClassType.equals(LinkedHashMap.class.getName());
-    }
-
-
-    @NotNull
-    private static TypeName getAdapterFieldTypeName(@NotNull TypeMirror type) {
-        TypeName typeName = TypeVariableName.get(type);
-        return ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
     }
 
     static boolean isSupportedNative(@NotNull String type) {
@@ -290,6 +290,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                typeString.equals(double.class.getName()) || typeString.equals(Double.class.getName()) ||
                typeString.equals(int.class.getName()) || typeString.equals(Integer.class.getName()) ||
                typeString.equals(float.class.getName()) || typeString.equals(Float.class.getName());
+    }
+
+    @NotNull
+    private static TypeName getAdapterFieldTypeName(@NotNull TypeMirror type) {
+        TypeName typeName = TypeVariableName.get(type);
+        return ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
     }
 
     @Nullable
@@ -590,7 +596,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             String innerWrite = getWriteType(innerType, "item", adapterFieldInfo);
             return prefix + "writer.name(\"" + jsonName + "\");\n" +
                    prefix + "writer.beginArray();\n" +
-                   prefix + "for (" + innerType + " item : " + variableName + ") {\n" +
+                   getSpecializedForLoop(type, prefix, variableName, innerType) +
                    prefix + "\t" + innerWrite + "\n" +
                    prefix + "}\n" +
                    prefix + "writer.endArray();\n";
@@ -613,6 +619,17 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             return prefix + "writer.name(\"" + jsonName + "\");\n" +
                    prefix + getWriteType(type, variableName, adapterFieldInfo) + '\n';
         }
+    }
+
+    @NotNull
+    private static String getSpecializedForLoop(@NotNull TypeMirror type, @NotNull String prefix,
+                                                @NotNull String variableName, @NotNull TypeMirror innerType) {
+        return isSupportedList(type) ?
+                // If it's a list, use a basic for loop to get rid of iterator allocation
+                prefix + "for (int n = 0; n < " + variableName + ".size(); n++) {\n" +
+                prefix + "\t" + innerType + " item = " + variableName + ".get(n);\n" :
+                // Otherwise if it's not a list, use enhanced for loop
+                prefix + "for (" + innerType + " item : " + variableName + ") {\n";
     }
 
     @NotNull

@@ -100,6 +100,38 @@ public class TypeAdapterGeneratorUnitTest extends BaseUnitTest {
     }
 
     @Test
+    public void testIsSupportedList_supportsTypes() throws Exception {
+        // Check supported types
+        Assert.assertTrue(TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(List.class)));
+        Assert.assertTrue(
+                TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(ArrayList.class)));
+
+        // Check unsupported list types
+        Assert.assertFalse(
+                TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(LinkedList.class)));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(Vector.class)));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(Stack.class)));
+        Assert.assertFalse(
+                TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(Collection.class)));
+
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(null));
+
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(Object.class)));
+
+        // Check unsupported array types
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(
+                types.getArrayType(types.getPrimitiveType(TypeKind.INT))));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(
+                types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(
+                types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(
+                types.getArrayType(Utils.getTypeMirrorFromClass(String.class))));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(
+                types.getArrayType(Utils.getTypeMirrorFromClass(Object.class))));
+    }
+
+    @Test
     public void testIsSupportedNative_supportsCorrectTypes() throws Exception {
         // Check supported primitives
         Assert.assertTrue(TypeAdapterGenerator.isSupportedNative(long.class.getName()));
