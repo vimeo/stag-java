@@ -1,12 +1,17 @@
 package com.vimeo.stag.processor.utils;
 
+import com.google.gson.JsonElement;
 import com.vimeo.stag.KnownTypeAdapters;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -18,45 +23,46 @@ import javax.lang.model.type.TypeMirror;
 
 public class KnownTypeAdapterUtils {
     @NotNull
-    private static final HashMap<Type, Class> mKnownPrimitiveTypeAdapters = new HashMap<>();
-    @NotNull
     private static final HashMap<Type, Class> mKnownCollectionTypeAdapters = new HashMap<>();
     @NotNull
-    private static final HashMap<String, String> mKnownTypeAdaptersMethodNames = new HashMap<>();
+    private static final HashMap<String, String> mKnownTypeAdapters = new HashMap<>();
+
+    static {
+        mKnownTypeAdapters.put(BitSet.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BIT_SET");
+        mKnownTypeAdapters.put(Boolean.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BOOLEAN");
+        mKnownTypeAdapters.put(byte.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BYTE");
+        mKnownTypeAdapters.put(short.class.getName(), "com.vimeo.stag.KnownTypeAdapters.SHORT");
+        mKnownTypeAdapters.put(Integer.class.getName(), "com.vimeo.stag.KnownTypeAdapters.INTEGER");
+        mKnownTypeAdapters.put(int.class.getName(), "com.vimeo.stag.KnownTypeAdapters.INTEGER");
+        mKnownTypeAdapters.put(Long.class.getName(), "com.vimeo.stag.KnownTypeAdapters.LONG");
+        mKnownTypeAdapters.put(long.class.getName(), "com.vimeo.stag.KnownTypeAdapters.LONG");
+        mKnownTypeAdapters.put(Float.class.getName(), "com.vimeo.stag.KnownTypeAdapters.FLOAT");
+        mKnownTypeAdapters.put(float.class.getName(), "com.vimeo.stag.KnownTypeAdapters.FLOAT");
+        mKnownTypeAdapters.put(Double.class.getName(), "com.vimeo.stag.KnownTypeAdapters.DOUBLE");
+        mKnownTypeAdapters.put(double.class.getName(), "com.vimeo.stag.KnownTypeAdapters.DOUBLE");
+        mKnownTypeAdapters.put(Number.class.getName(), "com.vimeo.stag.KnownTypeAdapters.NUMBER");
+        mKnownTypeAdapters.put(Character.class.getName(), "com.vimeo.stag.KnownTypeAdapters.CHARACTER");
+        mKnownTypeAdapters.put(char.class.getName(), "com.vimeo.stag.KnownTypeAdapters.CHARACTER");
+        mKnownTypeAdapters.put(String.class.getName(), "com.vimeo.stag.KnownTypeAdapters.STRING");
+        mKnownTypeAdapters.put(BigDecimal.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BIG_DECIMAL");
+        mKnownTypeAdapters.put(BigInteger.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BIG_INTEGER");
+        mKnownTypeAdapters.put(Calendar.class.getName(), "com.vimeo.stag.KnownTypeAdapters.CALENDAR");
+        mKnownTypeAdapters.put(JsonElement.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_ELEMENT");
+    }
+
+    @Nullable
+    public static String getKnownTypeAdapterForType(String type) {
+        return mKnownTypeAdapters.get(type);
+    }
 
     @NotNull
     public static HashMap<Type, Class> getKnownCollectionTypeAdapters() {
         return mKnownCollectionTypeAdapters;
     }
 
-    @NotNull
-    public static HashMap<Type, Class> getKnownPrimitiveTypeAdapters() {
-        return mKnownPrimitiveTypeAdapters;
-    }
-
-    @Nullable
-    public static String getKnownTypeAdaptersMethodNames(String type) {
-        return mKnownTypeAdaptersMethodNames.get(type);
-    }
-
     public static void initialize() {
-        KnownTypeAdapterUtils.registerPrimitiveTypeAdapters(Integer.class, KnownTypeAdapters.IntegerTypeAdapter.class);
-        KnownTypeAdapterUtils.registerPrimitiveTypeAdapters(String.class, KnownTypeAdapters.StringTypeAdapter.class);
-        KnownTypeAdapterUtils.registerPrimitiveTypeAdapters(Double.class, KnownTypeAdapters.DoubleTypeAdapter.class);
-        KnownTypeAdapterUtils.registerPrimitiveTypeAdapters(Float.class, KnownTypeAdapters.FloatTypeAdapter.class);
-        KnownTypeAdapterUtils.registerPrimitiveTypeAdapters(Boolean.class, KnownTypeAdapters.BooleanTypeAdapter.class);
-
         mKnownCollectionTypeAdapters.put(List.class, KnownTypeAdapters.ListTypeAdapter.class);
         mKnownCollectionTypeAdapters.put(Map.class, KnownTypeAdapters.MapTypeAdapter.class);
-    }
-
-    private static void registerPrimitiveTypeAdapters(Class type, Class typeAdapterClass) {
-        mKnownPrimitiveTypeAdapters.put(type, typeAdapterClass);
-        if (mKnownTypeAdaptersMethodNames.get(type.toString()) == null) {
-            String adapterName = FileGenUtils.unescapeEscapedString(typeAdapterClass.getSimpleName());
-            String getAdapterFactoryMethodName = "get" + adapterName;
-            mKnownTypeAdaptersMethodNames.put(type.getName(), getAdapterFactoryMethodName);
-        }
     }
 
     @NotNull
