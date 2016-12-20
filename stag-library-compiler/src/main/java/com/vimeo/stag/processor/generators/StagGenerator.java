@@ -172,8 +172,8 @@ public class StagGenerator {
                 String mapInstantiater = KnownTypeAdapterUtils.getMapInstantiater(classInfo.getType());
 
                 String result;
-                String keyFieldName = KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(keyTypeMirror.toString());
-                String valueFieldName = KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(valueTypeMirror.toString());
+                String keyFieldName = KnownTypeAdapterUtils.getKnownTypeAdapterForType(keyTypeMirror.toString());
+                String valueFieldName = KnownTypeAdapterUtils.getKnownTypeAdapterForType(valueTypeMirror.toString());
 
                 if (keyFieldName == null) {
                     keyFieldName = mFieldNameMap.get(keyTypeMirror.toString());
@@ -196,7 +196,7 @@ public class StagGenerator {
                     }
                     result = " = new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter(get" + keyFieldName + "(gson), ";
                 } else {
-                    result = " = new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter(" + keyFieldName + "(), ";
+                    result = " = new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter(" + keyFieldName + ", ";
                 }
 
                 if (valueFieldName == null) {
@@ -220,7 +220,7 @@ public class StagGenerator {
                     }
                     result += "get" + valueFieldName + "(gson), new " + mapInstantiater + "())";
                 } else {
-                    result += valueFieldName + "(), new " + mapInstantiater + "())";
+                    result += valueFieldName + ", new " + mapInstantiater + "())";
                 }
 
                 getAdapterMethodBuilder.addStatement(fieldName + result);
@@ -307,34 +307,6 @@ public class StagGenerator {
         }
         createMethodBuilder.addStatement("return null");
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
-
-        /*
-         * Generate all known primitive type adapters that are registered in {@link KnownTypeAdapterUtils}
-         */
-        Set<Map.Entry<Type, Class>> entries = KnownTypeAdapterUtils.getKnownPrimitiveTypeAdapters().entrySet();
-        for (Map.Entry<Type, Class> entry : entries) {
-
-            String adapterName = FileGenUtils.unescapeEscapedString(entry.getValue().getSimpleName());
-            String methodName = "get" + adapterName;
-            TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), TypeVariableName.get(entry.getKey()));
-
-            String fieldName = "m" + adapterName;
-            MethodSpec.Builder adapterMethodBuilder =
-                    MethodSpec.methodBuilder(FileGenUtils.unescapeEscapedString(methodName))
-                            .addModifiers(Modifier.PUBLIC)
-                            .returns(parameterizedTypeName);
-
-            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, FileGenUtils.unescapeEscapedString(fieldName),
-                    Modifier.PRIVATE);
-
-            adapterFactoryBuilder.addField(fieldSpecBuilder.build());
-
-            adapterMethodBuilder.beginControlFlow("if (null == " + fieldName + ")");
-            adapterMethodBuilder.addStatement(fieldName + " = new com.vimeo.stag.KnownTypeAdapters." + adapterName + "()");
-            adapterMethodBuilder.endControlFlow();
-            adapterMethodBuilder.addStatement("return " + fieldName);
-            adapterFactoryBuilder.addMethod(adapterMethodBuilder.build());
-        }
 
         return adapterFactoryBuilder.build();
     }

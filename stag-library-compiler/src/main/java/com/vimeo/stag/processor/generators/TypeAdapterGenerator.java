@@ -47,7 +47,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -100,8 +99,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         } else {
                             result = typeVarsMap.get(valueTypeMirror);
                         }
-                        result = "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter(stagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(keyTypeMirror.toString())
-                                + "(), " + result + ", null)";
+                        result = "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter(" + KnownTypeAdapterUtils.getKnownTypeAdapterForType(keyTypeMirror.toString())
+                                + ", " + result + ", null)";
                     } else {
                         result = "com.google.gson.reflect.TypeToken.getParameterized(" +
                                 declaredFieldType.asElement().toString() + ".class";
@@ -189,25 +188,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 || typeString.equals(Float.class.getName());
     }
 
-    @Nullable
-    private static List<String> getReadTokenType(@NotNull TypeMirror type) {
-        String typeString = type.toString();
-        if (isNumberType(typeString)) {
-            List<String> tokenType = new ArrayList<>(2);
-            tokenType.add("com.google.gson.stream.JsonToken.NUMBER");
-            tokenType.add("com.google.gson.stream.JsonToken.STRING");
-            return tokenType;
-        } else if (type.toString().equals(boolean.class.getName())) {
-            return Collections.singletonList("com.google.gson.stream.JsonToken.BOOLEAN");
-        } else if (type.toString().equals(String.class.getName())) {
-            List<String> tokenType = new ArrayList<>(2);
-            tokenType.add("com.google.gson.stream.JsonToken.STRING");
-            tokenType.add("com.google.gson.stream.JsonToken.NUMBER");
-            return tokenType;
-        } else {
-            return null;
-        }
-    }
 
     @NotNull
     private static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
@@ -263,7 +243,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             String adapter = adapterFieldInfo.getAdapter(innerType);
             if (isSupportedNative(innerType.toString())) {
                 mStagFactoryUsed = true;
-                adapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(innerType.toString()) + "()";
+                adapter = "" + KnownTypeAdapterUtils.getKnownTypeAdapterForType(innerType.toString());
             }
 
             String listInstantiater = KnownTypeAdapterUtils.getListInstantiater(type);
@@ -275,11 +255,11 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     TypeMirror valueTypeMirror = typeArguments.get(1);
 
                     mStagFactoryUsed = true;
-                    String keyAdapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(typeArguments.get(0).toString()) + "()";
+                    String keyAdapter = KnownTypeAdapterUtils.getKnownTypeAdapterForType(typeArguments.get(0).toString());
                     String valueAdapter = adapterFieldInfo.getAdapter(valueTypeMirror);
 
                     if (valueAdapter == null || isSupportedNative(valueAdapter)) {
-                        valueAdapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(typeArguments.get(1).toString()) + "()";
+                        valueAdapter = KnownTypeAdapterUtils.getKnownTypeAdapterForType(typeArguments.get(1).toString());
                     }
 
                     String mapInstantiater = KnownTypeAdapterUtils.getMapInstantiater(type);
@@ -296,17 +276,17 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                                       @NotNull AdapterFieldInfo adapterFieldInfo) {
         String typeString = type.toString();
         if (typeString.equals(long.class.getName()) || typeString.equals(Long.class.getName())) {
-            return "reader.nextLong()";
+            return "com.vimeo.stag.KnownTypeAdapters.LONG.read(reader)";
         } else if (typeString.equals(double.class.getName()) || typeString.equals(Double.class.getName())) {
-            return "reader.nextDouble()";
+            return "com.vimeo.stag.KnownTypeAdapters.DOUBLE.read(reader)";
         } else if (typeString.equals(boolean.class.getName()) || typeString.equals(Boolean.class.getName())) {
-            return "reader.nextBoolean()";
+            return "com.vimeo.stag.KnownTypeAdapters.BOOLEAN.read(reader)";
         } else if (typeString.equals(String.class.getName())) {
-            return "reader.nextString()";
+            return "com.vimeo.stag.KnownTypeAdapters.STRING.read(reader)";
         } else if (typeString.equals(int.class.getName()) || typeString.equals(Integer.class.getName())) {
-            return "reader.nextInt()";
+            return "com.vimeo.stag.KnownTypeAdapters.INTEGER.read(reader)";
         } else if (typeString.equals(float.class.getName()) || typeString.equals(Float.class.getName())) {
-            return "(float) reader.nextDouble()";
+            return "com.vimeo.stag.KnownTypeAdapters.FLOAT.read(reader)";
         } else {
             return getAdapterRead(parentType, type, adapterFieldInfo);
         }
@@ -361,31 +341,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         for (Map.Entry<Element, TypeMirror> element : elements.entrySet()) {
             String name = getJsonName(element.getKey());
             final String variableName = element.getKey().getSimpleName().toString();
-            List<String> jsonTokenType = getReadTokenType(element.getValue());
 
-            StringBuilder jsonTokenCode = new StringBuilder();
-            jsonTokenCode.append("if (");
-            int size = jsonTokenType != null ? jsonTokenType.size() : 0;
-            for (int i = 0; i < size; i++) {
-                jsonTokenCode.append("jsonToken == ");
-                jsonTokenCode.append(jsonTokenType.get(i));
-                if (i != size - 1) {
-                    jsonTokenCode.append(" || ");
-                }
-            }
-            jsonTokenCode.append(")");
-
-            if (size != 0) {
-                builder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                        "\t\t\t\t" + jsonTokenCode.toString() + " {\n" +
-                        getReadCode("\t\t\t\t\t", variableName, element.getValue(), adapterFieldInfo) +
-                        "\n\t\t\t\t} else {" +
-                        "\n\t\t\t\t\treader.skipValue();" +
-                        "\n\t\t\t\t}");
-            } else {
-                builder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                        getReadCode("\t\t\t\t\t", variableName, element.getValue(), adapterFieldInfo));
-            }
+            builder.addCode("\t\t\tcase \"" + name + "\":\n" +
+                    getReadCode("\t\t\t\t", variableName, element.getValue(), adapterFieldInfo));
 
             builder.addCode("\n\t\t\t\tbreak;\n");
             runIfAnnotationSupported(element.getKey().getAnnotationMirrors(), new Runnable() {
@@ -644,7 +602,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             String adapter = adapterFieldInfo.getAdapter(innerType);
             if (isSupportedNative(innerType.toString())) {
                 mStagFactoryUsed = true;
-                adapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(innerType.toString()) + "()";
+                adapter = KnownTypeAdapterUtils.getKnownTypeAdapterForType(innerType.toString());
             }
 
             String listInstantiater = KnownTypeAdapterUtils.getListInstantiater(type);
@@ -656,10 +614,10 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 if (typeArguments.size() == 2 && isSupportedNative(typeArguments.get(0).toString())) {
                     TypeMirror keyTypeMirror = typeArguments.get(0);
                     mStagFactoryUsed = true;
-                    String keyAdapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(keyTypeMirror.toString()) + "()";
+                    String keyAdapter = KnownTypeAdapterUtils.getKnownTypeAdapterForType(keyTypeMirror.toString());
                     String valueAdapter = adapterFieldInfo.getAdapter(typeArguments.get(1));
                     if (isSupportedNative(typeArguments.get(1).toString())) {
-                        valueAdapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(typeArguments.get(1).toString()) + "()";
+                        valueAdapter = KnownTypeAdapterUtils.getKnownTypeAdapterForType(typeArguments.get(1).toString());
                     }
                     String mapInstantiater = KnownTypeAdapterUtils.getMapInstantiater(type);
                     return prefix + "writer.name(\"" + jsonName + "\");\n" +
