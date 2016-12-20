@@ -28,8 +28,8 @@ public class KnownTypeAdapterUtils {
     private static final HashMap<String, String> mKnownTypeAdapters = new HashMap<>();
 
     static {
-        mKnownTypeAdapters.put(BitSet.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BIT_SET");
-        mKnownTypeAdapters.put(Boolean.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BOOLEAN");
+        mKnownTypeAdapters.put(BitSet.class.getName(), "com.google.gson.internal.bind.TypeAdapters.BIT_SET");
+        mKnownTypeAdapters.put(Boolean.class.getName(), "com.google.gson.internal.bind.TypeAdapters.BOOLEAN");
         mKnownTypeAdapters.put(byte.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BYTE");
         mKnownTypeAdapters.put(short.class.getName(), "com.vimeo.stag.KnownTypeAdapters.SHORT");
         mKnownTypeAdapters.put(Integer.class.getName(), "com.vimeo.stag.KnownTypeAdapters.INTEGER");
@@ -40,14 +40,14 @@ public class KnownTypeAdapterUtils {
         mKnownTypeAdapters.put(float.class.getName(), "com.vimeo.stag.KnownTypeAdapters.FLOAT");
         mKnownTypeAdapters.put(Double.class.getName(), "com.vimeo.stag.KnownTypeAdapters.DOUBLE");
         mKnownTypeAdapters.put(double.class.getName(), "com.vimeo.stag.KnownTypeAdapters.DOUBLE");
-        mKnownTypeAdapters.put(Number.class.getName(), "com.vimeo.stag.KnownTypeAdapters.NUMBER");
-        mKnownTypeAdapters.put(Character.class.getName(), "com.vimeo.stag.KnownTypeAdapters.CHARACTER");
-        mKnownTypeAdapters.put(char.class.getName(), "com.vimeo.stag.KnownTypeAdapters.CHARACTER");
-        mKnownTypeAdapters.put(String.class.getName(), "com.vimeo.stag.KnownTypeAdapters.STRING");
-        mKnownTypeAdapters.put(BigDecimal.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BIG_DECIMAL");
-        mKnownTypeAdapters.put(BigInteger.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BIG_INTEGER");
-        mKnownTypeAdapters.put(Calendar.class.getName(), "com.vimeo.stag.KnownTypeAdapters.CALENDAR");
-        mKnownTypeAdapters.put(JsonElement.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_ELEMENT");
+        mKnownTypeAdapters.put(Number.class.getName(), "com.google.gson.internal.bind.TypeAdapters.NUMBER");
+        mKnownTypeAdapters.put(Character.class.getName(), "com.google.gson.internal.bind.TypeAdapters.CHARACTER");
+        mKnownTypeAdapters.put(char.class.getName(), "com.google.gson.internal.bind.TypeAdapters.CHARACTER");
+        mKnownTypeAdapters.put(String.class.getName(), "com.google.gson.internal.bind.TypeAdapters.STRING");
+        mKnownTypeAdapters.put(BigDecimal.class.getName(), "com.google.gson.internal.bind.TypeAdapters.BIG_DECIMAL");
+        mKnownTypeAdapters.put(BigInteger.class.getName(), "com.google.gson.internal.bind.TypeAdapters.BIG_INTEGER");
+        mKnownTypeAdapters.put(Calendar.class.getName(), "com.google.gson.internal.bind.TypeAdapters.CALENDAR");
+        mKnownTypeAdapters.put(JsonElement.class.getName(), "com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT");
     }
 
     @Nullable
