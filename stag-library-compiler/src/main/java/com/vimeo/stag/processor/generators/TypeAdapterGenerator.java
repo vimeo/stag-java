@@ -275,21 +275,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private static String getReadType(@NotNull TypeMirror parentType, @NotNull TypeMirror type,
                                       @NotNull AdapterFieldInfo adapterFieldInfo) {
         String typeString = type.toString();
-        if (typeString.equals(long.class.getName()) || typeString.equals(Long.class.getName())) {
-            return "com.vimeo.stag.KnownTypeAdapters.LONG.read(reader)";
-        } else if (typeString.equals(double.class.getName()) || typeString.equals(Double.class.getName())) {
-            return "com.vimeo.stag.KnownTypeAdapters.DOUBLE.read(reader)";
-        } else if (typeString.equals(boolean.class.getName()) || typeString.equals(Boolean.class.getName())) {
-            return "com.vimeo.stag.KnownTypeAdapters.BOOLEAN.read(reader)";
-        } else if (typeString.equals(String.class.getName())) {
-            return "com.vimeo.stag.KnownTypeAdapters.STRING.read(reader)";
-        } else if (typeString.equals(int.class.getName()) || typeString.equals(Integer.class.getName())) {
-            return "com.vimeo.stag.KnownTypeAdapters.INTEGER.read(reader)";
-        } else if (typeString.equals(float.class.getName()) || typeString.equals(Float.class.getName())) {
-            return "com.vimeo.stag.KnownTypeAdapters.FLOAT.read(reader)";
-        } else {
-            return getAdapterRead(parentType, type, adapterFieldInfo);
-        }
+        String adapterName = KnownTypeAdapterUtils.getKnownTypeAdapterForType(typeString);
+        return null == adapterName ? getAdapterRead(parentType, type, adapterFieldInfo) : adapterName + ".read(reader)";
     }
 
     @NotNull
