@@ -1,30 +1,21 @@
 package com.vimeo.stag;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
-import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.Calendar;
 import java.util.Collection;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -32,6 +23,130 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class KnownTypeAdapters {
+
+    public static final class ArrayTypeAdapter<T extends Object> extends TypeAdapter<T[]> {
+        TypeAdapter<T> mValueTypeAdapter;
+        ObjectConstructor<T[]> mObjectCreator;
+
+        public ArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter, ObjectConstructor<T[]> instanceCreator) {
+            this.mValueTypeAdapter = valueTypeAdapter;
+            this.mObjectCreator = instanceCreator;
+        }
+
+        @Override
+        public void write(JsonWriter writer, T[] value) throws IOException {
+            writer.beginArray();
+            for (T item : value) {
+                mValueTypeAdapter.write(writer, item);
+            }
+            writer.endArray();
+        }
+
+        @Override
+        public T[] read(JsonReader reader) throws IOException {
+            if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
+                reader.nextNull();
+                return null;
+            }
+            if (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {
+                reader.skipValue();
+                return null;
+            }
+            reader.beginObject();
+
+            ArrayList<T> object = new ArrayList<>();
+
+            while (reader.hasNext()) {
+                com.google.gson.stream.JsonToken jsonToken = reader.peek();
+                if (jsonToken == com.google.gson.stream.JsonToken.NULL) {
+                    reader.skipValue();
+                    continue;
+                }
+
+                if (jsonToken == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {
+                    reader.beginArray();
+                    while (reader.hasNext()) {
+                        object.add(mValueTypeAdapter.read(reader));
+                    }
+                    reader.endArray();
+                } else {
+                    reader.skipValue();
+                }
+            }
+
+            reader.endObject();
+
+            T[] result = this.mObjectCreator.construct();
+            return object.toArray(result);
+        }
+
+    }
+
+    public static final class PrimitiveArrayTypeAdapter<T extends Object, V> extends TypeAdapter<V[]> {
+
+        public interface PrimitiveArrayInitializer<K> {
+            K[] construct(int size);
+        }
+
+        TypeAdapter<T> mValueTypeAdapter;
+        PrimitiveArrayInitializer<V> mArrayCreator;
+
+        public PrimitiveArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter, PrimitiveArrayInitializer<V> instanceCreator) {
+            this.mValueTypeAdapter = valueTypeAdapter;
+            this.mArrayCreator = instanceCreator;
+        }
+
+        @Override
+        public void write(JsonWriter writer, V[] value) throws IOException {
+            writer.beginArray();
+            for (V item : value) {
+                mValueTypeAdapter.write(writer, (T)item);
+            }
+            writer.endArray();
+        }
+
+        @Override
+        public V[] read(JsonReader reader) throws IOException {
+            if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
+                reader.nextNull();
+                return null;
+            }
+            if (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {
+                reader.skipValue();
+                return null;
+            }
+            reader.beginObject();
+
+            ArrayList<T> object = new ArrayList<>();
+
+            while (reader.hasNext()) {
+                com.google.gson.stream.JsonToken jsonToken = reader.peek();
+                if (jsonToken == com.google.gson.stream.JsonToken.NULL) {
+                    reader.skipValue();
+                    continue;
+                }
+
+                if (jsonToken == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {
+                    reader.beginArray();
+                    while (reader.hasNext()) {
+                        object.add(mValueTypeAdapter.read(reader));
+                    }
+                    reader.endArray();
+                } else {
+                    reader.skipValue();
+                }
+            }
+
+            reader.endObject();
+
+            V[] result = this.mArrayCreator.construct(object.size());
+            for(int idx = 0; idx < result.length; idx++) {
+                result[idx] = (V)object.get(idx);
+            }
+            return object.toArray(result);
+        }
+
+    }
 
     public static final TypeAdapter<Byte> BYTE = new TypeAdapter<Byte>() {
         @Override
@@ -146,62 +261,59 @@ public class KnownTypeAdapters {
         }
     };
 
-    interface KnownTypeInstantiater<T> {
-        T instantiate();
-    }
-
-    public static class ListInstantiater<V> implements KnownTypeInstantiater<List<V>> {
+    
+    public static class ListInstantiater<V> implements ObjectConstructor<List<V>> {
 
         @Override
-        public List<V> instantiate() {
+        public List<V> construct() {
             return new ArrayList<V>();
         }
     }
 
-    public static class CollectionInstantiater<V> implements KnownTypeInstantiater<Collection<V>> {
+    public static class CollectionInstantiater<V> implements ObjectConstructor<Collection<V>> {
 
         @Override
-        public Collection<V> instantiate() {
+        public Collection<V> construct() {
             return new ArrayList<V>();
         }
     }
 
-    public static class ArrayListInstantiater<V> implements KnownTypeInstantiater<ArrayList<V>> {
+    public static class ArrayListInstantiater<V> implements ObjectConstructor<ArrayList<V>> {
 
         @Override
-        public ArrayList<V> instantiate() {
+        public ArrayList<V> construct() {
             return new ArrayList<V>();
         }
     }
 
-    public static class HashMapInstantiater<K, V> implements KnownTypeInstantiater<HashMap<K, V>> {
+    public static class HashMapInstantiater<K, V> implements ObjectConstructor<HashMap<K, V>> {
 
         @Override
-        public HashMap<K, V> instantiate() {
+        public HashMap<K, V> construct() {
             return new HashMap<K, V>();
         }
     }
 
-    public static class ConcurrentHashMapInstantiater<K, V> implements KnownTypeInstantiater<ConcurrentHashMap<K, V>> {
+    public static class ConcurrentHashMapInstantiater<K, V> implements ObjectConstructor<ConcurrentHashMap<K, V>> {
 
         @Override
-        public ConcurrentHashMap<K, V> instantiate() {
+        public ConcurrentHashMap<K, V> construct() {
             return new ConcurrentHashMap<K, V>();
         }
     }
 
-    public static class LinkedHashMapInstantiater<K, V> implements KnownTypeInstantiater<LinkedHashMap<K, V>> {
+    public static class LinkedHashMapInstantiater<K, V> implements ObjectConstructor<LinkedHashMap<K, V>> {
 
         @Override
-        public LinkedHashMap<K, V> instantiate() {
+        public LinkedHashMap<K, V> construct() {
             return new LinkedHashMap<K, V>();
         }
     }
 
-    public static class MapInstantiater<K, V> implements KnownTypeInstantiater<Map<K, V>> {
+    public static class MapInstantiater<K, V> implements ObjectConstructor<Map<K, V>> {
 
         @Override
-        public Map<K, V> instantiate() {
+        public Map<K, V> construct() {
             return new LinkedHashMap<K, V>();
         }
     }
@@ -209,11 +321,11 @@ public class KnownTypeAdapters {
     public static class ListTypeAdapter<V, T extends Collection<V>> extends TypeAdapter<T> {
 
         private TypeAdapter<V> valueTypeAdapter;
-        private KnownTypeInstantiater<T> instantiator;
+        private ObjectConstructor<T> objectConstructor;
 
-        public ListTypeAdapter(TypeAdapter<V> valueTypeAdapter, KnownTypeInstantiater<T> instantiator) {
+        public ListTypeAdapter(TypeAdapter<V> valueTypeAdapter, ObjectConstructor<T> objectConstructor) {
             this.valueTypeAdapter = valueTypeAdapter;
-            this.instantiator = instantiator;
+            this.objectConstructor = objectConstructor;
         }
 
         @Override
@@ -237,7 +349,7 @@ public class KnownTypeAdapters {
             }
             reader.beginObject();
 
-            T object = instantiator.instantiate();
+            T object = objectConstructor.construct();
 
             while (reader.hasNext()) {
                 com.google.gson.stream.JsonToken jsonToken = reader.peek();
@@ -264,14 +376,14 @@ public class KnownTypeAdapters {
 
     public static class MapTypeAdapter<K, V, T extends Map<K, V>> extends TypeAdapter<T> {
 
-        private KnownTypeInstantiater<T> instantiater;
+        private ObjectConstructor<T> objectConstructor;
         private TypeAdapter<V> valueTypeAdapter;
         private TypeAdapter<K> keyTypeAdapter;
 
-        public MapTypeAdapter(TypeAdapter<K> keyTypeAdapter, TypeAdapter<V> valueTypeAdapter, KnownTypeInstantiater<T> instantiater) {
+        public MapTypeAdapter(TypeAdapter<K> keyTypeAdapter, TypeAdapter<V> valueTypeAdapter, ObjectConstructor<T> objectConstructor) {
             this.keyTypeAdapter = keyTypeAdapter;
             this.valueTypeAdapter = valueTypeAdapter;
-            this.instantiater = instantiater;
+            this.objectConstructor = objectConstructor;
         }
 
         @Override
@@ -315,7 +427,7 @@ public class KnownTypeAdapters {
                 return null;
             }
 
-            T map = instantiater.instantiate();
+            T map = objectConstructor.construct();
 
             if (peek == JsonToken.BEGIN_ARRAY) {
                 in.beginArray();

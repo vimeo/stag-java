@@ -73,6 +73,10 @@ public class StagGenerator {
     @NotNull
     private final HashMap<String, String> mUnknownAdapterFieldMap = new HashMap<>();
 
+
+    @NotNull
+    private final HashMap<String, String> mArrayTypeAdapter = new HashMap<>();
+
     @NotNull
     private final List<ClassInfo> mUnknownClasses = new ArrayList<>();
 
@@ -346,6 +350,8 @@ public class StagGenerator {
         }
         return result;
     }
+
+
 
     @Nullable
     private TypeMirror getFirstTypeArgument(ClassInfo classInfo) {

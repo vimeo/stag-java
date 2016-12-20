@@ -57,4 +57,6 @@ public class RecursiveClass {
 
     @SerializedName("innerSum")
     public RecursiveClass innerSum;
+
+
 }
