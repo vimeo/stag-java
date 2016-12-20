@@ -38,13 +38,13 @@ import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.utils.FileGenUtils;
+import com.vimeo.stag.processor.utils.KnownTypeAdapterUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -66,11 +66,11 @@ import javax.lang.model.type.TypeVariable;
 public class TypeAdapterGenerator extends AdapterGenerator {
 
     private static final String TYPE_ADAPTER_FIELD_PREFIX = "mTypeAdapter";
+    private static boolean mGsonVariableUsed;
+    private static boolean mStagFactoryUsed;
+
     @NotNull
     private final ClassInfo mInfo;
-
-    private boolean mGsonVariableUsed;
-    private boolean mStagFactoryUsed;
 
     public TypeAdapterGenerator(@NotNull ClassInfo info) {
         mInfo = info;
@@ -83,30 +83,38 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         String result = null;
         if (!TypeUtils.isConcreteType(fieldType)) {
             if (fieldType.getKind() == TypeKind.TYPEVAR) {
-                result = " com.google.gson.reflect.TypeToken.get(" + typeVarsMap.get(fieldType) + ")";
+                result = typeVarsMap.get(fieldType);
             } else if (fieldType instanceof DeclaredType) {
-                /**
+                /*
                  * If it is of ParameterizedType, {@link com.vimeo.stag.utils.ParameterizedTypeUtil} is used to get the
                  * type token of the parameter type.
                  */
                 DeclaredType declaredFieldType = (DeclaredType) fieldType;
                 List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
-                result = "com.google.gson.reflect.TypeToken.getParameterized(" +
-                        declaredFieldType.asElement().toString() + ".class";
-                /**
-                 * Iterate through all the types from the typeArguments and generate type token code accordingly
-                 */
-                for (TypeMirror parameterTypeMirror : typeMirrors) {
-                    if (isSupportedNative(parameterTypeMirror.toString())) {
-                        result += ", " + parameterTypeMirror.toString() + ".class";
-                    } else if (parameterTypeMirror.getKind() == TypeKind.TYPEVAR) {
-                        result += ", " + typeVarsMap.get(parameterTypeMirror);
+                if (isMap(fieldType)) {
+                    TypeMirror keyTypeMirror = typeMirrors.get(0);
+                    TypeMirror valueTypeMirror = typeMirrors.get(1);
+                    if (isSupportedNative(keyTypeMirror.toString())) {
+                        if (isMap(valueTypeMirror)) {
+                            result = getTypeTokenCode(valueTypeMirror, typeVarsMap, typeTokenConstantsGenerator);
+                        } else {
+                            result = typeVarsMap.get(valueTypeMirror);
+                        }
+                        result = "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter(stagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(keyTypeMirror.toString())
+                                + "(), " + result + ", null)";
                     } else {
-                        result += ",\n" + getTypeTokenCode(parameterTypeMirror, typeVarsMap,
-                                typeTokenConstantsGenerator) + ".getType()";
+                        result = "com.google.gson.reflect.TypeToken.getParameterized(" +
+                                declaredFieldType.asElement().toString() + ".class";
                     }
+                } else if (isArray(fieldType)) {
+                    TypeMirror valueTypeMirror = typeMirrors.get(0);
+                    if (isArray(valueTypeMirror)) {
+                        result = getTypeTokenCode(valueTypeMirror, typeVarsMap, typeTokenConstantsGenerator);
+                    } else {
+                        result = typeVarsMap.get(valueTypeMirror);
+                    }
+                    result = "new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter(" + result + ", null)";
                 }
-                result += ")";
             }
         } else {
             result = typeTokenConstantsGenerator.addTypeToken(fieldType);
@@ -196,8 +204,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             tokenType.add("com.google.gson.stream.JsonToken.STRING");
             tokenType.add("com.google.gson.stream.JsonToken.NUMBER");
             return tokenType;
-        } else if (isArray(type)) {
-            return Collections.singletonList("com.google.gson.stream.JsonToken.BEGIN_ARRAY");
         } else {
             return null;
         }
@@ -233,64 +239,51 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     @NotNull
     private static String getReadCode(@NotNull String prefix, @NotNull String variableName,
                                       @NotNull TypeMirror type, @NotNull AdapterFieldInfo adapterFieldInfo) {
-        if (isArray(type)) {
+        if (isNativeArray(type)) {
             TypeMirror innerType = getArrayInnerType(type);
-            boolean isNativeArray = isNativeArray(type);
             String innerRead = getReadType(type, innerType, adapterFieldInfo);
-            String arrayListVariableName = isNativeArray ? "tmpArray" : "object." + variableName;
+            String arrayListVariableName = "tmp" + variableName;
             String stagGetterName = adapterFieldInfo.getKnownAdapterStagFunctionCalls(innerType);
             String result = prefix + "reader.beginArray();\n" +
-                    prefix + (isNativeArray ? "java.util.ArrayList<" + getArrayListType(innerType) + "> " : "") + arrayListVariableName + " = new java.util.ArrayList<>();\n" +
+                    prefix + "java.util.ArrayList<" + getArrayListType(innerType) + "> " + arrayListVariableName + " = new java.util.ArrayList<>();\n" +
                     (stagGetterName != null ? prefix + "TypeAdapter<" + innerType + "> adapter = " + stagGetterName + ";\n" : "") +
                     prefix + "while (reader.hasNext()) {\n" +
                     prefix + "\t" + arrayListVariableName + ".add(" + innerRead + ");\n" +
                     prefix + "}\n" +
                     prefix + "reader.endArray();\n";
-            if (isNativeArray) {
-                result += prefix + "object." + variableName + "= new " + innerType.toString() + "[" + arrayListVariableName + ".size()];\n";
-                result += prefix + "for(int idx = 0; idx < " + arrayListVariableName + ".size(); idx++) {\n";
-                result += prefix + "\tobject." + variableName + "[idx] = " + arrayListVariableName + ".get(idx);\n";
-                result += prefix + "}\n";
-            }
+
+            result += prefix + "object." + variableName + "= new " + innerType.toString() + "[" + arrayListVariableName + ".size()];\n";
+            result += prefix + "for(int idx = 0; idx < " + arrayListVariableName + ".size(); idx++) {\n";
+            result += prefix + "\tobject." + variableName + "[idx] = " + arrayListVariableName + ".get(idx);\n";
+            result += prefix + "}\n";
+
             return result;
+        } else if (isArray(type)) {
+            TypeMirror innerType = getArrayInnerType(type);
+            String adapter = adapterFieldInfo.getAdapter(innerType);
+            if (isSupportedNative(innerType.toString())) {
+                mStagFactoryUsed = true;
+                adapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(innerType.toString()) + "()";
+            }
+
+            String listInstantiater = KnownTypeAdapterUtils.getListInstantiater(type);
+            return prefix + "object." + variableName + " = new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter<" + innerType + "," + type + ">(" + adapter + ", new " + listInstantiater + "()).read(reader);";
         } else {
             if (isMap(type) && type instanceof DeclaredType) {
                 List<? extends TypeMirror> typeArguments = ((DeclaredType) type).getTypeArguments();
                 if (typeArguments.size() == 2 && isSupportedNative(typeArguments.get(0).toString())) {
-                    String keyRead = getReadType(type, typeArguments.get(0), adapterFieldInfo);
-                    String valueRead = getReadType(type, typeArguments.get(1), adapterFieldInfo);
-                    String result = prefix + "if(reader.peek() == com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
-                            prefix + "\tobject." + variableName + "= new " + (TypeUtils.getOuterClassType(type).equals(Map.class.getName()) ? "java.util.LinkedHashMap<>" : type.toString()) + "();\n" +
-                            prefix + "\treader.beginObject();\n" +
-                            prefix + "\twhile (reader.hasNext()) {\n" +
-                            prefix + "\t\tcom.google.gson.internal.JsonReaderInternalAccess.INSTANCE.promoteNameToValue(reader);\n" +
-                            prefix + "\t\t" + typeArguments.get(0).toString() + " key = " + keyRead + ";\n" +
-                            prefix + "\t\t" + typeArguments.get(1).toString() + " value = " + valueRead + ";\n" +
-                            prefix + "\t\t" + typeArguments.get(1).toString() + " replaced = object." + variableName + ".put(key, value);\n" +
-                            prefix + "\t\tif (replaced != null) {\n" +
-                            prefix + "\t\t\tthrow new com.google.gson.JsonSyntaxException(\"duplicate key: \" + key);\n" +
-                            prefix + "\t\t}\n" +
-                            prefix + "\t}\n" +
-                            prefix + "\treader.endObject();\n" +
-                            prefix + "} else if(reader.peek() == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {\n" +
-                            prefix + "\tobject." + variableName + "= new " + (TypeUtils.getOuterClassType(type).equals(Map.class.getName()) ? "java.util.LinkedHashMap<>" : type.toString()) + "();\n" +
-                            prefix + "\treader.beginArray();\n" +
-                            prefix + "\twhile (reader.hasNext()) {\n" +
-                            prefix + "\t\treader.beginArray();\n" +
-                            prefix + "\t\t" + typeArguments.get(0).toString() + " key = " + keyRead + ";\n" +
-                            prefix + "\t\t" + typeArguments.get(1).toString() + " value = " + valueRead + ";\n" +
-                            prefix + "\t\t" + typeArguments.get(1).toString() + " replaced = object." + variableName + ".put(key, value);\n" +
-                            prefix + "\t\tif (replaced != null) {\n" +
-                            prefix + "\t\t\tthrow new com.google.gson.JsonSyntaxException(\"duplicate key: \" + key);\n" +
-                            prefix + "\t\t}\n" +
-                            prefix + "\t\treader.endArray();\n" +
-                            prefix + "\t}\n" +
-                            prefix + "\treader.endArray();\n" +
-                            prefix + "} else {\n" +
-                            prefix + "\treader.skipValue();\n" +
-                            prefix + "}";
+                    TypeMirror valueTypeMirror = typeArguments.get(1);
 
-                    return result;
+                    mStagFactoryUsed = true;
+                    String keyAdapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(typeArguments.get(0).toString()) + "()";
+                    String valueAdapter = adapterFieldInfo.getAdapter(valueTypeMirror);
+
+                    if (valueAdapter == null || isSupportedNative(valueAdapter)) {
+                        valueAdapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(typeArguments.get(1).toString()) + "()";
+                    }
+
+                    String mapInstantiater = KnownTypeAdapterUtils.getMapInstantiater(type);
+                    return prefix + "object." + variableName + " = new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter<" + typeArguments.get(0) + "," + typeArguments.get(1) + "," + type + ">(" + keyAdapter + ", " + valueAdapter + ", new " + mapInstantiater + "()).read(reader);";
                 }
             }
             return prefix + "object." + variableName + " = " +
@@ -475,7 +468,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         for (TypeMirror fieldType : exclusiveTypeSet) {
             String getterField = stagGenerator.getClassAdapterFactoryMethod(fieldType);
             if (null != getterField) {
-                /**
+                /*
                  * If we already have the adapter generated for the fieldType in Stag.Factory class
                  */
                 result.addTypeToFunctionName(fieldType.toString(),
@@ -497,8 +490,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     TypeName typeName = getAdapterFieldTypeName(fieldType);
                     adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
                     constructorBuilder.addStatement(
-                            fieldName + " = (TypeAdapter<" + fieldType + ">) gson.getAdapter(" +
-                                    getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")");
+                            fieldName + " = " + getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator));
                 }
             }
         }
@@ -541,7 +533,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 builder.addCode("\t}\n");
             }
 
-            /**
+            /*
              * If the element is annotated with NonNull annotation, throw {@link IOException} if it is null.
              */
             runIfAnnotationSupported(element.getKey().getAnnotationMirrors(), new Runnable() {
@@ -594,21 +586,17 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         int idx = 0;
         if (null != typeArguments) {
 
-            for (TypeMirror argType : typeArguments) {
-                if (argType.getKind() == TypeKind.TYPEVAR) {
-                    TypeVariable typeVariable = (TypeVariable) argType;
+            for (TypeMirror innerTypeMirror : typeArguments) {
+                if (innerTypeMirror.getKind() == TypeKind.TYPEVAR) {
+                    TypeVariable typeVariable = (TypeVariable) innerTypeMirror;
                     String simpleName = typeVariable.asElement().getSimpleName().toString();
                     adapterBuilder.addTypeVariable(TypeVariableName.get(simpleName, TypeVariableName.get(typeVariable.getUpperBound())));
-
-                    String paramName = "type" + "[" + String.valueOf(idx) + "]";
+                    ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), TypeVariableName.get(innerTypeMirror.toString()));
+                    String paramName = "typeAdapter" + idx;
+                    constructorBuilder.addParameter(parameterizedTypeName, paramName);
                     typeVarsMap.put(typeVariable, paramName);
                     idx++;
                 }
-            }
-
-            if (idx > 0) {
-                constructorBuilder.addParameter(Type[].class, "type");
-                constructorBuilder.varargs(true);
             }
         }
 
@@ -642,7 +630,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private String getWriteCode(@NotNull Element key, @NotNull String prefix, @NotNull TypeMirror type,
                                 @NotNull String jsonName, @NotNull String variableName,
                                 @NotNull AdapterFieldInfo adapterFieldInfo) {
-        if (isArray(type)) {
+        if (isNativeArray(type)) {
             TypeMirror innerType = getArrayInnerType(type);
             String innerWrite = getWriteType(key, innerType, "item", adapterFieldInfo);
             return prefix + "writer.name(\"" + jsonName + "\");\n" +
@@ -651,24 +639,34 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     prefix + "\t" + innerWrite + "\n" +
                     prefix + "}\n" +
                     prefix + "writer.endArray();\n";
+        } else if (isArray(type)) {
+            TypeMirror innerType = getArrayInnerType(type);
+            String adapter = adapterFieldInfo.getAdapter(innerType);
+            if (isSupportedNative(innerType.toString())) {
+                mStagFactoryUsed = true;
+                adapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(innerType.toString()) + "()";
+            }
+
+            String listInstantiater = KnownTypeAdapterUtils.getListInstantiater(type);
+            return prefix + "writer.name(\"" + jsonName + "\");\n" +
+                    prefix + "new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter(" + adapter + ", new " + listInstantiater + "()).write(writer, " + variableName + ");\n";
         } else {
             if (isMap(type) && type instanceof DeclaredType) {
                 List<? extends TypeMirror> typeArguments = ((DeclaredType) type).getTypeArguments();
                 if (typeArguments.size() == 2 && isSupportedNative(typeArguments.get(0).toString())) {
-                    String valueWrite =
-                            getWriteType(key, typeArguments.get(1), "entry.getValue()", adapterFieldInfo);
+                    TypeMirror keyTypeMirror = typeArguments.get(0);
+                    mStagFactoryUsed = true;
+                    String keyAdapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(keyTypeMirror.toString()) + "()";
+                    String valueAdapter = adapterFieldInfo.getAdapter(typeArguments.get(1));
+                    if (isSupportedNative(typeArguments.get(1).toString())) {
+                        valueAdapter = "mStagFactory." + KnownTypeAdapterUtils.getKnownTypeAdaptersMethodNames(typeArguments.get(1).toString()) + "()";
+                    }
+                    String mapInstantiater = KnownTypeAdapterUtils.getMapInstantiater(type);
                     return prefix + "writer.name(\"" + jsonName + "\");\n" +
-                            prefix + "writer.beginObject();\n" +
-                            prefix + "for (" + type.toString().replaceFirst("<", ".Entry<") + " entry : " +
-                            variableName + ".entrySet()) {\n" +
-                            prefix + "\twriter.name(String.valueOf(entry.getKey()));\n" +
-                            prefix + "\t" + valueWrite + "\n" +
-                            prefix + "}\n" +
-                            prefix + "writer.endObject();\n";
+                            prefix + "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter(" + keyAdapter + ", " + valueAdapter + ", new " + mapInstantiater + "()).write(writer, " + variableName + ");\n";
                 }
             }
-            return prefix + "writer.name(\"" + jsonName + "\");\n" +
-                    prefix + getWriteType(key, type, variableName, adapterFieldInfo) + '\n';
+            return prefix + "writer.name(\"" + jsonName + "\");\n" + prefix + getWriteType(key, type, variableName, adapterFieldInfo) + '\n';
         }
     }
 
