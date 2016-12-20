@@ -2,8 +2,11 @@
 
 Stag improves Gson performance by automatically generating reflection-less TypeAdapters for your model objects.
 
-master: [![Build Status](https://circleci.com/gh/vimeo/stag-java/tree/master.svg?style=shield&circle-token=4d5dd11678a93587658d1677d0ef2b8c64b56574)](https://circleci.com/gh/vimeo/stag-java)  
-dev: [![Build Status](https://circleci.com/gh/vimeo/stag-java/tree/dev.svg?style=shield&circle-token=4d5dd11678a93587658d1677d0ef2b8c64b56574)](https://circleci.com/gh/vimeo/stag-java)
+| Branch | Build Status |
+|--------|--------------|
+| master | [![Build Status](https://circleci.com/gh/vimeo/stag-java/tree/master.svg?style=shield&circle-token=4d5dd11678a93587658d1677d0ef2b8c64b56574)](https://circleci.com/gh/vimeo/stag-java/tree/master) |
+| dev    | [![Build Status](https://circleci.com/gh/vimeo/stag-java/tree/dev.svg?style=shield&circle-token=4d5dd11678a93587658d1677d0ef2b8c64b56574)](https://circleci.com/gh/vimeo/stag-java/tree/dev) |
+
 
 ## Why Build Stag?
 
