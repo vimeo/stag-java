@@ -71,32 +71,32 @@ public class TypeAdapterGeneratorUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void testIsArray_supportsTypes() throws Exception {
+    public void testIsSupportedCollection_supportsTypes() throws Exception {
         // Check supported list types
-        Assert.assertTrue(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(List.class)));
-        Assert.assertTrue(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(ArrayList.class)));
-        Assert.assertTrue(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(Collection.class)));
+        Assert.assertTrue(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(List.class)));
+        Assert.assertTrue(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList.class)));
+        Assert.assertTrue(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection.class)));
 
         // Check unsupported list types
-        Assert.assertFalse(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(LinkedList.class)));
-        Assert.assertFalse(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(Vector.class)));
-        Assert.assertFalse(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(Stack.class)));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList.class)));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector.class)));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack.class)));
 
-        Assert.assertFalse(TypeAdapterGenerator.isArray(null));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedCollection(null));
 
-        Assert.assertFalse(TypeAdapterGenerator.isArray(Utils.getTypeMirrorFromClass(Object.class)));
+        Assert.assertFalse(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(Object.class)));
 
         // Check array types
         Assert.assertTrue(
-                TypeAdapterGenerator.isArray(types.getArrayType(types.getPrimitiveType(TypeKind.INT))));
+                TypeAdapterGenerator.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))));
         Assert.assertTrue(
-                TypeAdapterGenerator.isArray(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))));
+                TypeAdapterGenerator.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))));
         Assert.assertTrue(
-                TypeAdapterGenerator.isArray(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))));
+                TypeAdapterGenerator.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))));
         Assert.assertTrue(
-                TypeAdapterGenerator.isArray(types.getArrayType(Utils.getTypeMirrorFromClass(String.class))));
+                TypeAdapterGenerator.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String.class))));
         Assert.assertTrue(
-                TypeAdapterGenerator.isArray(types.getArrayType(Utils.getTypeMirrorFromClass(Object.class))));
+                TypeAdapterGenerator.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Object.class))));
     }
 
     @Test

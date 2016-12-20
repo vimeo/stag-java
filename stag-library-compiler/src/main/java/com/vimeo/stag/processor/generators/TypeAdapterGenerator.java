@@ -145,7 +145,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             if (isSupportedNative(fieldType.toString())) {
                 continue;
             }
-            if (isArray(fieldType)) {
+            if (isSupportedCollection(fieldType)) {
                 fieldType = getArrayInnerType(fieldType);
                 if (isSupportedNative(fieldType.toString())) {
                     continue;
@@ -245,7 +245,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         return (type instanceof ArrayType);
     }
 
-    static boolean isArray(@Nullable TypeMirror type) {
+    static boolean isSupportedCollection(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
         }
@@ -307,7 +307,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             return "com.google.gson.stream.JsonToken.BOOLEAN";
         } else if (type.toString().equals(String.class.getName())) {
             return "com.google.gson.stream.JsonToken.STRING";
-        } else if (isArray(type)) {
+        } else if (isSupportedCollection(type)) {
             return "com.google.gson.stream.JsonToken.BEGIN_ARRAY";
         } else {
             return null;
@@ -479,7 +479,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     @NotNull
     private static String getReadCode(@NotNull String prefix, @NotNull String variableName,
                                       @NotNull TypeMirror type, @NotNull AdapterFieldInfo adapterFieldInfo) {
-        if (isArray(type)) {
+        if (isSupportedCollection(type)) {
             TypeMirror innerType = getArrayInnerType(type);
             boolean isNativeArray = isNativeArray(type);
             String innerRead = getReadType(type, innerType, adapterFieldInfo);
@@ -591,7 +591,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private static String getWriteCode(@NotNull String prefix, @NotNull TypeMirror type,
                                        @NotNull String jsonName, @NotNull String variableName,
                                        @NotNull AdapterFieldInfo adapterFieldInfo) {
-        if (isArray(type)) {
+        if (isSupportedCollection(type)) {
             TypeMirror innerType = getArrayInnerType(type);
             String innerWrite = getWriteType(innerType, "item", adapterFieldInfo);
             return prefix + "writer.name(\"" + jsonName + "\");\n" +
@@ -653,7 +653,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private static String getAdapterRead(@NotNull TypeMirror parentType, @NotNull TypeMirror type,
                                          @NotNull AdapterFieldInfo adapterFieldInfo) {
         String adapterCode;
-        if (adapterFieldInfo.getKnownAdapterStagFunctionCalls(type) != null && isArray(parentType)) {
+        if (adapterFieldInfo.getKnownAdapterStagFunctionCalls(type) != null && isSupportedCollection(parentType)) {
             adapterCode = "adapter.read(reader)";
         } else {
             adapterCode = adapterFieldInfo.getAdapter(type) + ".read(reader)";
