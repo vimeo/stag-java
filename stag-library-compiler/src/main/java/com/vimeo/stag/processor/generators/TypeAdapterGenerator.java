@@ -145,7 +145,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             if (isSupportedNative(fieldType.toString())) {
                 continue;
             }
-            if (isArray(fieldType)) {
+            if (isSupportedCollection(fieldType)) {
                 fieldType = getArrayInnerType(fieldType);
                 if (isSupportedNative(fieldType.toString())) {
                     continue;
@@ -245,7 +245,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         return (type instanceof ArrayType);
     }
 
-    static boolean isArray(@Nullable TypeMirror type) {
+    static boolean isSupportedCollection(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
         }
@@ -253,9 +253,16 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             return true;
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
+        return isSupportedList(type) || outerClassType.equals(Collection.class.getName());
+    }
+
+    static boolean isSupportedList(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-               outerClassType.equals(List.class.getName()) ||
-               outerClassType.equals(Collection.class.getName());
+               outerClassType.equals(List.class.getName());
     }
 
     static boolean isMap(@Nullable TypeMirror type) {
@@ -266,13 +273,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         return outerClassType.equals(Map.class.getName()) ||
                outerClassType.equals(HashMap.class.getName()) ||
                outerClassType.equals(LinkedHashMap.class.getName());
-    }
-
-
-    @NotNull
-    private static TypeName getAdapterFieldTypeName(@NotNull TypeMirror type) {
-        TypeName typeName = TypeVariableName.get(type);
-        return ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
     }
 
     static boolean isSupportedNative(@NotNull String type) {
@@ -292,6 +292,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                typeString.equals(float.class.getName()) || typeString.equals(Float.class.getName());
     }
 
+    @NotNull
+    private static TypeName getAdapterFieldTypeName(@NotNull TypeMirror type) {
+        TypeName typeName = TypeVariableName.get(type);
+        return ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
+    }
+
     @Nullable
     private static String getReadTokenType(@NotNull TypeMirror type) {
         String typeString = type.toString();
@@ -301,7 +307,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             return "com.google.gson.stream.JsonToken.BOOLEAN";
         } else if (type.toString().equals(String.class.getName())) {
             return "com.google.gson.stream.JsonToken.STRING";
-        } else if (isArray(type)) {
+        } else if (isSupportedCollection(type)) {
             return "com.google.gson.stream.JsonToken.BEGIN_ARRAY";
         } else {
             return null;
@@ -473,7 +479,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     @NotNull
     private static String getReadCode(@NotNull String prefix, @NotNull String variableName,
                                       @NotNull TypeMirror type, @NotNull AdapterFieldInfo adapterFieldInfo) {
-        if (isArray(type)) {
+        if (isSupportedCollection(type)) {
             TypeMirror innerType = getArrayInnerType(type);
             boolean isNativeArray = isNativeArray(type);
             String innerRead = getReadType(type, innerType, adapterFieldInfo);
@@ -585,12 +591,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private static String getWriteCode(@NotNull String prefix, @NotNull TypeMirror type,
                                        @NotNull String jsonName, @NotNull String variableName,
                                        @NotNull AdapterFieldInfo adapterFieldInfo) {
-        if (isArray(type)) {
+        if (isSupportedCollection(type)) {
             TypeMirror innerType = getArrayInnerType(type);
             String innerWrite = getWriteType(innerType, "item", adapterFieldInfo);
             return prefix + "writer.name(\"" + jsonName + "\");\n" +
                    prefix + "writer.beginArray();\n" +
-                   prefix + "for (" + innerType + " item : " + variableName + ") {\n" +
+                   getSpecializedForLoop(type, prefix, variableName, innerType) +
                    prefix + "\t" + innerWrite + "\n" +
                    prefix + "}\n" +
                    prefix + "writer.endArray();\n";
@@ -616,6 +622,17 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @NotNull
+    private static String getSpecializedForLoop(@NotNull TypeMirror type, @NotNull String prefix,
+                                                @NotNull String variableName, @NotNull TypeMirror innerType) {
+        return isSupportedList(type) ?
+                // If it's a list, use a basic for loop to get rid of iterator allocation
+                prefix + "for (int n = 0; n < " + variableName + ".size(); n++) {\n" +
+                prefix + "\t" + innerType + " item = " + variableName + ".get(n);\n" :
+                // Otherwise if it's not a list, use enhanced for loop
+                prefix + "for (" + innerType + " item : " + variableName + ") {\n";
+    }
+
+    @NotNull
     private static String getWriteType(@NotNull TypeMirror type, @NotNull String variableName,
                                        @NotNull AdapterFieldInfo adapterFieldInfo) {
         if (isSupportedNative(type.toString())) {
@@ -636,7 +653,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private static String getAdapterRead(@NotNull TypeMirror parentType, @NotNull TypeMirror type,
                                          @NotNull AdapterFieldInfo adapterFieldInfo) {
         String adapterCode;
-        if (adapterFieldInfo.getKnownAdapterStagFunctionCalls(type) != null && isArray(parentType)) {
+        if (adapterFieldInfo.getKnownAdapterStagFunctionCalls(type) != null && isSupportedCollection(parentType)) {
             adapterCode = "adapter.read(reader)";
         } else {
             adapterCode = adapterFieldInfo.getAdapter(type) + ".read(reader)";
