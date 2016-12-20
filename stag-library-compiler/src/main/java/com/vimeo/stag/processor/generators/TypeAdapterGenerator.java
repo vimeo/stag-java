@@ -279,10 +279,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private static String getReadType(@NotNull TypeMirror parentType, @NotNull TypeMirror type,
                                       @NotNull AdapterFieldInfo adapterFieldInfo) {
         String typeString = type.toString();
-        String adapterAccessor = KnownTypeAdapterUtils.getKnownTypeAdapterForType(typeString);
-        return (null != adapterAccessor)
-                ? adapterAccessor + ".read(reader)"
-                : getAdapterRead(parentType, type, adapterFieldInfo);
+        String adapterName = KnownTypeAdapterUtils.getKnownTypeAdapterForType(typeString);
+        return null == adapterName ? getAdapterRead(parentType, type, adapterFieldInfo) : adapterName + ".read(reader)";
     }
 
     @NotNull
