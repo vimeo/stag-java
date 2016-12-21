@@ -375,7 +375,6 @@ public class KnownTypeAdapters {
     }
 
     public static class MapTypeAdapter<K, V, T extends Map<K, V>> extends TypeAdapter<T> {
-
         private ObjectConstructor<T> objectConstructor;
         private TypeAdapter<V> valueTypeAdapter;
         private TypeAdapter<K> keyTypeAdapter;
