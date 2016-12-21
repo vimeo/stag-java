@@ -21,20 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.sample.model;
 
+import com.vimeo.stag.GsonAdapterKey;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DummyConcreteClass {
+public class ClassWithMapTypes {
+    @GsonAdapterKey
+    public HashMap<String, Video> videoHashMap;
 
-    int testInt;
+    @GsonAdapterKey
+    public LinkedHashMap<String, Integer> stringIntegerMap;
 
-    String testObject;
+    @GsonAdapterKey
+    public Map<Integer, String> integerStringMap;
 
-    List<Object> testList;
+    @GsonAdapterKey
+    public Map<Video, String> complexTypeMap;
 
-    Map<String, Object> testMap;
+    @GsonAdapterKey
+    public Map<String, List<Video>> mapOfLists;
 
-    DummyGenericClass<DummyGenericClass<DummyInheritedClass>> dummyInheritedClass;
 }

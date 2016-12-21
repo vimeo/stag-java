@@ -28,6 +28,7 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -35,14 +36,16 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
-import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
+import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -59,18 +62,48 @@ public class StagGenerator {
     private final Filer mFiler;
 
     @NotNull
-    private final Set<String> mKnownTypeAdapterFactories = new HashSet<>();
+    private final List<ClassInfo> mKnownClasses;
 
-    public StagGenerator(@NotNull Filer filer, @NotNull Set<String> knownTypes) {
+    @NotNull
+    private final HashMap<String, String> mFieldNameMap = new HashMap<>();
+
+    @NotNull
+    private final HashMap<String, String> mUnknownAdapterFieldMap = new HashMap<>();
+
+    @NotNull
+    private final List<ClassInfo> mUnknownClasses = new ArrayList<>();
+
+
+    @NotNull
+    private final String mGeneratedPackageName;
+
+
+    public StagGenerator(@NotNull String generatedPackageName, @NotNull Filer filer,
+                         @NotNull Set<TypeMirror> knownTypes) {
         mFiler = filer;
-
-        for (String knownType : knownTypes) {
-            TypeMirror typeMirror = ElementUtils.getTypeFromQualifiedName(knownType);
-            if (typeMirror != null) {
-                ClassInfo classInfo = new ClassInfo(typeMirror);
-                mKnownTypeAdapterFactories.add(classInfo.getTypeAdapterFactoryQualifiedClassName());
+        mGeneratedPackageName = generatedPackageName;
+        mKnownClasses = new ArrayList<>(knownTypes.size());
+        Set<String> knownFieldNames = new HashSet<>(knownTypes.size());
+        for (TypeMirror knownType : knownTypes) {
+            String adapterFactoryMethodName = null;
+            ClassInfo classInfo = new ClassInfo(knownType);
+            List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
+            if (null == typeArguments || typeArguments.isEmpty()) {
+                adapterFactoryMethodName = classInfo.getTypeAdapterClassName();
+                if (knownFieldNames.contains(adapterFactoryMethodName)) {
+                    adapterFactoryMethodName =
+                            adapterFactoryMethodName + String.valueOf(knownFieldNames.size());
+                }
+                knownFieldNames.add(adapterFactoryMethodName);
             }
+            mKnownClasses.add(classInfo);
+            mFieldNameMap.put(knownType.toString(), adapterFactoryMethodName);
         }
+    }
+
+    @Nullable
+    String getClassAdapterFactoryMethod(@NotNull TypeMirror fieldType) {
+        return TypeUtils.isConcreteType(fieldType) ? mFieldNameMap.get(fieldType.toString()) : null;
     }
 
     /**
@@ -81,46 +114,22 @@ public class StagGenerator {
      *                     if we are unable to write the file
      *                     to the filesystem.
      */
-    public void generateTypeAdapterFactory() throws IOException {
+    public void generateTypeAdapterFactory(@NotNull String generatedPackageName) throws IOException {
         TypeSpec.Builder adaptersBuilder =
                 TypeSpec.classBuilder(CLASS_STAG).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-
         adaptersBuilder.addType(getAdapterFactorySpec());
 
-        JavaFile javaFile =
-                JavaFile.builder(FileGenUtils.GENERATED_PACKAGE_NAME, adaptersBuilder.build()).build();
-
+        JavaFile javaFile = JavaFile.builder(generatedPackageName, adaptersBuilder.build()).build();
         FileGenUtils.writeToFile(javaFile, mFiler);
     }
 
     @NotNull
     private TypeSpec getAdapterFactorySpec() {
         TypeVariableName genericTypeName = TypeVariableName.get("T");
-        TypeName factoryTypeName = TypeVariableName.get(TypeAdapterFactory.class);
-
-        ParameterizedTypeName factoryListTypeName =
-                ParameterizedTypeName.get(ClassName.get(List.class), factoryTypeName);
-
-        MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .addCode("mTypeAdapterFactories = java.util.Arrays.<TypeAdapterFactory>asList(\n");
-        Iterator<String> knownFactoriesIterator = mKnownTypeAdapterFactories.iterator();
-        while (knownFactoriesIterator.hasNext()) {
-            String knownFactory = knownFactoriesIterator.next();
-            constructorBuilder.addCode("\tnew " + knownFactory + "()");
-            if (knownFactoriesIterator.hasNext()) {
-                constructorBuilder.addCode(",\n");
-            } else {
-                constructorBuilder.addCode(");\n");
-            }
-        }
-        MethodSpec constructorSpec = constructorBuilder.build();
 
         TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(CLASS_TYPE_ADAPTER_FACTORY)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addSuperinterface(TypeAdapterFactory.class)
-                .addField(factoryListTypeName, "mTypeAdapterFactories", Modifier.PRIVATE, Modifier.FINAL)
-                .addMethod(constructorSpec);
+                .addSuperinterface(TypeAdapterFactory.class);
 
         MethodSpec.Builder createMethodBuilder = MethodSpec.methodBuilder("create")
                 .addModifiers(Modifier.PUBLIC)
@@ -130,16 +139,154 @@ public class StagGenerator {
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
                               "type")
-                .addCode("for (TypeAdapterFactory adapterFactory : mTypeAdapterFactories) {\n" +
-                         "\tTypeAdapter<T> typeAdapter = adapterFactory.create(gson, type);\n" +
-                         "\tif (typeAdapter != null) {\n" +
-                         "\t\treturn typeAdapter;\n" +
-                         "\t}\n" +
-                         "}\n" +
-                         "return null;\n");
+                .addStatement("Class<? super T> clazz = type.getRawType()");
+
+        /**
+         * Iterate through all the registered known classes, and map the classes to its corresponding type adapters.
+         */
+        for (ClassInfo classInfo : mUnknownClasses) {
+            String variableName = mUnknownAdapterFieldMap.get(classInfo.getType().toString());
+            TypeName typeName = TypeVariableName.get(classInfo.getType());
+            TypeName parameterizedTypeName =
+                    ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
+            String fieldName = "mAdapter" + variableName;
+            FieldSpec.Builder fieldSpecBuilder =
+                    FieldSpec.builder(parameterizedTypeName, FileGenUtils.unescapeEscapedString(fieldName),
+                                      Modifier.PRIVATE);
+            adapterFactoryBuilder.addField(fieldSpecBuilder.build());
+            String getAdapterFactoryMethodName = "get" + variableName;
+            //Build a getter method
+            MethodSpec.Builder getAdapterMethodBuilder =
+                    MethodSpec.methodBuilder(FileGenUtils.unescapeEscapedString(getAdapterFactoryMethodName))
+                            .addModifiers(Modifier.PUBLIC)
+                            .addParameter(Gson.class, "gson")
+                            .returns(parameterizedTypeName);
+
+            getAdapterMethodBuilder.beginControlFlow("if (null == " + fieldName + ")");
+            getAdapterMethodBuilder.addStatement(
+                    fieldName + " = gson.getAdapter(new TypeToken<" + classInfo.getType().toString() +
+                    ">(){})");
+            getAdapterMethodBuilder.endControlFlow();
+            getAdapterMethodBuilder.addStatement("return " + fieldName);
+            adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
+        }
+
+
+        /**
+         * Iterate through all the registered known classes, and map the classes to its corresponding type adapters.
+         */
+        for (ClassInfo classInfo : mKnownClasses) {
+            String qualifiedTypeAdapterName = classInfo.getTypeAdapterQualifiedClassName();
+            List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
+            if (null == typeArguments || typeArguments.isEmpty()) {
+                /**
+                 *  This is used to generate the code if the class does not have any type arguments, or it is not parameterized.
+                 */
+                String variableName = mFieldNameMap.get(classInfo.getType().toString());
+                TypeName typeName = TypeVariableName.get(classInfo.getType());
+                TypeName parameterizedTypeName =
+                        ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
+                String fieldName = "mAdapter" + variableName;
+                FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName,
+                                                                       FileGenUtils.unescapeEscapedString(
+                                                                               fieldName), Modifier.PRIVATE);
+                adapterFactoryBuilder.addField(fieldSpecBuilder.build());
+                String getAdapterFactoryMethodName = "get" + variableName;
+                //Build a getter method
+                MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder(
+                        FileGenUtils.unescapeEscapedString(getAdapterFactoryMethodName))
+                        .addModifiers(Modifier.PUBLIC)
+                        .addParameter(Gson.class, "gson")
+                        .returns(parameterizedTypeName);
+
+                getAdapterMethodBuilder.beginControlFlow("if (null == " + fieldName + ")");
+                getAdapterMethodBuilder.addStatement(
+                        fieldName + " = new " + qualifiedTypeAdapterName + "(gson, this)");
+                getAdapterMethodBuilder.endControlFlow();
+                getAdapterMethodBuilder.addStatement("return " + fieldName);
+                adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
+
+                createMethodBuilder.beginControlFlow(
+                        "if (clazz == " + classInfo.getClassAndPackage() + ".class)");
+                createMethodBuilder.addStatement(
+                        "return (TypeAdapter<T>) " + getAdapterFactoryMethodName + "(gson)");
+                createMethodBuilder.endControlFlow();
+                createMethodBuilder.addCode("\n");
+            } else {
+                /**
+                 *  This is used to generate the code if the class has type arguments, or it is parameterized.
+                 */
+                createMethodBuilder.beginControlFlow(
+                        "if (clazz == " + classInfo.getClassAndPackage() + ".class)");
+                createMethodBuilder.addStatement("java.lang.reflect.Type parameters = type.getType()");
+                createMethodBuilder.beginControlFlow(
+                        "if (parameters instanceof java.lang.reflect.ParameterizedType)");
+                createMethodBuilder.addStatement(
+                        "java.lang.reflect.ParameterizedType parameterizedType = (java.lang.reflect.ParameterizedType) parameters");
+                createMethodBuilder.addStatement(
+                        "java.lang.reflect.Type[] parametersType = parameterizedType.getActualTypeArguments()");
+                String statement = "return (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson, this";
+                for (int idx = 0; idx < typeArguments.size(); idx++) {
+                    statement += ", parametersType[" + idx + "]";
+                }
+                statement += ")";
+                createMethodBuilder.addStatement(statement);
+                createMethodBuilder.endControlFlow();
+                createMethodBuilder.beginControlFlow("else");
+                createMethodBuilder.addStatement("TypeToken objectToken = TypeToken.get(Object.class)");
+                createMethodBuilder.addStatement("java.lang.reflect.Type objectType = objectToken.getType()");
+                statement = "return (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson, this";
+                for (int idx = 0; idx < typeArguments.size(); idx++) {
+                    statement += ", objectType";
+                }
+                statement += ")";
+                createMethodBuilder.addStatement(statement);
+                createMethodBuilder.endControlFlow();
+                createMethodBuilder.endControlFlow();
+                createMethodBuilder.addCode("\n");
+            }
+        }
+        createMethodBuilder.addStatement("return null");
 
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
+
+
         return adapterFactoryBuilder.build();
     }
 
+    /**
+     * Returns the {@link TypeVariableName} of Stag.Factory file. This is used to get the type adapters
+     * that are already generated in the stag file, avoiding recreating the same type adapters.
+     *
+     * @return {@link TypeVariableName}
+     */
+    @NotNull
+    TypeVariableName getGeneratedClassName() {
+        return TypeVariableName.get(
+                mGeneratedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY);
+    }
+
+    @NotNull
+    String addFieldType(@NotNull TypeMirror fieldType) {
+        String fieldTypeString = fieldType.toString();
+        String result = mUnknownAdapterFieldMap.get(fieldTypeString);
+        if (null == result) {
+            ClassInfo classInfo = new ClassInfo(fieldType);
+            StringBuilder fieldNameBuilder = new StringBuilder();
+            boolean makeCapital = true;
+            for (int idx = 0; idx < fieldTypeString.length(); idx++) {
+                char c = fieldTypeString.charAt(idx);
+                if (c == '.' || c == '<' || c == ',' || c == '>') {
+                    makeCapital = true;
+                } else {
+                    fieldNameBuilder.append(makeCapital ? Character.toUpperCase(c) : c);
+                    makeCapital = false;
+                }
+            }
+            result = fieldNameBuilder.toString();
+            mUnknownClasses.add(classInfo);
+            mUnknownAdapterFieldMap.put(fieldTypeString, result);
+        }
+        return result;
+    }
 }

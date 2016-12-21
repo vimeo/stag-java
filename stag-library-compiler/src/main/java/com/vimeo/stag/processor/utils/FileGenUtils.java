@@ -43,7 +43,6 @@ import javax.tools.StandardLocation;
 
 public final class FileGenUtils {
 
-    public static final String GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
     private static final String UNESCAPED_SEPARATOR = "$";
     private static final String CODE_BLOCK_ESCAPED_SEPARATOR = "$$";
 
@@ -87,10 +86,11 @@ public final class FileGenUtils {
         }
     }
 
-    static CharSequence readResource(@NotNull Filer filer, @NotNull String resourceName) throws IOException {
+    static CharSequence readResource(@NotNull Filer filer, @NotNull String generatedPackageName,
+                                     @NotNull String resourceName) throws IOException {
         try {
             FileObject file =
-                    filer.getResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
+                    filer.getResource(StandardLocation.CLASS_OUTPUT, generatedPackageName, resourceName);
             return file.getCharContent(false);
         } catch (FileNotFoundException e) {
             DebugLog.log("Resource not found: " + resourceName);
@@ -98,10 +98,11 @@ public final class FileGenUtils {
         }
     }
 
-    static void writeToResource(@NotNull Filer filer, @NotNull String resourceName,
-                                @NotNull CharSequence content) throws IOException {
+    static void writeToResource(@NotNull Filer filer, @NotNull String generatedPackageName,
+                                @NotNull String resourceName, @NotNull CharSequence content)
+            throws IOException {
         FileObject file =
-                filer.createResource(StandardLocation.CLASS_OUTPUT, GENERATED_PACKAGE_NAME, resourceName);
+                filer.createResource(StandardLocation.CLASS_OUTPUT, generatedPackageName, resourceName);
         file.delete();
         Writer writer = null;
         try {

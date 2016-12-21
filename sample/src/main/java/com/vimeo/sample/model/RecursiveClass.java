@@ -21,20 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.sample.model;
 
+
+import com.vimeo.stag.GsonAdapterKey;
+
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-public class DummyConcreteClass {
+/**
+ * This class simulates a scenario the class has a recursive loop.
+ * This can be inside the same class or could be in a class referenced by
+ * this class which again refers back to this class
+ */
+public class RecursiveClass {
+    @GsonAdapterKey
+    public String checkSum;
 
-    int testInt;
+    @GsonAdapterKey
+    public String[] stringNativeArray;
 
-    String testObject;
+    @GsonAdapterKey
+    public Integer integerObject;
 
-    List<Object> testList;
+    @GsonAdapterKey
+    public List<Integer> integerArray;
 
-    Map<String, Object> testMap;
+    @GsonAdapterKey
+    public Collection<Integer> collection;
 
-    DummyGenericClass<DummyGenericClass<DummyInheritedClass>> dummyInheritedClass;
+    @GsonAdapterKey
+    public int[] nativeIntegerArray;
+
+    @GsonAdapterKey
+    public RecursiveClass innerSum;
 }

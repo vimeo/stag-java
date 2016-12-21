@@ -23,11 +23,14 @@
  */
 package com.vimeo.stag.processor;
 
+import com.vimeo.stag.processor.dummy.DummyAbstractClass;
 import com.vimeo.stag.processor.dummy.DummyConcreteClass;
+import com.vimeo.stag.processor.dummy.DummyEnumClass;
 import com.vimeo.stag.processor.dummy.DummyGenericClass;
 import com.vimeo.stag.processor.dummy.DummyInheritedClass;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -262,6 +265,40 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
             }
         }
 
+    }
+
+    @Test
+    public void isAbstract_isCorrect() throws Exception {
+        Element abstractElement = Utils.getElementFromClass(DummyAbstractClass.class);
+        Assert.assertTrue(TypeUtils.isAbstract(abstractElement));
+
+        Element concreteElement = Utils.getElementFromClass(DummyConcreteClass.class);
+        Assert.assertFalse(TypeUtils.isAbstract(concreteElement));
+
+        Element genericElement = Utils.getElementFromClass(DummyGenericClass.class);
+        Assert.assertFalse(TypeUtils.isAbstract(genericElement));
+
+        Element enumElement = Utils.getElementFromClass(DummyEnumClass.class);
+        Assert.assertFalse(TypeUtils.isAbstract(enumElement));
+
+        Element inheritedElement = Utils.getElementFromClass(DummyInheritedClass.class);
+        Assert.assertFalse(TypeUtils.isAbstract(inheritedElement));
+
+    }
+
+    @Test
+    public void isParameterizedType_Element_isCorrect() throws Exception {
+        Map<String, List<Object>> testMap = new HashMap<>();
+        assertTrue(TypeUtils.isParameterizedType(Utils.getElementFromObject(testMap)));
+
+        List<Object> testList = new ArrayList<>();
+        assertTrue(TypeUtils.isParameterizedType(Utils.getElementFromObject(testList)));
+
+        String testString = "test";
+        assertFalse(TypeUtils.isParameterizedType(Utils.getElementFromObject(testString)));
+
+        Object testObject = new Object();
+        assertFalse(TypeUtils.isParameterizedType(Utils.getElementFromObject(testObject)));
     }
 
 }

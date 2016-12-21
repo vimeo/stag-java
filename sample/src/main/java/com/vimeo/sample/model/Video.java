@@ -23,6 +23,8 @@
  */
 package com.vimeo.sample.model;
 
+import android.support.annotation.NonNull;
+
 import com.vimeo.stag.GsonAdapterKey;
 
 import java.util.Date;

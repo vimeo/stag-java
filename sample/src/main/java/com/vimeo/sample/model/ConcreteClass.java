@@ -31,6 +31,9 @@ import com.vimeo.stag.GsonAdapterKey;
  */
 public class ConcreteClass {
 
+    @GsonAdapterKey
+    NestedModel.DoublyNestedModel doublyNestedModel;
+
     public static class NestedModel {
 
         @GsonAdapterKey
@@ -40,9 +43,6 @@ public class ConcreteClass {
 
             @GsonAdapterKey
             public String message;
-
         }
-
     }
-
 }

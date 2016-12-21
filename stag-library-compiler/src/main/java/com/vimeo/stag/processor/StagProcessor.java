@@ -26,8 +26,9 @@ package com.vimeo.stag.processor;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.processor.generators.AdapterGenerator;
+import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
-import com.vimeo.stag.processor.generators.TypeAdapterFactoryGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.TypeTokenConstantsGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
@@ -56,9 +57,11 @@ import javax.annotation.processing.Filer;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -66,12 +69,30 @@ import javax.lang.model.type.TypeMirror;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes("com.vimeo.stag.GsonAdapterKey")
+@SupportedOptions(value = {"stagGeneratedPackageName"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
 
     public static final boolean DEBUG = false;
+    private static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
+    private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
+    private final Set<TypeMirror> mSupportedTypes = new HashSet<>();
     private boolean mHasBeenProcessed;
-    private final Set<String> mSupportedTypes = new HashSet<>();
+
+    private static void addToListMap(@NotNull Map<Element, List<VariableElement>> map, @Nullable Element key,
+                                     @Nullable VariableElement value) {
+        if (key == null) {
+            return;
+        }
+        List<VariableElement> list = map.get(key);
+        if (list == null) {
+            list = new ArrayList<>();
+        }
+        if (value != null) {
+            list.add(value);
+        }
+        map.put(key, list);
+    }
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
@@ -90,6 +111,12 @@ public final class StagProcessor extends AbstractProcessor {
         if (mHasBeenProcessed) {
             return true;
         }
+
+        String packageName = processingEnv.getOptions().get(OPTION_PACKAGE_NAME);
+        if (packageName == null || packageName.isEmpty()) {
+            packageName = DEFAULT_GENERATED_PACKAGE_NAME;
+        }
+
         TypeUtils.initialize(processingEnv.getTypeUtils());
         ElementUtils.initialize(processingEnv.getElementUtils());
 
@@ -101,30 +128,38 @@ public final class StagProcessor extends AbstractProcessor {
             if (element instanceof VariableElement) {
                 final VariableElement variableElement = (VariableElement) element;
 
-                Set<Modifier> modifiers = variableElement.getModifiers();
-                if (modifiers.contains(Modifier.FINAL)) {
-                    throw new RuntimeException("Unable to access field \"" +
-                                               variableElement.getSimpleName().toString() + "\" in class " +
-                                               variableElement.getEnclosingElement().asType() +
-                                               ", field must not be final.");
-                } else if (modifiers.contains(Modifier.PRIVATE)) {
-                    throw new RuntimeException("Unable to access field \"" +
-                                               variableElement.getSimpleName().toString() + "\" in class " +
-                                               variableElement.getEnclosingElement().asType() +
-                                               ", field must not be private.");
-                }
-
                 Element enclosingClassElement = variableElement.getEnclosingElement();
                 TypeMirror enclosingClass = enclosingClassElement.asType();
 
-                if (!TypeUtils.isParameterizedType(enclosingClass) ||
-                    TypeUtils.isConcreteType(enclosingClass)) {
-                    mSupportedTypes.add(enclosingClass.toString());
+                if (!ElementUtils.isEnum(enclosingClassElement)) {
+                    Set<Modifier> modifiers = variableElement.getModifiers();
+                    if (modifiers.contains(Modifier.FINAL)) {
+                        throw new RuntimeException("Unable to access field \"" +
+                                                   variableElement.getSimpleName().toString() +
+                                                   "\" in class " +
+                                                   variableElement.getEnclosingElement().asType() +
+                                                   ", field must not be final.");
+                    } else if (modifiers.contains(Modifier.PRIVATE)) {
+                        throw new RuntimeException("Unable to access field \"" +
+                                                   variableElement.getSimpleName().toString() +
+                                                   "\" in class " +
+                                                   variableElement.getEnclosingElement().asType() +
+                                                   ", field must not be private.");
+                    }
+
+                    if (TypeUtils.isParameterizedType(enclosingClass) ||
+                        TypeUtils.isConcreteType(enclosingClass)) {
+                        if (!TypeUtils.isAbstract(enclosingClassElement)) {
+                            mSupportedTypes.add(enclosingClass);
+                        }
+                        addToListMap(variableMap, enclosingClassElement, variableElement);
+                    }
                 }
 
-                addToListMap(variableMap, enclosingClassElement, variableElement);
             } else if (element instanceof TypeElement) {
-                mSupportedTypes.add(element.asType().toString());
+                if (!TypeUtils.isAbstract(element)) {
+                    mSupportedTypes.add(element.asType());
+                }
                 addToListMap(variableMap, element, null);
             }
         }
@@ -135,32 +170,32 @@ public final class StagProcessor extends AbstractProcessor {
                 SupportedTypesModel.getInstance()
                         .addSupportedType(new AnnotatedClass(entry.getKey(), entry.getValue()));
             }
-            mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv));
+            mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
 
-            StagGenerator adapterGenerator = new StagGenerator(filer, mSupportedTypes);
-            adapterGenerator.generateTypeAdapterFactory();
-
-            TypeTokenConstantsGenerator typeTokenConstantsGenerator = new TypeTokenConstantsGenerator(filer);
+            StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes);
+            TypeTokenConstantsGenerator typeTokenConstantsGenerator =
+                    new TypeTokenConstantsGenerator(filer, packageName);
 
             Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
             for (Element element : list) {
-                if (TypeUtils.isConcreteType(element)) {
+                if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) &&
+                    !TypeUtils.isAbstract(element)) {
                     ClassInfo classInfo = new ClassInfo(element.asType());
-                    TypeAdapterGenerator independentAdapter = new TypeAdapterGenerator(classInfo);
+                    AdapterGenerator independentAdapter =
+                            element.getKind() == ElementKind.ENUM ? new EnumTypeAdapterGenerator(classInfo,
+                                                                                                 element) : new TypeAdapterGenerator(
+                                    classInfo);
                     JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(),
                                                          independentAdapter.getTypeAdapterSpec(
-                                                                 typeTokenConstantsGenerator)).build();
-                    FileGenUtils.writeToFile(javaFile, filer);
-
-                    TypeAdapterFactoryGenerator factoryGenerator = new TypeAdapterFactoryGenerator(classInfo);
-                    javaFile = JavaFile.builder(classInfo.getPackageName(),
-                                                factoryGenerator.getTypeAdapterFactorySpec()).build();
+                                                                 typeTokenConstantsGenerator,
+                                                                 adapterGenerator)).build();
                     FileGenUtils.writeToFile(javaFile, filer);
                 }
             }
+            adapterGenerator.generateTypeAdapterFactory(packageName);
 
             typeTokenConstantsGenerator.generateTypeTokenConstants();
-            KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, mSupportedTypes);
+            KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, mSupportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -169,20 +204,4 @@ public final class StagProcessor extends AbstractProcessor {
 
         return true;
     }
-
-    private static void addToListMap(@NotNull Map<Element, List<VariableElement>> map, @Nullable Element key,
-                                     @Nullable VariableElement value) {
-        if (key == null) {
-            return;
-        }
-        List<VariableElement> list = map.get(key);
-        if (list == null) {
-            list = new ArrayList<>();
-        }
-        if (value != null) {
-            list.add(value);
-        }
-        map.put(key, list);
-    }
-
 }

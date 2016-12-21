@@ -23,18 +23,74 @@
  */
 package com.vimeo.stag.processor.dummy;
 
-import java.util.List;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
-public class DummyConcreteClass {
+public class DummyMapClass implements Map {
 
-    int testInt;
+    @Override
+    public int size() {
+        return 0;
+    }
 
-    String testObject;
+    @Override
+    public boolean isEmpty() {
+        return false;
+    }
 
-    List<Object> testList;
+    @Override
+    public boolean containsKey(Object o) {
+        return false;
+    }
 
-    Map<String, Object> testMap;
+    @Override
+    public boolean containsValue(Object o) {
+        return false;
+    }
 
-    DummyGenericClass<DummyGenericClass<DummyInheritedClass>> dummyInheritedClass;
+    @Override
+    public Object get(Object o) {
+        return null;
+    }
+
+    @Override
+    public Object put(Object o, Object o2) {
+        return null;
+    }
+
+    @Override
+    public Object remove(Object o) {
+        return null;
+    }
+
+    @Override
+    public void putAll(Map map) {
+
+    }
+
+    @Override
+    public void clear() {
+
+    }
+
+    @NotNull
+    @Override
+    public Set keySet() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public Collection values() {
+        return null;
+    }
+
+    @NotNull
+    @Override
+    public Set<Entry> entrySet() {
+        return null;
+    }
 }

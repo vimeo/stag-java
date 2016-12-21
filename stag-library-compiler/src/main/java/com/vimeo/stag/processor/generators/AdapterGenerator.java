@@ -21,20 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.stag.processor.generators;
 
-import java.util.List;
-import java.util.Map;
 
-public class DummyConcreteClass {
+import com.squareup.javapoet.TypeSpec;
+import com.vimeo.stag.GsonAdapterKey;
 
-    int testInt;
+import org.jetbrains.annotations.NotNull;
 
-    String testObject;
+import javax.lang.model.element.Element;
 
-    List<Object> testList;
+public abstract class AdapterGenerator {
 
-    Map<String, Object> testMap;
+    /**
+     * If the element is not annotated with {@link GsonAdapterKey}, the variable name is used.
+     */
+    @NotNull
+    static String getJsonName(@NotNull Element element) {
+        String name = (null != element.getAnnotation(GsonAdapterKey.class)) ? element.getAnnotation(
+                GsonAdapterKey.class).value() : null;
 
-    DummyGenericClass<DummyGenericClass<DummyInheritedClass>> dummyInheritedClass;
+        if (null == name || name.isEmpty()) {
+            name = element.getSimpleName().toString();
+        }
+        return name;
+    }
+
+    @NotNull
+    public abstract TypeSpec getTypeAdapterSpec(
+            @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+            @NotNull StagGenerator stagGenerator);
 }

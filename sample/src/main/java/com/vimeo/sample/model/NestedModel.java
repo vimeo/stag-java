@@ -34,4 +34,14 @@ public class NestedModel {
 
     @GsonAdapterKey
     public String test1;
+
+    @GsonAdapterKey
+    public NestedEnum nestedEnum;
+
+    @GsonAdapterKey
+    public enum NestedEnum {
+        NESTED_ENUM_VAL1,
+        NESTED_ENUM_VAL2,
+        NESTED_ENUM_VAL3
+    }
 }

@@ -21,20 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.sample.model;
 
-import java.util.List;
-import java.util.Map;
+import com.vimeo.stag.GsonAdapterKey;
 
-public class DummyConcreteClass {
+@GsonAdapterKey
+public enum EnumExample {
+    ENUM_VALUE1,
+    ENUM_VALUE2,
+    ENUM_VALUE3,
+    @GsonAdapterKey("CUSTOM_ENUM_VALUE4")
+    ENUM_VALUE4,
+    ENUM_VALUE5,
+    ENUM_VALUE6
 
-    int testInt;
-
-    String testObject;
-
-    List<Object> testList;
-
-    Map<String, Object> testMap;
-
-    DummyGenericClass<DummyGenericClass<DummyInheritedClass>> dummyInheritedClass;
 }

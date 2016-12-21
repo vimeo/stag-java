@@ -21,20 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.sample.model;
 
-import java.util.List;
+import com.vimeo.stag.GsonAdapterKey;
+
 import java.util.Map;
 
-public class DummyConcreteClass {
+/**
+ * Created by anirudh.r on 30/11/16.
+ */
 
-    int testInt;
+public class GenericClass<T> {
 
-    String testObject;
+    @GsonAdapterKey
+    public T name;
 
-    List<Object> testList;
-
-    Map<String, Object> testMap;
-
-    DummyGenericClass<DummyGenericClass<DummyInheritedClass>> dummyInheritedClass;
+    @GsonAdapterKey
+    public Map<String, Map<String, T>> mapField;
 }
