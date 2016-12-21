@@ -24,6 +24,119 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class KnownTypeAdapters {
 
+    public static final TypeAdapter<Byte> BYTE = new TypeAdapter<Byte>() {
+        @Override
+        public Byte read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+            try {
+                int intValue = in.nextInt();
+                return (byte) intValue;
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        @Override
+        public void write(JsonWriter out, Byte value) throws IOException {
+            out.value(value);
+        }
+    };
+    public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
+        @Override
+        public Short read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+            try {
+                return (short) in.nextInt();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        @Override
+        public void write(JsonWriter out, Short value) throws IOException {
+            out.value(value);
+        }
+    };
+    public static final TypeAdapter<Integer> INTEGER = new TypeAdapter<Integer>() {
+        @Override
+        public Integer read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+            try {
+                return in.nextInt();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        @Override
+        public void write(JsonWriter out, Integer value) throws IOException {
+            out.value(value);
+        }
+    };
+    public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
+        @Override
+        public Long read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+            try {
+                return in.nextLong();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        @Override
+        public void write(JsonWriter out, Long value) throws IOException {
+            out.value(value);
+        }
+    };
+    public static final TypeAdapter<Float> FLOAT = new TypeAdapter<Float>() {
+        @Override
+        public Float read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+            return (float) in.nextDouble();
+        }
+
+        @Override
+        public void write(JsonWriter out, Float value) throws IOException {
+            out.value(value);
+        }
+    };
+    public static final TypeAdapter<Double> DOUBLE = new TypeAdapter<Double>() {
+        @Override
+        public Double read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+            return in.nextDouble();
+        }
+
+        @Override
+        public void write(JsonWriter out, Double value) throws IOException {
+            out.value(value);
+        }
+    };
+
+    public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(INTEGER, new ArrayListInstantiater<Integer>());
+    public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(LONG, new ArrayListInstantiater<Long>());
+    public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiater<Double>());
+    public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(SHORT, new ArrayListInstantiater<Short>());
+
     public static final class ArrayTypeAdapter<T extends Object> extends TypeAdapter<T[]> {
         TypeAdapter<T> mValueTypeAdapter;
         ObjectConstructor<T[]> mObjectCreator;
@@ -82,186 +195,110 @@ public class KnownTypeAdapters {
 
     }
 
-    public static final class PrimitiveArrayTypeAdapter<T extends Object, V> extends TypeAdapter<V[]> {
-
-        public interface PrimitiveArrayInitializer<K> {
-            K[] construct(int size);
-        }
-
-        TypeAdapter<T> mValueTypeAdapter;
-        PrimitiveArrayInitializer<V> mArrayCreator;
-
-        public PrimitiveArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter, PrimitiveArrayInitializer<V> instanceCreator) {
-            this.mValueTypeAdapter = valueTypeAdapter;
-            this.mArrayCreator = instanceCreator;
-        }
-
-        @Override
-        public void write(JsonWriter writer, V[] value) throws IOException {
-            writer.beginArray();
-            for (V item : value) {
-                mValueTypeAdapter.write(writer, (T)item);
-            }
-            writer.endArray();
-        }
-
-        @Override
-        public V[] read(JsonReader reader) throws IOException {
-            if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
-                reader.nextNull();
-                return null;
-            }
-            if (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {
-                reader.skipValue();
-                return null;
-            }
-            reader.beginObject();
-
-            ArrayList<T> object = new ArrayList<>();
-
-            while (reader.hasNext()) {
-                com.google.gson.stream.JsonToken jsonToken = reader.peek();
-                if (jsonToken == com.google.gson.stream.JsonToken.NULL) {
-                    reader.skipValue();
-                    continue;
+    public static final class PrimitiveIntegerArrayAdapter {
+        public static void write(JsonWriter writer, int[] value) throws IOException {
+            if (null != value) {
+                writer.beginArray();
+                for (int item : value) {
+                    writer.value(item);
                 }
+                writer.endArray();
+            }
+        }
 
-                if (jsonToken == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {
-                    reader.beginArray();
-                    while (reader.hasNext()) {
-                        object.add(mValueTypeAdapter.read(reader));
-                    }
-                    reader.endArray();
-                } else {
-                    reader.skipValue();
+        public static int[] read(JsonReader reader) throws IOException {
+            ArrayList<Integer> integerArrayList = INTEGER_ARRAY_LIST_ADAPTER.read(reader);
+            int[] result = null;
+            if (null != integerArrayList) {
+                result = new int[integerArrayList.size()];
+                for (int idx = 0; idx < integerArrayList.size(); idx++) {
+                    result[idx] = integerArrayList.get(idx);
                 }
             }
-
-            reader.endObject();
-
-            V[] result = this.mArrayCreator.construct(object.size());
-            for(int idx = 0; idx < result.length; idx++) {
-                result[idx] = (V)object.get(idx);
-            }
-            return object.toArray(result);
+            return result;
         }
-
     }
 
-    public static final TypeAdapter<Byte> BYTE = new TypeAdapter<Byte>() {
-        @Override
-        public Byte read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
-            try {
-                int intValue = in.nextInt();
-                return (byte) intValue;
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
+    public static final class PrimitiveLongArrayAdapter {
+        public static void write(JsonWriter writer, long[] value) throws IOException {
+            if (null != value) {
+                writer.beginArray();
+                for (long item : value) {
+                    writer.value(item);
+                }
+                writer.endArray();
             }
         }
 
-        @Override
-        public void write(JsonWriter out, Byte value) throws IOException {
-            out.value(value);
-        }
-    };
-
-    public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
-        @Override
-        public Short read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
+        public static long[] read(JsonReader reader) throws IOException {
+            ArrayList<Long> longArrayList = LONG_ARRAY_LIST_ADAPTER.read(reader);
+            long[] result = null;
+            if (null != longArrayList) {
+                result = new long[longArrayList.size()];
+                for (int idx = 0; idx < longArrayList.size(); idx++) {
+                    result[idx] = longArrayList.get(idx);
+                }
             }
-            try {
-                return (short) in.nextInt();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
-            }
+            return result;
         }
+    }
 
-        @Override
-        public void write(JsonWriter out, Short value) throws IOException {
-            out.value(value);
-        }
-    };
-
-    public static final TypeAdapter<Integer> INTEGER = new TypeAdapter<Integer>() {
-        @Override
-        public Integer read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
-            try {
-                return in.nextInt();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
+    public static final class PrimitiveDoubleArrayAdapter {
+        public static void write(JsonWriter writer, double[] value) throws IOException {
+            if (null != value) {
+                writer.beginArray();
+                for (double item : value) {
+                    writer.value(item);
+                }
+                writer.endArray();
             }
         }
 
-        @Override
-        public void write(JsonWriter out, Integer value) throws IOException {
-            out.value(value);
-        }
-    };
-
-    public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
-        @Override
-        public Long read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
+        public static double[] read(JsonReader reader) throws IOException {
+            ArrayList<Double> longArrayList = DOUBLE_ARRAY_LIST_ADAPTER.read(reader);
+            double[] result = null;
+            if (null != longArrayList) {
+                result = new double[longArrayList.size()];
+                for (int idx = 0; idx < longArrayList.size(); idx++) {
+                    result[idx] = longArrayList.get(idx);
+                }
             }
-            try {
-                return in.nextLong();
-            } catch (NumberFormatException e) {
-                throw new JsonSyntaxException(e);
+            return result;
+        }
+    }
+
+    public static final class PrimitiveShortArrayAdapter {
+        public static void write(JsonWriter writer, short[] value) throws IOException {
+            if (null != value) {
+                writer.beginArray();
+                for (short item : value) {
+                    writer.value(item);
+                }
+                writer.endArray();
             }
         }
 
-        @Override
-        public void write(JsonWriter out, Long value) throws IOException {
-            out.value(value);
-        }
-    };
-
-    public static final TypeAdapter<Float> FLOAT = new TypeAdapter<Float>() {
-        @Override
-        public Float read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
+        public static short[] read(JsonReader reader) throws IOException {
+            ArrayList<Short> longArrayList = SHORT_ARRAY_LIST_ADAPTER.read(reader);
+            short[] result = null;
+            if (null != longArrayList) {
+                result = new short[longArrayList.size()];
+                for (int idx = 0; idx < longArrayList.size(); idx++) {
+                    result[idx] = longArrayList.get(idx);
+                }
             }
-            return (float) in.nextDouble();
+            return result;
         }
+    }
+
+    public static class StringArrayInstantiater implements ObjectConstructor<String[]> {
 
         @Override
-        public void write(JsonWriter out, Float value) throws IOException {
-            out.value(value);
+        public String[] construct() {
+            return new String[]{};
         }
-    };
+    }
 
-    public static final TypeAdapter<Double> DOUBLE = new TypeAdapter<Double>() {
-        @Override
-        public Double read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
-            return in.nextDouble();
-        }
-
-        @Override
-        public void write(JsonWriter out, Double value) throws IOException {
-            out.value(value);
-        }
-    };
-
-    
     public static class ListInstantiater<V> implements ObjectConstructor<List<V>> {
 
         @Override
