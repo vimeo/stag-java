@@ -25,8 +25,8 @@ The Stag library solves this problem. It leverages annotations to automatically 
 from jCenter
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:1.1.2'
-    apt 'com.vimeo.stag:stag-library-compiler:1.1.2'
+    compile 'com.vimeo.stag:stag-library:1.2.0'
+    apt 'com.vimeo.stag:stag-library-compiler:1.2.0'
 }
 ```
 
@@ -87,6 +87,7 @@ apt {
 3. Annotate each member variable you want populated
     - `@GsonAdapterKey("json_key")`: populates the field using the JSON value with the specified key
     - `@GsonAdapterKey`: populates the field using the JSON value with the key named the same as the member variable
+    - Use your favorite `@NonNull` annotation to tell Stag to throw an exception if the field is null while deserializing or while serializing the object.
 4. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
 5. You're done!
 
@@ -125,6 +126,8 @@ public class Deer {
 }
 
 public class Herd {
+
+    @NonNull                    // add NonNull annotation to throw an exception if the field is null
     @GsonAdapterKey
     ArrayList<Deer> data_list;  // data_list = json value with key "data_list"
     
@@ -156,6 +159,8 @@ MyParsingClass {
 ## Future Enhancements
 
 - Add an option to absorb parsing errors rather than crashing and halting parsing (default gson behavior)
+- Class level annotation so that you don't have to annotate each field
+- Support using `@SerializedName` annotation
 
 ## License
 `stag-java` is available under the MIT license. See the [LICENSE](LICENSE) file for more information.
