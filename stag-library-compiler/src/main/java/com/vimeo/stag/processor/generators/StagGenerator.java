@@ -70,6 +70,8 @@ public class StagGenerator {
     //Type.toString() -> NumberOf
     private final static HashMap<String, GenericClassInfo> KNOWN_MAP_GENERIC_CLASSES = new HashMap<>();
     private final static HashMap<String, GenericClassInfo> KNOWN_COLLECTION_GENERIC_CLASSES = new HashMap<>();
+    @NotNull
+    private static final HashMap<String, String> mConcreteAdapterFieldMap = new HashMap<>();
 
     static {
         KNOWN_MAP_GENERIC_CLASSES.put(Map.class.getName(), new GenericClassInfo(2, false));
@@ -90,8 +92,6 @@ public class StagGenerator {
     private final HashMap<String, String> mFieldNameMap = new HashMap<>();
     @NotNull
     private final HashMap<String, String> mUnknownAdapterFieldMap = new HashMap<>();
-    @NotNull
-    private final HashMap<TypeMirror, String> mConcreteAdapterFieldMap = new HashMap<>();
     @NotNull
     private final List<ClassInfo> mUnknownClasses = new ArrayList<>();
     //Type.toString() -> NumberOf
@@ -383,18 +383,18 @@ public class StagGenerator {
             }
         }
 
-        Set<Map.Entry<TypeMirror, String>> entries = mConcreteAdapterFieldMap.entrySet();
-        for (Map.Entry<TypeMirror, String> entry : entries) {
-            TypeMirror fieldType = entry.getKey();
-
+        Set<Map.Entry<String, String>> entries = mConcreteAdapterFieldMap.entrySet();
+        for (Map.Entry<String, String> entry : entries) {
+            String fieldType = entry.getKey();
             String adapterCode = entry.getValue();
+
             TypeName typeName = TypeVariableName.get(fieldType);
             TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
             String variableName = "m" + generateNameFromType(fieldType);
-            variableName = variableName.replaceAll("\\[", "").replaceAll("\\]", "");
             FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, variableName, Modifier.PRIVATE);
             MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + generateNameFromType(fieldType))
                     .addModifiers(Modifier.PUBLIC)
+                    .addParameter(Gson.class, "mGson")
                     .returns(parameterizedTypeName);
             getAdapterMethodBuilder.beginControlFlow("if (" + variableName + " == null)");
             getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode);
@@ -448,13 +448,10 @@ public class StagGenerator {
 
     @NotNull
     String addConcreteFieldType(@NotNull TypeMirror fieldType, @NotNull String adapterAccessorCode) {
-        String result = mConcreteAdapterFieldMap.get(fieldType);
-        if (result == null) {
-            if (mUnknownAdapterFieldMap.get(fieldType.toString()) == null && mFieldNameMap.get(fieldType.toString()) == null) {
-                mConcreteAdapterFieldMap.put(fieldType, adapterAccessorCode);
-            }
+        if (!mConcreteAdapterFieldMap.containsKey(fieldType.toString())) {
+            mConcreteAdapterFieldMap.put(fieldType.toString(), adapterAccessorCode);
         }
-        return "get" + generateNameFromType(fieldType);
+        return "get" + generateNameFromType(fieldType.toString());
     }
 
     @Nullable
@@ -470,13 +467,12 @@ public class StagGenerator {
     }
 
     @NotNull
-    private String generateNameFromType(@NotNull TypeMirror typeMirror) {
-        String fieldTypeString = typeMirror.toString();
-        fieldTypeString = fieldTypeString.replaceAll("\\[", "").replaceAll("\\]", "");
+    private String generateNameFromType(@NotNull String name) {
+        name = name.replaceAll("\\[", "").replaceAll("\\]", "");
         StringBuilder fieldNameBuilder = new StringBuilder();
         boolean makeCapital = true;
-        for (int idx = 0; idx < fieldTypeString.length(); idx++) {
-            char c = fieldTypeString.charAt(idx);
+        for (int idx = 0; idx < name.length(); idx++) {
+            char c = name.charAt(idx);
             if (c == '.' || c == '<' || c == ',' || c == '>') {
                 makeCapital = true;
             } else {
