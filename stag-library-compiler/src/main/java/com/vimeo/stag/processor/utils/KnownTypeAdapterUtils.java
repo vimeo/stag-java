@@ -1,9 +1,6 @@
 package com.vimeo.stag.processor.utils;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.internal.bind.TypeAdapters;
 import com.vimeo.stag.KnownTypeAdapters;
 
 import org.jetbrains.annotations.NotNull;
@@ -108,5 +105,29 @@ public class KnownTypeAdapterUtils {
         } else {
             return "com.vimeo.stag.KnownTypeAdapters.HashMapInstantiater";
         }
+    }
+
+    @Nullable
+    public static String getNativeArrayInstantiater(@NotNull TypeMirror typeMirror) {
+        String outerClassType = TypeUtils.getOuterClassType(typeMirror);
+        if (outerClassType.equals(String.class.getName())) {
+            return "com.vimeo.stag.KnownTypeAdapters.StringArrayInstantiater";
+        }
+        return null;
+    }
+
+    @Nullable
+    public static String getNativePrimitiveArrayTypeAdapter(@NotNull TypeMirror typeMirror) {
+        String outerClassType = TypeUtils.getOuterClassType(typeMirror);
+        if (outerClassType.equals(int[].class.getSimpleName())) {
+            return "com.vimeo.stag.KnownTypeAdapters.PrimitiveIntegerArrayAdapter";
+        } else if (outerClassType.equals(long[].class.getSimpleName())) {
+            return "com.vimeo.stag.KnownTypeAdapters.PrimitiveLongArrayAdapter";
+        } else if (outerClassType.equals(double[].class.getSimpleName())) {
+            return "com.vimeo.stag.KnownTypeAdapters.PrimitiveDoubleArrayAdapter";
+        } else if (outerClassType.equals(short[].class.getSimpleName())) {
+            return "com.vimeo.stag.KnownTypeAdapters.PrimitiveShortArrayAdapter";
+        }
+        return null;
     }
 }
