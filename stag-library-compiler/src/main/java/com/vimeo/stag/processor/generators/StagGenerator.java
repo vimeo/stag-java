@@ -35,7 +35,9 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
+import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
@@ -44,19 +46,34 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.processing.Filer;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 public class StagGenerator {
+
+    public static class GenericClassInfo {
+        public int mNumArguments;
+        public boolean mHasUnknownTypeFields;
+
+        public GenericClassInfo(int numArguments, boolean hasUnknownTypeFields) {
+            mNumArguments = numArguments;
+            mHasUnknownTypeFields = hasUnknownTypeFields;
+        }
+    }
 
     private static final String CLASS_STAG = "Stag";
     private static final String CLASS_TYPE_ADAPTER_FACTORY = "Factory";
@@ -73,12 +90,29 @@ public class StagGenerator {
     @NotNull
     private final HashMap<String, String> mUnknownAdapterFieldMap = new HashMap<>();
 
-
-    @NotNull
-    private final HashMap<String, String> mArrayTypeAdapter = new HashMap<>();
-
     @NotNull
     private final List<ClassInfo> mUnknownClasses = new ArrayList<>();
+
+    //Type.toString() -> NumberOf
+    private final HashMap<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
+
+
+    //Type.toString() -> NumberOf
+    private final static HashMap<String, GenericClassInfo> KNOWN_MAP_GENERIC_CLASSES = new HashMap<>();
+    private final static HashMap<String, GenericClassInfo> KNOWN_COLLECTION_GENERIC_CLASSES = new HashMap<>();
+
+
+    {
+        KNOWN_MAP_GENERIC_CLASSES.put(Map.class.getName(), new GenericClassInfo(2, false));
+        KNOWN_MAP_GENERIC_CLASSES.put(HashMap.class.getName(), new GenericClassInfo(2, false));
+        KNOWN_MAP_GENERIC_CLASSES.put(LinkedHashMap.class.getName(), new GenericClassInfo(2, false));
+        KNOWN_MAP_GENERIC_CLASSES.put(ConcurrentHashMap.class.getName(), new GenericClassInfo(2, false));
+
+        KNOWN_COLLECTION_GENERIC_CLASSES.put(Collection.class.getName(), new GenericClassInfo(1, false));
+        KNOWN_COLLECTION_GENERIC_CLASSES.put(List.class.getName(), new GenericClassInfo(1, false));
+        KNOWN_COLLECTION_GENERIC_CLASSES.put(ArrayList.class.getName(), new GenericClassInfo(1, false));
+
+    }
 
     @NotNull
     private final String mGeneratedPackageName;
@@ -89,6 +123,7 @@ public class StagGenerator {
         mGeneratedPackageName = generatedPackageName;
         mKnownClasses = new ArrayList<>(knownTypes.size());
         Set<String> knownFieldNames = new HashSet<>(knownTypes.size());
+        Set<ClassInfo> genericClasses = new HashSet<>();
         for (TypeMirror knownType : knownTypes) {
             String adapterFactoryMethodName = null;
             ClassInfo classInfo = new ClassInfo(knownType);
@@ -100,12 +135,64 @@ public class StagGenerator {
                             adapterFactoryMethodName + String.valueOf(knownFieldNames.size());
                 }
                 knownFieldNames.add(adapterFactoryMethodName);
+            } else {
+                genericClasses.add(classInfo);
             }
             mKnownClasses.add(classInfo);
             mFieldNameMap.put(knownType.toString(), adapterFactoryMethodName);
         }
 
+
+        for(ClassInfo knownGenericType : genericClasses) {
+            List<? extends TypeMirror> typeArguments = knownGenericType.getTypeArguments();
+            AnnotatedClass annotatedClass = SupportedTypesModel.getInstance().getSupportedType(knownGenericType.getType());
+            Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
+            boolean hasUnknownTypeFields = false;
+            for(TypeMirror type : memberVariables.values()) {
+                if(!checkKnownAdapters(type)) {
+                    hasUnknownTypeFields = true;
+                    break;
+                }
+            }
+            mGenericClassInfo.put(knownGenericType.getType().toString(), new GenericClassInfo(typeArguments.size(), hasUnknownTypeFields));
+        }
+
         KnownTypeAdapterUtils.initialize();
+    }
+
+    private boolean checkKnownAdapters(@NotNull TypeMirror typeMirror) {
+        if (typeMirror.getKind() == TypeKind.TYPEVAR) {
+            return true;
+        }
+
+        if(TypeUtils.isConcreteType(typeMirror)) {
+            return true;
+        }
+
+        if (typeMirror instanceof DeclaredType) {
+            DeclaredType declaredType = ((DeclaredType) typeMirror);
+            Element outerClassType = declaredType.asElement();
+            if(!mFieldNameMap.containsKey(outerClassType.asType().toString()) &&
+                    !KNOWN_COLLECTION_GENERIC_CLASSES.containsKey(outerClassType.toString()) &&
+                    !KNOWN_MAP_GENERIC_CLASSES.containsKey(outerClassType.toString())) {
+                return false;
+            }
+
+            List<? extends TypeMirror> typeMirrors = ((DeclaredType) typeMirror).getTypeArguments();
+            for (TypeMirror type : typeMirrors) {
+                if (!checkKnownAdapters(type)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return mFieldNameMap.get(typeMirror.toString()) != null;
+    }
+
+    @Nullable
+    public GenericClassInfo getGenericClassInfo(@NotNull TypeMirror typeMirror) {
+        return mGenericClassInfo.get(typeMirror.toString());
     }
 
     @Nullable
@@ -350,8 +437,6 @@ public class StagGenerator {
         }
         return result;
     }
-
-
 
     @Nullable
     private TypeMirror getFirstTypeArgument(ClassInfo classInfo) {
