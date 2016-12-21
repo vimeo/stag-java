@@ -186,20 +186,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 || type.equals(Number.class.getName());
     }
 
-    /**
-     * Check if the type is one of the numbers
-     */
-    private static boolean isNumberType(@NotNull String typeString) {
-        return typeString.equals(long.class.getName())
-                || typeString.equals(Long.class.getName())
-                || typeString.equals(double.class.getName())
-                || typeString.equals(Double.class.getName())
-                || typeString.equals(int.class.getName())
-                || typeString.equals(Integer.class.getName())
-                || typeString.equals(float.class.getName())
-                || typeString.equals(Float.class.getName());
-    }
-
     @NotNull
     private static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
         return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments().get(0);
@@ -321,42 +307,58 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 if (isSupportedPrimitive(arrayInnerType.toString())) {
                     return KnownTypeAdapterUtils.getNativePrimitiveArrayTypeAdapter(fieldType);
                 } else {
+                    mStagFactoryUsed = true;
+                    ArrayType arrayType = (ArrayType) fieldType;
                     String adapterAccessor = getAdapterAccessor(arrayInnerType, adapterBuilder, constructorBuilder,
                             memberVariables, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
                     String nativeArrayInstantiater = KnownTypeAdapterUtils.getNativeArrayInstantiater(arrayInnerType);
-                    return "new com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter<" + arrayInnerType.toString() + ">" +
+                    String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter<" + arrayInnerType.toString() + ">" +
                             "(" + adapterAccessor + ", new " + nativeArrayInstantiater + "())";
+                    if (arrayType.getComponentType().getKind() != TypeKind.TYPEVAR) {
+                        String getterName = stagGenerator.addConcreteFieldType(fieldType, adapterCode);
+                        return "mStagFactory." + getterName + "()";
+                    } else {
+                        return adapterCode;
+                    }
                 }
-            } else if (fieldType instanceof DeclaredType) {
+            } else if (isArray(fieldType)) {
                 DeclaredType declaredType = (DeclaredType) fieldType;
-                if (isArray(fieldType) && declaredType.getTypeArguments().size() == 1) {
-                    /*
-                     * If the fieldType is of type List
-                     */
-                    TypeMirror param = declaredType.getTypeArguments().get(0);
-                    String paramAdapterAccessor = getAdapterAccessor(param, adapterBuilder, constructorBuilder,
-                            memberVariables, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
-                    String listInstantiater = KnownTypeAdapterUtils.getListInstantiater(fieldType);
-                    return "new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter<" + param.toString() + "," + fieldType.toString() + ">" +
-                            "(" + paramAdapterAccessor + ", new " + listInstantiater + "())";
-                } else if (isMap(fieldType) && declaredType.getTypeArguments().size() == 2) {
-                    /*
-                     * If the fieldType is of type Map
-                     */
-                    TypeMirror keyType = declaredType.getTypeArguments().get(0);
-                    TypeMirror valueType = declaredType.getTypeArguments().get(1);
-                    String keyAdapterAccessor = getAdapterAccessor(keyType, adapterBuilder, constructorBuilder,
-                            memberVariables, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
-                    String valueAdapterAccessor = getAdapterAccessor(valueType, adapterBuilder, constructorBuilder,
-                            memberVariables, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
-                    String mapInstantiater = KnownTypeAdapterUtils.getMapInstantiater(fieldType);
-                    return "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter<" + keyType.toString() + "," + valueType.toString() + "," + fieldType.toString() + ">" +
-                            "(" + keyAdapterAccessor + ", " + valueAdapterAccessor + ", new " + mapInstantiater + "())";
+                /*
+                 * If the fieldType is of type List
+                 */
+                mStagFactoryUsed = true;
+                TypeMirror param = declaredType.getTypeArguments().get(0);
+                String paramAdapterAccessor = getAdapterAccessor(param, adapterBuilder, constructorBuilder,
+                        memberVariables, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
+                String listInstantiater = KnownTypeAdapterUtils.getListInstantiater(fieldType);
+                String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter<" + param.toString() + "," + fieldType.toString() + ">" +
+                        "(" + paramAdapterAccessor + ", new " + listInstantiater + "())";
+                if (declaredType.getKind() != TypeKind.TYPEVAR) {
+                    String getterName = stagGenerator.addConcreteFieldType(fieldType, adapterCode);
+                    return "mStagFactory." + getterName + "()";
                 } else {
-                    getterField = stagGenerator.addFieldType(fieldType);
-                    mGsonVariableUsed = true;
-                    mStagFactoryUsed = true;
-                    return "mStagFactory.get" + getterField + "(mGson)";
+                    return adapterCode;
+                }
+            } else if (isMap(fieldType)) {
+                DeclaredType declaredType = (DeclaredType) fieldType;
+
+                 /*
+                  * If the fieldType is of type Map
+                  */
+                TypeMirror keyType = declaredType.getTypeArguments().get(0);
+                TypeMirror valueType = declaredType.getTypeArguments().get(1);
+                String keyAdapterAccessor = getAdapterAccessor(keyType, adapterBuilder, constructorBuilder,
+                        memberVariables, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
+                String valueAdapterAccessor = getAdapterAccessor(valueType, adapterBuilder, constructorBuilder,
+                        memberVariables, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
+                String mapInstantiater = KnownTypeAdapterUtils.getMapInstantiater(fieldType);
+                String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter<" + keyType.toString() + "," + valueType.toString() + "," + fieldType.toString() + ">" +
+                        "(" + keyAdapterAccessor + ", " + valueAdapterAccessor + ", new " + mapInstantiater + "())";
+                if (declaredType.getKind() != TypeKind.TYPEVAR) {
+                    String getterName = stagGenerator.addConcreteFieldType(fieldType, adapterCode);
+                    return "mStagFactory." + getterName + "()";
+                } else {
+                    return adapterCode;
                 }
             } else {
                 getterField = stagGenerator.addFieldType(fieldType);
@@ -364,7 +366,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 mStagFactoryUsed = true;
                 return "mStagFactory.get" + getterField + "(mGson)";
             }
-
         } else {
             /*
              * If the fieldType is parameterized, generate the typeadapter in the constructor itself.

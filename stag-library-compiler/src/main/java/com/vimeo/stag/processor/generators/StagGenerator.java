@@ -65,44 +65,13 @@ import javax.lang.model.type.TypeMirror;
 
 public class StagGenerator {
 
-    public static class GenericClassInfo {
-        public int mNumArguments;
-        public boolean mHasUnknownTypeFields;
-
-        public GenericClassInfo(int numArguments, boolean hasUnknownTypeFields) {
-            mNumArguments = numArguments;
-            mHasUnknownTypeFields = hasUnknownTypeFields;
-        }
-    }
-
     private static final String CLASS_STAG = "Stag";
     private static final String CLASS_TYPE_ADAPTER_FACTORY = "Factory";
-
-    @NotNull
-    private final Filer mFiler;
-
-    @NotNull
-    private final List<ClassInfo> mKnownClasses;
-
-    @NotNull
-    private final HashMap<String, String> mFieldNameMap = new HashMap<>();
-
-    @NotNull
-    private final HashMap<String, String> mUnknownAdapterFieldMap = new HashMap<>();
-
-    @NotNull
-    private final List<ClassInfo> mUnknownClasses = new ArrayList<>();
-
-    //Type.toString() -> NumberOf
-    private final HashMap<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
-
-
     //Type.toString() -> NumberOf
     private final static HashMap<String, GenericClassInfo> KNOWN_MAP_GENERIC_CLASSES = new HashMap<>();
     private final static HashMap<String, GenericClassInfo> KNOWN_COLLECTION_GENERIC_CLASSES = new HashMap<>();
 
-
-    {
+    static {
         KNOWN_MAP_GENERIC_CLASSES.put(Map.class.getName(), new GenericClassInfo(2, false));
         KNOWN_MAP_GENERIC_CLASSES.put(HashMap.class.getName(), new GenericClassInfo(2, false));
         KNOWN_MAP_GENERIC_CLASSES.put(LinkedHashMap.class.getName(), new GenericClassInfo(2, false));
@@ -111,9 +80,23 @@ public class StagGenerator {
         KNOWN_COLLECTION_GENERIC_CLASSES.put(Collection.class.getName(), new GenericClassInfo(1, false));
         KNOWN_COLLECTION_GENERIC_CLASSES.put(List.class.getName(), new GenericClassInfo(1, false));
         KNOWN_COLLECTION_GENERIC_CLASSES.put(ArrayList.class.getName(), new GenericClassInfo(1, false));
-
     }
 
+    @NotNull
+    private final Filer mFiler;
+    @NotNull
+    private final List<ClassInfo> mKnownClasses;
+    @NotNull
+    private final HashMap<String, String> mFieldNameMap = new HashMap<>();
+    @NotNull
+    private final HashMap<String, String> mUnknownAdapterFieldMap = new HashMap<>();
+    @NotNull
+    private final HashMap<TypeMirror, String> mConcreteAdapterFieldMap = new HashMap<>();
+    @NotNull
+    private final List<ClassInfo> mUnknownClasses = new ArrayList<>();
+    //Type.toString() -> NumberOf
+    @NotNull
+    private final HashMap<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
     @NotNull
     private final String mGeneratedPackageName;
 
@@ -143,13 +126,13 @@ public class StagGenerator {
         }
 
 
-        for(ClassInfo knownGenericType : genericClasses) {
+        for (ClassInfo knownGenericType : genericClasses) {
             List<? extends TypeMirror> typeArguments = knownGenericType.getTypeArguments();
             AnnotatedClass annotatedClass = SupportedTypesModel.getInstance().getSupportedType(knownGenericType.getType());
             Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
             boolean hasUnknownTypeFields = false;
-            for(TypeMirror type : memberVariables.values()) {
-                if(!checkKnownAdapters(type)) {
+            for (TypeMirror type : memberVariables.values()) {
+                if (!checkKnownAdapters(type)) {
                     hasUnknownTypeFields = true;
                     break;
                 }
@@ -165,14 +148,14 @@ public class StagGenerator {
             return true;
         }
 
-        if(TypeUtils.isConcreteType(typeMirror)) {
+        if (TypeUtils.isConcreteType(typeMirror)) {
             return true;
         }
 
         if (typeMirror instanceof DeclaredType) {
             DeclaredType declaredType = ((DeclaredType) typeMirror);
             Element outerClassType = declaredType.asElement();
-            if(!mFieldNameMap.containsKey(outerClassType.asType().toString()) &&
+            if (!mFieldNameMap.containsKey(outerClassType.asType().toString()) &&
                     !KNOWN_COLLECTION_GENERIC_CLASSES.containsKey(outerClassType.toString()) &&
                     !KNOWN_MAP_GENERIC_CLASSES.containsKey(outerClassType.toString())) {
                 return false;
@@ -252,6 +235,7 @@ public class StagGenerator {
                     .returns(parameterizedTypeName);
             getAdapterMethodBuilder.beginControlFlow("if (null == " + fieldName + ")");
 
+            String knownTypeAdapterForType = KnownTypeAdapterUtils.getKnownTypeAdapterForType(classInfo.getType().toString());
             if (TypeAdapterGenerator.isArray(classInfo.getType())) {
                 TypeMirror typeMirror = getFirstTypeArgument(classInfo);
                 String valueAdapterName = mFieldNameMap.get(typeMirror.toString());
@@ -315,6 +299,8 @@ public class StagGenerator {
                 }
 
                 getAdapterMethodBuilder.addStatement(fieldName + result);
+            } else if (knownTypeAdapterForType != null) {
+
             } else {
                 getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(new TypeToken<" + classInfo.getType().toString() + ">(){})");
             }
@@ -396,6 +382,28 @@ public class StagGenerator {
                 createMethodBuilder.addCode("\n");
             }
         }
+
+        Set<Map.Entry<TypeMirror, String>> entries = mConcreteAdapterFieldMap.entrySet();
+        for (Map.Entry<TypeMirror, String> entry : entries) {
+            TypeMirror fieldType = entry.getKey();
+
+            String adapterCode = entry.getValue();
+            TypeName typeName = TypeVariableName.get(fieldType);
+            TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
+            String variableName = "m" + generateNameFromType(fieldType);
+            variableName = variableName.replaceAll("\\[", "").replaceAll("\\]", "");
+            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, variableName, Modifier.PRIVATE);
+            MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + generateNameFromType(fieldType))
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(parameterizedTypeName);
+            getAdapterMethodBuilder.beginControlFlow("if (" + variableName + " == null)");
+            getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode);
+            getAdapterMethodBuilder.endControlFlow();
+            getAdapterMethodBuilder.addStatement("return " + variableName);
+            adapterFactoryBuilder.addField(fieldSpecBuilder.build());
+            adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
+        }
+
         createMethodBuilder.addStatement("return null");
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
 
@@ -438,6 +446,17 @@ public class StagGenerator {
         return result;
     }
 
+    @NotNull
+    String addConcreteFieldType(@NotNull TypeMirror fieldType, @NotNull String adapterAccessorCode) {
+        String result = mConcreteAdapterFieldMap.get(fieldType);
+        if (result == null) {
+            if (mUnknownAdapterFieldMap.get(fieldType.toString()) == null && mFieldNameMap.get(fieldType.toString()) == null) {
+                mConcreteAdapterFieldMap.put(fieldType, adapterAccessorCode);
+            }
+        }
+        return "get" + generateNameFromType(fieldType);
+    }
+
     @Nullable
     private TypeMirror getFirstTypeArgument(ClassInfo classInfo) {
         List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
@@ -448,5 +467,33 @@ public class StagGenerator {
     private TypeMirror getSecondTypeArgument(ClassInfo classInfo) {
         List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
         return typeArguments != null ? typeArguments.get(1) : null;
+    }
+
+    @NotNull
+    private String generateNameFromType(@NotNull TypeMirror typeMirror) {
+        String fieldTypeString = typeMirror.toString();
+        fieldTypeString = fieldTypeString.replaceAll("\\[", "").replaceAll("\\]", "");
+        StringBuilder fieldNameBuilder = new StringBuilder();
+        boolean makeCapital = true;
+        for (int idx = 0; idx < fieldTypeString.length(); idx++) {
+            char c = fieldTypeString.charAt(idx);
+            if (c == '.' || c == '<' || c == ',' || c == '>') {
+                makeCapital = true;
+            } else {
+                fieldNameBuilder.append(makeCapital ? Character.toUpperCase(c) : c);
+                makeCapital = false;
+            }
+        }
+        return fieldNameBuilder.toString();
+    }
+
+    static class GenericClassInfo {
+        int mNumArguments;
+        boolean mHasUnknownTypeFields;
+
+        GenericClassInfo(int numArguments, boolean hasUnknownTypeFields) {
+            mNumArguments = numArguments;
+            mHasUnknownTypeFields = hasUnknownTypeFields;
+        }
     }
 }
