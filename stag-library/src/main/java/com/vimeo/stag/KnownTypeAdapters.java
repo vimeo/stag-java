@@ -9,16 +9,22 @@ import com.google.gson.internal.JsonReaderInternalAccess;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
+import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -514,7 +520,59 @@ public class KnownTypeAdapters {
         }
     }
 
-    public final class ObjectTypeAdapter extends TypeAdapter<Object> {
+    private static final class DateTypeAdapter extends TypeAdapter<Date> {
+        private final DateFormat enUsFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US);
+        private final DateFormat localFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT);
+
+        @Override
+        public Date read(JsonReader in) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return null;
+            }
+            return deserializeToDate(in.nextString());
+        }
+
+        private synchronized Date deserializeToDate(String json) {
+            try {
+                return localFormat.parse(json);
+            } catch (ParseException ignored) {
+            }
+            try {
+                return enUsFormat.parse(json);
+            } catch (ParseException ignored) {
+            }
+            try {
+                return ISO8601Utils.parse(json, new ParsePosition(0));
+            } catch (ParseException e) {
+                throw new JsonSyntaxException(json, e);
+            }
+        }
+
+        @Override
+        public synchronized void write(JsonWriter out, Date value) throws IOException {
+            if (value == null) {
+                out.nullValue();
+                return;
+            }
+            String dateFormatAsString = enUsFormat.format(value);
+            out.value(dateFormatAsString);
+        }
+    }
+
+    public static final class DATE_TYPE_ADAPTER {
+        static DateTypeAdapter dateTypeAdapter = new DateTypeAdapter();
+
+        public static void write(JsonWriter writer, Date value) throws IOException {
+            dateTypeAdapter.write(writer, value);
+        }
+
+        public static Date read(JsonReader reader) throws IOException {
+            return dateTypeAdapter.read(reader);
+        }
+    }
+
+    public static final class ObjectTypeAdapter extends TypeAdapter<Object> {
 
         private final Gson gson;
 

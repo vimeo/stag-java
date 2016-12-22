@@ -14,6 +14,7 @@ import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Currency;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,8 +27,6 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 import javax.lang.model.type.TypeMirror;
 
 public class KnownTypeAdapterUtils {
-    @NotNull
-    private static final HashMap<Type, Class> mKnownCollectionTypeAdapters = new HashMap<>();
     @NotNull
     private static final HashMap<String, String> mKnownTypeAdapters = new HashMap<>();
 
@@ -60,21 +59,12 @@ public class KnownTypeAdapterUtils {
         mKnownTypeAdapters.put(Calendar.class.getName(), "com.google.gson.internal.bind.TypeAdapters.CALENDAR");
         mKnownTypeAdapters.put(Number.class.getName(), "com.google.gson.internal.bind.TypeAdapters.NUMBER");
         mKnownTypeAdapters.put(JsonElement.class.getName(), "com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT");
+        mKnownTypeAdapters.put(Date.class.getName(), "com.vimeo.stag.KnownTypeAdapters.DATE_TYPE_ADAPTER");
     }
 
     @Nullable
     public static String getKnownTypeAdapterForType(String type) {
         return mKnownTypeAdapters.get(type);
-    }
-
-    @NotNull
-    public static HashMap<Type, Class> getKnownCollectionTypeAdapters() {
-        return mKnownCollectionTypeAdapters;
-    }
-
-    public static void initialize() {
-        mKnownCollectionTypeAdapters.put(List.class, KnownTypeAdapters.ListTypeAdapter.class);
-        mKnownCollectionTypeAdapters.put(Map.class, KnownTypeAdapters.MapTypeAdapter.class);
     }
 
     @NotNull
