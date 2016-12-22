@@ -336,8 +336,13 @@ public class StagGenerator {
                 String outerClassType = TypeUtils.getOuterClassType(classInfo.getType());
                 TypeMirror firstTypeArgument = getFirstTypeArgument(classInfo);
                 String outerAdapter = FileGenUtils.unescapeEscapedString(outerClassType);
-                String innerAdapter = FileGenUtils.unescapeEscapedString(firstTypeArgument.toString());
-                getAdapterMethodBuilder.addStatement(fieldName + " = new " + mGenericAdapterFieldMap.get(outerAdapter) + "(gson, this, get" + mFieldNameMap.get(innerAdapter) + "(gson))");
+                String firstTypeString = firstTypeArgument != null ? firstTypeArgument.toString() : null;
+                if (firstTypeString != null && mGenericAdapterFieldMap.get(outerAdapter) != null) {
+                    String innerAdapter = FileGenUtils.unescapeEscapedString(firstTypeString);
+                    getAdapterMethodBuilder.addStatement(fieldName + " = new " + mGenericAdapterFieldMap.get(outerAdapter) + "(gson, this, get" + mFieldNameMap.get(innerAdapter) + "(gson))");
+                } else {
+                    getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(new TypeToken<" + classInfo.getType().toString() + ">(){})");
+                }
             } else {
                 getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(new TypeToken<" + classInfo.getType().toString() + ">(){})");
             }
@@ -420,7 +425,7 @@ public class StagGenerator {
     @Nullable
     private TypeMirror getFirstTypeArgument(ClassInfo classInfo) {
         List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
-        return typeArguments != null ? typeArguments.get(0) : null;
+        return typeArguments != null && typeArguments.size() == 1 ? typeArguments.get(0) : null;
     }
 
     @NotNull
@@ -437,7 +442,7 @@ public class StagGenerator {
                 makeCapital = false;
             }
         }
-        return fieldNameBuilder.toString();
+        return fieldNameBuilder.toString() + "Array";
     }
 
     static class GenericClassInfo {
