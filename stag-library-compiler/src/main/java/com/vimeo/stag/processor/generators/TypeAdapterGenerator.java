@@ -424,7 +424,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  /*
                   * If the fieldType is of type Map
                   */
-                System.out.println(fieldType);
                 mGsonVariableUsed = true;
                 mStagFactoryUsed = true;
                 TypeMirror keyType = declaredType.getTypeArguments().get(0);
@@ -456,7 +455,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 DeclaredType declaredType = (DeclaredType) fieldType;
                 int size = declaredType.getTypeArguments() == null ? 0 : declaredType.getTypeArguments().size();
                 TypeMirror outerClass = declaredType.asElement().asType();
-                if (size != 0 && outerClass.getAnnotation(UseStag.class) != null) {
+                if (size != 0&& stagGenerator.getKnownTypes().contains(outerClass)) {
                     mGsonVariableUsed = true;
                     mStagFactoryUsed = true;
                     String outerClassString = outerClass.toString();

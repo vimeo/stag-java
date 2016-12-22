@@ -102,10 +102,12 @@ public class StagGenerator {
     private final HashMap<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
     @NotNull
     private final String mGeneratedPackageName;
+    private final Set<TypeMirror> mKnownTypes;
 
     public StagGenerator(@NotNull String generatedPackageName, @NotNull Filer filer,
                          @NotNull Set<TypeMirror> knownTypes) {
         mFiler = filer;
+        mKnownTypes = knownTypes;
         mGeneratedPackageName = generatedPackageName;
         mKnownClasses = new ArrayList<>(knownTypes.size());
         Set<String> knownFieldNames = new HashSet<>(knownTypes.size());
@@ -141,6 +143,10 @@ public class StagGenerator {
             }
             mGenericClassInfo.put(knownGenericType.getType().toString(), new GenericClassInfo(typeArguments.size(), hasUnknownTypeFields));
         }
+    }
+
+    public Set<TypeMirror> getKnownTypes() {
+        return mKnownTypes;
     }
 
     private boolean checkKnownAdapters(@NotNull TypeMirror typeMirror) {
@@ -451,8 +457,7 @@ public class StagGenerator {
             }
         }
 
-        String result = fieldNameBuilder.toString();
-        return isArray ? result + "Array" : result;
+        return isArray ? fieldNameBuilder.toString() + "Array" : fieldNameBuilder.toString();
     }
 
     static class GenericClassInfo {
