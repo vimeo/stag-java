@@ -24,6 +24,9 @@
 package com.vimeo.stag.processor.generators;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -77,23 +80,21 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @Nullable
-    private static String getTypeTokenCodeForUnknownTypes(@NotNull TypeMirror fieldType,
-                                                          @NotNull Map<TypeVariable, String> typeVarsMap,
+    private static String getTypeTokenCodeForUnknownTypes(@NotNull TypeMirror fieldType, @NotNull Map<TypeVariable, String> typeVarsMap,
                                                           @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
         String result = null;
         if (!TypeUtils.isConcreteType(fieldType)) {
             if (fieldType.getKind() == TypeKind.TYPEVAR) {
                 result = " com.google.gson.reflect.TypeToken.get(" + typeVarsMap.get(fieldType) + ")";
             } else if (fieldType instanceof DeclaredType) {
-                /**
+                /*
                  * If it is of ParameterizedType, {@link com.vimeo.stag.utils.ParameterizedTypeUtil} is used to get the
                  * type token of the parameter type.
                  */
                 DeclaredType declaredFieldType = (DeclaredType) fieldType;
                 List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
-                result = "com.google.gson.reflect.TypeToken.getParameterized(" +
-                        declaredFieldType.asElement().toString() + ".class";
-                /**
+                result = "com.google.gson.reflect.TypeToken.getParameterized(" + declaredFieldType.asElement().toString() + ".class";
+                /*
                  * Iterate through all the types from the typeArguments and generate type token code accordingly
                  */
                 for (TypeMirror parameterTypeMirror : typeMirrors) {
@@ -102,8 +103,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     } else if (parameterTypeMirror.getKind() == TypeKind.TYPEVAR) {
                         result += ", " + typeVarsMap.get(parameterTypeMirror);
                     } else {
-                        result += ",\n" + getTypeTokenCodeForUnknownTypes(parameterTypeMirror, typeVarsMap,
-                                typeTokenConstantsGenerator) + ".getType()";
+                        result += ",\n" + getTypeTokenCodeForUnknownTypes(parameterTypeMirror, typeVarsMap, typeTokenConstantsGenerator) + ".getType()";
                     }
                 }
                 result += ")";
@@ -114,7 +114,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         return result;
     }
-
 
     @Nullable
     private static String getTypeTokenCode(@NotNull TypeMirror fieldType, @NotNull Map<TypeVariable, String> typeVarsMap,
@@ -204,6 +203,16 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(Object.class.getName());
+    }
+
+    private static boolean isJsonElement(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return outerClassType.equals(JsonElement.class.getName())
+                || outerClassType.equals(JsonObject.class.getName())
+                || outerClassType.equals(JsonArray.class.getName());
     }
 
     static boolean isMap(@Nullable TypeMirror type) {
@@ -434,6 +443,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
                 String getterName = stagGenerator.addConcreteFieldType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                 return "mStagFactory." + getterName + "(mGson)";
+            } else if (isJsonElement(fieldType)) {
+                String adapterCode = KnownTypeAdapterUtils.getJsonElementTypeAdapter(fieldType);
+                return adapterCode != null ? "mStagFactory." + stagGenerator.addConcreteFieldType(fieldType, adapterCode) + "(mGson)" : "";
             } else if (fieldType instanceof DeclaredType) {
                 DeclaredType declaredType = (DeclaredType) fieldType;
                 TypeMirror outerClass = declaredType.asElement().asType();

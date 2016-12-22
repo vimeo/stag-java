@@ -1,11 +1,15 @@
 package com.vimeo.stag;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.JsonReaderInternalAccess;
+import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
@@ -27,6 +31,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
 
 public class KnownTypeAdapters {
 
@@ -173,7 +179,7 @@ public class KnownTypeAdapters {
                 reader.nextNull();
                 return null;
             }
-            if (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {
+            if (reader.peek() != BEGIN_OBJECT) {
                 reader.skipValue();
                 return null;
             }
@@ -614,6 +620,148 @@ public class KnownTypeAdapters {
             }
 
             typeAdapter.write(out, value);
+        }
+    }
+
+    public static final class JsonObjectTypeAdapter extends TypeAdapter<JsonObject> {
+
+        @Override
+        public void write(JsonWriter out, JsonObject value) throws IOException {
+            if (value == null || value.isJsonNull()) {
+                out.nullValue();
+            } else {
+                out.beginObject();
+                for (Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
+                    out.name(e.getKey());
+                    write(out, (JsonObject) e.getValue());
+                }
+                out.endObject();
+            }
+        }
+
+        @Override
+        public JsonObject read(JsonReader in) throws IOException {
+            JsonToken token = in.peek();
+            switch (token) {
+                case BEGIN_OBJECT:
+                    JsonObject object = new JsonObject();
+                    in.beginObject();
+                    while (in.hasNext()) {
+                        object.add(in.nextName(), read(in));
+                    }
+                    in.endObject();
+                    return object;
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
+    }
+
+    public static final class JsonArrayTypeAdapter extends TypeAdapter<JsonArray> {
+
+        @Override
+        public void write(JsonWriter out, JsonArray value) throws IOException {
+            if (value == null || value.isJsonNull()) {
+                out.nullValue();
+            } else {
+                out.beginArray();
+                for (JsonElement e : value.getAsJsonArray()) {
+                    write(out, (JsonArray) e);
+                }
+                out.endArray();
+            }
+        }
+
+        @Override
+        public JsonArray read(JsonReader in) throws IOException {
+            JsonToken token = in.peek();
+            switch (token) {
+                case BEGIN_ARRAY:
+                    JsonArray array = new JsonArray();
+                    in.beginArray();
+                    while (in.hasNext()) {
+                        array.add(read(in));
+                    }
+                    in.endArray();
+                    return array;
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
+    }
+
+    public static final class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
+
+        @Override
+        public JsonElement read(JsonReader in) throws IOException {
+            switch (in.peek()) {
+                case STRING:
+                    return new JsonPrimitive(in.nextString());
+                case NUMBER:
+                    String number = in.nextString();
+                    return new JsonPrimitive(new LazilyParsedNumber(number));
+                case BOOLEAN:
+                    return new JsonPrimitive(in.nextBoolean());
+                case NULL:
+                    in.nextNull();
+                    return JsonNull.INSTANCE;
+                case BEGIN_ARRAY:
+                    JsonArray array = new JsonArray();
+                    in.beginArray();
+                    while (in.hasNext()) {
+                        array.add(read(in));
+                    }
+                    in.endArray();
+                    return array;
+                case BEGIN_OBJECT:
+                    JsonObject object = new JsonObject();
+                    in.beginObject();
+                    while (in.hasNext()) {
+                        object.add(in.nextName(), read(in));
+                    }
+                    in.endObject();
+                    return object;
+                case END_DOCUMENT:
+                case NAME:
+                case END_OBJECT:
+                case END_ARRAY:
+                default:
+                    throw new IllegalArgumentException();
+            }
+        }
+
+        @Override
+        public void write(JsonWriter out, JsonElement value) throws IOException {
+            if (value == null || value.isJsonNull()) {
+                out.nullValue();
+            } else if (value.isJsonPrimitive()) {
+                JsonPrimitive primitive = value.getAsJsonPrimitive();
+                if (primitive.isNumber()) {
+                    out.value(primitive.getAsNumber());
+                } else if (primitive.isBoolean()) {
+                    out.value(primitive.getAsBoolean());
+                } else {
+                    out.value(primitive.getAsString());
+                }
+
+            } else if (value.isJsonArray()) {
+                out.beginArray();
+                for (JsonElement e : value.getAsJsonArray()) {
+                    write(out, e);
+                }
+                out.endArray();
+
+            } else if (value.isJsonObject()) {
+                out.beginObject();
+                for (Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
+                    out.name(e.getKey());
+                    write(out, e.getValue());
+                }
+                out.endObject();
+
+            } else {
+                throw new IllegalArgumentException("Couldn't write " + value.getClass());
+            }
         }
     }
 }

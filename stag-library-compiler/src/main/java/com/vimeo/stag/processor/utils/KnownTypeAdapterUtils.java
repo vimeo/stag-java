@@ -1,12 +1,12 @@
 package com.vimeo.stag.processor.utils;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.vimeo.stag.KnownTypeAdapters;
+import com.google.gson.JsonObject;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -71,27 +71,27 @@ public class KnownTypeAdapterUtils {
     @NotNull
     public static String getListInstantiater(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
-        DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType)typeMirror : null;
+        DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType) typeMirror : null;
         TypeMirror valueType = declaredType != null && declaredType.getTypeArguments() != null && !declaredType.getTypeArguments().isEmpty() ? declaredType.getTypeArguments().get(0) : null;
         String postFix = valueType != null ? "<" + valueType.toString() + ">()" : "()";
         if (outerClassType.equals(ArrayList.class.getName())) {
             return "new com.vimeo.stag.KnownTypeAdapters.ArrayListInstantiater" + postFix;
         } else if (outerClassType.equals(List.class.getName())) {
-            return "new com.vimeo.stag.KnownTypeAdapters.ListInstantiater"  + postFix;
+            return "new com.vimeo.stag.KnownTypeAdapters.ListInstantiater" + postFix;
         } else if (outerClassType.equals(Collection.class.getName())) {
-            return "new com.vimeo.stag.KnownTypeAdapters.CollectionInstantiater"  + postFix;
+            return "new com.vimeo.stag.KnownTypeAdapters.CollectionInstantiater" + postFix;
         } else {
-            return "new com.vimeo.stag.KnownTypeAdapters.ArrayListInstantiater"  + postFix;
+            return "new com.vimeo.stag.KnownTypeAdapters.ArrayListInstantiater" + postFix;
         }
     }
 
     @NotNull
     public static String getMapInstantiater(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
-        DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType)typeMirror : null;
-        TypeMirror keyType = declaredType != null && declaredType.getTypeArguments() != null && declaredType.getTypeArguments().size() == 2? declaredType.getTypeArguments().get(0) : null;
+        DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType) typeMirror : null;
+        TypeMirror keyType = declaredType != null && declaredType.getTypeArguments() != null && declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments().get(0) : null;
         TypeMirror paramType = declaredType != null && declaredType.getTypeArguments() != null && declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments().get(1) : null;
-        String postFix = keyType != null ? "<" + keyType.toString() + ", " +  paramType.toString() + ">()" : "()";
+        String postFix = keyType != null ? "<" + keyType.toString() + ", " + paramType.toString() + ">()" : "()";
 
         if (outerClassType.equals(Map.class.getName())) {
             return "new com.vimeo.stag.KnownTypeAdapters.MapInstantiater" + postFix;
@@ -109,7 +109,7 @@ public class KnownTypeAdapterUtils {
     @Nullable
     public static String getNativeArrayInstantiater(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
-        return "new com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor<" + outerClassType + ">(){ @Override public " + outerClassType + "[] construct(int size){ return new " + outerClassType+ "[size]; } }";
+        return "new com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor<" + outerClassType + ">(){ @Override public " + outerClassType + "[] construct(int size){ return new " + outerClassType + "[size]; } }";
     }
 
     @Nullable
@@ -123,6 +123,20 @@ public class KnownTypeAdapterUtils {
             return "com.vimeo.stag.KnownTypeAdapters.PrimitiveDoubleArrayAdapter";
         } else if (outerClassType.equals(short[].class.getSimpleName())) {
             return "com.vimeo.stag.KnownTypeAdapters.PrimitiveShortArrayAdapter";
+        }
+        return null;
+    }
+
+    @Nullable
+    public static String getJsonElementTypeAdapter(@NotNull TypeMirror typeMirror) {
+        String outerClassType = TypeUtils.getOuterClassType(typeMirror);
+        System.out.println(outerClassType);
+        if (outerClassType.equals(JsonElement.class.getName())) {
+            return "com.vimeo.stag.KnownTypeAdapters.JsonElementTypeAdapter";
+        } else if (outerClassType.equals(JsonArray.class.getName())) {
+            return "com.vimeo.stag.KnownTypeAdapters.JsonArrayTypeAdapter";
+        } else if (outerClassType.equals(JsonObject.class.getName())) {
+            return "com.vimeo.stag.KnownTypeAdapters.JsonObjectTypeAdapter";
         }
         return null;
     }
