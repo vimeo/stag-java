@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -394,6 +395,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         TypeVariableName stagFactoryTypeName = stagGenerator.getGeneratedClassName();
         MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
+                .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class).addMember("value", "\"unchecked\"").build())
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Gson.class, "gson")
                 .addParameter(stagFactoryTypeName, "stagFactory");
