@@ -102,7 +102,13 @@ public class KnownTypeAdapterUtils {
         } else if (outerClassType.equals(ConcurrentHashMap.class.getName())) {
             return "new com.vimeo.stag.KnownTypeAdapters.ConcurrentHashMapInstantiater" + postFix;
         } else {
-            return "new com.vimeo.stag.KnownTypeAdapters.HashMapInstantiater" + postFix;
+            return "new com.google.gson.internal.ObjectConstructor<" + outerClassType + "<" + keyType.toString() + ", " + paramType.toString() + ">>() " +
+                    "{ " +
+                    "\n@Override " +
+                    "\npublic " + outerClassType + " construct() {" +
+                    "\n\treturn new " + outerClassType + "(); " +
+                    "\n}" +
+                    "}";
         }
     }
 

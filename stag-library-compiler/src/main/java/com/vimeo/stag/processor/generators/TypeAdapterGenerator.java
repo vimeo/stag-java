@@ -223,6 +223,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         return outerClassType.equals(Map.class.getName()) ||
                 outerClassType.equals(HashMap.class.getName()) ||
                 outerClassType.equals(ConcurrentHashMap.class.getName()) ||
+                outerClassType.equals("android.util.ArrayMap") ||
+                outerClassType.equals("android.support.v4.util.ArrayMap") ||
                 outerClassType.equals(LinkedHashMap.class.getName());
     }
 
@@ -421,6 +423,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  /*
                   * If the fieldType is of type Map
                   */
+                System.out.println(fieldType);
                 mGsonVariableUsed = true;
                 mStagFactoryUsed = true;
                 TypeMirror keyType = declaredType.getTypeArguments().get(0);
