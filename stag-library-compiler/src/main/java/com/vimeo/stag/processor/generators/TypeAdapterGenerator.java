@@ -401,7 +401,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
                 String listInstantiater = KnownTypeAdapterUtils.getListInstantiater(fieldType);
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter<" + param.toString() + "," + fieldType.toString() + ">" +
-                        "(" + paramAdapterAccessor + ", new " + listInstantiater + "())";
+                        "(" + paramAdapterAccessor + ", " + listInstantiater + ")";
                 if (declaredType.getKind() != TypeKind.TYPEVAR) {
                     String getterName = stagGenerator.addConcreteFieldType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                     return "mStagFactory." + getterName + "(mGson)";
@@ -424,7 +424,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
                 String mapInstantiater = KnownTypeAdapterUtils.getMapInstantiater(fieldType);
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter<" + keyType.toString() + "," + valueType.toString() + "," + fieldType.toString() + ">" +
-                        "(" + keyAdapterAccessor + ", " + valueAdapterAccessor + ", new " + mapInstantiater + "())";
+                        "(" + keyAdapterAccessor + ", " + valueAdapterAccessor + ", " + mapInstantiater + ")";
                 if (declaredType.getKind() != TypeKind.TYPEVAR) {
                     String getterName = stagGenerator.addConcreteFieldType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                     return "mStagFactory." + getterName + "(mGson)";
