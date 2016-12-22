@@ -380,38 +380,18 @@ public class KnownTypeAdapters {
 
         @Override
         public T read(JsonReader reader) throws IOException {
-            if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
+            if (reader.peek() == JsonToken.NULL) {
                 reader.nextNull();
                 return null;
             }
-            if (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {
-                reader.skipValue();
-                return null;
-            }
-            reader.beginObject();
 
-            T object = objectConstructor.construct();
-
+            T collection = objectConstructor.construct();
+            reader.beginArray();
             while (reader.hasNext()) {
-                com.google.gson.stream.JsonToken jsonToken = reader.peek();
-                if (jsonToken == com.google.gson.stream.JsonToken.NULL) {
-                    reader.skipValue();
-                    continue;
-                }
-
-                if (jsonToken == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {
-                    reader.beginArray();
-                    while (reader.hasNext()) {
-                        object.add(valueTypeAdapter.read(reader));
-                    }
-                    reader.endArray();
-                } else {
-                    reader.skipValue();
-                }
+                collection.add(valueTypeAdapter.read(reader));
             }
-
-            reader.endObject();
-            return object;
+            reader.endArray();
+            return collection;
         }
     }
 

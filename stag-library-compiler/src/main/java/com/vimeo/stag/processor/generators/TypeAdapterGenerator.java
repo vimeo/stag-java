@@ -33,6 +33,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.WriteRuntimeType;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
@@ -79,8 +80,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
     @Nullable
     private static String getTypeTokenCodeForUnknownTypes(@NotNull TypeMirror fieldType,
-                                           @NotNull Map<TypeVariable, String> typeVarsMap,
-                                           @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
+                                                          @NotNull Map<TypeVariable, String> typeVarsMap,
+                                                          @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator) {
         String result = null;
         if (!TypeUtils.isConcreteType(fieldType)) {
             if (fieldType.getKind() == TypeKind.TYPEVAR) {
@@ -512,7 +513,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
             builder.addStatement("writer.name(\"" + name + "\")");
             if (!isPrimitive) {
-                builder.addStatement(adapterFieldInfo.getAdapterAccessor(element.getValue()) + ".write(writer, object." + variableName + ")");
+                WriteRuntimeType annotation = element.getKey().getAnnotation(WriteRuntimeType.class);
+                if (annotation != null) {
+                    builder.addStatement("((TypeAdapter) mGson.getAdapter(object." + variableName + ".getClass())).write(writer, object." + variableName + ")");
+                } else {
+                    builder.addStatement(adapterFieldInfo.getAdapterAccessor(element.getValue()) + ".write(writer, object." + variableName + ")");
+                }
                 /*
                 * If the element is annotated with NonNull annotation, throw {@link IOException} if it is null.
                 */
