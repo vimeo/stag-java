@@ -36,6 +36,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.UseStag;
 import com.vimeo.stag.WriteRuntimeType;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
@@ -447,24 +448,36 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 String getterName = stagGenerator.addConcreteFieldType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                 return "mStagFactory." + getterName + "(mGson)";
             } else if (isJsonElement(fieldType)) {
+                mGsonVariableUsed = true;
+                mStagFactoryUsed = true;
                 String adapterCode = KnownTypeAdapterUtils.getJsonElementTypeAdapter(fieldType);
                 return adapterCode != null ? "mStagFactory." + stagGenerator.addConcreteFieldType(fieldType, adapterCode) + "(mGson)" : "";
             } else if (fieldType instanceof DeclaredType) {
                 DeclaredType declaredType = (DeclaredType) fieldType;
+                int size = declaredType.getTypeArguments() == null ? 0 : declaredType.getTypeArguments().size();
                 TypeMirror outerClass = declaredType.asElement().asType();
-                String outerClassString = outerClass.toString();
-                int idx = outerClassString.indexOf("<");
-                if (idx > 0) {
-                    outerClassString = outerClassString.substring(0, idx);
+                if (size != 0 && outerClass.getAnnotation(UseStag.class) != null) {
+                    mGsonVariableUsed = true;
+                    mStagFactoryUsed = true;
+                    String outerClassString = outerClass.toString();
+                    int idx = outerClassString.indexOf("<");
+                    if (idx > 0) {
+                        outerClassString = outerClassString.substring(0, idx);
+                    }
+                    List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+                    String adapterCode = "new " + outerClassString + FileGenUtils.unescapeEscapedString("$LTypeAdapter") + "(gson, this, ";
+                    for (TypeMirror typeMirror : typeArguments) {
+                        adapterCode += getAdapterAccessor(typeMirror, adapterBuilder, constructorBuilder, typeTokenConstantsGenerator, typeVarsMap
+                                , stagGenerator, adapterFieldInfo);
+                    }
+                    adapterCode += ")";
+                    return "mStagFactory." + stagGenerator.addGenericFieldType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson")) + "(mGson)";
+                } else {
+                    getterField = stagGenerator.addFieldType(fieldType);
+                    mGsonVariableUsed = true;
+                    mStagFactoryUsed = true;
+                    return "mStagFactory." + "get" + getterField + "(mGson)";
                 }
-                List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
-                String adapterCode = "new " + outerClassString + FileGenUtils.unescapeEscapedString("$LTypeAdapter") + "(gson, this, ";
-                for (TypeMirror typeMirror : typeArguments) {
-                    adapterCode += getAdapterAccessor(typeMirror, adapterBuilder, constructorBuilder, typeTokenConstantsGenerator, typeVarsMap
-                            , stagGenerator, adapterFieldInfo);
-                }
-                adapterCode += ")";
-                return "mStagFactory." + stagGenerator.addGenericFieldType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson")) + "(mGson)";
             } else {
                 getterField = stagGenerator.addFieldType(fieldType);
                 mGsonVariableUsed = true;
