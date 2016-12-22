@@ -69,6 +69,7 @@ public class KnownTypeAdapters {
             out.value(value);
         }
     };
+
     public static final TypeAdapter<Integer> INTEGER = new TypeAdapter<Integer>() {
         @Override
         public Integer read(JsonReader in) throws IOException {
@@ -143,11 +144,16 @@ public class KnownTypeAdapters {
     public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiater<Double>());
     public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(SHORT, new ArrayListInstantiater<Short>());
 
+    public interface PrimitiveArrayConstructor<T> {
+        T[] construct(int size);
+    }
+
+
     public static final class ArrayTypeAdapter<T extends Object> extends TypeAdapter<T[]> {
         TypeAdapter<T> mValueTypeAdapter;
-        ObjectConstructor<T[]> mObjectCreator;
+        PrimitiveArrayConstructor<T> mObjectCreator;
 
-        public ArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter, ObjectConstructor<T[]> instanceCreator) {
+        public ArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter, PrimitiveArrayConstructor<T> instanceCreator) {
             this.mValueTypeAdapter = valueTypeAdapter;
             this.mObjectCreator = instanceCreator;
         }
@@ -195,7 +201,7 @@ public class KnownTypeAdapters {
 
             reader.endObject();
 
-            T[] result = this.mObjectCreator.construct();
+            T[] result = this.mObjectCreator.construct(object.size());
             return object.toArray(result);
         }
 
@@ -294,14 +300,6 @@ public class KnownTypeAdapters {
                 }
             }
             return result;
-        }
-    }
-
-    public static class StringArrayInstantiater implements ObjectConstructor<String[]> {
-
-        @Override
-        public String[] construct() {
-            return new String[]{};
         }
     }
 

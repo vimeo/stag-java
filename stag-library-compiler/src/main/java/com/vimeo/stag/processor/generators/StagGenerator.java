@@ -357,7 +357,7 @@ public class StagGenerator {
             FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, variableName, Modifier.PRIVATE);
             MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + generateNameFromType(fieldType))
                     .addModifiers(Modifier.PUBLIC)
-                    .addParameter(Gson.class, "mGson")
+                    .addParameter(Gson.class, "gson")
                     .returns(parameterizedTypeName);
             getAdapterMethodBuilder.beginControlFlow("if (" + variableName + " == null)");
             getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode);

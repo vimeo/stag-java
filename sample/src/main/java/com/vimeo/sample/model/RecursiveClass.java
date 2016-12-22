@@ -59,4 +59,10 @@ public class RecursiveClass {
     public RecursiveClass innerSum;
 
 
+    @SerializedName("integerNativeArray")
+    public Integer[] integerNativeArray;
+
+
+    @SerializedName("objectNativeArray")
+    public Stats[] objectNativeArray;
 }

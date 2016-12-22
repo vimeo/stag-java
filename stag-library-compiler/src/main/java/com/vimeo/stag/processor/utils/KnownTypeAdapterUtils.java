@@ -100,10 +100,7 @@ public class KnownTypeAdapterUtils {
     @Nullable
     public static String getNativeArrayInstantiater(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
-        if (outerClassType.equals(String.class.getName())) {
-            return "com.vimeo.stag.KnownTypeAdapters.StringArrayInstantiater";
-        }
-        return null;
+        return "new com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor<" + outerClassType + ">(){ @Override public " + outerClassType + "[] construct(int size){ return new " + outerClassType+ "[size]; } }";
     }
 
     @Nullable
