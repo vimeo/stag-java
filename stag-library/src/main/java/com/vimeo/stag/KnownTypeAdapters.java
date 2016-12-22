@@ -627,33 +627,16 @@ public class KnownTypeAdapters {
 
         @Override
         public void write(JsonWriter out, JsonObject value) throws IOException {
-            if (value == null || value.isJsonNull()) {
-                out.nullValue();
-            } else {
-                out.beginObject();
-                for (Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
-                    out.name(e.getKey());
-                    write(out, (JsonObject) e.getValue());
-                }
-                out.endObject();
-            }
+            JsonElementTypeAdapter.writeJsonElement(out, value);
         }
 
         @Override
         public JsonObject read(JsonReader in) throws IOException {
-            JsonToken token = in.peek();
-            switch (token) {
-                case BEGIN_OBJECT:
-                    JsonObject object = new JsonObject();
-                    in.beginObject();
-                    while (in.hasNext()) {
-                        object.add(in.nextName(), read(in));
-                    }
-                    in.endObject();
-                    return object;
-                default:
-                    throw new IllegalArgumentException();
+            JsonElement jsonElement = JsonElementTypeAdapter.readJsonElement(in);
+            if(null != jsonElement && !jsonElement.isJsonObject()) {
+                throw new IOException("Could not parse it as a JsonObject");
             }
+            return null != jsonElement && jsonElement.isJsonArray() ? jsonElement.getAsJsonObject() : null;
         }
     }
 
@@ -661,39 +644,22 @@ public class KnownTypeAdapters {
 
         @Override
         public void write(JsonWriter out, JsonArray value) throws IOException {
-            if (value == null || value.isJsonNull()) {
-                out.nullValue();
-            } else {
-                out.beginArray();
-                for (JsonElement e : value.getAsJsonArray()) {
-                    write(out, (JsonArray) e);
-                }
-                out.endArray();
-            }
+            JsonElementTypeAdapter.writeJsonElement(out, value);
         }
 
         @Override
         public JsonArray read(JsonReader in) throws IOException {
-            JsonToken token = in.peek();
-            switch (token) {
-                case BEGIN_ARRAY:
-                    JsonArray array = new JsonArray();
-                    in.beginArray();
-                    while (in.hasNext()) {
-                        array.add(read(in));
-                    }
-                    in.endArray();
-                    return array;
-                default:
-                    throw new IllegalArgumentException();
+            JsonElement jsonElement = JsonElementTypeAdapter.readJsonElement(in);
+            if(null != jsonElement && !jsonElement.isJsonArray()) {
+                throw new IOException("Could not parse it as a JsonArray");
             }
+            return null != jsonElement && jsonElement.isJsonArray() ? jsonElement.getAsJsonArray() : null;
         }
     }
 
     public static final class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
 
-        @Override
-        public JsonElement read(JsonReader in) throws IOException {
+        public static JsonElement readJsonElement(JsonReader in) throws IOException {
             switch (in.peek()) {
                 case STRING:
                     return new JsonPrimitive(in.nextString());
@@ -709,7 +675,7 @@ public class KnownTypeAdapters {
                     JsonArray array = new JsonArray();
                     in.beginArray();
                     while (in.hasNext()) {
-                        array.add(read(in));
+                        array.add(readJsonElement(in));
                     }
                     in.endArray();
                     return array;
@@ -717,7 +683,7 @@ public class KnownTypeAdapters {
                     JsonObject object = new JsonObject();
                     in.beginObject();
                     while (in.hasNext()) {
-                        object.add(in.nextName(), read(in));
+                        object.add(in.nextName(), readJsonElement(in));
                     }
                     in.endObject();
                     return object;
@@ -731,7 +697,12 @@ public class KnownTypeAdapters {
         }
 
         @Override
-        public void write(JsonWriter out, JsonElement value) throws IOException {
+        public JsonElement read(JsonReader in) throws IOException {
+           return JsonElementTypeAdapter.readJsonElement(in);
+        }
+
+
+        public static void writeJsonElement(JsonWriter out, JsonElement value) throws IOException {
             if (value == null || value.isJsonNull()) {
                 out.nullValue();
             } else if (value.isJsonPrimitive()) {
@@ -747,7 +718,7 @@ public class KnownTypeAdapters {
             } else if (value.isJsonArray()) {
                 out.beginArray();
                 for (JsonElement e : value.getAsJsonArray()) {
-                    write(out, e);
+                    writeJsonElement(out, e);
                 }
                 out.endArray();
 
@@ -755,13 +726,19 @@ public class KnownTypeAdapters {
                 out.beginObject();
                 for (Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
                     out.name(e.getKey());
-                    write(out, e.getValue());
+                    writeJsonElement(out, e.getValue());
                 }
                 out.endObject();
 
             } else {
                 throw new IllegalArgumentException("Couldn't write " + value.getClass());
             }
+        }
+
+
+        @Override
+        public void write(JsonWriter out, JsonElement value) throws IOException {
+            writeJsonElement(out, value);
         }
     }
 }
