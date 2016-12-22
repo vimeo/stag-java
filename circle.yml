@@ -1,0 +1,10 @@
+dependencies:
+    override:
+        - bundle install
+    cache_directories:
+        - "vendor/bundle"
+        - "~/.gradle"
+
+test:
+  override:
+    - bundle exec fastlane test
