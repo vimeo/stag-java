@@ -36,8 +36,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.vimeo.stag.UseStag;
-import com.vimeo.stag.WriteRuntimeType;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
@@ -455,7 +453,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 DeclaredType declaredType = (DeclaredType) fieldType;
                 int size = declaredType.getTypeArguments() == null ? 0 : declaredType.getTypeArguments().size();
                 TypeMirror outerClass = declaredType.asElement().asType();
-                if (size != 0&& stagGenerator.getKnownTypes().contains(outerClass)) {
+                if (size != 0 && stagGenerator.getKnownTypes().contains(outerClass)) {
                     mGsonVariableUsed = true;
                     mStagFactoryUsed = true;
                     String outerClassString = outerClass.toString();
@@ -553,12 +551,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
             builder.addStatement("writer.name(\"" + name + "\")");
             if (!isPrimitive) {
-                WriteRuntimeType annotation = element.getKey().getAnnotation(WriteRuntimeType.class);
-                if (annotation != null) {
-                    builder.addStatement("((TypeAdapter) mGson.getAdapter(object." + variableName + ".getClass())).write(writer, object." + variableName + ")");
-                } else {
-                    builder.addStatement(adapterFieldInfo.getAdapterAccessor(element.getValue()) + ".write(writer, object." + variableName + ")");
-                }
+                builder.addStatement(adapterFieldInfo.getAdapterAccessor(element.getValue()) + ".write(writer, object." + variableName + ")");
                 /*
                 * If the element is annotated with NonNull annotation, throw {@link IOException} if it is null.
                 */
