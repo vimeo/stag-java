@@ -139,8 +139,6 @@ public class StagGenerator {
             }
             mGenericClassInfo.put(knownGenericType.getType().toString(), new GenericClassInfo(typeArguments.size(), hasUnknownTypeFields));
         }
-
-        KnownTypeAdapterUtils.initialize();
     }
 
     public boolean checkKnownAdapters(@NotNull TypeMirror typeMirror) {

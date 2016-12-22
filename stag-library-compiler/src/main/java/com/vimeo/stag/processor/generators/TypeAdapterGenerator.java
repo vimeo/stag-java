@@ -159,6 +159,14 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 outerClassType.equals(Collection.class.getName());
     }
 
+    static boolean isNativeObject(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return outerClassType.equals(Object.class.getName());
+    }
+
     static boolean isMap(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
@@ -365,6 +373,11 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 } else {
                     return adapterCode;
                 }
+            } else if (isNativeObject(fieldType)) {
+                mGsonVariableUsed = true;
+                String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
+                String getterName = stagGenerator.addConcreteFieldType(fieldType, adapterCode.replaceAll("mStagFactory.", ""));
+                return "mStagFactory." + getterName + "(mGson)";
             } else {
                 getterField = stagGenerator.addFieldType(fieldType);
                 mGsonVariableUsed = true;
