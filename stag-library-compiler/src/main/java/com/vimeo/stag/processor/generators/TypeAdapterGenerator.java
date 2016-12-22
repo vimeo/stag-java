@@ -408,9 +408,15 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
         AdapterFieldInfo result = new AdapterFieldInfo(typeSet.size());
+        boolean hasUnkownGenericField = genericClassInfo != null && genericClassInfo.mHasUnknownVarTypeFields;
         for (TypeMirror fieldType : typeSet) {
-            boolean hasUnknownTypes = stagGenerator.checkKnownAdapters(fieldType);
-            String adapterAccessor = getAdapterAccessor(fieldType, adapterBuilder, constructorBuilder, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, result);
+            String adapterAccessor;
+            if(hasUnkownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
+                adapterAccessor = null;
+            } else {
+                adapterAccessor = getAdapterAccessor(fieldType, adapterBuilder, constructorBuilder, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, result);
+            }
+
             if (null != adapterAccessor) {
                 result.addTypeToAdapterAccessor(fieldType, adapterAccessor);
             }
@@ -513,7 +519,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     String simpleName = typeVariable.asElement().getSimpleName().toString();
                     adapterBuilder.addTypeVariable(TypeVariableName.get(simpleName, TypeVariableName.get(typeVariable.getUpperBound())));
                     String paramName;
-                    if (genericClassInfo.mHasUnknownTypeFields) {
+                    if (genericClassInfo.mHasUnknownVarTypeFields) {
                         paramName = "type[" + String.valueOf(idx) + "]";
                     } else {
                         ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), TypeVariableName.get(innerTypeMirror.toString()));
@@ -526,7 +532,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 }
             }
 
-            if (idx > 0 && genericClassInfo.mHasUnknownTypeFields) {
+            if (idx > 0 && genericClassInfo.mHasUnknownVarTypeFields) {
                 constructorBuilder.addParameter(Type[].class, "type");
                 constructorBuilder.varargs(true);
             }

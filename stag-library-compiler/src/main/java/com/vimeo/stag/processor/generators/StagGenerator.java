@@ -257,7 +257,7 @@ public class StagGenerator {
             } else {
 
                 GenericClassInfo genericClassInfo = mGenericClassInfo.get(classInfo.getType().toString());
-                boolean hasUnknownTypes = null != genericClassInfo && genericClassInfo.mHasUnknownTypeFields;
+                boolean hasUnknownTypes = null != genericClassInfo && genericClassInfo.mHasUnknownVarTypeFields;
                 if (!mGenericAdapterFieldMap.containsKey(classInfo.getType().toString().replaceAll("<T>", ""))) {
                     System.out.println("putting in map " + classInfo.getType().toString().replaceAll("<T>", ""));
                     mGenericAdapterFieldMap.put(classInfo.getType().toString().replaceAll("<T>", ""), qualifiedTypeAdapterName);
@@ -442,11 +442,11 @@ public class StagGenerator {
 
     static class GenericClassInfo {
         int mNumArguments;
-        boolean mHasUnknownTypeFields;
+        boolean mHasUnknownVarTypeFields;
 
-        GenericClassInfo(int numArguments, boolean hasUnknownTypeFields) {
+        GenericClassInfo(int numArguments, boolean hasUnknownVarTypeFields) {
             mNumArguments = numArguments;
-            mHasUnknownTypeFields = hasUnknownTypeFields;
+            mHasUnknownVarTypeFields = hasUnknownVarTypeFields;
         }
     }
 }

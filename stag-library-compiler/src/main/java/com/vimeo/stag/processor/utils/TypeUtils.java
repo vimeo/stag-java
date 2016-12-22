@@ -170,6 +170,26 @@ public final class TypeUtils {
         return true;
     }
 
+
+    public static boolean containsTypeVarParams(@NotNull TypeMirror typeMirror) {
+        if (typeMirror.getKind() == TypeKind.TYPEVAR) {
+            return true;
+        }
+
+        if (typeMirror instanceof DeclaredType) {
+            List<? extends TypeMirror> typeMirrors = ((DeclaredType) typeMirror).getTypeArguments();
+
+            for (TypeMirror type : typeMirrors) {
+                if (containsTypeVarParams(type)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
     /**
      * Gets the inherited type from the element. If
      * the inherited type is Object, then this method
