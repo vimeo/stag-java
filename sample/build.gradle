@@ -45,3 +45,9 @@ apt {
         stagGeneratedPackageName "com.vimeo.sample.stag.generated"
     }
 }
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+    }
+}
