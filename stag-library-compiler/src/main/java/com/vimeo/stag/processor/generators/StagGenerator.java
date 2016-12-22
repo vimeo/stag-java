@@ -143,7 +143,7 @@ public class StagGenerator {
         KnownTypeAdapterUtils.initialize();
     }
 
-    private boolean checkKnownAdapters(@NotNull TypeMirror typeMirror) {
+    public boolean checkKnownAdapters(@NotNull TypeMirror typeMirror) {
         if (typeMirror.getKind() == TypeKind.TYPEVAR) {
             return true;
         }
@@ -348,6 +348,9 @@ public class StagGenerator {
                 createMethodBuilder.endControlFlow();
                 createMethodBuilder.addCode("\n");
             } else {
+
+                GenericClassInfo genericClassInfo = mGenericClassInfo.get(classInfo.getType().toString());
+                boolean hasUnknownTypes = null != genericClassInfo && genericClassInfo.mHasUnknownTypeFields;
                 /*
                  *  This is used to generate the code if the class has type arguments, or it is parameterized.
                  */
@@ -361,19 +364,33 @@ public class StagGenerator {
                 createMethodBuilder.addStatement(
                         "java.lang.reflect.Type[] parametersType = parameterizedType.getActualTypeArguments()");
                 String statement = "return (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson, this";
+
                 for (int idx = 0; idx < typeArguments.size(); idx++) {
-                    createMethodBuilder.addStatement("TypeAdapter typeAdapter" + idx + " = gson.getAdapter(TypeToken.get(parametersType[" + idx + "]))");
-                    statement += ", typeAdapter" + idx;
+                    if(!hasUnknownTypes) {
+                        createMethodBuilder.addStatement("TypeAdapter typeAdapter" + idx + " = gson.getAdapter(TypeToken.get(parametersType[" + idx + "]))");
+                        statement += ", typeAdapter" + idx;
+                    } else {
+                        statement += ", parametersType[" + idx + "]";
+                    }
+
                 }
+
                 statement += ")";
                 createMethodBuilder.addStatement(statement);
                 createMethodBuilder.endControlFlow();
                 createMethodBuilder.beginControlFlow("else");
                 createMethodBuilder.addStatement("TypeToken objectToken = TypeToken.get(Object.class)");
-                createMethodBuilder.addStatement("TypeAdapter typeAdapter = gson.getAdapter(objectToken)");
                 statement = "return (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson, this";
+                if(!hasUnknownTypes) {
+                    createMethodBuilder.addStatement("TypeAdapter typeAdapter = gson.getAdapter(objectToken)");
+                }
                 for (int idx = 0; idx < typeArguments.size(); idx++) {
-                    statement += ", typeAdapter";
+                    if(!hasUnknownTypes) {
+                        statement += ", typeAdapter";
+                    } else {
+                        statement += ", objectToken.getType()";
+                    }
+
                 }
                 statement += ")";
                 createMethodBuilder.addStatement(statement);

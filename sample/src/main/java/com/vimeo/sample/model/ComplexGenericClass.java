@@ -41,4 +41,8 @@ public class ComplexGenericClass<T> {
 
     @SerializedName("sparseArray")
     public SparseArray<T> sparseArrayField;
+
+
+    @SerializedName("regularMap")
+    public Map<String, String> regularMapField;
 }
