@@ -286,6 +286,24 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         }
     }
 
+
+    private String getAdapterForUnknownGenericType(@NotNull TypeMirror fieldType, @NotNull TypeSpec.Builder adapterBuilder,
+                                                   @NotNull MethodSpec.Builder constructorBuilder,
+                                                   @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator, @NotNull Map<TypeVariable, String> typeVarsMap,
+                                                   @NotNull StagGenerator stagGenerator, @NotNull AdapterFieldInfo adapterFieldInfo) {
+
+        String fieldName = adapterFieldInfo.getFieldName(fieldType);
+        if (null == fieldName) {
+            fieldName = TYPE_ADAPTER_FIELD_PREFIX + adapterFieldInfo.size();
+            adapterFieldInfo.addField(fieldType, fieldName);
+            String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
+            TypeName typeName = getAdapterFieldTypeName(fieldType);
+            adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
+            constructorBuilder.addStatement(fieldName + " = (TypeAdapter<" + fieldType + ">) gson.getAdapter(" + getTypeTokenCode(fieldType, typeVarsMap, typeTokenConstantsGenerator) + ")");
+        }
+        return null;
+    }
+
     private String getAdapterAccessor(@NotNull TypeMirror fieldType, @NotNull TypeSpec.Builder adapterBuilder,
                                       @NotNull MethodSpec.Builder constructorBuilder,
                                       @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator, @NotNull Map<TypeVariable, String> typeVarsMap,
@@ -411,8 +429,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         boolean hasUnkownGenericField = genericClassInfo != null && genericClassInfo.mHasUnknownVarTypeFields;
         for (TypeMirror fieldType : typeSet) {
             String adapterAccessor;
-            if(hasUnkownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
-                adapterAccessor = null;
+            if (hasUnkownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
+                adapterAccessor = getAdapterForUnknownGenericType(fieldType, adapterBuilder, constructorBuilder, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, result);
             } else {
                 adapterAccessor = getAdapterAccessor(fieldType, adapterBuilder, constructorBuilder, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, result);
             }
