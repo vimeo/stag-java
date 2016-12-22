@@ -67,8 +67,6 @@ import javax.lang.model.type.TypeVariable;
 public class TypeAdapterGenerator extends AdapterGenerator {
 
     private static final String TYPE_ADAPTER_FIELD_PREFIX = "mTypeAdapter";
-    private static final String STAG_FACTORY_PREFIX = "mStagFactory";
-    private static final String TYPE_FIELD_PREFIX = "mType";
     private static boolean mGsonVariableUsed;
     private static boolean mStagFactoryUsed;
     @NotNull
@@ -200,7 +198,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 outerClassType.equals(Collection.class.getName());
     }
 
-    static boolean isNativeObject(@Nullable TypeMirror type) {
+    private static boolean isNativeObject(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
         }
@@ -327,7 +325,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         }
     }
 
-
     private String getAdapterForUnknownGenericType(@NotNull TypeMirror fieldType, @NotNull TypeSpec.Builder adapterBuilder,
                                                    @NotNull MethodSpec.Builder constructorBuilder,
                                                    @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator, @NotNull Map<TypeVariable, String> typeVarsMap,
@@ -437,6 +434,22 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
                 String getterName = stagGenerator.addConcreteFieldType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                 return "mStagFactory." + getterName + "(mGson)";
+            } else if (fieldType instanceof DeclaredType) {
+                DeclaredType declaredType = (DeclaredType) fieldType;
+                TypeMirror outerClass = declaredType.asElement().asType();
+                String outerClassString = outerClass.toString();
+                int idx = outerClassString.indexOf("<");
+                if (idx > 0) {
+                    outerClassString = outerClassString.substring(0, idx);
+                }
+                List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+                String adapterCode = "new " + outerClassString + FileGenUtils.unescapeEscapedString("$LTypeAdapter") + "(gson, this, ";
+                for (TypeMirror typeMirror : typeArguments) {
+                    adapterCode += getAdapterAccessor(typeMirror, adapterBuilder, constructorBuilder, typeTokenConstantsGenerator, typeVarsMap
+                            , stagGenerator, adapterFieldInfo);
+                }
+                adapterCode += ")";
+                return "mStagFactory." + stagGenerator.addGenericFieldType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson")) + "(mGson)";
             } else {
                 getterField = stagGenerator.addFieldType(fieldType);
                 mGsonVariableUsed = true;

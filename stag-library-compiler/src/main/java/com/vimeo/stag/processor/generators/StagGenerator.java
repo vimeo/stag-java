@@ -143,7 +143,7 @@ public class StagGenerator {
         }
     }
 
-    boolean checkKnownAdapters(@NotNull TypeMirror typeMirror) {
+    private boolean checkKnownAdapters(@NotNull TypeMirror typeMirror) {
         if (typeMirror.getKind() == TypeKind.TYPEVAR) {
             return true;
         }
@@ -258,10 +258,6 @@ public class StagGenerator {
 
                 GenericClassInfo genericClassInfo = mGenericClassInfo.get(classInfo.getType().toString());
                 boolean hasUnknownTypes = null != genericClassInfo && genericClassInfo.mHasUnknownVarTypeFields;
-                if (!mGenericAdapterFieldMap.containsKey(classInfo.getType().toString().replaceAll("<T>", ""))) {
-                    System.out.println("putting in map " + classInfo.getType().toString().replaceAll("<T>", ""));
-                    mGenericAdapterFieldMap.put(classInfo.getType().toString().replaceAll("<T>", ""), qualifiedTypeAdapterName);
-                }
 
                 /*
                  *  This is used to generate the code if the class has type arguments, or it is parameterized.
@@ -332,17 +328,6 @@ public class StagGenerator {
             String knownTypeAdapterForType = KnownTypeAdapterUtils.getKnownTypeAdapterForType(classInfo.getType().toString());
             if (null != knownTypeAdapterForType) {
                 fieldName += knownTypeAdapterForType;
-            } else if (mUnknownAdapterFieldMap.get(classInfo.getType().toString()) != null) {
-                String outerClassType = TypeUtils.getOuterClassType(classInfo.getType());
-                TypeMirror firstTypeArgument = getFirstTypeArgument(classInfo);
-                String outerAdapter = FileGenUtils.unescapeEscapedString(outerClassType);
-                String firstTypeString = firstTypeArgument != null ? firstTypeArgument.toString() : null;
-                if (firstTypeString != null && mGenericAdapterFieldMap.get(outerAdapter) != null) {
-                    String innerAdapter = FileGenUtils.unescapeEscapedString(firstTypeString);
-                    getAdapterMethodBuilder.addStatement(fieldName + " = new " + mGenericAdapterFieldMap.get(outerAdapter) + "(gson, this, get" + mFieldNameMap.get(innerAdapter) + "(gson))");
-                } else {
-                    getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(new TypeToken<" + classInfo.getType().toString() + ">(){})");
-                }
             } else {
                 getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(new TypeToken<" + classInfo.getType().toString() + ">(){})");
             }
@@ -358,14 +343,35 @@ public class StagGenerator {
 
             TypeName typeName = TypeVariableName.get(fieldType);
             TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
-            String variableName = "m" + generateNameFromType(fieldType);
+            String variableName = "m" + generateNameFromType(fieldType, true);
             FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, variableName, Modifier.PRIVATE);
-            MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + generateNameFromType(fieldType))
+            MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + generateNameFromType(fieldType, true))
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(Gson.class, "gson")
                     .returns(parameterizedTypeName);
             getAdapterMethodBuilder.beginControlFlow("if (" + variableName + " == null)");
             getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode);
+            getAdapterMethodBuilder.endControlFlow();
+            getAdapterMethodBuilder.addStatement("return " + variableName);
+            adapterFactoryBuilder.addField(fieldSpecBuilder.build());
+            adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
+        }
+
+        Set<Map.Entry<String, String>> entries1 = mGenericAdapterFieldMap.entrySet();
+        for (Map.Entry<String, String> entry : entries1) {
+            String fieldType = entry.getKey();
+            String adapterCode = entry.getValue();
+
+            TypeName typeName = TypeVariableName.get(fieldType);
+            TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
+            String variableName = "m" + generateNameFromType(fieldType, false);
+            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, variableName, Modifier.PRIVATE);
+            MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + generateNameFromType(fieldType, false))
+                    .addModifiers(Modifier.PUBLIC)
+                    .addParameter(Gson.class, "gson")
+                    .returns(parameterizedTypeName);
+            getAdapterMethodBuilder.beginControlFlow("if (" + variableName + " == null)");
+            getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode, "$");
             getAdapterMethodBuilder.endControlFlow();
             getAdapterMethodBuilder.addStatement("return " + variableName);
             adapterFactoryBuilder.addField(fieldSpecBuilder.build());
@@ -419,17 +425,19 @@ public class StagGenerator {
         if (!mConcreteAdapterFieldMap.containsKey(fieldType.toString())) {
             mConcreteAdapterFieldMap.put(fieldType.toString(), adapterAccessorCode);
         }
-        return "get" + generateNameFromType(fieldType.toString());
-    }
-
-    @Nullable
-    private TypeMirror getFirstTypeArgument(ClassInfo classInfo) {
-        List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
-        return typeArguments != null && typeArguments.size() == 1 ? typeArguments.get(0) : null;
+        return "get" + generateNameFromType(fieldType.toString(), true);
     }
 
     @NotNull
-    private String generateNameFromType(@NotNull String name) {
+    String addGenericFieldType(@NotNull TypeMirror fieldType, @NotNull String adapterAccessorCode) {
+        if (!mGenericAdapterFieldMap.containsKey(fieldType.toString())) {
+            mGenericAdapterFieldMap.put(fieldType.toString(), adapterAccessorCode);
+        }
+        return "get" + generateNameFromType(fieldType.toString(), false);
+    }
+
+    @NotNull
+    private String generateNameFromType(@NotNull String name, boolean isArray) {
         name = name.replaceAll("\\[", "").replaceAll("\\]", "");
         StringBuilder fieldNameBuilder = new StringBuilder();
         boolean makeCapital = true;
@@ -442,7 +450,9 @@ public class StagGenerator {
                 makeCapital = false;
             }
         }
-        return fieldNameBuilder.toString() + "Array";
+
+        String result = fieldNameBuilder.toString();
+        return isArray ? result + "Array" : result;
     }
 
     static class GenericClassInfo {

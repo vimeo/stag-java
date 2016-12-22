@@ -8,5 +8,5 @@ import com.vimeo.stag.UseStag;
 public class GenericUsageExample {
 
     @SerializedName("GenericUsage")
-    GenericClass<User> mGenericUsage;
+    GenericClass<GenericClass<User>> mGenericUsage;
 }
