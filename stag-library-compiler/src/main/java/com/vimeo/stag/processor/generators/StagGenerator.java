@@ -236,71 +236,8 @@ public class StagGenerator {
             getAdapterMethodBuilder.beginControlFlow("if (null == " + fieldName + ")");
 
             String knownTypeAdapterForType = KnownTypeAdapterUtils.getKnownTypeAdapterForType(classInfo.getType().toString());
-            if (TypeAdapterGenerator.isArray(classInfo.getType())) {
-                TypeMirror typeMirror = getFirstTypeArgument(classInfo);
-                String valueAdapterName = mFieldNameMap.get(typeMirror.toString());
-                String listInstantiater = KnownTypeAdapterUtils.getListInstantiater(classInfo.getType());
-                getAdapterMethodBuilder.addStatement(fieldName + " = new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter(get" + valueAdapterName + "(gson), new " + listInstantiater + "())");
-            } else if (TypeAdapterGenerator.isMap(classInfo.getType())) {
-                TypeMirror keyTypeMirror = getFirstTypeArgument(classInfo);
-                TypeMirror valueTypeMirror = getSecondTypeArgument(classInfo);
-                String mapInstantiater = KnownTypeAdapterUtils.getMapInstantiater(classInfo.getType());
-
-                String result;
-                String keyFieldName = KnownTypeAdapterUtils.getKnownTypeAdapterForType(keyTypeMirror.toString());
-                String valueFieldName = KnownTypeAdapterUtils.getKnownTypeAdapterForType(valueTypeMirror.toString());
-
-                if (keyFieldName == null) {
-                    keyFieldName = mFieldNameMap.get(keyTypeMirror.toString());
-                    if (keyFieldName == null) {
-                        ClassInfo keyClassInfo = new ClassInfo(keyTypeMirror);
-                        String adapterName = "mAdapter" + keyClassInfo.getTypeAdapterClassName();
-                        ParameterizedTypeName keyParameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), TypeVariableName.get(keyClassInfo.getType()));
-                        FieldSpec.Builder keyFieldSpecBuilder = FieldSpec.builder(keyParameterizedTypeName, FileGenUtils.unescapeEscapedString(adapterName), Modifier.PRIVATE);
-                        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(FileGenUtils.unescapeEscapedString("get" + keyClassInfo.getTypeAdapterClassName()))
-                                .addModifiers(Modifier.PUBLIC)
-                                .addParameter(Gson.class, "gson")
-                                .returns(keyParameterizedTypeName);
-                        methodBuilder.beginControlFlow("if (null == " + adapterName + ")");
-                        methodBuilder.addStatement(adapterName + " = gson.getAdapter(new TypeToken<" + keyClassInfo.getType().toString() + ">(){})");
-                        methodBuilder.endControlFlow();
-                        methodBuilder.addStatement("return " + adapterName);
-                        adapterFactoryBuilder.addField(keyFieldSpecBuilder.build());
-                        adapterFactoryBuilder.addMethod(methodBuilder.build());
-                        keyFieldName = keyClassInfo.getTypeAdapterClassName();
-                    }
-                    result = " = new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter(get" + keyFieldName + "(gson), ";
-                } else {
-                    result = " = new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter(" + keyFieldName + ", ";
-                }
-
-                if (valueFieldName == null) {
-                    valueFieldName = mFieldNameMap.get(valueTypeMirror.toString());
-                    if (valueFieldName == null) {
-                        ClassInfo valueClassInfo = new ClassInfo(valueTypeMirror);
-                        String adapterName = "mAdapter" + valueClassInfo.getTypeAdapterClassName();
-                        ParameterizedTypeName keyParameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), TypeVariableName.get(valueClassInfo.getType()));
-                        FieldSpec.Builder keyFieldSpecBuilder = FieldSpec.builder(keyParameterizedTypeName, FileGenUtils.unescapeEscapedString(adapterName), Modifier.PRIVATE);
-                        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder(FileGenUtils.unescapeEscapedString("get" + valueClassInfo.getTypeAdapterClassName()))
-                                .addModifiers(Modifier.PUBLIC)
-                                .addParameter(Gson.class, "gson")
-                                .returns(keyParameterizedTypeName);
-                        methodBuilder.beginControlFlow("if (null == " + adapterName + ")");
-                        methodBuilder.addStatement(adapterName + " = gson.getAdapter(new TypeToken<" + valueClassInfo.getType().toString() + ">(){})");
-                        methodBuilder.endControlFlow();
-                        methodBuilder.addStatement("return " + adapterName);
-                        adapterFactoryBuilder.addField(keyFieldSpecBuilder.build());
-                        adapterFactoryBuilder.addMethod(methodBuilder.build());
-                        valueFieldName = valueClassInfo.getTypeAdapterClassName();
-                    }
-                    result += "get" + valueFieldName + "(gson), new " + mapInstantiater + "())";
-                } else {
-                    result += valueFieldName + ", new " + mapInstantiater + "())";
-                }
-
-                getAdapterMethodBuilder.addStatement(fieldName + result);
-            } else if (knownTypeAdapterForType != null) {
-
+            if(null != knownTypeAdapterForType) {
+                fieldName += knownTypeAdapterForType;
             } else {
                 getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(new TypeToken<" + classInfo.getType().toString() + ">(){})");
             }

@@ -23,7 +23,7 @@
  */
 package com.vimeo.sample.model;
 
-import android.util.SparseArray;
+import android.webkit.ValueCallback;
 
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
@@ -40,7 +40,7 @@ public class ComplexGenericClass<T> {
     public Map<String, Map<String, T>> mapField;
 
     @SerializedName("sparseArray")
-    public SparseArray<T> sparseArrayField;
+    public ValueCallback<T> sparseArrayField;
 
 
     @SerializedName("regularMap")
