@@ -337,7 +337,7 @@ public class StagGenerator {
                 TypeMirror firstTypeArgument = getFirstTypeArgument(classInfo);
                 String outerAdapter = FileGenUtils.unescapeEscapedString(outerClassType);
                 String innerAdapter = FileGenUtils.unescapeEscapedString(firstTypeArgument.toString());
-                getAdapterMethodBuilder.addStatement(fieldName + " = new " + mGenericAdapterFieldMap.get(outerAdapter) + "(gson, this, get" + mFieldNameMap.get(innerAdapter) + "(gson=,l mk-))");
+                getAdapterMethodBuilder.addStatement(fieldName + " = new " + mGenericAdapterFieldMap.get(outerAdapter) + "(gson, this, get" + mFieldNameMap.get(innerAdapter) + "(gson))");
             } else {
                 getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(new TypeToken<" + classInfo.getType().toString() + ">(){})");
             }
