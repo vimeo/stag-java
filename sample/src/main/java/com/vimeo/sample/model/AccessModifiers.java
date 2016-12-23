@@ -23,7 +23,7 @@
  */
 package com.vimeo.sample.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 
 /**
@@ -34,15 +34,12 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public class AccessModifiers {
 
-    // private modifier is not allowed
-
-    @SerializedName("defaultModifier")
-    String defaultModifier;
-
-    @SerializedName("protectedModifier")
-    protected String protectedModifier;
-
-    @SerializedName("publicModifier")
+    @GsonAdapterKey("publicModifier")
     public String publicModifier;
 
+    @GsonAdapterKey("protectedModifier")
+    protected String protectedModifier;
+
+    @GsonAdapterKey("defaultModifier")
+    String defaultModifier;
 }

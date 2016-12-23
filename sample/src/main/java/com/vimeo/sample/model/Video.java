@@ -23,7 +23,7 @@
  */
 package com.vimeo.sample.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 
 import java.util.Date;
@@ -34,25 +34,25 @@ import java.util.Date;
 @UseStag
 public class Video {
 
-    @SerializedName("user")
+    @GsonAdapterKey("user")
     public User mUser;
 
-    @SerializedName("link")
+    @GsonAdapterKey("link")
     public String mLink;
 
-    @SerializedName("name")
+    @GsonAdapterKey("name")
     public String mName;
 
-    @SerializedName("created_time")
+    @GsonAdapterKey("created_time")
     public Date mCreatedTime;
 
-    @SerializedName("stats")
+    @GsonAdapterKey("stats")
     public Stats mStats;
 
     @Override
     public String toString() {
         return "user: { " + (mUser != null ? mUser.toString() : null) + " }\nlink: " + mLink + "\nname: " +
-               mName + "\ncreated_time: " + mCreatedTime + "\nstats: { " +
-               (mStats != null ? mStats.toString() : null) + " }";
+                mName + "\ncreated_time: " + mCreatedTime + "\nstats: { " +
+                (mStats != null ? mStats.toString() : null) + " }";
     }
 }

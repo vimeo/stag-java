@@ -25,24 +25,28 @@ package com.vimeo.sample.model;
 
 import android.webkit.ValueCallback;
 
-import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 
 import java.util.Map;
 
+/**
+ * Complex generic class which contains the parameterized type
+ *
+ * @param <T>
+ */
 @UseStag
 public class ComplexGenericClass<T> {
 
-    @SerializedName("name")
+    @GsonAdapterKey("name")
     public T name;
 
-    @SerializedName("map")
+    @GsonAdapterKey("map")
     public Map<String, Map<String, T>> mapField;
 
-    @SerializedName("sparseArray")
+    @GsonAdapterKey("sparseArray")
     public ValueCallback<T> sparseArrayField;
 
-
-    @SerializedName("regularMap")
+    @GsonAdapterKey("regularMap")
     public Map<String, String> regularMapField;
 }

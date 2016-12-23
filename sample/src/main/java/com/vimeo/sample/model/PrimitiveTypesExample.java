@@ -1,25 +1,27 @@
 package com.vimeo.sample.model;
 
 
-import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 
+/**
+ * Model class which contains different types of primitive member variables
+ */
 @UseStag
 public class PrimitiveTypesExample {
 
-    @SerializedName("simpleInt")
+    @GsonAdapterKey("simpleInt")
     public int simpleInt;
 
-    @SerializedName("simpleFlot")
+    @GsonAdapterKey("simpleFlot")
     public float simpleFlot;
 
-
-    @SerializedName("simpleShort")
+    @GsonAdapterKey("simpleShort")
     public short simpleShort;
 
-    @SerializedName("simpleLong")
+    @GsonAdapterKey("simpleLong")
     public long simpleLong;
 
-    @SerializedName("simpleDouble")
+    @GsonAdapterKey("simpleDouble")
     public double simpleDouble;
 }

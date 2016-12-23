@@ -23,7 +23,7 @@
  */
 package com.vimeo.sample.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 
 import java.util.ArrayList;
@@ -39,7 +39,6 @@ import java.util.ArrayList;
 @UseStag
 public abstract class AbstractDataList<T> extends SuperAbstractDataList<Paging, ArrayList<T>> {
 
-    @SerializedName("page")
+    @GsonAdapterKey("page")
     public int page;
-
 }
