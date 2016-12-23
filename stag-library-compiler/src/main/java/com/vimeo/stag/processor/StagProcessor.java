@@ -79,7 +79,7 @@ public final class StagProcessor extends AbstractProcessor {
     private final Set<TypeMirror> mSupportedTypes = new HashSet<>();
     private boolean mHasBeenProcessed;
 
-`    private static void addToListMap(@NotNull Map<Element, List<VariableElement>> map, @Nullable Element key, @Nullable VariableElement value) {
+    private static void addToListMap(@NotNull Map<Element, List<VariableElement>> map, @Nullable Element key, @Nullable VariableElement value) {
         if (key == null) {
             return;
         }
