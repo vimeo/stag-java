@@ -368,7 +368,7 @@ public class StagGenerator {
     private void generateAdapterMethod(String fieldType, String adapterCode, TypeSpec.Builder adapterFactoryBuilder, boolean containsTypeArg) {
         TypeName typeName = TypeVariableName.get(fieldType);
         TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
-        String getterName = generateNameFromType(fieldType, false);
+        String getterName = containsTypeArg ? generateNameFromType(fieldType, false) : generateNameFromType(fieldType, true);
         String variableName = "m" + getterName;
         FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, variableName, Modifier.PRIVATE);
         MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + getterName)

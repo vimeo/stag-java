@@ -118,8 +118,8 @@ public class KnownTypeAdapterUtils {
             return "new com.google.gson.internal.ObjectConstructor<" + outerClassType + "<" + keyType.toString() + ", " + paramType.toString() + ">>() " +
                     "{ " +
                     "\n@Override " +
-                    "\npublic " + outerClassType + " construct() {" +
-                    "\n\treturn new " + outerClassType + "(); " +
+                    "\npublic " + outerClassType + "<" + keyType.toString() + ", " + paramType.toString() + ">" + " construct() {" +
+                    "\n\treturn new " + outerClassType + "<" + keyType.toString() + ", " + paramType.toString() + ">();" +
                     "\n}" +
                     "}";
         }
