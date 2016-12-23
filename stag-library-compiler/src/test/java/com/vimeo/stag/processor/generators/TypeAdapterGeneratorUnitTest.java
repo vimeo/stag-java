@@ -27,11 +27,11 @@ import com.vimeo.stag.processor.BaseUnitTest;
 import com.vimeo.stag.processor.Utils;
 import com.vimeo.stag.processor.dummy.DummyConcreteClass;
 import com.vimeo.stag.processor.dummy.DummyMapClass;
+import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -53,154 +53,113 @@ public class TypeAdapterGeneratorUnitTest extends BaseUnitTest {
     public void testIsSupportedPrimitive_supportsTypes() throws Exception {
 
         // Check supported primitives
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedPrimitive(long.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedPrimitive(int.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedPrimitive(boolean.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedPrimitive(float.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedPrimitive(double.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedPrimitive(long.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedPrimitive(int.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedPrimitive(boolean.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedPrimitive(float.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedPrimitive(double.class.getName()));
 
         // Check unsupported primitives
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedPrimitive(byte.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedPrimitive(char.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedPrimitive(short.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedPrimitive(void.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedPrimitive(byte.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedPrimitive(char.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedPrimitive(short.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedPrimitive(void.class.getName()));
 
         // Check non-primitives
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedPrimitive(String.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedPrimitive(Object.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedPrimitive(String.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedPrimitive(Object.class.getName()));
     }
 
     @Test
     public void testIsSupportedCollection_supportsTypes() throws Exception {
         // Check supported list types
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(List.class)));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList.class)));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection.class)));
+        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(List.class)));
+        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList.class)));
+        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection.class)));
 
         // Check unsupported list types
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList.class)));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector.class)));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack.class)));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList.class)));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector.class)));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack.class)));
 
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedCollection(null));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(null));
 
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedCollection(Utils.getTypeMirrorFromClass(Object.class)));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Object.class)));
 
         // Check array types
         Assert.assertTrue(
-                TypeAdapterGenerator.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))));
+                TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))));
         Assert.assertTrue(
-                TypeAdapterGenerator.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))));
+                TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))));
         Assert.assertTrue(
-                TypeAdapterGenerator.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))));
+                TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))));
         Assert.assertTrue(
-                TypeAdapterGenerator.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String.class))));
+                TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String.class))));
         Assert.assertTrue(
-                TypeAdapterGenerator.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Object.class))));
+                TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Object.class))));
     }
 
     @Test
     public void testIsSupportedList_supportsTypes() throws Exception {
         // Check supported types
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(List.class)));
-        Assert.assertTrue(
-                TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(ArrayList.class)));
+        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(List.class)));
+        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList.class)));
 
         // Check unsupported list types
-        Assert.assertFalse(
-                TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(LinkedList.class)));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(Vector.class)));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(Stack.class)));
-        Assert.assertFalse(
-                TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(Collection.class)));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList.class)));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector.class)));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack.class)));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection.class)));
 
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(null));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(null));
 
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(Utils.getTypeMirrorFromClass(Object.class)));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Object.class)));
 
         // Check unsupported array types
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(
-                types.getArrayType(types.getPrimitiveType(TypeKind.INT))));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(
-                types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(
-                types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(
-                types.getArrayType(Utils.getTypeMirrorFromClass(String.class))));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedList(
-                types.getArrayType(Utils.getTypeMirrorFromClass(Object.class))));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String.class))));
+        Assert.assertFalse(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Object.class))));
     }
 
     @Test
     public void testIsSupportedNative_supportsCorrectTypes() throws Exception {
         // Check supported primitives
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedNative(long.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedNative(int.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedNative(boolean.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedNative(float.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedNative(double.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isSupportedNative(String.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedNative(long.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedNative(int.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedNative(boolean.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedNative(float.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedNative(double.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedNative(String.class.getName()));
 
         // Check unsupported primitives
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedNative(byte.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedNative(char.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedNative(short.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedNative(void.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedNative(byte.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedNative(char.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedNative(short.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedNative(void.class.getName()));
 
         // Check non-primitives
-        Assert.assertFalse(TypeAdapterGenerator.isSupportedNative(Object.class.getName()));
+        Assert.assertFalse(TypeUtils.isSupportedNative(Object.class.getName()));
     }
 
     @Test
     public void testIsMap_supportsCorrectTypes() throws Exception {
         // Check null
-        Assert.assertFalse(TypeAdapterGenerator.isMap(null));
+        Assert.assertFalse(TypeUtils.isSupportedMap(null));
 
         // Check supported types
-        Assert.assertTrue(TypeAdapterGenerator.isMap(Utils.getTypeMirrorFromClass(Map.class)));
-        Assert.assertTrue(TypeAdapterGenerator.isMap(Utils.getTypeMirrorFromClass(HashMap.class)));
-        Assert.assertTrue(TypeAdapterGenerator.isMap(Utils.getTypeMirrorFromClass(LinkedHashMap.class)));
+        Assert.assertTrue(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(Map.class)));
+        Assert.assertTrue(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(HashMap.class)));
+        Assert.assertTrue(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(LinkedHashMap.class)));
 
         // Check type that implements map
-        Assert.assertFalse(TypeAdapterGenerator.isMap(Utils.getTypeMirrorFromClass(DummyMapClass.class)));
+        Assert.assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(DummyMapClass.class)));
 
         // Check other types
-        Assert.assertFalse(TypeAdapterGenerator.isMap(Utils.getTypeMirrorFromClass(Object.class)));
+        Assert.assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(Object.class)));
         Assert.assertFalse(
-                TypeAdapterGenerator.isMap(Utils.getTypeMirrorFromClass(DummyConcreteClass.class)));
-        Assert.assertFalse(TypeAdapterGenerator.isMap(Utils.getTypeMirrorFromClass(String.class)));
+                TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(DummyConcreteClass.class)));
+        Assert.assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(String.class)));
     }
-
-    @Test
-    public void testNumberType_supportsCorrectTypes() throws Exception {
-
-        // Check primitive number types
-        Assert.assertTrue(TypeAdapterGenerator.isNumberType(long.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isNumberType(double.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isNumberType(int.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isNumberType(float.class.getName()));
-
-        // Check object number types
-        Assert.assertTrue(TypeAdapterGenerator.isNumberType(Long.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isNumberType(Double.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isNumberType(Integer.class.getName()));
-        Assert.assertTrue(TypeAdapterGenerator.isNumberType(Float.class.getName()));
-
-        // Check other primitive types
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(byte.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(char.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(short.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(boolean.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(void.class.getName()));
-
-        // Check other object types
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(Byte.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(Character.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(Short.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(Boolean.class.getName()));
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(Void.class.getName()));
-
-        Assert.assertFalse(TypeAdapterGenerator.isNumberType(BigInteger.class.getName()));
-    }
-
 }
