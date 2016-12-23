@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2011 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.vimeo.stag;
 
 import com.google.gson.Gson;
@@ -13,29 +28,45 @@ import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
-import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.ParsePosition;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
 
+/**
+ * This class contains a list of KnownTypeAdapters such as {@link MapTypeAdapter}, {@link ListTypeAdapter} and more.
+ * These type adapters are referenced in the Stag Compiler library, where we generate the code for the type adapters.
+ * If the type is known to us, such as in case of {@link Integer} or {@link JsonArray} or {@link Double} etc, we
+ * directly access the corresponding type adapters and call {@link TypeAdapter#read(JsonReader)} and {@link TypeAdapter#write(JsonWriter, Object)}
+ * respectively.
+ * <p>
+ * --------------------- {@link MapTypeAdapter} -------------------
+ * <p>
+ * In case of {@link MapTypeAdapter}, we need to pass the keyTypeAdapter, valueTypeAdapter and the ObjectConstructor. The keyTypeAdapter, and valueTypeAdapter
+ * are used to read and write keys and values respectively, and the ObjectConstructor tells the type of Map to be instantiated. This will also support the scenario
+ * where we have a nested maps. In that case the valueTypeAdapter will be again a {@link MapTypeAdapter} with its key and value TypeAdapters
+ * <p>
+ * --------------------- {@link ListTypeAdapter} -------------------
+ * <p>
+ * In case of {@link ListTypeAdapter}, we need to pass the valueTypeAdapter and the ObjectConstructor. The valueTypeAdapter
+ * is used to read and write the values, and the ObjectConstructor tells the type of List to be instantiated. This will also support the scenario
+ * where we have a nested list. In that case the valueTypeAdapter will be again a {@link ListTypeAdapter} with its value TypeAdapter
+ */
 public class KnownTypeAdapters {
 
+    /**
+     * Type Adapter for {@link Byte}.
+     */
     public static final TypeAdapter<Byte> BYTE = new TypeAdapter<Byte>() {
         @Override
         public Byte read(JsonReader in) throws IOException {
@@ -56,6 +87,10 @@ public class KnownTypeAdapters {
             out.value(value);
         }
     };
+
+    /**
+     * Type Adapter for {@link Short}.
+     */
     public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
         @Override
         public Short read(JsonReader in) throws IOException {
@@ -76,6 +111,9 @@ public class KnownTypeAdapters {
         }
     };
 
+    /**
+     * Type Adapter for {@link Integer}.
+     */
     public static final TypeAdapter<Integer> INTEGER = new TypeAdapter<Integer>() {
         @Override
         public Integer read(JsonReader in) throws IOException {
@@ -95,6 +133,10 @@ public class KnownTypeAdapters {
             out.value(value);
         }
     };
+
+    /**
+     * Type Adapter for {@link Long}.
+     */
     public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
         @Override
         public Long read(JsonReader in) throws IOException {
@@ -114,6 +156,10 @@ public class KnownTypeAdapters {
             out.value(value);
         }
     };
+
+    /**
+     * Type Adapter for {@link Float}.
+     */
     public static final TypeAdapter<Float> FLOAT = new TypeAdapter<Float>() {
         @Override
         public Float read(JsonReader in) throws IOException {
@@ -129,6 +175,10 @@ public class KnownTypeAdapters {
             out.value(value);
         }
     };
+
+    /**
+     * Type Adapter for {@link Double}.
+     */
     public static final TypeAdapter<Double> DOUBLE = new TypeAdapter<Double>() {
         @Override
         public Double read(JsonReader in) throws IOException {
@@ -154,8 +204,12 @@ public class KnownTypeAdapters {
         T[] construct(int size);
     }
 
-
-    public static final class ArrayTypeAdapter<T extends Object> extends TypeAdapter<T[]> {
+    /**
+     * Type Adapter for [] types. eg String[] or Integer[].
+     * For primitive array types such as int[], long[] etc, use the next set of adapters
+     * given below
+     */
+    public static final class ArrayTypeAdapter<T> extends TypeAdapter<T[]> {
         TypeAdapter<T> mValueTypeAdapter;
         PrimitiveArrayConstructor<T> mObjectCreator;
 
@@ -213,6 +267,9 @@ public class KnownTypeAdapters {
 
     }
 
+    /**
+     * Type Adapter for Integer[] type. This can be directly accessed to read and write
+     */
     public static final class PrimitiveIntegerArrayAdapter {
         public static void write(JsonWriter writer, int[] value) throws IOException {
             if (null != value) {
@@ -237,6 +294,9 @@ public class KnownTypeAdapters {
         }
     }
 
+    /**
+     * Type Adapter for long[] type. This can be directly accessed to read and write
+     */
     public static final class PrimitiveLongArrayAdapter {
         public static void write(JsonWriter writer, long[] value) throws IOException {
             if (null != value) {
@@ -261,6 +321,9 @@ public class KnownTypeAdapters {
         }
     }
 
+    /**
+     * Type Adapter for double[] type. This can be directly accessed to read and write
+     */
     public static final class PrimitiveDoubleArrayAdapter {
         public static void write(JsonWriter writer, double[] value) throws IOException {
             if (null != value) {
@@ -285,6 +348,9 @@ public class KnownTypeAdapters {
         }
     }
 
+    /**
+     * Type Adapter for short[] type. This can be directly accessed to read and write
+     */
     public static final class PrimitiveShortArrayAdapter {
         public static void write(JsonWriter writer, short[] value) throws IOException {
             if (null != value) {
@@ -309,62 +375,79 @@ public class KnownTypeAdapters {
         }
     }
 
+    /**
+     * Default Instantiater for List, by default it will create the Map of {@link ArrayList} type
+     */
     public static class ListInstantiater<V> implements ObjectConstructor<List<V>> {
-
         @Override
         public List<V> construct() {
             return new ArrayList<V>();
         }
     }
 
+    /**
+     * Instantiater for {@link Collection}
+     */
     public static class CollectionInstantiater<V> implements ObjectConstructor<Collection<V>> {
-
         @Override
         public Collection<V> construct() {
             return new ArrayList<V>();
         }
     }
 
+    /**
+     * Instantiater for {@link ArrayList}
+     */
     public static class ArrayListInstantiater<V> implements ObjectConstructor<ArrayList<V>> {
-
         @Override
         public ArrayList<V> construct() {
             return new ArrayList<V>();
         }
     }
 
+    /**
+     * Instantiater for {@link HashMap}
+     */
     public static class HashMapInstantiater<K, V> implements ObjectConstructor<HashMap<K, V>> {
-
         @Override
         public HashMap<K, V> construct() {
             return new HashMap<K, V>();
         }
     }
 
+    /**
+     * Instantiater for {@link ConcurrentHashMap}
+     */
     public static class ConcurrentHashMapInstantiater<K, V> implements ObjectConstructor<ConcurrentHashMap<K, V>> {
-
         @Override
         public ConcurrentHashMap<K, V> construct() {
             return new ConcurrentHashMap<K, V>();
         }
     }
 
+    /**
+     * Instantiater for {@link LinkedHashMap}
+     */
     public static class LinkedHashMapInstantiater<K, V> implements ObjectConstructor<LinkedHashMap<K, V>> {
-
         @Override
         public LinkedHashMap<K, V> construct() {
             return new LinkedHashMap<K, V>();
         }
     }
 
+    /**
+     * Default Instantiater for Maps, by default it will create the Map of {@link LinkedHashMap} type
+     */
     public static class MapInstantiater<K, V> implements ObjectConstructor<Map<K, V>> {
-
         @Override
         public Map<K, V> construct() {
             return new LinkedHashMap<K, V>();
         }
     }
 
+    /**
+     * Type Adapter for {@link Collection}
+     */
     public static class ListTypeAdapter<V, T extends Collection<V>> extends TypeAdapter<T> {
 
         private TypeAdapter<V> valueTypeAdapter;
@@ -401,6 +484,10 @@ public class KnownTypeAdapters {
         }
     }
 
+    /**
+     * Type Adapter for {@link Map}. The constructor expects {@link ObjectConstructor} which is
+     * used to instantiate maps of particular types eg, {@link HashMap} {@link LinkedHashMap} etc
+     */
     public static class MapTypeAdapter<K, V, T extends Map<K, V>> extends TypeAdapter<T> {
         private ObjectConstructor<T> objectConstructor;
         private TypeAdapter<V> valueTypeAdapter;
@@ -504,58 +591,9 @@ public class KnownTypeAdapters {
         }
     }
 
-    private static final class DateTypeAdapter extends TypeAdapter<Date> {
-        private final DateFormat enUsFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT, Locale.US);
-        private final DateFormat localFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.DEFAULT);
-
-        @Override
-        public Date read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
-            return deserializeToDate(in.nextString());
-        }
-
-        private synchronized Date deserializeToDate(String json) {
-            try {
-                return localFormat.parse(json);
-            } catch (ParseException ignored) {
-            }
-            try {
-                return enUsFormat.parse(json);
-            } catch (ParseException ignored) {
-            }
-            try {
-                return ISO8601Utils.parse(json, new ParsePosition(0));
-            } catch (ParseException e) {
-                throw new JsonSyntaxException(json, e);
-            }
-        }
-
-        @Override
-        public synchronized void write(JsonWriter out, Date value) throws IOException {
-            if (value == null) {
-                out.nullValue();
-                return;
-            }
-            String dateFormatAsString = enUsFormat.format(value);
-            out.value(dateFormatAsString);
-        }
-    }
-
-    public static final class DATE_TYPE_ADAPTER {
-        static DateTypeAdapter dateTypeAdapter = new DateTypeAdapter();
-
-        public static void write(JsonWriter writer, Date value) throws IOException {
-            dateTypeAdapter.write(writer, value);
-        }
-
-        public static Date read(JsonReader reader) throws IOException {
-            return dateTypeAdapter.read(reader);
-        }
-    }
-
+    /**
+     * Type Adapter for {@link Object}
+     */
     public static final class ObjectTypeAdapter extends TypeAdapter<Object> {
 
         private final Gson gson;
@@ -623,6 +661,9 @@ public class KnownTypeAdapters {
         }
     }
 
+    /**
+     * Type Adapter for {@link JsonObject}
+     */
     public static final class JsonObjectTypeAdapter extends TypeAdapter<JsonObject> {
 
         @Override
@@ -633,13 +674,16 @@ public class KnownTypeAdapters {
         @Override
         public JsonObject read(JsonReader in) throws IOException {
             JsonElement jsonElement = JsonElementTypeAdapter.readJsonElement(in);
-            if(null != jsonElement && !jsonElement.isJsonObject()) {
+            if (null != jsonElement && !jsonElement.isJsonObject()) {
                 throw new IOException("Could not parse it as a JsonObject");
             }
             return null != jsonElement && jsonElement.isJsonArray() ? jsonElement.getAsJsonObject() : null;
         }
     }
 
+    /**
+     * Type Adapter for {@link JsonArray}
+     */
     public static final class JsonArrayTypeAdapter extends TypeAdapter<JsonArray> {
 
         @Override
@@ -650,13 +694,16 @@ public class KnownTypeAdapters {
         @Override
         public JsonArray read(JsonReader in) throws IOException {
             JsonElement jsonElement = JsonElementTypeAdapter.readJsonElement(in);
-            if(null != jsonElement && !jsonElement.isJsonArray()) {
+            if (null != jsonElement && !jsonElement.isJsonArray()) {
                 throw new IOException("Could not parse it as a JsonArray");
             }
             return null != jsonElement && jsonElement.isJsonArray() ? jsonElement.getAsJsonArray() : null;
         }
     }
 
+    /**
+     * Type Adapter for {@link JsonElement}
+     */
     public static final class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
 
         public static JsonElement readJsonElement(JsonReader in) throws IOException {
@@ -696,12 +743,6 @@ public class KnownTypeAdapters {
             }
         }
 
-        @Override
-        public JsonElement read(JsonReader in) throws IOException {
-           return JsonElementTypeAdapter.readJsonElement(in);
-        }
-
-
         public static void writeJsonElement(JsonWriter out, JsonElement value) throws IOException {
             if (value == null || value.isJsonNull()) {
                 out.nullValue();
@@ -735,6 +776,10 @@ public class KnownTypeAdapters {
             }
         }
 
+        @Override
+        public JsonElement read(JsonReader in) throws IOException {
+            return JsonElementTypeAdapter.readJsonElement(in);
+        }
 
         @Override
         public void write(JsonWriter out, JsonElement value) throws IOException {
