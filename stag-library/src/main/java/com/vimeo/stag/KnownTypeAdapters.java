@@ -677,7 +677,7 @@ public class KnownTypeAdapters {
             if (null != jsonElement && !jsonElement.isJsonObject()) {
                 throw new IOException("Could not parse it as a JsonObject");
             }
-            return null != jsonElement && jsonElement.isJsonArray() ? jsonElement.getAsJsonObject() : null;
+            return null != jsonElement && jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : null;
         }
     }
 
