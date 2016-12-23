@@ -360,6 +360,12 @@ public final class TypeUtils {
         return ((DeclaredType) typeMirror).getTypeArguments();
     }
 
+    /**
+     * Method to check if the {@link TypeMirror} is of primitive type
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
     public static boolean isSupportedPrimitive(@NotNull String type) {
         return type.equals(long.class.getName())
                 || type.equals(double.class.getName())
@@ -371,10 +377,22 @@ public final class TypeUtils {
                 || type.equals(byte.class.getName());
     }
 
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link ArrayType}
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
     public static boolean isNativeArray(@NotNull TypeMirror type) {
         return (type instanceof ArrayType);
     }
 
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link Collection} type
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
     public static boolean isSupportedCollection(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
@@ -386,6 +404,12 @@ public final class TypeUtils {
         return isSupportedList(type) || outerClassType.equals(Collection.class.getName());
     }
 
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link List} type
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
     private static boolean isSupportedList(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
@@ -395,6 +419,12 @@ public final class TypeUtils {
                 outerClassType.equals(List.class.getName());
     }
 
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link Object}
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
     public static boolean isNativeObject(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
@@ -403,6 +433,12 @@ public final class TypeUtils {
         return outerClassType.equals(Object.class.getName());
     }
 
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link JsonElement} type
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
     public static boolean isJsonElement(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
@@ -413,6 +449,12 @@ public final class TypeUtils {
                 || outerClassType.equals(JsonArray.class.getName());
     }
 
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link Map} type
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
     public static boolean isSupportedMap(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
@@ -426,6 +468,12 @@ public final class TypeUtils {
                 outerClassType.equals(LinkedHashMap.class.getName());
     }
 
+    /**
+     * Method to check if the type is natively supported such as {@link String} etc
+     *
+     * @param type String type
+     * @return boolean
+     */
     public static boolean isSupportedNative(@NotNull String type) {
         return isSupportedPrimitive(type)
                 || type.equals(String.class.getName())
@@ -435,5 +483,13 @@ public final class TypeUtils {
                 || type.equals(Double.class.getName())
                 || type.equals(Float.class.getName())
                 || type.equals(Number.class.getName());
+    }
+
+    /**
+     * Returns the inner {@link TypeMirror} for a given {@link TypeMirror}
+     */
+    @NotNull
+    public static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
+        return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments().get(0);
     }
 }

@@ -24,8 +24,8 @@
 package com.vimeo.stag.processor.generators;
 
 
-import com.squareup.javapoet.TypeSpec;
 import com.google.gson.annotations.SerializedName;
+import com.squareup.javapoet.TypeSpec;
 import com.vimeo.stag.GsonAdapterKey;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +39,7 @@ public abstract class AdapterGenerator {
      * If both of them are used we will give preference to GsonAdapterKey
      */
     @NotNull
-    protected static String getJsonName(@NotNull Element element) {
+    static String getJsonName(@NotNull Element element) {
 
         String name = (null != element.getAnnotation(GsonAdapterKey.class)) ?
                 element.getAnnotation(GsonAdapterKey.class).value() : null;
@@ -56,8 +56,6 @@ public abstract class AdapterGenerator {
         return name;
     }
 
-
     @NotNull
-    public abstract TypeSpec getTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                                @NotNull StagGenerator stagGenerator);
+    public abstract TypeSpec getTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator, @NotNull StagGenerator stagGenerator);
 }

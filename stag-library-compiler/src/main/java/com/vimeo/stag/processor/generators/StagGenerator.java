@@ -73,10 +73,6 @@ public class StagGenerator {
     private final static HashMap<String, GenericClassInfo> KNOWN_MAP_GENERIC_CLASSES = new HashMap<>();
     @NotNull
     private final static HashMap<String, GenericClassInfo> KNOWN_COLLECTION_GENERIC_CLASSES = new HashMap<>();
-    @NotNull
-    private static final HashMap<String, String> mConcreteAdapterFieldMap = new HashMap<>();
-    @NotNull
-    private static final HashMap<String, String> mGenericAdapterFieldMap = new HashMap<>();
 
     static {
         KNOWN_MAP_GENERIC_CLASSES.put(Map.class.getName(), new GenericClassInfo(2, false));
@@ -98,15 +94,18 @@ public class StagGenerator {
     private final HashMap<String, String> mUnknownAdapterFieldMap = new HashMap<>();
     @NotNull
     private final List<ClassInfo> mUnknownClasses = new ArrayList<>();
-    //Type.toString() -> NumberOf
     @NotNull
     private final HashMap<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
     @NotNull
     private final String mGeneratedPackageName;
+    @NotNull
+    private final HashMap<String, String> mConcreteAdapterFieldMap = new HashMap<>();
+    @NotNull
+    private final HashMap<String, String> mGenericAdapterFieldMap = new HashMap<>();
+    @NotNull
     private final Set<TypeMirror> mKnownTypes;
 
-    public StagGenerator(@NotNull String generatedPackageName, @NotNull Filer filer,
-                         @NotNull Set<TypeMirror> knownTypes) {
+    public StagGenerator(@NotNull String generatedPackageName, @NotNull Filer filer, @NotNull Set<TypeMirror> knownTypes) {
         mFiler = filer;
         mKnownTypes = knownTypes;
         mGeneratedPackageName = generatedPackageName;
@@ -146,7 +145,7 @@ public class StagGenerator {
         }
     }
 
-    public Set<TypeMirror> getKnownTypes() {
+    Set<TypeMirror> getKnownTypes() {
         return mKnownTypes;
     }
 
@@ -315,7 +314,7 @@ public class StagGenerator {
             }
         }
 
-                /*
+        /*
          * Iterate through all the registered unknown classes, and map the classes to its corresponding type adapters.
          */
         for (ClassInfo classInfo : mUnknownClasses) {
@@ -344,52 +343,50 @@ public class StagGenerator {
             adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
         }
 
-        Set<Map.Entry<String, String>> entries = mConcreteAdapterFieldMap.entrySet();
-        for (Map.Entry<String, String> entry : entries) {
-            String fieldType = entry.getKey();
-            String adapterCode = entry.getValue();
-
-            TypeName typeName = TypeVariableName.get(fieldType);
-            TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
-            String variableName = "m" + generateNameFromType(fieldType, true);
-            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, variableName, Modifier.PRIVATE);
-            MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + generateNameFromType(fieldType, true))
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(Gson.class, "gson")
-                    .returns(parameterizedTypeName);
-            getAdapterMethodBuilder.beginControlFlow("if (" + variableName + " == null)");
-            getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode);
-            getAdapterMethodBuilder.endControlFlow();
-            getAdapterMethodBuilder.addStatement("return " + variableName);
-            adapterFactoryBuilder.addField(fieldSpecBuilder.build());
-            adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
+        /*
+         * Iterate through all the registered concrete fields, and map the fields to its corresponding type adapters.
+         */
+        Set<Map.Entry<String, String>> concreteAdapterFieldEntries = mConcreteAdapterFieldMap.entrySet();
+        for (Map.Entry<String, String> entry : concreteAdapterFieldEntries) {
+            generateAdapterMethod(entry.getKey(), entry.getValue(), adapterFactoryBuilder, false);
         }
 
-        Set<Map.Entry<String, String>> entries1 = mGenericAdapterFieldMap.entrySet();
-        for (Map.Entry<String, String> entry : entries1) {
-            String fieldType = entry.getKey();
-            String adapterCode = entry.getValue();
-
-            TypeName typeName = TypeVariableName.get(fieldType);
-            TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
-            String variableName = "m" + generateNameFromType(fieldType, false);
-            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, variableName, Modifier.PRIVATE);
-            MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + generateNameFromType(fieldType, false))
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(Gson.class, "gson")
-                    .returns(parameterizedTypeName);
-            getAdapterMethodBuilder.beginControlFlow("if (" + variableName + " == null)");
-            getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode, "$");
-            getAdapterMethodBuilder.endControlFlow();
-            getAdapterMethodBuilder.addStatement("return " + variableName);
-            adapterFactoryBuilder.addField(fieldSpecBuilder.build());
-            adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
+        /*
+         * Iterate through all the registered generic fields, and map the fields to its corresponding type adapters.
+         */
+        Set<Map.Entry<String, String>> genericAdapterFieldEntries = mGenericAdapterFieldMap.entrySet();
+        for (Map.Entry<String, String> entry : genericAdapterFieldEntries) {
+            generateAdapterMethod(entry.getKey(), entry.getValue(), adapterFactoryBuilder, true);
         }
 
         createMethodBuilder.addStatement("return null");
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
 
         return adapterFactoryBuilder.build();
+    }
+
+    private void generateAdapterMethod(String fieldType, String adapterCode, TypeSpec.Builder adapterFactoryBuilder, boolean containsTypeArg) {
+        TypeName typeName = TypeVariableName.get(fieldType);
+        TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
+        String getterName = generateNameFromType(fieldType, false);
+        String variableName = "m" + getterName;
+        FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, variableName, Modifier.PRIVATE);
+        MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + getterName)
+                .addModifiers(Modifier.PUBLIC)
+                .addParameter(Gson.class, "gson")
+                .returns(parameterizedTypeName);
+        getAdapterMethodBuilder.beginControlFlow("if (" + variableName + " == null)");
+
+        if (containsTypeArg) {
+            getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode, "$");
+        } else {
+            getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode);
+        }
+
+        getAdapterMethodBuilder.endControlFlow();
+        getAdapterMethodBuilder.addStatement("return " + variableName);
+        adapterFactoryBuilder.addField(fieldSpecBuilder.build());
+        adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
     }
 
     /**
@@ -400,44 +397,42 @@ public class StagGenerator {
      */
     @NotNull
     TypeVariableName getGeneratedClassName() {
-        return TypeVariableName.get(
-                mGeneratedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY);
+        return TypeVariableName.get(mGeneratedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY);
     }
 
+    /**
+     * Used to add fields for the unknown types
+     */
     @NotNull
-    String addFieldType(@NotNull TypeMirror fieldType) {
+    String addFieldForUnknownType(@NotNull TypeMirror fieldType) {
         String fieldTypeString = fieldType.toString();
         String result = mUnknownAdapterFieldMap.get(fieldTypeString);
         if (null == result) {
             ClassInfo classInfo = new ClassInfo(fieldType);
-            StringBuilder fieldNameBuilder = new StringBuilder();
-            boolean makeCapital = true;
-            for (int idx = 0; idx < fieldTypeString.length(); idx++) {
-                char c = fieldTypeString.charAt(idx);
-                if (c == '.' || c == '<' || c == ',' || c == '>') {
-                    makeCapital = true;
-                } else {
-                    fieldNameBuilder.append(makeCapital ? Character.toUpperCase(c) : c);
-                    makeCapital = false;
-                }
-            }
-            result = fieldNameBuilder.toString();
+            result = generateNameFromType(fieldTypeString, false);
             mUnknownClasses.add(classInfo);
             mUnknownAdapterFieldMap.put(fieldTypeString, result);
         }
         return result;
     }
 
+    /**
+     * Used to add fields for the concrete types such as for {@link Map} or {@link List} or any other
+     * concrete class
+     */
     @NotNull
-    String addConcreteFieldType(@NotNull TypeMirror fieldType, @NotNull String adapterAccessorCode) {
+    String addFieldForConcreteType(@NotNull TypeMirror fieldType, @NotNull String adapterAccessorCode) {
         if (!mConcreteAdapterFieldMap.containsKey(fieldType.toString())) {
             mConcreteAdapterFieldMap.put(fieldType.toString(), adapterAccessorCode);
         }
         return "get" + generateNameFromType(fieldType.toString(), true);
     }
 
+    /**
+     * Used to add fields for the generic types eg: generic classes
+     */
     @NotNull
-    String addGenericFieldType(@NotNull TypeMirror fieldType, @NotNull String adapterAccessorCode) {
+    String addFieldForGenericType(@NotNull TypeMirror fieldType, @NotNull String adapterAccessorCode) {
         if (!mGenericAdapterFieldMap.containsKey(fieldType.toString())) {
             mGenericAdapterFieldMap.put(fieldType.toString(), adapterAccessorCode);
         }

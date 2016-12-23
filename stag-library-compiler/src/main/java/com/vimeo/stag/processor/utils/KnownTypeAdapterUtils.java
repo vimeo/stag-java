@@ -14,7 +14,6 @@ import java.util.BitSet;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Currency;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,6 +26,9 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
+/**
+ * This maintains a list of type vs the known type adapters.
+ */
 public class KnownTypeAdapterUtils {
     @NotNull
     private static final HashMap<String, String> mKnownTypeAdapters = new HashMap<>();
@@ -67,6 +69,12 @@ public class KnownTypeAdapterUtils {
         return mKnownTypeAdapters.get(type);
     }
 
+    /**
+     * Get the instantiater for {@link List} types
+     *
+     * @param typeMirror TypeMirror typeMirror
+     * @return instantiater
+     */
     @NotNull
     public static String getListInstantiater(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
@@ -84,6 +92,12 @@ public class KnownTypeAdapterUtils {
         }
     }
 
+    /**
+     * Get the instantiater for {@link Map} types
+     *
+     * @param typeMirror TypeMirror typeMirror
+     * @return instantiater
+     */
     @NotNull
     public static String getMapInstantiater(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
@@ -111,12 +125,24 @@ public class KnownTypeAdapterUtils {
         }
     }
 
+    /**
+     * Get the instantiater for native array types
+     *
+     * @param typeMirror TypeMirror typeMirror
+     * @return instantiater
+     */
     @Nullable
     public static String getNativeArrayInstantiater(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
         return "new com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor<" + outerClassType + ">(){ @Override public " + outerClassType + "[] construct(int size){ return new " + outerClassType + "[size]; } }";
     }
 
+    /**
+     * Get the type adapter for primitive array types
+     *
+     * @param typeMirror TypeMirror typeMirror
+     * @return adapterName
+     */
     @Nullable
     public static String getNativePrimitiveArrayTypeAdapter(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
@@ -132,6 +158,12 @@ public class KnownTypeAdapterUtils {
         return null;
     }
 
+    /**
+     * Get the type adapter for {@link JsonElement} types
+     *
+     * @param typeMirror TypeMirror typeMirror
+     * @return adapterName
+     */
     @Nullable
     public static String getJsonElementTypeAdapter(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
