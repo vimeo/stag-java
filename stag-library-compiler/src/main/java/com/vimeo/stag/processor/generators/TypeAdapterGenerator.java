@@ -24,12 +24,10 @@
 package com.vimeo.stag.processor.generators;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
@@ -49,13 +47,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
@@ -97,7 +92,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  * Iterate through all the types from the typeArguments and generate type token code accordingly
                  */
                 for (TypeMirror parameterTypeMirror : typeMirrors) {
-                    if (isSupportedNative(parameterTypeMirror.toString())) {
+                    if (TypeUtils.isSupportedNative(parameterTypeMirror.toString())) {
                         result += ", " + parameterTypeMirror.toString() + ".class";
                     } else if (parameterTypeMirror.getKind() == TypeKind.TYPEVAR) {
                         result += ", " + typeVarsMap.get(parameterTypeMirror);
@@ -128,11 +123,11 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  */
                 DeclaredType declaredFieldType = (DeclaredType) fieldType;
                 List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
-                if (isMap(fieldType)) {
+                if (TypeUtils.isSupportedMap(fieldType)) {
                     TypeMirror keyTypeMirror = typeMirrors.get(0);
                     TypeMirror valueTypeMirror = typeMirrors.get(1);
-                    if (isSupportedNative(keyTypeMirror.toString())) {
-                        if (isMap(valueTypeMirror)) {
+                    if (TypeUtils.isSupportedNative(keyTypeMirror.toString())) {
+                        if (TypeUtils.isSupportedMap(valueTypeMirror)) {
                             /*
                              * If it is a nested map, cases where the value is also a map, recursively call the function to
                              * gets its type adapter
@@ -147,9 +142,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         result = "com.google.gson.reflect.TypeToken.getParameterized(" +
                                 declaredFieldType.asElement().toString() + ".class";
                     }
-                } else if (isArray(fieldType)) {
+                } else if (TypeUtils.isSupportedCollection(fieldType)) {
                     TypeMirror valueTypeMirror = typeMirrors.get(0);
-                    if (isArray(valueTypeMirror)) {
+                    if (TypeUtils.isSupportedCollection(valueTypeMirror)) {
                         /*
                          * If it is a nested list, cases where the value is also a List, recursively call the function to
                          * gets its type adapter
@@ -168,64 +163,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         return result;
     }
 
-    static boolean isSupportedPrimitive(@NotNull String type) {
-        return type.equals(long.class.getName())
-                || type.equals(double.class.getName())
-                || type.equals(boolean.class.getName())
-                || type.equals(float.class.getName())
-                || type.equals(int.class.getName())
-                || type.equals(char.class.getName())
-                || type.equals(short.class.getName())
-                || type.equals(byte.class.getName());
-    }
-
-    private static boolean isNativeArray(@NotNull TypeMirror type) {
-        return (type instanceof ArrayType);
-    }
-
-    static boolean isArray(@Nullable TypeMirror type) {
-        if (type == null) {
-            return false;
-        }
-        if (isNativeArray(type)) {
-            return true;
-        }
-        String outerClassType = TypeUtils.getOuterClassType(type);
-        return outerClassType.equals(ArrayList.class.getName()) ||
-                outerClassType.equals(List.class.getName()) ||
-                outerClassType.equals(Collection.class.getName());
-    }
-
-    private static boolean isNativeObject(@Nullable TypeMirror type) {
-        if (type == null) {
-            return false;
-        }
-        String outerClassType = TypeUtils.getOuterClassType(type);
-        return outerClassType.equals(Object.class.getName());
-    }
-
-    private static boolean isJsonElement(@Nullable TypeMirror type) {
-        if (type == null) {
-            return false;
-        }
-        String outerClassType = TypeUtils.getOuterClassType(type);
-        return outerClassType.equals(JsonElement.class.getName())
-                || outerClassType.equals(JsonObject.class.getName())
-                || outerClassType.equals(JsonArray.class.getName());
-    }
-
-    static boolean isMap(@Nullable TypeMirror type) {
-        if (type == null) {
-            return false;
-        }
-        String outerClassType = TypeUtils.getOuterClassType(type);
-        return outerClassType.equals(Map.class.getName()) ||
-                outerClassType.equals(HashMap.class.getName()) ||
-                outerClassType.equals(ConcurrentHashMap.class.getName()) ||
-                outerClassType.equals("android.util.ArrayMap") ||
-                outerClassType.equals("android.support.v4.util.ArrayMap") ||
-                outerClassType.equals(LinkedHashMap.class.getName());
-    }
 
     @NotNull
     private static TypeName getAdapterFieldTypeName(@NotNull TypeMirror type) {
@@ -233,16 +170,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         return ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
     }
 
-    static boolean isSupportedNative(@NotNull String type) {
-        return isSupportedPrimitive(type)
-                || type.equals(String.class.getName())
-                || type.equals(Long.class.getName())
-                || type.equals(Integer.class.getName())
-                || type.equals(Boolean.class.getName())
-                || type.equals(Double.class.getName())
-                || type.equals(Float.class.getName())
-                || type.equals(Number.class.getName());
-    }
 
     @NotNull
     private static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
@@ -293,7 +220,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             runIfAnnotationSupported(element.getKey().getAnnotationMirrors(), new Runnable() {
                 @Override
                 public void run() {
-                    if (!isSupportedPrimitive(elementValue.toString())) {
+                    if (!TypeUtils.isSupportedPrimitive(elementValue.toString())) {
                         nonNullFields.add(variableName);
                     }
                 }
@@ -374,12 +301,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  * If we already have the adapter generated for the fieldType in Stag.Factory class
                  */
                 return "mStagFactory.get" + getterField + "(mGson)";
-            } else if (isNativeArray(fieldType)) {
+            } else if (TypeUtils.isNativeArray(fieldType)) {
                 /*
                  * If the fieldType is of type native arrays such as String[] or int[]
                  */
                 TypeMirror arrayInnerType = getArrayInnerType(fieldType);
-                if (isSupportedPrimitive(arrayInnerType.toString())) {
+                if (TypeUtils.isSupportedPrimitive(arrayInnerType.toString())) {
                     return KnownTypeAdapterUtils.getNativePrimitiveArrayTypeAdapter(fieldType);
                 } else {
                     mStagFactoryUsed = true;
@@ -397,7 +324,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         return adapterCode;
                     }
                 }
-            } else if (isArray(fieldType)) {
+            } else if (TypeUtils.isSupportedCollection(fieldType)) {
                 DeclaredType declaredType = (DeclaredType) fieldType;
                 /*
                  * If the fieldType is of type List
@@ -416,7 +343,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 } else {
                     return adapterCode;
                 }
-            } else if (isMap(fieldType)) {
+            } else if (TypeUtils.isSupportedMap(fieldType)) {
                 DeclaredType declaredType = (DeclaredType) fieldType;
 
                  /*
@@ -439,12 +366,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 } else {
                     return adapterCode;
                 }
-            } else if (isNativeObject(fieldType)) {
+            } else if (TypeUtils.isNativeObject(fieldType)) {
                 mGsonVariableUsed = true;
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
                 String getterName = stagGenerator.addConcreteFieldType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                 return "mStagFactory." + getterName + "(mGson)";
-            } else if (isJsonElement(fieldType)) {
+            } else if (TypeUtils.isJsonElement(fieldType)) {
                 mGsonVariableUsed = true;
                 mStagFactoryUsed = true;
                 String adapterCode = KnownTypeAdapterUtils.getJsonElementTypeAdapter(fieldType);
@@ -542,7 +469,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             final String variableName = element.getKey().getSimpleName().toString();
             String variableType = element.getValue().toString();
 
-            boolean isPrimitive = isSupportedPrimitive(variableType);
+            boolean isPrimitive = TypeUtils.isSupportedPrimitive(variableType);
 
             builder.addCode("\n");
             if (!isPrimitive) {
@@ -595,6 +522,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         TypeVariableName stagFactoryTypeName = stagGenerator.getGeneratedClassName();
         MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
+                .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class).addMember("value", "\"unchecked\"").build())
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Gson.class, "gson")
                 .addParameter(stagFactoryTypeName, "stagFactory");

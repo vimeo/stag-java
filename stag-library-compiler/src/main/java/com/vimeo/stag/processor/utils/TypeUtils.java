@@ -23,18 +23,26 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -151,7 +159,6 @@ public final class TypeUtils {
      * contains no generic type arguments, false otherwise.
      */
     public static boolean isConcreteType(@NotNull TypeMirror typeMirror) {
-
         if (typeMirror.getKind() == TypeKind.TYPEVAR) {
             return false;
         }
@@ -297,7 +304,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), declaredType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                                      " resolved to - " + declaredType.toString());
+                            " resolved to - " + declaredType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -305,7 +312,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                                      " resolved to - " + concreteType.toString());
+                            " resolved to - " + concreteType.toString());
                 }
             }
         }
@@ -340,7 +347,6 @@ public final class TypeUtils {
         }
 
         // if the type is not parameterized, we will return an empty list
-
         return genericTypes;
     }
 
@@ -353,5 +359,81 @@ public final class TypeUtils {
     private static List<? extends TypeMirror> getParameterizedTypes(@NotNull TypeMirror typeMirror) {
         return ((DeclaredType) typeMirror).getTypeArguments();
     }
-}
 
+    public static boolean isSupportedPrimitive(@NotNull String type) {
+        return type.equals(long.class.getName())
+                || type.equals(double.class.getName())
+                || type.equals(boolean.class.getName())
+                || type.equals(float.class.getName())
+                || type.equals(int.class.getName())
+                || type.equals(char.class.getName())
+                || type.equals(short.class.getName())
+                || type.equals(byte.class.getName());
+    }
+
+    public static boolean isNativeArray(@NotNull TypeMirror type) {
+        return (type instanceof ArrayType);
+    }
+
+    public static boolean isSupportedCollection(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        if (isNativeArray(type)) {
+            return true;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return isSupportedList(type) || outerClassType.equals(Collection.class.getName());
+    }
+
+    private static boolean isSupportedList(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return outerClassType.equals(ArrayList.class.getName()) ||
+                outerClassType.equals(List.class.getName());
+    }
+
+    public static boolean isNativeObject(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return outerClassType.equals(Object.class.getName());
+    }
+
+    public static boolean isJsonElement(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return outerClassType.equals(JsonElement.class.getName())
+                || outerClassType.equals(JsonObject.class.getName())
+                || outerClassType.equals(JsonArray.class.getName());
+    }
+
+    public static boolean isSupportedMap(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return outerClassType.equals(Map.class.getName()) ||
+                outerClassType.equals(HashMap.class.getName()) ||
+                outerClassType.equals(ConcurrentHashMap.class.getName()) ||
+                outerClassType.equals("android.util.ArrayMap") ||
+                outerClassType.equals("android.support.v4.util.ArrayMap") ||
+                outerClassType.equals(LinkedHashMap.class.getName());
+    }
+
+    public static boolean isSupportedNative(@NotNull String type) {
+        return isSupportedPrimitive(type)
+                || type.equals(String.class.getName())
+                || type.equals(Long.class.getName())
+                || type.equals(Integer.class.getName())
+                || type.equals(Boolean.class.getName())
+                || type.equals(Double.class.getName())
+                || type.equals(Float.class.getName())
+                || type.equals(Number.class.getName());
+    }
+}
