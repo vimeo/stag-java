@@ -60,7 +60,6 @@ public class KnownTypeAdapterUtils {
         mKnownTypeAdapters.put(Calendar.class.getName(), "com.google.gson.internal.bind.TypeAdapters.CALENDAR");
         mKnownTypeAdapters.put(Number.class.getName(), "com.google.gson.internal.bind.TypeAdapters.NUMBER");
         mKnownTypeAdapters.put(JsonElement.class.getName(), "com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT");
-        mKnownTypeAdapters.put(Date.class.getName(), "com.vimeo.stag.KnownTypeAdapters.DATE_TYPE_ADAPTER");
     }
 
     @Nullable
