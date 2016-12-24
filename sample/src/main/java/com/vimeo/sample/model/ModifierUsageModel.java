@@ -32,7 +32,7 @@ import com.vimeo.stag.UseStag;
  * Private modifier is not allowed.
  */
 @UseStag
-public class AccessModifiers {
+public class ModifierUsageModel {
 
     @GsonAdapterKey("publicModifier")
     public String publicModifier;
@@ -42,4 +42,10 @@ public class AccessModifiers {
 
     @GsonAdapterKey("defaultModifier")
     String defaultModifier;
+
+    //do not include fields of these types in TypeAdapter
+    public static final String DEMO = "demo";
+
+    //do not serialize/deserialize transient fields
+    transient String transientField;
 }

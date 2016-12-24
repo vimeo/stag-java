@@ -156,8 +156,7 @@ public final class StagProcessor extends AbstractProcessor {
                                 Set<Modifier> modifiers = variableElement.getModifiers();
                                 TypeMirror enclosingClass = enclosingElement.asType();
                                 if (TypeUtils.isParameterizedType(enclosingClass) || TypeUtils.isConcreteType(enclosingClass)) {
-                                    if (!modifiers.contains(Modifier.FINAL) || !modifiers.contains(Modifier.STATIC)
-                                            || !modifiers.contains(Modifier.TRANSIENT)) {
+                                    if ((!modifiers.contains(Modifier.FINAL) || !modifiers.contains(Modifier.STATIC)) && !modifiers.contains(Modifier.TRANSIENT)) {
                                         if (!TypeUtils.isAbstract(enclosingElement)) {
                                             checkModifiers(variableElement, modifiers);
                                             mSupportedTypes.add(enclosingClass);
