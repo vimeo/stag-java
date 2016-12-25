@@ -32,7 +32,7 @@ import com.vimeo.stag.UseStag;
  * Private modifier is not allowed.
  */
 @UseStag
-public class ModifierUsageModel {
+public class AccessModifiers {
 
     @GsonAdapterKey("publicModifier")
     public String publicModifier;
