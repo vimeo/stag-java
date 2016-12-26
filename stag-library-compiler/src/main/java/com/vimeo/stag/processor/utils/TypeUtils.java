@@ -136,6 +136,17 @@ public final class TypeUtils {
     }
 
     /**
+     * Determines whether or not the Element is a abstract type.
+     *
+     * @param typeMirror the element to check.
+     * @return true if the element is abstract and
+     * contains no generic type arguments, false otherwise.
+     */
+    public static boolean isAbstract(@Nullable TypeMirror typeMirror) {
+        return (typeMirror instanceof DeclaredType) && isAbstract(((DeclaredType) typeMirror).asElement());
+    }
+
+    /**
      * Determines whether or not the Element is a parameterized type.
      * If the element is a parameterized type or contains parameterized type
      * arguments, this method will return false.

@@ -113,21 +113,22 @@ public class StagGenerator {
         Set<String> knownFieldNames = new HashSet<>(knownTypes.size());
         Set<ClassInfo> genericClasses = new HashSet<>();
         for (TypeMirror knownType : knownTypes) {
-            String adapterFactoryMethodName = null;
-            ClassInfo classInfo = new ClassInfo(knownType);
-            List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
-            if (null == typeArguments || typeArguments.isEmpty()) {
-                adapterFactoryMethodName = classInfo.getTypeAdapterClassName();
-                if (knownFieldNames.contains(adapterFactoryMethodName)) {
-                    adapterFactoryMethodName =
-                            adapterFactoryMethodName + String.valueOf(knownFieldNames.size());
+            if (!TypeUtils.isAbstract(knownType)) {
+                String adapterFactoryMethodName = null;
+                ClassInfo classInfo = new ClassInfo(knownType);
+                List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
+                if (null == typeArguments || typeArguments.isEmpty()) {
+                    adapterFactoryMethodName = classInfo.getTypeAdapterClassName();
+                    if (knownFieldNames.contains(adapterFactoryMethodName)) {
+                        adapterFactoryMethodName = adapterFactoryMethodName + String.valueOf(knownFieldNames.size());
+                    }
+                    knownFieldNames.add(adapterFactoryMethodName);
+                } else {
+                    genericClasses.add(classInfo);
                 }
-                knownFieldNames.add(adapterFactoryMethodName);
-            } else {
-                genericClasses.add(classInfo);
+                mKnownClasses.add(classInfo);
+                mFieldNameMap.put(knownType.toString(), adapterFactoryMethodName);
             }
-            mKnownClasses.add(classInfo);
-            mFieldNameMap.put(knownType.toString(), adapterFactoryMethodName);
         }
 
         for (ClassInfo knownGenericType : genericClasses) {

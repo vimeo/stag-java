@@ -121,6 +121,26 @@ public final class StagProcessor extends AbstractProcessor {
         return SourceVersion.RELEASE_7;
     }
 
+    private void addToSupportedTypes(@NotNull Element element, @NotNull Map<Element, List<VariableElement>> variableMap, @NotNull Element rootElement) {
+        if (element instanceof VariableElement) {
+            final VariableElement variableElement = (VariableElement) element;
+            Set<Modifier> modifiers = variableElement.getModifiers();
+            Element enclosingElement = variableElement.getEnclosingElement();
+            if ((!modifiers.contains(Modifier.FINAL) || !modifiers.contains(Modifier.STATIC)) && !modifiers.contains(Modifier.TRANSIENT)) {
+                checkModifiers(variableElement, modifiers);
+                if (!TypeUtils.isAbstract(element)) {
+                    mSupportedTypes.add(enclosingElement.asType());
+                }
+                addToListMap(variableMap, rootElement, variableElement);
+            }
+        } else if (element instanceof TypeElement) {
+            if (!TypeUtils.isAbstract(element)) {
+                mSupportedTypes.add(element.asType());
+            }
+            addToListMap(variableMap, element, null);
+        }
+    }
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (mHasBeenProcessed) {
@@ -143,35 +163,12 @@ public final class StagProcessor extends AbstractProcessor {
         Set<? extends Element> rootElements = roundEnv.getRootElements();
         for (Element rootElement : rootElements) {
             if (rootElement.getAnnotation(UseStag.class) != null) {
-                if (ElementUtils.isEnum(rootElement)) {
+                if (!TypeUtils.isAbstract(rootElement)) {
                     mSupportedTypes.add(rootElement.asType());
                     addToListMap(variableMap, rootElement, null);
-                } else {
-                    List<? extends Element> enclosedElements = rootElement.getEnclosedElements();
-                    for (Element enclosedElement : enclosedElements) {
-                        if (enclosedElement instanceof VariableElement) {
-                            final VariableElement variableElement = (VariableElement) enclosedElement;
-                            Element enclosingElement = variableElement.getEnclosingElement();
-                            if (!ElementUtils.isEnum(enclosingElement)) {
-                                Set<Modifier> modifiers = variableElement.getModifiers();
-                                TypeMirror enclosingClass = enclosingElement.asType();
-                                if (TypeUtils.isParameterizedType(enclosingClass) || TypeUtils.isConcreteType(enclosingClass)) {
-                                    if ((!modifiers.contains(Modifier.FINAL) || !modifiers.contains(Modifier.STATIC)) && !modifiers.contains(Modifier.TRANSIENT)) {
-                                        if (!TypeUtils.isAbstract(enclosingElement)) {
-                                            checkModifiers(variableElement, modifiers);
-                                            mSupportedTypes.add(enclosingClass);
-                                        }
-                                        addToListMap(variableMap, enclosingElement, variableElement);
-                                    }
-                                }
-                            }
-                        } else if (enclosedElement instanceof TypeElement) {
-                            if (!TypeUtils.isAbstract(enclosedElement)) {
-                                mSupportedTypes.add(enclosedElement.asType());
-                            }
-                            addToListMap(variableMap, enclosedElement, null);
-                        }
-                    }
+                }
+                for (Element enclosedElement : rootElement.getEnclosedElements()) {
+                    addToSupportedTypes(enclosedElement, variableMap, rootElement);
                 }
             }
         }
@@ -179,8 +176,7 @@ public final class StagProcessor extends AbstractProcessor {
         Filer filer = processingEnv.getFiler();
         try {
             for (Entry<Element, List<VariableElement>> entry : variableMap.entrySet()) {
-                SupportedTypesModel.getInstance()
-                        .addSupportedType(new AnnotatedClass(entry.getKey(), entry.getValue()));
+                SupportedTypesModel.getInstance().addSupportedType(new AnnotatedClass(entry.getKey(), entry.getValue()));
             }
             try {
                 mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
