@@ -27,6 +27,8 @@ import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -42,4 +44,10 @@ public class GenericClass<T> {
 
     @GsonAdapterKey("map")
     public Map<String, Map<String, T>> mapField;
+
+    @GsonAdapterKey("mapInteger")
+    public HashMap<Integer, T> mapIntegerField;
+
+    @GsonAdapterKey("arrayInteger")
+    public ArrayList<T> arrayIntegerField;
 }

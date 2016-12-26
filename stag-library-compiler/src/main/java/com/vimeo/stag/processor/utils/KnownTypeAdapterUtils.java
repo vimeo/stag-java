@@ -65,8 +65,8 @@ public class KnownTypeAdapterUtils {
     }
 
     @Nullable
-    public static String getKnownTypeAdapterForType(String type) {
-        return mKnownTypeAdapters.get(type);
+    public static String getKnownTypeAdapterForType(@NotNull TypeMirror typeMirror) {
+        return mKnownTypeAdapters.get(typeMirror.toString());
     }
 
     /**
@@ -167,7 +167,6 @@ public class KnownTypeAdapterUtils {
     @Nullable
     public static String getJsonElementTypeAdapter(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
-        System.out.println(outerClassType);
         if (outerClassType.equals(JsonElement.class.getName())) {
             return "new com.vimeo.stag.KnownTypeAdapters.JsonElementTypeAdapter()";
         } else if (outerClassType.equals(JsonArray.class.getName())) {
