@@ -5,6 +5,8 @@ import com.vimeo.sample_model.ExternalModel1;
 import com.vimeo.sample_model.ExternalModelGeneric;
 import com.vimeo.stag.UseStag;
 
+import java.util.Map;
+
 @UseStag
 public class ExternalModelExample<T> {
 
@@ -23,5 +25,9 @@ public class ExternalModelExample<T> {
 
     @SerializedName("parametrizedInternalGenericExample")
     public GenericClass<T> mParametrizedInternalGenericExample;
+
+
+    @SerializedName("mapExternalModel")
+    public Map<String, ExternalModel1> mMapExternalModel;
 
 }

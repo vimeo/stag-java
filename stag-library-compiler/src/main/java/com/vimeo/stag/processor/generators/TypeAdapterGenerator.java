@@ -334,7 +334,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     String nativeArrayInstantiater = KnownTypeAdapterUtils.getNativeArrayInstantiater(arrayInnerType);
                     String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter<" + arrayInnerType.toString() + ">" +
                             "(" + adapterAccessor + ", " + nativeArrayInstantiater + ")";
-                    if (arrayType.getComponentType().getKind() != TypeKind.TYPEVAR) {
+                    if (arrayType.getComponentType().getKind() != TypeKind.TYPEVAR && !adapterCode.contains(TYPE_ADAPTER_FIELD_PREFIX)) {
                         String getterName = stagGenerator.addFieldForConcreteType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                         return "mStagFactory." + getterName + "(mGson)";
                     } else {
@@ -354,7 +354,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 String listInstantiater = KnownTypeAdapterUtils.getListInstantiater(fieldType);
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter<" + param.toString() + "," + fieldType.toString() + ">" +
                         "(" + paramAdapterAccessor + ", " + listInstantiater + ")";
-                if (declaredType.getKind() != TypeKind.TYPEVAR) {
+                if (declaredType.getKind() != TypeKind.TYPEVAR && !adapterCode.contains(TYPE_ADAPTER_FIELD_PREFIX)) {
                     String getterName = stagGenerator.addFieldForConcreteType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                     return "mStagFactory." + getterName + "(mGson)";
                 } else {
@@ -388,7 +388,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter" + arguments +
                         "(" + keyAdapterAccessor + ", " + valueAdapterAccessor + ", " + mapInstantiater + ")";
-                if (declaredType.getKind() != TypeKind.TYPEVAR) {
+                if (declaredType.getKind() != TypeKind.TYPEVAR && !adapterCode.contains(TYPE_ADAPTER_FIELD_PREFIX)) {
                     String getterName = stagGenerator.addFieldForConcreteType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                     return "mStagFactory." + getterName + "(mGson)";
                 } else {
@@ -436,7 +436,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                                 , stagGenerator, adapterFieldInfo);
                     }
                     adapterCode += ")";
-                    return "mStagFactory." + stagGenerator.addFieldForGenericType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson")) + "(mGson)";
+                    if(!adapterCode.contains(TYPE_ADAPTER_FIELD_PREFIX)) {
+                        return "mStagFactory." + stagGenerator.addFieldForGenericType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson")) + "(mGson)";
+                    } else {
+                        return adapterCode;
+                    }
+
                 } else {
                     return addFieldForUnknownType(fieldType, adapterBuilder, constructorBuilder, stagGenerator, adapterFieldInfo);
                 }
@@ -507,6 +512,18 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 adapterAccessor = getAdapterForUnknownType(fieldType, adapterBuilder, constructorBuilder, typeTokenConstantsGenerator, typeVarsMap, result);
             } else {
                 adapterAccessor = getAdapterAccessor(fieldType, adapterBuilder, constructorBuilder, typeTokenConstantsGenerator, typeVarsMap, stagGenerator, result);
+
+                if(null != adapterAccessor && adapterAccessor.startsWith("new ")) {
+                    //Add this to a member variable
+                    String fieldName = TYPE_ADAPTER_FIELD_PREFIX + result.size();
+                    result.addField(fieldType, fieldName);
+                    String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
+                    TypeName typeName = getAdapterFieldTypeName(fieldType);
+                    adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
+                    String statement = fieldName + " = " + adapterAccessor;
+                    constructorBuilder.addStatement(statement.replace("$", "$$"));
+                    adapterAccessor = fieldName;
+                }
             }
 
             if (null != adapterAccessor) {
