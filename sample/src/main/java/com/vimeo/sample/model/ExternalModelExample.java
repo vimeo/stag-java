@@ -30,4 +30,5 @@ public class ExternalModelExample<T> {
     @SerializedName("mapExternalModel")
     public Map<String, ExternalModel1> mMapExternalModel;
 
+
 }

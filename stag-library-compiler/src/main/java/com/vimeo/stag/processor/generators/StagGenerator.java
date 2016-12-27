@@ -185,7 +185,7 @@ public class StagGenerator {
             if (!mFieldNameMap.containsKey(outerClassType.asType().toString()) &&
                     !KNOWN_COLLECTION_GENERIC_CLASSES.containsKey(outerClassType.toString()) &&
                     !KNOWN_MAP_GENERIC_CLASSES.containsKey(outerClassType.toString()) &&
-                    !mExternalSupportedAdapters.containsKey(outerClassType.toString())) {
+                    !mExternalSupportedAdapters.containsKey(typeMirror.toString())) {
                 return false;
             }
 
