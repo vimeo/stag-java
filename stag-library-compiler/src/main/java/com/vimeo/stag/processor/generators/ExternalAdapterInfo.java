@@ -65,7 +65,6 @@ public class ExternalAdapterInfo {
                                 Name name = executableElement.getSimpleName();
                                 if(name.contentEquals("<init>") && executableElement.getParameters().size() >= 2  && !stagFactoryGeneratedName.equals(executableElement.getParameters().get(1).asType().toString())) {
                                     ExternalAdapterInfo result = new ExternalAdapterInfo(typeElement, adapterTypeElement,  executableElement);
-                                    System.out.println("Yasir Adding : " + typeMirror.toString());
                                     sCheckedClasses.add(classAdapterName);
                                     externalAdapterInfos.add(result);
                                 }
