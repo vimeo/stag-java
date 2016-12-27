@@ -4,10 +4,16 @@ package com.vimeo.stag.processor.generators;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.utils.ElementUtils;
+import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -35,29 +41,46 @@ public class ExternalAdapterInfo {
         this.mAdapterConstructor = adapterConstructor;
     }
 
+    private static Set<String> sCheckedClasses = new HashSet<>();
+
     @Nullable
-    public static ExternalAdapterInfo checkAndInitialize(@NotNull Elements elementUtils, @NotNull String stagFactoryGeneratedName, @NotNull VariableElement variableElement) {
-        TypeMirror typeMirror = variableElement.asType();
+    public static void addExternalAdapters(@NotNull Elements elementUtils,
+                                                          @NotNull String stagFactoryGeneratedName,
+                                                          @NotNull TypeMirror typeMirror,
+                                                          @NotNull Set<ExternalAdapterInfo> externalAdapterInfos) {
         if(!TypeUtils.isSupportedPrimitive(typeMirror.toString()) && typeMirror instanceof DeclaredType) {
             DeclaredType declaredType = (DeclaredType)typeMirror;
             Element typeElement = declaredType.asElement();
             UseStag useStag = null != typeElement ? typeElement.getAnnotation(UseStag.class) : null;
             if(null != useStag) {
-                TypeElement adapterTypeElement = elementUtils.getTypeElement(typeElement.toString() + "$TypeAdapter");
-                if(null != adapterTypeElement) {
-                    for (Element adapterEnclosedElement : adapterTypeElement.getEnclosedElements()) {
-                        if(adapterEnclosedElement instanceof ExecutableElement) {
-                            ExecutableElement executableElement = ((ExecutableElement)adapterEnclosedElement);
-                            Name name = executableElement.getSimpleName();
-                            if(name.contentEquals("<init>") && executableElement.getParameters().size() >= 2  && !stagFactoryGeneratedName.equals(executableElement.getParameters().get(1).asType().toString())) {
-                                return new ExternalAdapterInfo(typeElement, adapterTypeElement,  executableElement);
+                ClassInfo classInfo = new ClassInfo(typeElement.asType());
+                String classAdapterName = FileGenUtils.unescapeEscapedString(classInfo.getTypeAdapterQualifiedClassName());
+                if(!sCheckedClasses.contains(classAdapterName)) {
+                    sCheckedClasses.add(classAdapterName);
+                    TypeElement adapterTypeElement = elementUtils.getTypeElement(classAdapterName);
+                    if(null != adapterTypeElement) {
+                        for (Element adapterEnclosedElement : adapterTypeElement.getEnclosedElements()) {
+                            if(adapterEnclosedElement instanceof ExecutableElement) {
+                                ExecutableElement executableElement = ((ExecutableElement)adapterEnclosedElement);
+                                Name name = executableElement.getSimpleName();
+                                if(name.contentEquals("<init>") && executableElement.getParameters().size() >= 2  && !stagFactoryGeneratedName.equals(executableElement.getParameters().get(1).asType().toString())) {
+                                    ExternalAdapterInfo result = new ExternalAdapterInfo(typeElement, adapterTypeElement,  executableElement);
+                                    System.out.println("Yasir Adding : " + typeMirror.toString());
+                                    sCheckedClasses.add(classAdapterName);
+                                    externalAdapterInfos.add(result);
+                                }
                             }
                         }
                     }
                 }
             }
+            List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+            if(null != typeArguments) {
+                for(TypeMirror typeArgument : typeArguments) {
+                    addExternalAdapters(elementUtils, stagFactoryGeneratedName, typeArgument, externalAdapterInfos);
+                }
+            }
         }
-        return null;
     }
 
     @NotNull
