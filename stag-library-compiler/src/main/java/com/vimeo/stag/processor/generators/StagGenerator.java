@@ -400,11 +400,7 @@ public class StagGenerator {
                 .returns(parameterizedTypeName);
         getAdapterMethodBuilder.beginControlFlow("if (" + variableName + " == null)");
 
-        if (containsTypeArg) {
-            getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode, "$");
-        } else {
-            getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode);
-        }
+        getAdapterMethodBuilder.addStatement(variableName + " = " + adapterCode);
 
         getAdapterMethodBuilder.endControlFlow();
         getAdapterMethodBuilder.addStatement("return " + variableName);

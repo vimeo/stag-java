@@ -149,13 +149,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 } else {
                     TypeMirror outerClass = declaredFieldType.asElement().asType();
                     mGsonVariableUsed = true;
-                    String outerClassString = outerClass.toString();
-                    int idx = outerClassString.indexOf("<");
-                    int idx1 = fieldType.toString().indexOf("<");
-                    String argument = idx1 > 0 ? fieldType.toString().substring(idx1) : "";
-                    if (idx > 0) {
-                        outerClassString = outerClassString.substring(0, idx);
-                    }
                     List<? extends TypeMirror> typeArguments = declaredFieldType.getTypeArguments();
                     ExternalAdapterInfo externalAdapterInfo = stagGenerator.getExternalSupportedAdapter(outerClass);
 
@@ -170,9 +163,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     if(null != externalAdapterInfo) {
                         adapterCode = externalAdapterInfo.getInitializer("gson", typeAdapterCode);
                     } else {
-                        adapterCode = "new " + outerClassString + FileGenUtils.unescapeEscapedString("$TypeAdapter") + argument + "(gson, stagFactory" + typeAdapterCode + ")";
+                        ClassInfo classInfo = new ClassInfo(outerClass);
+                        int idx1 = fieldType.toString().indexOf("<");
+                        String argument = idx1 > 0 ? fieldType.toString().substring(idx1) : "";
+                        adapterCode = "new " + classInfo.getTypeAdapterQualifiedClassName() + argument + "(gson, stagFactory" + typeAdapterCode + ")";
                     }
-                    return adapterCode.replace("$", "$$");
+                    return adapterCode;
                 }
             }
         } else {
@@ -335,7 +331,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter<" + arrayInnerType.toString() + ">" +
                             "(" + adapterAccessor + ", " + nativeArrayInstantiater + ")";
                     if (arrayType.getComponentType().getKind() != TypeKind.TYPEVAR && !adapterCode.contains(TYPE_ADAPTER_FIELD_PREFIX)) {
-                        String getterName = stagGenerator.addFieldForConcreteType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
+                        String getterName = stagGenerator.addFieldForConcreteType(fieldType, adapterCode.replace("mStagFactory", "this").replace("mGson", "gson"));
                         return "mStagFactory." + getterName + "(mGson)";
                     } else {
                         return adapterCode;
@@ -413,21 +409,17 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                                 (null != stagGenerator.getExternalSupportedAdapter(outerClass)))) {
                     mGsonVariableUsed = true;
                     mStagFactoryUsed = true;
-                    String outerClassString = outerClass.toString();
-                    int idx = outerClassString.indexOf("<");
+                    ClassInfo outerClassInfo = new ClassInfo(outerClass);
                     int idx1 = fieldType.toString().indexOf("<");
                     String argument = idx1 > 0 ? fieldType.toString().substring(idx1) : "";
-                    if (idx > 0) {
-                        outerClassString = outerClassString.substring(0, idx);
-                    }
                     List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
                     ExternalAdapterInfo externalAdapterInfo = stagGenerator.getExternalSupportedAdapter(outerClass);
-                    String adapterCode = "new " + outerClassString + FileGenUtils.unescapeEscapedString("$LTypeAdapter") + argument + "(gson, ";
+                    String adapterCode = "new " + outerClassInfo.getTypeAdapterQualifiedClassName() + argument + "(gson, ";
 
                     if(null != externalAdapterInfo) {
                         adapterCode += externalAdapterInfo.getFactoryInitializer();
                     } else {
-                        adapterCode += "this";
+                        adapterCode += "mStagFactory";
                     }
 
                     adapterCode += ", ";
@@ -437,7 +429,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     }
                     adapterCode += ")";
                     if(!adapterCode.contains(TYPE_ADAPTER_FIELD_PREFIX)) {
-                        return "mStagFactory." + stagGenerator.addFieldForGenericType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson")) + "(mGson)";
+                        return "mStagFactory." + stagGenerator.addFieldForGenericType(fieldType, adapterCode.replace("mStagFactory", "this").replace("mGson", "gson")) + "(mGson)";
                     } else {
                         return adapterCode;
                     }
@@ -489,7 +481,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 TypeName typeName = getAdapterFieldTypeName(fieldType);
                 adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
                 String statement = fieldName + " = " + getCleanedFieldInitializer(externalAdapterInfo.getInitializer("gson", ""));
-                constructorBuilder.addStatement(statement.replace("$", "$$"));
+                constructorBuilder.addStatement(statement);
             }
 
             return fieldName;
@@ -524,7 +516,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
                     TypeName typeName = getAdapterFieldTypeName(fieldType);
                     adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-                    String statement = fieldName + " = " + getCleanedFieldInitializer(adapterAccessor).replace("$", "$$");
+                    String statement = fieldName + " = " + getCleanedFieldInitializer(adapterAccessor);
                     constructorBuilder.addStatement(statement);
                     adapterAccessor = fieldName;
                 }

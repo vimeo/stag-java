@@ -86,9 +86,9 @@ public class ExternalAdapterInfo {
     public String getInitializer(@NotNull String gsonVariableName, @NotNull String concatenatedTypeAdapters) {
         int paramsSize = mAdapterConstructor.getParameters().size();
         if(paramsSize == 2) {
-            return "new " + mAdapterType.toString() + "(" + gsonVariableName + ", " + getFactoryInitializer() + ")";
+            return "new " + FileGenUtils.escapeStringForCodeBlock(mAdapterType.toString()) + "(" + gsonVariableName + ", " + getFactoryInitializer() + ")";
         } else {
-            return "new " + mAdapterType.toString() + "(" + gsonVariableName + ", " + getFactoryInitializer() + concatenatedTypeAdapters + ")";
+            return "new " + FileGenUtils.escapeStringForCodeBlock(mAdapterType.toString()) + "(" + gsonVariableName + ", " + getFactoryInitializer() + concatenatedTypeAdapters + ")";
         }
     }
 
