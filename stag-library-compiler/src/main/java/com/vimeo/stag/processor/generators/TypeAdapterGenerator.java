@@ -464,11 +464,15 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         , stagGenerator, adapterFieldInfo);
 
                 if(null != typeAdapterCode) {
-                    constructorBuilder.addStatement(fieldName + " = " + typeAdapterCode);
+                    constructorBuilder.addStatement(fieldName + " = " + getCleanedFieldInitializer(typeAdapterCode));
                 }
             }
             return fieldName;
         }
+    }
+
+    private static String getCleanedFieldInitializer(String code) {
+        return code.replace("mStagFactory", "stagFactory").replace("mGson", "gson");
     }
 
     private static String addFieldForUnknownType(@NotNull TypeMirror fieldType, @NotNull TypeSpec.Builder adapterBuilder,
@@ -484,7 +488,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
                 TypeName typeName = getAdapterFieldTypeName(fieldType);
                 adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-                String statement = fieldName + " = " + externalAdapterInfo.getInitializer("gson", "");
+                String statement = fieldName + " = " + getCleanedFieldInitializer(externalAdapterInfo.getInitializer("gson", ""));
                 constructorBuilder.addStatement(statement.replace("$", "$$"));
             }
 
@@ -520,8 +524,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
                     TypeName typeName = getAdapterFieldTypeName(fieldType);
                     adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-                    String statement = fieldName + " = " + adapterAccessor;
-                    constructorBuilder.addStatement(statement.replace("$", "$$"));
+                    String statement = fieldName + " = " + getCleanedFieldInitializer(adapterAccessor).replace("$", "$$");
+                    constructorBuilder.addStatement(statement);
                     adapterAccessor = fieldName;
                 }
             }
