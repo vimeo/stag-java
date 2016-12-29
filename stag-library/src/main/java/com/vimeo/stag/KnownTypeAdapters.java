@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
 
 /**
@@ -221,8 +222,10 @@ public class KnownTypeAdapters {
         @Override
         public void write(JsonWriter writer, T[] value) throws IOException {
             writer.beginArray();
-            for (T item : value) {
-                mValueTypeAdapter.write(writer, item);
+            if(null != value) {
+                for (T item : value) {
+                    mValueTypeAdapter.write(writer, item);
+                }
             }
             writer.endArray();
         }
@@ -233,33 +236,18 @@ public class KnownTypeAdapters {
                 reader.nextNull();
                 return null;
             }
-            if (reader.peek() != BEGIN_OBJECT) {
+            if (reader.peek() != BEGIN_ARRAY) {
                 reader.skipValue();
                 return null;
             }
-            reader.beginObject();
+            reader.beginArray();
 
             ArrayList<T> object = new ArrayList<>();
-
             while (reader.hasNext()) {
-                com.google.gson.stream.JsonToken jsonToken = reader.peek();
-                if (jsonToken == com.google.gson.stream.JsonToken.NULL) {
-                    reader.skipValue();
-                    continue;
-                }
-
-                if (jsonToken == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {
-                    reader.beginArray();
-                    while (reader.hasNext()) {
-                        object.add(mValueTypeAdapter.read(reader));
-                    }
-                    reader.endArray();
-                } else {
-                    reader.skipValue();
-                }
+                object.add(mValueTypeAdapter.read(reader));
             }
 
-            reader.endObject();
+            reader.endArray();
 
             T[] result = this.mObjectCreator.construct(object.size());
             return object.toArray(result);
@@ -461,8 +449,10 @@ public class KnownTypeAdapters {
         @Override
         public void write(JsonWriter writer, T value) throws IOException {
             writer.beginArray();
-            for (V item : value) {
-                valueTypeAdapter.write(writer, item);
+            if(null != value) {
+                for (V item : value) {
+                    valueTypeAdapter.write(writer, item);
+                }
             }
             writer.endArray();
         }
@@ -471,6 +461,11 @@ public class KnownTypeAdapters {
         public T read(JsonReader reader) throws IOException {
             if (reader.peek() == JsonToken.NULL) {
                 reader.nextNull();
+                return null;
+            }
+
+            if (reader.peek() != BEGIN_ARRAY) {
+                reader.skipValue();
                 return null;
             }
 
