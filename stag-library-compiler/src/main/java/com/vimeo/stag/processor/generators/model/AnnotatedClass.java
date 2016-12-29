@@ -101,7 +101,7 @@ public class AnnotatedClass {
                     SupportedTypesModel.getInstance().getSupportedType(mInheritedType);
 
             map.putAll(TypeUtils.getConcreteMembers(mInheritedType, genericInheritedType.getElement(),
-                                                    genericInheritedType.getMemberVariables()));
+                    genericInheritedType.getMemberVariables()));
         }
 
         if (StagProcessor.DEBUG) {
@@ -112,5 +112,4 @@ public class AnnotatedClass {
 
         return map;
     }
-
 }

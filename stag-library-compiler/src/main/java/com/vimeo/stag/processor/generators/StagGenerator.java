@@ -59,7 +59,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -85,10 +84,6 @@ public class StagGenerator {
         KNOWN_COLLECTION_GENERIC_CLASSES.put(ArrayList.class.getName(), new GenericClassInfo(1, false));
     }
 
-    public static String getGeneratedFactoryClassAndPackage(String generatedPackageName) {
-        return generatedPackageName + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY;
-    }
-
     @NotNull
     private final Filer mFiler;
     @NotNull
@@ -109,7 +104,6 @@ public class StagGenerator {
     private final HashMap<String, String> mGenericAdapterFieldMap = new HashMap<>();
     @NotNull
     private final Set<TypeMirror> mKnownTypes;
-
     @NotNull
     private final Map<String, ExternalAdapterInfo> mExternalSupportedAdapters;
 
@@ -120,7 +114,6 @@ public class StagGenerator {
         mGeneratedPackageName = generatedPackageName;
         mKnownClasses = new ArrayList<>(knownTypes.size());
         mExternalSupportedAdapters = new HashMap<>(externalSupportedAdapters.size());
-
 
 
         Set<String> knownFieldNames = new HashSet<>(knownTypes.size());
@@ -144,7 +137,7 @@ public class StagGenerator {
             }
         }
 
-        for(ExternalAdapterInfo entry : externalSupportedAdapters) {
+        for (ExternalAdapterInfo entry : externalSupportedAdapters) {
             TypeMirror externalType = entry.mExternalClassType.asType();
             mExternalSupportedAdapters.put(externalType.toString(), entry);
         }
@@ -164,6 +157,10 @@ public class StagGenerator {
 
             mGenericClassInfo.put(knownGenericType.getType().toString(), new GenericClassInfo(typeArguments.size(), hasUnknownTypeFields));
         }
+    }
+
+    public static String getGeneratedFactoryClassAndPackage(String generatedPackageName) {
+        return generatedPackageName + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY;
     }
 
     Set<TypeMirror> getKnownTypes() {
@@ -227,7 +224,6 @@ public class StagGenerator {
         JavaFile javaFile = JavaFile.builder(generatedPackageName, adaptersBuilder.build()).build();
         FileGenUtils.writeToFile(javaFile, mFiler);
     }
-
 
     @NotNull
     private TypeSpec getAdapterFactorySpec() {
@@ -475,7 +471,6 @@ public class StagGenerator {
 
         return isArray ? fieldNameBuilder.toString() + "Array" : fieldNameBuilder.toString();
     }
-
 
     public ExternalAdapterInfo getExternalSupportedAdapter(@NotNull TypeMirror fieldType) {
         return mExternalSupportedAdapters.get(fieldType.toString());
