@@ -496,6 +496,10 @@ public class KnownTypeAdapters {
 
         @Override
         public void write(JsonWriter writer, T value) throws IOException {
+            if(null == value) {
+                writer.nullValue();
+                return;
+            }
             boolean hasComplexKeys = false;
             List<JsonElement> keys = new ArrayList<>(value.size());
 
