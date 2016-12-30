@@ -40,6 +40,8 @@ public class Video {
     @GsonAdapterKey("link")
     public String mLink;
 
+    public com.vimeo.sample.model1.Video video;
+
     @GsonAdapterKey("name")
     public String mName;
 

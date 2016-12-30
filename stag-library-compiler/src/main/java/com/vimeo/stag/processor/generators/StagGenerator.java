@@ -115,7 +115,6 @@ public class StagGenerator {
         mKnownClasses = new ArrayList<>(knownTypes.size());
         mExternalSupportedAdapters = new HashMap<>(externalSupportedAdapters.size());
 
-
         Set<String> knownFieldNames = new HashSet<>(knownTypes.size());
         Set<ClassInfo> genericClasses = new HashSet<>();
         for (TypeMirror knownType : knownTypes) {
@@ -126,7 +125,7 @@ public class StagGenerator {
                 if (null == typeArguments || typeArguments.isEmpty()) {
                     adapterFactoryMethodName = classInfo.getTypeAdapterClassName();
                     if (knownFieldNames.contains(adapterFactoryMethodName)) {
-                        adapterFactoryMethodName = adapterFactoryMethodName + String.valueOf(knownFieldNames.size());
+                        adapterFactoryMethodName = removeSpecialCharacters(classInfo.getPackageName()) + adapterFactoryMethodName;
                     }
                     knownFieldNames.add(adapterFactoryMethodName);
                 } else {
@@ -459,6 +458,16 @@ public class StagGenerator {
         typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
         typeString = typeString.replace("<", "").replace(">", "").replace("[", "").replace("]", "");
         typeString = typeString.replace(",", "").replace(".", "");
+        return typeString;
+    }
+
+    @NotNull
+    private String removeSpecialCharacters(String typeString) {
+        typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
+        typeString = typeString.replace("<", "").replace(">", "").replace("[", "").replace("]", "");
+        typeString = typeString.replace(",", "").replace(".", "");
+        //this is done to make the first char as upper case.
+        typeString = typeString.substring(0, 1).toUpperCase() + typeString.substring(1);
         return typeString;
     }
 
