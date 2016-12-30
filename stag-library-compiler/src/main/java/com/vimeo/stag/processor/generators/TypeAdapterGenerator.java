@@ -316,7 +316,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter<" + arrayInnerType.toString() + ">" +
                             "(" + adapterAccessor + ", " + nativeArrayInstantiater + ")";
                     if (arrayType.getComponentType().getKind() != TypeKind.TYPEVAR && !adapterCode.contains(TYPE_ADAPTER_FIELD_PREFIX)) {
-                        String getterName = stagGenerator.addFieldForConcreteType(fieldType, adapterCode.replace("mStagFactory", "this").replace("mGson", "gson"));
+                        String getterName = stagGenerator.addFieldForKnownType(fieldType, adapterCode.replace("mStagFactory", "this").replace("mGson", "gson"));
                         return "mStagFactory." + getterName + "(mGson)";
                     } else {
                         return adapterCode;
@@ -339,7 +339,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter<" + param.toString() + "," + fieldType.toString() + ">" +
                         "(" + paramAdapterAccessor + ", " + listInstantiater + ")";
                 if (declaredType.getKind() != TypeKind.TYPEVAR && !adapterCode.contains(TYPE_ADAPTER_FIELD_PREFIX)) {
-                    String getterName = stagGenerator.addFieldForConcreteType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
+                    String getterName = stagGenerator.addFieldForKnownType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                     return "mStagFactory." + getterName + "(mGson)";
                 } else {
                     return adapterCode;
@@ -373,7 +373,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter" + arguments +
                         "(" + keyAdapterAccessor + ", " + valueAdapterAccessor + ", " + mapInstantiater + ")";
                 if (declaredType.getKind() != TypeKind.TYPEVAR && !adapterCode.contains(TYPE_ADAPTER_FIELD_PREFIX)) {
-                    String getterName = stagGenerator.addFieldForConcreteType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
+                    String getterName = stagGenerator.addFieldForKnownType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                     return "mStagFactory." + getterName + "(mGson)";
                 } else {
                     return adapterCode;
@@ -384,7 +384,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  */
                 mGsonVariableUsed = true;
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
-                String getterName = stagGenerator.addFieldForConcreteType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
+                String getterName = stagGenerator.addFieldForKnownType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                 return "mStagFactory." + getterName + "(mGson)";
             } else if (fieldType instanceof DeclaredType) {
                 /*
@@ -418,7 +418,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     }
                     adapterCode += ")";
                     if (!adapterCode.contains(TYPE_ADAPTER_FIELD_PREFIX)) {
-                        return "mStagFactory." + stagGenerator.addFieldForGenericType(fieldType, adapterCode.replace("mStagFactory", "this").replace("mGson", "gson")) + "(mGson)";
+                        return "mStagFactory." + stagGenerator.addFieldForKnownType(fieldType, adapterCode.replace("mStagFactory", "this").replace("mGson", "gson")) + "(mGson)";
                     } else {
                         return adapterCode;
                     }
