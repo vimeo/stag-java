@@ -393,8 +393,8 @@ public class StagGenerator {
             TypeName typeName = TypeVariableName.get(entry.getKey());
             TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
             String variableName = "m" + methodName;
-            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, variableName, Modifier.PRIVATE);
-            MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + methodName)
+            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, FileGenUtils.unescapeEscapedString(variableName), Modifier.PRIVATE);
+            MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder("get" + FileGenUtils.unescapeEscapedString(methodName))
                     .addModifiers(Modifier.PUBLIC)
                     .addParameter(Gson.class, "gson")
                     .returns(parameterizedTypeName);
@@ -445,7 +445,7 @@ public class StagGenerator {
      */
     @NotNull
     String addFieldForKnownType(@NotNull TypeMirror fieldType, @NotNull String adapterAccessorCode) {
-        String methodName = FileGenUtils.unescapeEscapedString(generateMethodName(fieldType)) + TYPE_ADAPTER_SUFFIX;
+        String methodName = generateMethodName(fieldType) + TYPE_ADAPTER_SUFFIX;
         if (!mKnownAdapterFieldMap.containsKey(fieldType.toString())) {
             mKnownAdapterFieldMap.put(fieldType.toString(), adapterAccessorCode);
             mKnownFieldToMethodNameMap.put(fieldType.toString(), methodName);
@@ -460,13 +460,13 @@ public class StagGenerator {
         if (TypeUtils.isConcreteType(typeMirror)) {
             if (TypeUtils.isNativeArray(typeMirror)) {
                 result = removeSpecialCharacters(typeMirror);
-                return result + "Primitive";
+                return result + "$$PrimitiveArray" + "$$";
             } else if (typeMirror instanceof DeclaredType) {
                 List<? extends TypeMirror> typeArguments = ((DeclaredType) typeMirror).getTypeArguments();
                 if (typeArguments == null || typeArguments.size() == 0) {
-                    result = removeSpecialCharacters(typeMirror);
+                    result = removeSpecialCharacters(typeMirror) + "$$";
                 } else {
-                    result += outerClassType;
+                    result += outerClassType + "$$";
                     for (TypeMirror innerType : typeArguments) {
                         result += generateMethodName(innerType);
                     }
@@ -483,18 +483,6 @@ public class StagGenerator {
         typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
         typeString = typeString.replace("<", "").replace(">", "").replace("[", "").replace("]", "");
         typeString = typeString.replace(",", "").replace(".", "");
-        return typeString;
-    }
-
-    @NotNull
-    private String removeSpecialCharacters(String typeString) {
-        String input = typeString;
-        typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
-        typeString = typeString.replace("<", "").replace(">", "").replace("[", "").replace("]", "");
-        typeString = typeString.replace(",", "").replace(".", "");
-        //this is done to make the first char as upper case.
-        typeString = typeString.substring(0, 1).toUpperCase() + typeString.substring(1);
-        System.out.println("Input : " + input + " Output: " + typeString);
         return typeString;
     }
 

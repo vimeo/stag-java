@@ -38,7 +38,6 @@ public class KnownTypeAdapterUtils {
     @NotNull
     private static final HashMap<String, String> SUPPORTED_COLLECTION_INFO = new HashMap<>();
 
-
     @NotNull
     private static final HashMap<String, String> SUPPORTED_PRIMITIVE_ARRAY = new HashMap<>();
 
@@ -76,12 +75,9 @@ public class KnownTypeAdapterUtils {
         KNOWN_TYPE_ADAPTERS.put(JsonPrimitive.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_PRIMITIVE_TYPE_ADAPTER");
         KNOWN_TYPE_ADAPTERS.put(JsonNull.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_NULL_TYPE_ADAPTER");
 
-
-
         SUPPORTED_COLLECTION_INFO.put(ArrayList.class.getName(), "com.vimeo.stag.KnownTypeAdapters.ArrayListInstantiater");
         SUPPORTED_COLLECTION_INFO.put(List.class.getName(), "com.vimeo.stag.KnownTypeAdapters.ListInstantiater");
         SUPPORTED_COLLECTION_INFO.put(Collection.class.getName(), "com.vimeo.stag.KnownTypeAdapters.CollectionInstantiater");
-
 
         SUPPORTED_PRIMITIVE_ARRAY.put(int[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveIntegerArrayAdapter");
         SUPPORTED_PRIMITIVE_ARRAY.put(long[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveLongArrayAdapter");
@@ -92,10 +88,6 @@ public class KnownTypeAdapterUtils {
         SUPPORTED_PRIMITIVE_ARRAY.put(boolean[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveBooleanArrayAdapter");
         SUPPORTED_PRIMITIVE_ARRAY.put(byte[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveByteArrayAdapter");
     }
-
-
-
-
 
     @Nullable
     public static String getKnownTypeAdapterForType(@NotNull TypeMirror typeMirror) {
@@ -173,6 +165,4 @@ public class KnownTypeAdapterUtils {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
         return SUPPORTED_PRIMITIVE_ARRAY.get(outerClassType);
     }
-
-
 }
