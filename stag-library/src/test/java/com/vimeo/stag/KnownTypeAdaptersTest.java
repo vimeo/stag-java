@@ -1,6 +1,7 @@
 package com.vimeo.stag;
 
 import com.google.gson.TypeAdapter;
+import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
@@ -9,6 +10,7 @@ import org.junit.Test;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
 
 public class KnownTypeAdaptersTest {
 
@@ -116,5 +118,47 @@ public class KnownTypeAdaptersTest {
         Assert.assertEquals(value.intValue(), readValue.intValue());
         Assert.assertEquals(value.doubleValue(), readValue.doubleValue(), 0);
         Assert.assertEquals(value, readValue, 0);
+    }
+
+    /**
+     * Test for ListTypeAdapter
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForListTypeAdapter() throws Exception {
+
+        //for string arrays
+        ArrayList<String> dummyList = Utils.createStringDummyList();
+
+        TypeAdapter<ArrayList<String>> listTypeAdapter = new KnownTypeAdapters.ListTypeAdapter<>(TypeAdapters.STRING,
+                new KnownTypeAdapters.ArrayListInstantiater<String>());
+
+        StringWriter stringWriter = new StringWriter();
+        listTypeAdapter.write(new JsonWriter(stringWriter), dummyList);
+        String jsonString = stringWriter.toString();
+
+        ArrayList<String> readValue = listTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertEquals(dummyList.size(), readValue.size());
+        for (int i = 0; i < dummyList.size(); i++) {
+            Assert.assertEquals(dummyList.get(i), readValue.get(i));
+        }
+
+        //for integer arrays
+        ArrayList<Integer> intDummyList = Utils.createIntegerDummyList();
+
+        TypeAdapter<ArrayList<Integer>> listTypeAdapter1 = new KnownTypeAdapters.ListTypeAdapter<>(KnownTypeAdapters.INTEGER,
+                new KnownTypeAdapters.ArrayListInstantiater<Integer>());
+        stringWriter = new StringWriter();
+        listTypeAdapter1.write(new JsonWriter(stringWriter), intDummyList);
+        jsonString = stringWriter.toString();
+
+        ArrayList<Integer> readValue1 = listTypeAdapter1.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertEquals(intDummyList.size(), readValue1.size());
+        for (int i = 0; i < intDummyList.size(); i++) {
+            Assert.assertEquals(intDummyList.get(i), readValue1.get(i));
+        }
     }
 }
