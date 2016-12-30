@@ -85,7 +85,7 @@ public class ClassInfo {
      */
     @NotNull
     public String getTypeAdapterClassName() {
-        return FileGenUtils.escapeStringForCodeBlock(mClassName + "TypeAdapter");
+        return FileGenUtils.escapeStringForCodeBlock(mClassName + "$TypeAdapter");
     }
 
     /**

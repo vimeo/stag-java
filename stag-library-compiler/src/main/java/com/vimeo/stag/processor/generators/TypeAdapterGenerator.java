@@ -394,7 +394,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 int size = declaredType.getTypeArguments() == null ? 0 : declaredType.getTypeArguments().size();
                 TypeMirror outerClass = declaredType.asElement().asType();
                 if (size != 0 &&
-                        (stagGenerator.getKnownTypes().contains(outerClass) ||
+                        (stagGenerator.isKnownType(outerClass) ||
                                 (null != stagGenerator.getExternalSupportedAdapter(outerClass)))) {
                     mGsonVariableUsed = true;
                     mStagFactoryUsed = true;

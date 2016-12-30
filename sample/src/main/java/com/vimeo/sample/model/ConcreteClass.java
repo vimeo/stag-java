@@ -30,16 +30,19 @@ import com.vimeo.stag.UseStag;
  * This class provides an example of using
  * nested static inner model classes.
  */
+@UseStag
 public class ConcreteClass {
 
     @SerializedName("doublyNestedModel")
     NestedModel.DoublyNestedModel doublyNestedModel;
 
+    @UseStag
     public static class NestedModel {
 
         @SerializedName("message")
         public String message;
 
+        @UseStag
         public static class DoublyNestedModel {
 
             @SerializedName("message")

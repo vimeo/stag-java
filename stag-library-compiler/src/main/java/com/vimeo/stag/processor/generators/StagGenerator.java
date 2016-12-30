@@ -115,7 +115,8 @@ public class StagGenerator {
         mKnownClasses = new ArrayList<>(knownTypes.size());
         mExternalSupportedAdapters = new HashMap<>(externalSupportedAdapters.size());
 
-        Set<String> knownFieldNames = new HashSet<>(knownTypes.size());
+        Map<String, ClassInfo> knownFieldNames = new HashMap<>(knownTypes.size());
+        Map<String, List<ClassInfo>> clashingClassNames = new HashMap<>(knownTypes.size());
         Set<ClassInfo> genericClasses = new HashSet<>();
         for (TypeMirror knownType : knownTypes) {
             if (!TypeUtils.isAbstract(knownType)) {
@@ -124,15 +125,39 @@ public class StagGenerator {
                 List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
                 if (null == typeArguments || typeArguments.isEmpty()) {
                     adapterFactoryMethodName = classInfo.getTypeAdapterClassName();
-                    if (knownFieldNames.contains(adapterFactoryMethodName)) {
-                        adapterFactoryMethodName = removeSpecialCharacters(classInfo.getPackageName()) + adapterFactoryMethodName;
+                    ClassInfo clashingClass = knownFieldNames.get(adapterFactoryMethodName);
+                    if (null != clashingClass) {
+                        List<ClassInfo> classInfos = clashingClassNames.get(adapterFactoryMethodName);
+                        if(null == classInfos) {
+                            classInfos = new ArrayList<>();
+                            classInfos.add(clashingClass);
+                            clashingClassNames.put(adapterFactoryMethodName, classInfos);
+                        }
+                        classInfos.add(classInfo);
+                    } else {
+                        knownFieldNames.put(adapterFactoryMethodName, classInfo);
                     }
-                    knownFieldNames.add(adapterFactoryMethodName);
                 } else {
                     genericClasses.add(classInfo);
                 }
                 mKnownClasses.add(classInfo);
                 mFieldNameMap.put(knownType.toString(), adapterFactoryMethodName);
+            }
+        }
+
+        //Resolve names for clashing classes
+        for(Map.Entry<String, List<ClassInfo>> entry : clashingClassNames.entrySet()) {
+            String adapterFactoryMethodName = entry.getKey();
+            for(ClassInfo classInfo : entry.getValue()) {
+                StringBuilder newAdapterName = new StringBuilder();
+                for(String path : classInfo.getPackageName().split("\\.")){
+                    newAdapterName.append(Character.toUpperCase(path.charAt(0)));
+                    if(path.length() > 1){
+                        newAdapterName.append(path.substring(1));
+                    }
+                }
+                newAdapterName.append(adapterFactoryMethodName);
+                mFieldNameMap.put(classInfo.getType().toString(), newAdapterName.toString());
             }
         }
 
@@ -161,8 +186,8 @@ public class StagGenerator {
         return generatedPackageName + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY;
     }
 
-    Set<TypeMirror> getKnownTypes() {
-        return mKnownTypes;
+    boolean isKnownType(@NotNull TypeMirror mirror) {
+        return mKnownTypes.contains(mirror);
     }
 
     private boolean checkKnownAdapters(@NotNull TypeMirror typeMirror) {
@@ -463,11 +488,13 @@ public class StagGenerator {
 
     @NotNull
     private String removeSpecialCharacters(String typeString) {
+        String input = typeString;
         typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
         typeString = typeString.replace("<", "").replace(">", "").replace("[", "").replace("]", "");
         typeString = typeString.replace(",", "").replace(".", "");
         //this is done to make the first char as upper case.
         typeString = typeString.substring(0, 1).toUpperCase() + typeString.substring(1);
+        System.out.println("Input : " + input + " Output: " + typeString);
         return typeString;
     }
 
