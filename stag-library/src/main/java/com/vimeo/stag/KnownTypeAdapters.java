@@ -42,8 +42,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
-import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
-import static com.google.gson.stream.JsonToken.BOOLEAN;
 
 /**
  * This class contains a list of KnownTypeAdapters such as {@link MapTypeAdapter}, {@link ListTypeAdapter} and more.
@@ -72,10 +70,6 @@ public class KnownTypeAdapters {
     public static final TypeAdapter<Byte> BYTE = new TypeAdapter<Byte>() {
         @Override
         public Byte read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
             try {
                 int intValue = in.nextInt();
                 return (byte) intValue;
@@ -88,7 +82,7 @@ public class KnownTypeAdapters {
         public void write(JsonWriter out, Byte value) throws IOException {
             out.value(value);
         }
-    };
+    }.nullSafe();
 
     /**
      * Type Adapter for {@link Short}.
@@ -96,10 +90,6 @@ public class KnownTypeAdapters {
     public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
         @Override
         public Short read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
             try {
                 return (short) in.nextInt();
             } catch (NumberFormatException e) {
@@ -111,7 +101,7 @@ public class KnownTypeAdapters {
         public void write(JsonWriter out, Short value) throws IOException {
             out.value(value);
         }
-    };
+    }.nullSafe();
 
     /**
      * Type Adapter for {@link Integer}.
@@ -119,10 +109,6 @@ public class KnownTypeAdapters {
     public static final TypeAdapter<Integer> INTEGER = new TypeAdapter<Integer>() {
         @Override
         public Integer read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
             try {
                 return in.nextInt();
             } catch (NumberFormatException e) {
@@ -134,7 +120,7 @@ public class KnownTypeAdapters {
         public void write(JsonWriter out, Integer value) throws IOException {
             out.value(value);
         }
-    };
+    }.nullSafe();
 
     /**
      * Type Adapter for {@link Long}.
@@ -142,10 +128,6 @@ public class KnownTypeAdapters {
     public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
         @Override
         public Long read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
             try {
                 return in.nextLong();
             } catch (NumberFormatException e) {
@@ -157,7 +139,7 @@ public class KnownTypeAdapters {
         public void write(JsonWriter out, Long value) throws IOException {
             out.value(value);
         }
-    };
+    }.nullSafe();
 
     /**
      * Type Adapter for {@link Float}.
@@ -165,10 +147,6 @@ public class KnownTypeAdapters {
     public static final TypeAdapter<Float> FLOAT = new TypeAdapter<Float>() {
         @Override
         public Float read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
             return (float) in.nextDouble();
         }
 
@@ -176,7 +154,7 @@ public class KnownTypeAdapters {
         public void write(JsonWriter out, Float value) throws IOException {
             out.value(value);
         }
-    };
+    }.nullSafe();
 
     /**
      * Type Adapter for {@link Double}.
@@ -184,10 +162,6 @@ public class KnownTypeAdapters {
     public static final TypeAdapter<Double> DOUBLE = new TypeAdapter<Double>() {
         @Override
         public Double read(JsonReader in) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
-                in.nextNull();
-                return null;
-            }
             return in.nextDouble();
         }
 
@@ -195,7 +169,7 @@ public class KnownTypeAdapters {
         public void write(JsonWriter out, Double value) throws IOException {
             out.value(value);
         }
-    };
+    }.nullSafe();
 
     public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(INTEGER, new ArrayListInstantiater<Integer>());
     public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(LONG, new ArrayListInstantiater<Long>());
@@ -776,7 +750,7 @@ public class KnownTypeAdapters {
             JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
             return jsonElement != null && jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : null;
         }
-    };
+    }.nullSafe();
 
     public static final TypeAdapter<JsonArray> JSON_ARRAY_TYPE_ADAPTER = new TypeAdapter<JsonArray>() {
         @Override
@@ -789,7 +763,7 @@ public class KnownTypeAdapters {
             JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
             return jsonElement != null && jsonElement.isJsonArray() ? jsonElement.getAsJsonArray() : null;
         }
-    };
+    }.nullSafe();
 
     public static final TypeAdapter<JsonPrimitive> JSON_PRIMITIVE_TYPE_ADAPTER = new TypeAdapter<JsonPrimitive>() {
 
@@ -803,7 +777,7 @@ public class KnownTypeAdapters {
             JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
             return jsonElement != null && jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
         }
-    };
+    }.nullSafe();
 
     public static final TypeAdapter<JsonNull> JSON_NULL_TYPE_ADAPTER = new TypeAdapter<JsonNull>() {
 
@@ -817,5 +791,5 @@ public class KnownTypeAdapters {
             JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
             return jsonElement != null && jsonElement.isJsonNull() ? jsonElement.getAsJsonNull() : null;
         }
-    };
+    }.nullSafe();
 }
