@@ -411,8 +411,7 @@ public final class TypeUtils {
         if (isNativeArray(type)) {
             return true;
         }
-        String outerClassType = TypeUtils.getOuterClassType(type);
-        return isSupportedList(type) || outerClassType.equals(Collection.class.getName());
+        return isSupportedList(type);
     }
 
     /**
@@ -421,13 +420,14 @@ public final class TypeUtils {
      * @param type :TypeMirror type
      * @return boolean
      */
-    private static boolean isSupportedList(@Nullable TypeMirror type) {
+    public static boolean isSupportedList(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-                outerClassType.equals(List.class.getName());
+                outerClassType.equals(List.class.getName()) ||
+                outerClassType.equals(Collection.class.getName());
     }
 
     /**

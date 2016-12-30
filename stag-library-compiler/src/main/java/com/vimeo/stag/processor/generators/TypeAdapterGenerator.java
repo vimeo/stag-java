@@ -322,16 +322,19 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         return adapterCode;
                     }
                 }
-            } else if (TypeUtils.isSupportedCollection(fieldType)) {
+            } else if (TypeUtils.isSupportedList(fieldType)) {
                 DeclaredType declaredType = (DeclaredType) fieldType;
                 /*
                  * If the fieldType is of type List
                  */
                 mStagFactoryUsed = true;
                 mGsonVariableUsed = true;
-                TypeMirror param = declaredType.getTypeArguments().get(0);
+                List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+                TypeMirror param = typeArguments.get(0);
                 String paramAdapterAccessor = getAdapterAccessor(param, adapterBuilder, constructorBuilder,
                         typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
+
+
                 String listInstantiater = KnownTypeAdapterUtils.getListInstantiater(fieldType);
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter<" + param.toString() + "," + fieldType.toString() + ">" +
                         "(" + paramAdapterAccessor + ", " + listInstantiater + ")";
@@ -383,14 +386,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
                 String getterName = stagGenerator.addFieldForConcreteType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                 return "mStagFactory." + getterName + "(mGson)";
-            } else if (TypeUtils.isJsonElement(fieldType)) {
-                 /*
-                 * If the fieldType is JsonElement, use JsonElementTypeAdapters, and its subclass type adaptersl
-                 */
-                mGsonVariableUsed = true;
-                mStagFactoryUsed = true;
-                String adapterCode = KnownTypeAdapterUtils.getJsonElementTypeAdapter(fieldType);
-                return adapterCode != null ? "mStagFactory." + stagGenerator.addFieldForConcreteType(fieldType, adapterCode) + "(mGson)" : "";
             } else if (fieldType instanceof DeclaredType) {
                 /*
                  * If the field type is generic and does not belong to above cases.

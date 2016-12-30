@@ -24,10 +24,10 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.JsonReaderInternalAccess;
-import com.google.gson.internal.LazilyParsedNumber;
 import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
+import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
 import static com.google.gson.stream.JsonToken.BEGIN_OBJECT;
+import static com.google.gson.stream.JsonToken.BOOLEAN;
 
 /**
  * This class contains a list of KnownTypeAdapters such as {@link MapTypeAdapter}, {@link ListTypeAdapter} and more.
@@ -200,6 +201,9 @@ public class KnownTypeAdapters {
     public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(LONG, new ArrayListInstantiater<Long>());
     public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiater<Double>());
     public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(SHORT, new ArrayListInstantiater<Short>());
+    public static final TypeAdapter<ArrayList<Float>> FLOAT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(FLOAT, new ArrayListInstantiater<Float>());
+    public static final TypeAdapter<ArrayList<Boolean>> BOOLEAN_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(TypeAdapters.BOOLEAN, new ArrayListInstantiater<Boolean>());
+    public static final TypeAdapter<ArrayList<Byte>> BYTE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(BYTE, new ArrayListInstantiater<Byte>());
 
     public interface PrimitiveArrayConstructor<T> {
         T[] construct(int size);
@@ -270,12 +274,12 @@ public class KnownTypeAdapters {
         }
 
         public static int[] read(JsonReader reader) throws IOException {
-            ArrayList<Integer> integerArrayList = INTEGER_ARRAY_LIST_ADAPTER.read(reader);
+            ArrayList<Integer> arrayList = INTEGER_ARRAY_LIST_ADAPTER.read(reader);
             int[] result = null;
-            if (null != integerArrayList) {
-                result = new int[integerArrayList.size()];
-                for (int idx = 0; idx < integerArrayList.size(); idx++) {
-                    result[idx] = integerArrayList.get(idx);
+            if (null != arrayList) {
+                result = new int[arrayList.size()];
+                for (int idx = 0; idx < arrayList.size(); idx++) {
+                    result[idx] = arrayList.get(idx);
                 }
             }
             return result;
@@ -297,12 +301,12 @@ public class KnownTypeAdapters {
         }
 
         public static long[] read(JsonReader reader) throws IOException {
-            ArrayList<Long> longArrayList = LONG_ARRAY_LIST_ADAPTER.read(reader);
+            ArrayList<Long> arrayList = LONG_ARRAY_LIST_ADAPTER.read(reader);
             long[] result = null;
-            if (null != longArrayList) {
-                result = new long[longArrayList.size()];
-                for (int idx = 0; idx < longArrayList.size(); idx++) {
-                    result[idx] = longArrayList.get(idx);
+            if (null != arrayList) {
+                result = new long[arrayList.size()];
+                for (int idx = 0; idx < arrayList.size(); idx++) {
+                    result[idx] = arrayList.get(idx);
                 }
             }
             return result;
@@ -324,12 +328,12 @@ public class KnownTypeAdapters {
         }
 
         public static double[] read(JsonReader reader) throws IOException {
-            ArrayList<Double> longArrayList = DOUBLE_ARRAY_LIST_ADAPTER.read(reader);
+            ArrayList<Double> arrayList = DOUBLE_ARRAY_LIST_ADAPTER.read(reader);
             double[] result = null;
-            if (null != longArrayList) {
-                result = new double[longArrayList.size()];
-                for (int idx = 0; idx < longArrayList.size(); idx++) {
-                    result[idx] = longArrayList.get(idx);
+            if (null != arrayList) {
+                result = new double[arrayList.size()];
+                for (int idx = 0; idx < arrayList.size(); idx++) {
+                    result[idx] = arrayList.get(idx);
                 }
             }
             return result;
@@ -351,15 +355,115 @@ public class KnownTypeAdapters {
         }
 
         public static short[] read(JsonReader reader) throws IOException {
-            ArrayList<Short> longArrayList = SHORT_ARRAY_LIST_ADAPTER.read(reader);
+            ArrayList<Short> arrayList = SHORT_ARRAY_LIST_ADAPTER.read(reader);
             short[] result = null;
-            if (null != longArrayList) {
-                result = new short[longArrayList.size()];
-                for (int idx = 0; idx < longArrayList.size(); idx++) {
-                    result[idx] = longArrayList.get(idx);
+            if (null != arrayList) {
+                result = new short[arrayList.size()];
+                for (int idx = 0; idx < arrayList.size(); idx++) {
+                    result[idx] = arrayList.get(idx);
                 }
             }
             return result;
+        }
+    }
+    /**
+     * Type Adapter for float[] type. This can be directly accessed to read and write
+     */
+    public static final class PrimitiveFloatArrayAdapter {
+        public static void write(JsonWriter writer, float[] value) throws IOException {
+            if (null != value) {
+                writer.beginArray();
+                for (float item : value) {
+                    writer.value(item);
+                }
+                writer.endArray();
+            }
+        }
+
+        public static float[] read(JsonReader reader) throws IOException {
+            ArrayList<Float> arrayList = FLOAT_ARRAY_LIST_ADAPTER.read(reader);
+            float[] result = null;
+            if (null != arrayList) {
+                result = new float[arrayList.size()];
+                for (int idx = 0; idx < arrayList.size(); idx++) {
+                    result[idx] = arrayList.get(idx);
+                }
+            }
+            return result;
+        }
+    }
+
+    /**
+     * Type Adapter for boolean[] type. This can be directly accessed to read and write
+     */
+    public static final class PrimitiveBooleanArrayAdapter {
+        public static void write(JsonWriter writer, boolean[] value) throws IOException {
+            if (null != value) {
+                writer.beginArray();
+                for (boolean item : value) {
+                    writer.value(item);
+                }
+                writer.endArray();
+            }
+        }
+
+        public static boolean[] read(JsonReader reader) throws IOException {
+            ArrayList<Boolean> arrayList = BOOLEAN_ARRAY_LIST_ADAPTER.read(reader);
+            boolean[] result = null;
+            if (null != arrayList) {
+                result = new boolean[arrayList.size()];
+                for (int idx = 0; idx < arrayList.size(); idx++) {
+                    result[idx] = arrayList.get(idx);
+                }
+            }
+            return result;
+        }
+    }
+
+    /**
+     * Type Adapter for byte[] type. This can be directly accessed to read and write
+     */
+    public static final class PrimitiveByteArrayAdapter {
+        public static void write(JsonWriter writer, byte[] value) throws IOException {
+            if (null != value) {
+                writer.beginArray();
+                for (byte item : value) {
+                    writer.value(item);
+                }
+                writer.endArray();
+            }
+        }
+
+        public static byte[] read(JsonReader reader) throws IOException {
+            ArrayList<Byte> byteArrayList = BYTE_ARRAY_LIST_ADAPTER.read(reader);
+            byte[] result = null;
+            if (null != byteArrayList) {
+                result = new byte[byteArrayList.size()];
+                for (int idx = 0; idx < byteArrayList.size(); idx++) {
+                    result[idx] = byteArrayList.get(idx);
+                }
+            }
+            return result;
+        }
+    }
+
+    /**
+     * Type Adapter for char[] type. This can be directly accessed to read and write
+     */
+    public static final class PrimitiveCharArrayAdapter {
+        public static void write(JsonWriter writer, char[] value) throws IOException {
+            if (null != value) {
+                writer.beginArray();
+                for (char item : value) {
+                    writer.value(item);
+                }
+                writer.endArray();
+            }
+        }
+
+        public static char[] read(JsonReader reader) throws IOException {
+            String string = com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe().read(reader);
+            return null != string ? string.toCharArray() : null;
         }
     }
 
@@ -660,129 +764,58 @@ public class KnownTypeAdapters {
         }
     }
 
-    /**
-     * Type Adapter for {@link JsonObject}
-     */
-    public static final class JsonObjectTypeAdapter extends TypeAdapter<JsonObject> {
-
+    public static final TypeAdapter<JsonElement> JSON_ELEMENT_TYPE_ADAPTER = com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT.nullSafe();
+    public static final TypeAdapter<JsonObject> JSON_OBJECT_TYPE_ADAPTER = new TypeAdapter<JsonObject>() {
         @Override
         public void write(JsonWriter out, JsonObject value) throws IOException {
-            JsonElementTypeAdapter.writeJsonElement(out, value);
+            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
         }
 
         @Override
         public JsonObject read(JsonReader in) throws IOException {
-            JsonElement jsonElement = JsonElementTypeAdapter.readJsonElement(in);
-            if (null != jsonElement && !jsonElement.isJsonObject()) {
-                throw new IOException("Could not parse it as a JsonObject");
-            }
-            return null != jsonElement && jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : null;
+            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+            return jsonElement != null && jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : null;
         }
-    }
+    };
 
-    /**
-     * Type Adapter for {@link JsonArray}
-     */
-    public static final class JsonArrayTypeAdapter extends TypeAdapter<JsonArray> {
-
+    public static final TypeAdapter<JsonArray> JSON_ARRAY_TYPE_ADAPTER = new TypeAdapter<JsonArray>() {
         @Override
         public void write(JsonWriter out, JsonArray value) throws IOException {
-            JsonElementTypeAdapter.writeJsonElement(out, value);
+            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
         }
 
         @Override
         public JsonArray read(JsonReader in) throws IOException {
-            JsonElement jsonElement = JsonElementTypeAdapter.readJsonElement(in);
-            if (null != jsonElement && !jsonElement.isJsonArray()) {
-                throw new IOException("Could not parse it as a JsonArray");
-            }
-            return null != jsonElement && jsonElement.isJsonArray() ? jsonElement.getAsJsonArray() : null;
+            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+            return jsonElement != null && jsonElement.isJsonArray() ? jsonElement.getAsJsonArray() : null;
         }
-    }
+    };
 
-    /**
-     * Type Adapter for {@link JsonElement}
-     */
-    public static final class JsonElementTypeAdapter extends TypeAdapter<JsonElement> {
+    public static final TypeAdapter<JsonPrimitive> JSON_PRIMITIVE_TYPE_ADAPTER = new TypeAdapter<JsonPrimitive>() {
 
-        public static JsonElement readJsonElement(JsonReader in) throws IOException {
-            switch (in.peek()) {
-                case STRING:
-                    return new JsonPrimitive(in.nextString());
-                case NUMBER:
-                    String number = in.nextString();
-                    return new JsonPrimitive(new LazilyParsedNumber(number));
-                case BOOLEAN:
-                    return new JsonPrimitive(in.nextBoolean());
-                case NULL:
-                    in.nextNull();
-                    return JsonNull.INSTANCE;
-                case BEGIN_ARRAY:
-                    JsonArray array = new JsonArray();
-                    in.beginArray();
-                    while (in.hasNext()) {
-                        array.add(readJsonElement(in));
-                    }
-                    in.endArray();
-                    return array;
-                case BEGIN_OBJECT:
-                    JsonObject object = new JsonObject();
-                    in.beginObject();
-                    while (in.hasNext()) {
-                        object.add(in.nextName(), readJsonElement(in));
-                    }
-                    in.endObject();
-                    return object;
-                case END_DOCUMENT:
-                case NAME:
-                case END_OBJECT:
-                case END_ARRAY:
-                default:
-                    throw new IllegalArgumentException();
-            }
-        }
-
-        public static void writeJsonElement(JsonWriter out, JsonElement value) throws IOException {
-            if (value == null || value.isJsonNull()) {
-                out.nullValue();
-            } else if (value.isJsonPrimitive()) {
-                JsonPrimitive primitive = value.getAsJsonPrimitive();
-                if (primitive.isNumber()) {
-                    out.value(primitive.getAsNumber());
-                } else if (primitive.isBoolean()) {
-                    out.value(primitive.getAsBoolean());
-                } else {
-                    out.value(primitive.getAsString());
-                }
-
-            } else if (value.isJsonArray()) {
-                out.beginArray();
-                for (JsonElement e : value.getAsJsonArray()) {
-                    writeJsonElement(out, e);
-                }
-                out.endArray();
-
-            } else if (value.isJsonObject()) {
-                out.beginObject();
-                for (Map.Entry<String, JsonElement> e : value.getAsJsonObject().entrySet()) {
-                    out.name(e.getKey());
-                    writeJsonElement(out, e.getValue());
-                }
-                out.endObject();
-
-            } else {
-                throw new IllegalArgumentException("Couldn't write " + value.getClass());
-            }
+        @Override
+        public void write(JsonWriter out, JsonPrimitive value) throws IOException {
+            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
         }
 
         @Override
-        public JsonElement read(JsonReader in) throws IOException {
-            return JsonElementTypeAdapter.readJsonElement(in);
+        public JsonPrimitive read(JsonReader in) throws IOException {
+            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+            return jsonElement != null && jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
+        }
+    };
+
+    public static final TypeAdapter<JsonNull> JSON_NULL_TYPE_ADAPTER = new TypeAdapter<JsonNull>() {
+
+        @Override
+        public void write(JsonWriter out, JsonNull value) throws IOException {
+            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
         }
 
         @Override
-        public void write(JsonWriter out, JsonElement value) throws IOException {
-            writeJsonElement(out, value);
+        public JsonNull read(JsonReader in) throws IOException {
+            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+            return jsonElement != null && jsonElement.isJsonNull() ? jsonElement.getAsJsonNull() : null;
         }
-    }
+    };
 }
