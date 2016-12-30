@@ -88,6 +88,26 @@ public final class TypeUtils {
     }
 
     /**
+     * Retrieves the outer type of a parameterized class.
+     * e.g. an ArrayList{@literal <T>} would be returned as
+     * just ArrayList. If an interface is passed in, i.e. a
+     * List, the underlying implementation will be returned,
+     * i.e. ArrayList.
+     *
+     * @param type the type to get the outer class from/
+     * @return the outer class of the type passed in, or the
+     * type itself if it is not parameterized.
+     */
+    @NotNull
+    public static String getSimpleOuterClassType(@NotNull TypeMirror type) {
+        if (type instanceof DeclaredType) {
+            return ((DeclaredType) type).asElement().getSimpleName().toString();
+        } else {
+            return type.toString();
+        }
+    }
+
+    /**
      * Determines whether or not the type has type parameters.
      *
      * @param type the type to check.

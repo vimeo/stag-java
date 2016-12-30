@@ -43,7 +43,7 @@ import javax.tools.StandardLocation;
 
 public final class FileGenUtils {
 
-    private static final String UNESCAPED_SEPARATOR = "$";
+    public static final String UNESCAPED_SEPARATOR = "$";
     private static final String CODE_BLOCK_ESCAPED_SEPARATOR = "$$";
 
     private FileGenUtils() {
