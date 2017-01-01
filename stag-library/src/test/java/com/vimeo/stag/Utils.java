@@ -1,5 +1,8 @@
 package com.vimeo.stag;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import java.util.ArrayList;
 
 public class Utils {
@@ -24,5 +27,24 @@ public class Utils {
         integerArrayList.add(5);
         integerArrayList.add(6);
         return integerArrayList;
+    }
+
+    public static JsonObject createDummyJsonObject() {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("key", "value");
+        jsonObject.addProperty("key1", "value1");
+        jsonObject.addProperty("key2", "value2");
+        jsonObject.addProperty("key3", "value3");
+        jsonObject.addProperty("key4", "value4");
+        return jsonObject;
+    }
+
+    public static JsonArray createDummyJsonArray() {
+        JsonArray jsonArray = new JsonArray();
+        jsonArray.add("item1");
+        jsonArray.add("item2");
+        jsonArray.add("item3");
+        jsonArray.add("item4");
+        return jsonArray;
     }
 }

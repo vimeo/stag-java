@@ -1,5 +1,7 @@
 package com.vimeo.stag;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
@@ -159,6 +161,47 @@ public class KnownTypeAdaptersTest {
         Assert.assertEquals(intDummyList.size(), readValue1.size());
         for (int i = 0; i < intDummyList.size(); i++) {
             Assert.assertEquals(intDummyList.get(i), readValue1.get(i));
+        }
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters#JSON_OBJECT_TYPE_ADAPTER}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForJsonObjectTypeAdapter() throws Exception {
+        JsonObject jsonObject = Utils.createDummyJsonObject();
+
+        TypeAdapter<JsonObject> jsonObjectTypeAdapter = KnownTypeAdapters.JSON_OBJECT_TYPE_ADAPTER;
+        StringWriter stringWriter = new StringWriter();
+        jsonObjectTypeAdapter.write(new JsonWriter(stringWriter), jsonObject);
+        String jsonString = stringWriter.toString();
+
+        JsonObject readValue = jsonObjectTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertEquals(jsonObject.size(), readValue.size());
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters#JSON_ARRAY_TYPE_ADAPTER}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForJsonArrayTypeAdapter() throws Exception {
+        JsonArray jsonArray = Utils.createDummyJsonArray();
+
+        TypeAdapter<JsonArray> jsonObjectTypeAdapter = KnownTypeAdapters.JSON_ARRAY_TYPE_ADAPTER;
+        StringWriter stringWriter = new StringWriter();
+        jsonObjectTypeAdapter.write(new JsonWriter(stringWriter), jsonArray);
+        String jsonString = stringWriter.toString();
+
+        JsonArray readValue = jsonObjectTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertEquals(jsonArray.size(), readValue.size());
+        for (int i = 0; i < jsonArray.size(); i++) {
+            Assert.assertEquals(jsonArray.get(i), readValue.get(i));
         }
     }
 }
