@@ -480,7 +480,14 @@ public class StagGenerator {
     @NotNull
     private String removeSpecialCharacters(TypeMirror typeMirror) {
         String typeString = typeMirror.toString();
-        typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
+        /**
+         * This is done to avoid generating duplicate method names, where the inner class type
+         *has same name (in different packages). In that case we are using the complete package name
+         *of the class to avoid class. We'll come up with a better solution for this case.
+         */
+        if (TypeUtils.isSupportedNative(typeMirror.toString())) {
+            typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
+        }
         typeString = typeString.replace("<", "").replace(">", "").replace("[", "").replace("]", "");
         typeString = typeString.replace(",", "").replace(".", "");
         return typeString;
