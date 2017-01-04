@@ -3,6 +3,7 @@ package com.vimeo.stag.processor.generators;
 
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
+import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
@@ -45,7 +46,7 @@ public class ExternalAdapterInfo {
      * @param typeMirror               typeMirror
      * @param externalAdapterInfos     externalAdapterInfos
      */
-    public static void addExternalAdapters(@NotNull Elements elementUtils, @NotNull String stagFactoryGeneratedName,
+    public static void addExternalAdapters(@NotNull String stagFactoryGeneratedName,
                                            @NotNull TypeMirror typeMirror, @NotNull Set<ExternalAdapterInfo> externalAdapterInfos) {
         if (!TypeUtils.isSupportedPrimitive(typeMirror.toString()) && typeMirror instanceof DeclaredType) {
             DeclaredType declaredType = (DeclaredType) typeMirror;
@@ -59,7 +60,7 @@ public class ExternalAdapterInfo {
                 String classAdapterName = FileGenUtils.unescapeEscapedString(classInfo.getTypeAdapterQualifiedClassName());
                 if (!sCheckedClasses.contains(classAdapterName)) {
                     sCheckedClasses.add(classAdapterName);
-                    TypeElement adapterTypeElement = elementUtils.getTypeElement(classAdapterName);
+                    TypeElement adapterTypeElement = ElementUtils.getTypeElementFromQualifiedName(classAdapterName);
                     if (null != adapterTypeElement) {
                         for (Element adapterEnclosedElement : adapterTypeElement.getEnclosedElements()) {
                             if (adapterEnclosedElement instanceof ExecutableElement) {
@@ -78,7 +79,7 @@ public class ExternalAdapterInfo {
             List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
             if (null != typeArguments) {
                 for (TypeMirror typeArgument : typeArguments) {
-                    addExternalAdapters(elementUtils, stagFactoryGeneratedName, typeArgument, externalAdapterInfos);
+                    addExternalAdapters(stagFactoryGeneratedName, typeArgument, externalAdapterInfos);
                 }
             }
         }
