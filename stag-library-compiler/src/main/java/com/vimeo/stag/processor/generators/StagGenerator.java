@@ -128,7 +128,7 @@ public class StagGenerator {
                     ClassInfo clashingClass = knownFieldNames.get(adapterFactoryMethodName);
                     if (null != clashingClass) {
                         List<ClassInfo> classInfos = clashingClassNames.get(adapterFactoryMethodName);
-                        if(null == classInfos) {
+                        if (null == classInfos) {
                             classInfos = new ArrayList<>();
                             classInfos.add(clashingClass);
                             clashingClassNames.put(adapterFactoryMethodName, classInfos);
@@ -146,13 +146,13 @@ public class StagGenerator {
         }
 
         //Resolve names for clashing classes
-        for(Map.Entry<String, List<ClassInfo>> entry : clashingClassNames.entrySet()) {
+        for (Map.Entry<String, List<ClassInfo>> entry : clashingClassNames.entrySet()) {
             String adapterFactoryMethodName = entry.getKey();
-            for(ClassInfo classInfo : entry.getValue()) {
+            for (ClassInfo classInfo : entry.getValue()) {
                 StringBuilder newAdapterName = new StringBuilder();
-                for(String path : classInfo.getPackageName().split("\\.")){
+                for (String path : classInfo.getPackageName().split("\\.")) {
                     newAdapterName.append(Character.toUpperCase(path.charAt(0)));
-                    if(path.length() > 1){
+                    if (path.length() > 1) {
                         newAdapterName.append(path.substring(1));
                     }
                 }
@@ -183,7 +183,7 @@ public class StagGenerator {
     }
 
     public static String getGeneratedFactoryClassAndPackage(String generatedPackageName) {
-        return generatedPackageName + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY;
+        return generatedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY;
     }
 
     boolean isKnownType(@NotNull TypeMirror mirror) {
