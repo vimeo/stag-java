@@ -96,7 +96,7 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
 
         TypeMirror realConcreteType =
                 types.getDeclaredType((TypeElement) Utils.getElementFromClass(DummyGenericClass.class),
-                                      Utils.getTypeMirrorFromClass(String.class));
+                        Utils.getTypeMirrorFromClass(String.class));
 
         assertTrue(realConcreteType.toString().equals(concreteType.toString()));
 
@@ -148,26 +148,26 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
             } else if (entry.getKey().getSimpleName().contentEquals("testList")) {
 
                 assertTrue(entry.getValue()
-                                   .toString()
-                                   .equals(types.getDeclaredType(
-                                           (TypeElement) Utils.getElementFromClass(ArrayList.class),
-                                           stringType).toString()));
+                        .toString()
+                        .equals(types.getDeclaredType(
+                                (TypeElement) Utils.getElementFromClass(ArrayList.class),
+                                stringType).toString()));
 
             } else if (entry.getKey().getSimpleName().contentEquals("testMap")) {
 
                 assertTrue(entry.getValue()
-                                   .toString()
-                                   .equals(types.getDeclaredType(
-                                           (TypeElement) Utils.getElementFromClass(HashMap.class), stringType,
-                                           stringType).toString()));
+                        .toString()
+                        .equals(types.getDeclaredType(
+                                (TypeElement) Utils.getElementFromClass(HashMap.class), stringType,
+                                stringType).toString()));
 
             } else if (entry.getKey().getSimpleName().contentEquals("testSet")) {
 
                 assertTrue(entry.getValue()
-                                   .toString()
-                                   .equals(types.getDeclaredType(
-                                           (TypeElement) Utils.getElementFromClass(HashSet.class), stringType)
-                                                   .toString()));
+                        .toString()
+                        .equals(types.getDeclaredType(
+                                (TypeElement) Utils.getElementFromClass(HashSet.class), stringType)
+                                .toString()));
             }
         }
     }
@@ -214,7 +214,7 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
 
         // Test primitives
         assertTrue(int.class.getName()
-                           .equals(TypeUtils.getOuterClassType(types.getPrimitiveType(TypeKind.INT))));
+                .equals(TypeUtils.getOuterClassType(types.getPrimitiveType(TypeKind.INT))));
     }
 
     @Test

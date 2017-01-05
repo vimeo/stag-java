@@ -19,7 +19,6 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
 
 public class ExternalAdapterInfo {
 
@@ -41,7 +40,6 @@ public class ExternalAdapterInfo {
     /**
      * Add adapters for the external models.
      *
-     * @param elementUtils             elementUtils
      * @param stagFactoryGeneratedName stagFactoryGeneratedName
      * @param typeMirror               typeMirror
      * @param externalAdapterInfos     externalAdapterInfos

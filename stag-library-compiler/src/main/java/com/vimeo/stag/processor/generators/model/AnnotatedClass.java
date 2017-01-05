@@ -24,18 +24,13 @@
 package com.vimeo.stag.processor.generators.model;
 
 import com.vimeo.stag.processor.StagProcessor;
-import com.vimeo.stag.processor.generators.ExternalAdapterInfo;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
@@ -78,6 +73,22 @@ public class AnnotatedClass {
 
     }
 
+    private static void checkModifiers(VariableElement variableElement, Set<Modifier> modifiers) {
+        if (modifiers.contains(Modifier.FINAL)) {
+            if (!modifiers.contains(Modifier.STATIC)) {
+                throw new RuntimeException("Unable to access field \"" +
+                        variableElement.getSimpleName().toString() + "\" in class " +
+                        variableElement.getEnclosingElement().asType() +
+                        ", field must not be final.");
+            }
+        } else if (modifiers.contains(Modifier.PRIVATE)) {
+            throw new RuntimeException("Unable to access field \"" +
+                    variableElement.getSimpleName().toString() + "\" in class " +
+                    variableElement.getEnclosingElement().asType() +
+                    ", field must not be private.");
+        }
+    }
+
     private void addToSupportedTypes(@NotNull Element element) {
         if (element instanceof VariableElement) {
             final VariableElement variableElement = (VariableElement) element;
@@ -93,23 +104,7 @@ public class AnnotatedClass {
                 mMemberVariables.put(variableElement, variableElement.asType());
             }
         } else if (element instanceof TypeElement) {
-           SupportedTypesModel.getInstance().getSupportedType(element.asType());
-        }
-    }
-
-    private static void checkModifiers(VariableElement variableElement, Set<Modifier> modifiers) {
-        if (modifiers.contains(Modifier.FINAL)) {
-            if (!modifiers.contains(Modifier.STATIC)) {
-                throw new RuntimeException("Unable to access field \"" +
-                        variableElement.getSimpleName().toString() + "\" in class " +
-                        variableElement.getEnclosingElement().asType() +
-                        ", field must not be final.");
-            }
-        } else if (modifiers.contains(Modifier.PRIVATE)) {
-            throw new RuntimeException("Unable to access field \"" +
-                    variableElement.getSimpleName().toString() + "\" in class " +
-                    variableElement.getEnclosingElement().asType() +
-                    ", field must not be private.");
+            SupportedTypesModel.getInstance().getSupportedType(element.asType());
         }
     }
 

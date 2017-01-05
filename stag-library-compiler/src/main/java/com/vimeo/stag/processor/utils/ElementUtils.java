@@ -59,7 +59,7 @@ public final class ElementUtils {
 
 
     @Nullable
-    public static TypeElement getTypeElementFromQualifiedName(@NotNull String qualifiedName){
+    public static TypeElement getTypeElementFromQualifiedName(@NotNull String qualifiedName) {
         Elements elements = ElementUtils.getUtils();
         return elements.getTypeElement(qualifiedName);
     }

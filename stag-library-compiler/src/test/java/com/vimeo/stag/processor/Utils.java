@@ -46,15 +46,15 @@ public final class Utils {
     private static Elements elements;
     private static Types types;
 
+    private Utils() {
+    }
+
     public static void setup(@NotNull Elements elements, @NotNull Types types) {
         Preconditions.checkNotNull(elements);
         Preconditions.checkNotNull(types);
 
         Utils.elements = elements;
         Utils.types = types;
-    }
-
-    private Utils() {
     }
 
     public static <T> void testZeroArgumentConstructorFinalClass(Class<T> clazz) throws Exception {
@@ -102,7 +102,7 @@ public final class Utils {
             genericTypes[n] = params.get(n).asType();
         }
         return types.getDeclaredType(elements.getTypeElement(DummyGenericClass.class.getName()),
-                                     genericTypes);
+                genericTypes);
     }
 
 }

@@ -34,18 +34,21 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 public final class SupportedTypesModel {
 
-    private SupportedTypesModel() {
-    }
-
     @Nullable
     private static SupportedTypesModel sInstance;
+    private final Map<String, AnnotatedClass> mSupportedTypesMap = new HashMap<>();
+    private final Set<Element> mSupportedTypes = new HashSet<>();
+    private final Set<TypeMirror> mSupportedTypesMirror = new HashSet<>();
+    private final Set<ExternalAdapterInfo> mExternalSupportedAdapters = new HashSet<>();
+    private String mGeneratedStagFactoryName;
+    private SupportedTypesModel() {
+    }
 
     @NotNull
     public static synchronized SupportedTypesModel getInstance() {
@@ -55,12 +58,6 @@ public final class SupportedTypesModel {
 
         return sInstance;
     }
-
-    private final Map<String, AnnotatedClass> mSupportedTypesMap = new HashMap<>();
-    private final Set<Element> mSupportedTypes = new HashSet<>();
-    private final Set<TypeMirror> mSupportedTypesMirror = new HashSet<>();
-    private final Set<ExternalAdapterInfo> mExternalSupportedAdapters = new HashSet<>();
-    private String mGeneratedStagFactoryName;
 
     public void initialize(@NotNull String generatedStagFactoryName) {
         mGeneratedStagFactoryName = generatedStagFactoryName;
@@ -98,9 +95,6 @@ public final class SupportedTypesModel {
         return model;
     }
 
-
-
-
     /**
      * A set of all supported elements (these map 1 to 1
      * to an AnnotatedClass). This may return both generic
@@ -123,5 +117,7 @@ public final class SupportedTypesModel {
         ExternalAdapterInfo.addExternalAdapters(mGeneratedStagFactoryName, variableElement.asType(), mExternalSupportedAdapters);
     }
 
-    public Set<ExternalAdapterInfo> getExternalSupportedAdapters() {return new HashSet<>(mExternalSupportedAdapters);}
+    public Set<ExternalAdapterInfo> getExternalSupportedAdapters() {
+        return new HashSet<>(mExternalSupportedAdapters);
+    }
 }

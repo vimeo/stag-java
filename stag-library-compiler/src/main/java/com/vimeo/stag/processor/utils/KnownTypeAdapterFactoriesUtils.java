@@ -78,7 +78,7 @@ public final class KnownTypeAdapterFactoriesUtils {
             knownTypesBuilder.append(knownType).append("\n");
         }
         FileGenUtils.writeToResource(filer, generatedPackageName, KNOWN_FACTORIES_RESOURCE,
-                                     knownTypesBuilder.toString());
+                knownTypesBuilder.toString());
     }
 
     private static void loadKnownTypesFromFiler(@NotNull Elements elementUtils, @NotNull Filer filer,
