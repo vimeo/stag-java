@@ -121,7 +121,7 @@ public final class KnownTypeAdapterUtils {
         DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType) typeMirror : null;
         TypeMirror keyType = declaredType != null && declaredType.getTypeArguments() != null && declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments().get(0) : null;
         TypeMirror paramType = declaredType != null && declaredType.getTypeArguments() != null && declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments().get(1) : null;
-        String postFix = keyType != null ? "<" + keyType.toString() + ", " + paramType.toString() + ">()" : "()";
+        String postFix = keyType != null && paramType != null ? "<" + keyType.toString() + ", " + paramType.toString() + ">()" : "()";
 
         if (outerClassType.equals(Map.class.getName())) {
             return "new com.vimeo.stag.KnownTypeAdapters.MapInstantiater" + postFix;
