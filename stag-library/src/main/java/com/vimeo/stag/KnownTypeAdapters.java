@@ -431,6 +431,8 @@ public final class KnownTypeAdapters {
         }
     }
 
+    private static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER = com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe();
+
     /**
      * Type Adapter for char[] type. This can be directly accessed to read and write
      */
@@ -447,7 +449,7 @@ public final class KnownTypeAdapters {
 
         @Nullable
         public static char[] read(@NotNull JsonReader reader) throws IOException {
-            String string = com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe().read(reader);
+            String string = STRING_NULL_SAFE_TYPE_ADAPTER.read(reader);
             return null != string ? string.toCharArray() : null;
         }
     }
@@ -750,6 +752,7 @@ public final class KnownTypeAdapters {
     }
 
     public static final TypeAdapter<JsonElement> JSON_ELEMENT_TYPE_ADAPTER = com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT.nullSafe();
+
     public static final TypeAdapter<JsonObject> JSON_OBJECT_TYPE_ADAPTER = new TypeAdapter<JsonObject>() {
         @Override
         public void write(JsonWriter out, JsonObject value) throws IOException {
