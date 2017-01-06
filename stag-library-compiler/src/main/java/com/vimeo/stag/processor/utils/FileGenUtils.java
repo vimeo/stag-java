@@ -43,8 +43,8 @@ import javax.tools.StandardLocation;
 
 public final class FileGenUtils {
 
-    public static final String UNESCAPED_SEPARATOR = "$";
-    private static final String CODE_BLOCK_ESCAPED_SEPARATOR = "$$";
+    private static final String UNESCAPED_SEPARATOR = "$";
+    public static final String CODE_BLOCK_ESCAPED_SEPARATOR = "$$";
 
     private FileGenUtils() {
         throw new UnsupportedOperationException("This class is not instantiable");
@@ -166,5 +166,4 @@ public final class FileGenUtils {
     public static String unescapeEscapedString(@NotNull String string) {
         return string.replace(CODE_BLOCK_ESCAPED_SEPARATOR, UNESCAPED_SEPARATOR);
     }
-
 }

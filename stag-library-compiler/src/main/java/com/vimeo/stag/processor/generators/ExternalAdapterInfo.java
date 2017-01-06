@@ -23,7 +23,7 @@ import javax.lang.model.type.TypeMirror;
 public class ExternalAdapterInfo {
 
     @NotNull
-    private static Set<String> sCheckedClasses = new HashSet<>();
+    private final static Set<String> sCheckedClasses = new HashSet<>();
     @NotNull
     final Element mExternalClassType;
     @NotNull

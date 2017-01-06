@@ -22,19 +22,15 @@ public class ExternalModelExample<T> {
     @SerializedName("parametrizedExternalGenericExample")
     public ExternalModelGeneric<T> mParametrizedExternalGenericExample;
 
-
     @SerializedName("parametrizedInternalGenericExample")
     public GenericClass<T> mParametrizedInternalGenericExample;
 
-
     @SerializedName("mapExternalModel")
     public Map<String, ExternalModel1> mMapExternalModel;
-
 
     @SerializedName("mapExternalGenericModel")
     public Map<String, ExternalModelGeneric<String>> mMapExternalGenericModel;
 
     @SerializedName("mapExternalGenericGenericModel")
     public Map<String, ExternalModelGeneric<T>> mMapExternalGenericGenericModel;
-
 }

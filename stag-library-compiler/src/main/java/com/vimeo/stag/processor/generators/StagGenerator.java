@@ -41,6 +41,7 @@ import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterUtils;
+import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -178,12 +179,53 @@ public class StagGenerator {
                 }
             }
 
+            Preconditions.checkNotNull(typeArguments);
             mGenericClassInfo.put(knownGenericType.getType().toString(), new GenericClassInfo(typeArguments.size(), hasUnknownTypeFields));
         }
     }
 
     public static String getGeneratedFactoryClassAndPackage(String generatedPackageName) {
         return generatedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY;
+    }
+
+    @NotNull
+    private static String removeSpecialCharacters(TypeMirror typeMirror) {
+        String typeString = typeMirror.toString();
+        /**
+         * This is done to avoid generating duplicate method names, where the inner class type
+         *has same name (in different packages). In that case we are using the complete package name
+         *of the class to avoid class. We'll come up with a better solution for this case.
+         */
+        if (TypeUtils.isSupportedNative(typeMirror.toString())) {
+            typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
+        }
+        typeString = typeString.replace("<", "").replace(">", "").replace("[", "").replace("]", "");
+        typeString = typeString.replace(",", "").replace(".", "");
+        return typeString;
+    }
+
+    @NotNull
+    private static String generateMethodName(@NotNull TypeMirror typeMirror) {
+        String result = "";
+        String outerClassType = TypeUtils.getSimpleOuterClassType(typeMirror);
+        if (TypeUtils.isConcreteType(typeMirror)) {
+            if (TypeUtils.isNativeArray(typeMirror)) {
+                result = removeSpecialCharacters(typeMirror);
+                return result + FileGenUtils.CODE_BLOCK_ESCAPED_SEPARATOR + "PrimitiveArray" + FileGenUtils.CODE_BLOCK_ESCAPED_SEPARATOR;
+            } else if (typeMirror instanceof DeclaredType) {
+                List<? extends TypeMirror> typeArguments = ((DeclaredType) typeMirror).getTypeArguments();
+                if (typeArguments.isEmpty()) {
+                    result = removeSpecialCharacters(typeMirror) + FileGenUtils.CODE_BLOCK_ESCAPED_SEPARATOR;
+                } else {
+                    result += outerClassType + FileGenUtils.CODE_BLOCK_ESCAPED_SEPARATOR;
+                    for (TypeMirror innerType : typeArguments) {
+                        result += generateMethodName(innerType);
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     boolean isKnownType(@NotNull TypeMirror mirror) {
@@ -451,46 +493,6 @@ public class StagGenerator {
             mKnownFieldToMethodNameMap.put(fieldType.toString(), methodName);
         }
         return "get" + methodName;
-    }
-
-    @NotNull
-    private String generateMethodName(@NotNull TypeMirror typeMirror) {
-        String result = "";
-        String outerClassType = TypeUtils.getSimpleOuterClassType(typeMirror);
-        if (TypeUtils.isConcreteType(typeMirror)) {
-            if (TypeUtils.isNativeArray(typeMirror)) {
-                result = removeSpecialCharacters(typeMirror);
-                return result + "$$PrimitiveArray" + "$$";
-            } else if (typeMirror instanceof DeclaredType) {
-                List<? extends TypeMirror> typeArguments = ((DeclaredType) typeMirror).getTypeArguments();
-                if (typeArguments == null || typeArguments.size() == 0) {
-                    result = removeSpecialCharacters(typeMirror) + "$$";
-                } else {
-                    result += outerClassType + "$$";
-                    for (TypeMirror innerType : typeArguments) {
-                        result += generateMethodName(innerType);
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    @NotNull
-    private String removeSpecialCharacters(TypeMirror typeMirror) {
-        String typeString = typeMirror.toString();
-        /**
-         * This is done to avoid generating duplicate method names, where the inner class type
-         *has same name (in different packages). In that case we are using the complete package name
-         *of the class to avoid class. We'll come up with a better solution for this case.
-         */
-        if (TypeUtils.isSupportedNative(typeMirror.toString())) {
-            typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
-        }
-        typeString = typeString.replace("<", "").replace(">", "").replace("[", "").replace("]", "");
-        typeString = typeString.replace(",", "").replace(".", "");
-        return typeString;
     }
 
     ExternalAdapterInfo getExternalSupportedAdapter(@NotNull TypeMirror fieldType) {

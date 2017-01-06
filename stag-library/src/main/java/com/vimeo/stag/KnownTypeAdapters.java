@@ -446,7 +446,7 @@ public final class KnownTypeAdapters {
     /**
      * Default Instantiater for List, by default it will create the Map of {@link ArrayList} type
      */
-    public static class ListInstantiater<V> implements ObjectConstructor<List<V>> {
+    public static final class ListInstantiater<V> implements ObjectConstructor<List<V>> {
         @Override
         public List<V> construct() {
             return new ArrayList<>();
@@ -456,7 +456,7 @@ public final class KnownTypeAdapters {
     /**
      * Instantiater for {@link Collection}
      */
-    public static class CollectionInstantiater<V> implements ObjectConstructor<Collection<V>> {
+    public static final class CollectionInstantiater<V> implements ObjectConstructor<Collection<V>> {
         @Override
         public Collection<V> construct() {
             return new ArrayList<>();
@@ -466,7 +466,7 @@ public final class KnownTypeAdapters {
     /**
      * Instantiater for {@link ArrayList}
      */
-    public static class ArrayListInstantiater<V> implements ObjectConstructor<ArrayList<V>> {
+    public static final class ArrayListInstantiater<V> implements ObjectConstructor<ArrayList<V>> {
         @Override
         public ArrayList<V> construct() {
             return new ArrayList<>();
@@ -476,7 +476,7 @@ public final class KnownTypeAdapters {
     /**
      * Instantiater for {@link HashMap}
      */
-    public static class HashMapInstantiater<K, V> implements ObjectConstructor<HashMap<K, V>> {
+    public static final class HashMapInstantiater<K, V> implements ObjectConstructor<HashMap<K, V>> {
         @Override
         public HashMap<K, V> construct() {
             return new HashMap<>();
@@ -486,7 +486,7 @@ public final class KnownTypeAdapters {
     /**
      * Instantiater for {@link ConcurrentHashMap}
      */
-    public static class ConcurrentHashMapInstantiater<K, V> implements ObjectConstructor<ConcurrentHashMap<K, V>> {
+    public static final class ConcurrentHashMapInstantiater<K, V> implements ObjectConstructor<ConcurrentHashMap<K, V>> {
         @Override
         public ConcurrentHashMap<K, V> construct() {
             return new ConcurrentHashMap<>();
@@ -496,7 +496,7 @@ public final class KnownTypeAdapters {
     /**
      * Instantiater for {@link LinkedHashMap}
      */
-    public static class LinkedHashMapInstantiater<K, V> implements ObjectConstructor<LinkedHashMap<K, V>> {
+    public static final class LinkedHashMapInstantiater<K, V> implements ObjectConstructor<LinkedHashMap<K, V>> {
         @Override
         public LinkedHashMap<K, V> construct() {
             return new LinkedHashMap<>();
@@ -506,7 +506,7 @@ public final class KnownTypeAdapters {
     /**
      * Default Instantiater for Maps, by default it will create the Map of {@link LinkedHashMap} type
      */
-    public static class MapInstantiater<K, V> implements ObjectConstructor<Map<K, V>> {
+    public static final class MapInstantiater<K, V> implements ObjectConstructor<Map<K, V>> {
         @Override
         public Map<K, V> construct() {
             return new LinkedHashMap<K, V>();
@@ -516,7 +516,7 @@ public final class KnownTypeAdapters {
     /**
      * Type Adapter for {@link Collection}
      */
-    public static class ListTypeAdapter<V, T extends Collection<V>> extends TypeAdapter<T> {
+    public static final class ListTypeAdapter<V, T extends Collection<V>> extends TypeAdapter<T> {
 
         private TypeAdapter<V> valueTypeAdapter;
         private ObjectConstructor<T> objectConstructor;
@@ -563,7 +563,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Map}. The constructor expects {@link ObjectConstructor} which is
      * used to instantiate maps of particular types eg, {@link HashMap} {@link LinkedHashMap} etc
      */
-    public static class MapTypeAdapter<K, V, T extends Map<K, V>> extends TypeAdapter<T> {
+    public static final class MapTypeAdapter<K, V, T extends Map<K, V>> extends TypeAdapter<T> {
         private ObjectConstructor<T> objectConstructor;
         private TypeAdapter<V> valueTypeAdapter;
         private TypeAdapter<K> keyTypeAdapter;
@@ -650,7 +650,7 @@ public final class KnownTypeAdapters {
             return map;
         }
 
-        private String keyToString(JsonElement keyElement) {
+        private static String keyToString(JsonElement keyElement) {
             if (keyElement.isJsonPrimitive()) {
                 JsonPrimitive primitive = keyElement.getAsJsonPrimitive();
                 if (primitive.isNumber()) {

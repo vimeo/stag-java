@@ -208,7 +208,12 @@ public final class TypeUtils {
         return true;
     }
 
-
+    /**
+     * Determines where the the type mirros contains type var params or not
+     *
+     * @param typeMirror the element to check.
+     * @return true if it contains typevar
+     */
     public static boolean containsTypeVarParams(@NotNull TypeMirror typeMirror) {
         if (typeMirror.getKind() == TypeKind.TYPEVAR) {
             return true;
@@ -226,7 +231,6 @@ public final class TypeUtils {
 
         return false;
     }
-
 
     /**
      * Gets the inherited type from the element. If

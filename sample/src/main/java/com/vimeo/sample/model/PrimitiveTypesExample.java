@@ -13,8 +13,8 @@ public class PrimitiveTypesExample {
     @GsonAdapterKey("simpleInt")
     public int simpleInt;
 
-    @GsonAdapterKey("simpleFlot")
-    public float simpleFlot;
+    @GsonAdapterKey("simpleFloat")
+    public float simpleFloat;
 
     @GsonAdapterKey("simpleShort")
     public short simpleShort;
