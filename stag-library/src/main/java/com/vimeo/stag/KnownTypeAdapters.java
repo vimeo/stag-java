@@ -31,6 +31,8 @@ import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.sun.istack.internal.NotNull;
+import com.sun.istack.internal.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -232,14 +234,13 @@ public final class KnownTypeAdapters {
             T[] result = this.mObjectCreator.construct(object.size());
             return object.toArray(result);
         }
-
     }
 
     /**
      * Type Adapter for Integer[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveIntegerArrayAdapter {
-        public static void write(JsonWriter writer, int[] value) throws IOException {
+        public static void write(@NotNull JsonWriter writer, @Nullable int[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
                 for (int item : value) {
@@ -249,7 +250,8 @@ public final class KnownTypeAdapters {
             }
         }
 
-        public static int[] read(JsonReader reader) throws IOException {
+        @Nullable
+        public static int[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Integer> arrayList = INTEGER_ARRAY_LIST_ADAPTER.read(reader);
             int[] result = null;
             if (null != arrayList) {
@@ -266,7 +268,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for long[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveLongArrayAdapter {
-        public static void write(JsonWriter writer, long[] value) throws IOException {
+        public static void write(@NotNull JsonWriter writer, @Nullable long[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
                 for (long item : value) {
@@ -276,7 +278,8 @@ public final class KnownTypeAdapters {
             }
         }
 
-        public static long[] read(JsonReader reader) throws IOException {
+        @Nullable
+        public static long[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Long> arrayList = LONG_ARRAY_LIST_ADAPTER.read(reader);
             long[] result = null;
             if (null != arrayList) {
@@ -293,7 +296,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for double[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveDoubleArrayAdapter {
-        public static void write(JsonWriter writer, double[] value) throws IOException {
+        public static void write(@NotNull JsonWriter writer, @Nullable double[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
                 for (double item : value) {
@@ -303,7 +306,8 @@ public final class KnownTypeAdapters {
             }
         }
 
-        public static double[] read(JsonReader reader) throws IOException {
+        @Nullable
+        public static double[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Double> arrayList = DOUBLE_ARRAY_LIST_ADAPTER.read(reader);
             double[] result = null;
             if (null != arrayList) {
@@ -320,7 +324,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for short[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveShortArrayAdapter {
-        public static void write(JsonWriter writer, short[] value) throws IOException {
+        public static void write(@NotNull JsonWriter writer, @Nullable short[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
                 for (short item : value) {
@@ -330,7 +334,8 @@ public final class KnownTypeAdapters {
             }
         }
 
-        public static short[] read(JsonReader reader) throws IOException {
+        @Nullable
+        public static short[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Short> arrayList = SHORT_ARRAY_LIST_ADAPTER.read(reader);
             short[] result = null;
             if (null != arrayList) {
@@ -346,7 +351,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for float[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveFloatArrayAdapter {
-        public static void write(JsonWriter writer, float[] value) throws IOException {
+        public static void write(@NotNull JsonWriter writer, @Nullable float[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
                 for (float item : value) {
@@ -356,7 +361,8 @@ public final class KnownTypeAdapters {
             }
         }
 
-        public static float[] read(JsonReader reader) throws IOException {
+        @Nullable
+        public static float[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Float> arrayList = FLOAT_ARRAY_LIST_ADAPTER.read(reader);
             float[] result = null;
             if (null != arrayList) {
@@ -373,7 +379,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for boolean[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveBooleanArrayAdapter {
-        public static void write(JsonWriter writer, boolean[] value) throws IOException {
+        public static void write(@NotNull JsonWriter writer, @Nullable boolean[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
                 for (boolean item : value) {
@@ -383,7 +389,8 @@ public final class KnownTypeAdapters {
             }
         }
 
-        public static boolean[] read(JsonReader reader) throws IOException {
+        @Nullable
+        public static boolean[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Boolean> arrayList = BOOLEAN_ARRAY_LIST_ADAPTER.read(reader);
             boolean[] result = null;
             if (null != arrayList) {
@@ -400,7 +407,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for byte[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveByteArrayAdapter {
-        public static void write(JsonWriter writer, byte[] value) throws IOException {
+        public static void write(@NotNull JsonWriter writer, @Nullable byte[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
                 for (byte item : value) {
@@ -410,7 +417,8 @@ public final class KnownTypeAdapters {
             }
         }
 
-        public static byte[] read(JsonReader reader) throws IOException {
+        @Nullable
+        public static byte[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Byte> byteArrayList = BYTE_ARRAY_LIST_ADAPTER.read(reader);
             byte[] result = null;
             if (null != byteArrayList) {
@@ -427,7 +435,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for char[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveCharArrayAdapter {
-        public static void write(JsonWriter writer, char[] value) throws IOException {
+        public static void write(@NotNull JsonWriter writer, @Nullable char[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
                 for (char item : value) {
@@ -437,7 +445,8 @@ public final class KnownTypeAdapters {
             }
         }
 
-        public static char[] read(JsonReader reader) throws IOException {
+        @Nullable
+        public static char[] read(@NotNull JsonReader reader) throws IOException {
             String string = com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe().read(reader);
             return null != string ? string.toCharArray() : null;
         }
