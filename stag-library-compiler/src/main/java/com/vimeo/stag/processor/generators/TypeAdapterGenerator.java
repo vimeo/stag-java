@@ -64,8 +64,8 @@ import javax.lang.model.type.TypeVariable;
 public class TypeAdapterGenerator extends AdapterGenerator {
 
     private static final String TYPE_ADAPTER_FIELD_PREFIX = "mTypeAdapter";
-    private static boolean mGsonVariableUsed;
-    private static boolean mStagFactoryUsed;
+    private static boolean sGsonVariableUsed;
+    private static boolean sStagFactoryUsed;
     @NotNull
     private final ClassInfo mInfo;
 
@@ -129,7 +129,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 DeclaredType declaredFieldType = (DeclaredType) fieldType;
                 List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
 
-                if (null == typeMirrors || typeMirrors.size() == 0) {
+                if (typeMirrors.isEmpty()) {
                     result = typeTokenConstantsGenerator.addTypeToken(fieldType);
                 } else if (TypeUtils.isSupportedMap(fieldType)) {
                     /**
@@ -152,7 +152,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                      * If the fieldType is of Known parameterized type, recursively call the function to generate the typeadapter code.
                      */
                     TypeMirror outerClass = declaredFieldType.asElement().asType();
-                    mGsonVariableUsed = true;
+                    sGsonVariableUsed = true;
                     List<? extends TypeMirror> typeArguments = declaredFieldType.getTypeArguments();
                     ExternalAdapterInfo externalAdapterInfo = stagGenerator.getExternalSupportedAdapter(outerClass);
 
@@ -293,8 +293,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             String getterField = stagGenerator.getClassAdapterFactoryMethod(fieldType);
 
             if (null != getterField) {
-                mGsonVariableUsed = true;
-                mStagFactoryUsed = true;
+                sGsonVariableUsed = true;
+                sStagFactoryUsed = true;
                 /*
                  * If we already have the adapter generated for the fieldType in Stag.Factory class
                  */
@@ -307,8 +307,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 if (TypeUtils.isSupportedPrimitive(arrayInnerType.toString())) {
                     return KnownTypeAdapterUtils.getNativePrimitiveArrayTypeAdapter(fieldType);
                 } else {
-                    mStagFactoryUsed = true;
-                    mGsonVariableUsed = true;
+                    sStagFactoryUsed = true;
+                    sGsonVariableUsed = true;
                     ArrayType arrayType = (ArrayType) fieldType;
                     String adapterAccessor = getAdapterAccessor(arrayInnerType, adapterBuilder, constructorBuilder,
                             typeTokenConstantsGenerator, typeVarsMap, stagGenerator, adapterFieldInfo);
@@ -327,8 +327,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 /*
                  * If the fieldType is of type List
                  */
-                mStagFactoryUsed = true;
-                mGsonVariableUsed = true;
+                sStagFactoryUsed = true;
+                sGsonVariableUsed = true;
                 List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
                 TypeMirror param = typeArguments.get(0);
                 String paramAdapterAccessor = getAdapterAccessor(param, adapterBuilder, constructorBuilder,
@@ -349,8 +349,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  /*
                   * If the fieldType is of type Map
                   */
-                mGsonVariableUsed = true;
-                mStagFactoryUsed = true;
+                sGsonVariableUsed = true;
+                sStagFactoryUsed = true;
                 String mapInstantiater = KnownTypeAdapterUtils.getMapInstantiater(fieldType);
                 List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
                 String keyAdapterAccessor;
@@ -382,7 +382,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 /*
                  * If the fieldType is Object, use ObjectTypeAdapter
                  */
-                mGsonVariableUsed = true;
+                sGsonVariableUsed = true;
                 String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
                 String getterName = stagGenerator.addFieldForKnownType(fieldType, adapterCode.replaceAll("mStagFactory.", "").replaceAll("mGson", "gson"));
                 return "mStagFactory." + getterName + "(mGson)";
@@ -396,8 +396,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 if (size != 0 &&
                         (stagGenerator.isKnownType(outerClass) ||
                                 (null != stagGenerator.getExternalSupportedAdapter(outerClass)))) {
-                    mGsonVariableUsed = true;
-                    mStagFactoryUsed = true;
+                    sGsonVariableUsed = true;
+                    sStagFactoryUsed = true;
                     ClassInfo outerClassInfo = new ClassInfo(outerClass);
                     int idx1 = fieldType.toString().indexOf("<");
                     String argument = idx1 > 0 ? fieldType.toString().substring(idx1) : "";
@@ -476,8 +476,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             return fieldName;
         } else {
             String getterField = stagGenerator.addFieldForUnknownType(fieldType);
-            mGsonVariableUsed = true;
-            mStagFactoryUsed = true;
+            sGsonVariableUsed = true;
+            sStagFactoryUsed = true;
             return "mStagFactory." + "get" + getterField + "(mGson)";
         }
     }
@@ -485,9 +485,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     /**
      * Returns the adapter code for the unknown types.
      */
-    private String getAdapterForUnknownType(@NotNull TypeMirror fieldType, @NotNull TypeSpec.Builder adapterBuilder,
-                                            @NotNull MethodSpec.Builder constructorBuilder, @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                            @NotNull Map<TypeVariable, String> typeVarsMap, @NotNull AdapterFieldInfo adapterFieldInfo) {
+    private static String getAdapterForUnknownType(@NotNull TypeMirror fieldType, @NotNull TypeSpec.Builder adapterBuilder,
+                                                   @NotNull MethodSpec.Builder constructorBuilder, @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+                                                   @NotNull Map<TypeVariable, String> typeVarsMap, @NotNull AdapterFieldInfo adapterFieldInfo) {
 
         String fieldName = adapterFieldInfo.getFieldName(fieldType);
         if (null == fieldName) {
@@ -502,10 +502,10 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @NotNull
-    private AdapterFieldInfo addAdapterFields(@Nullable StagGenerator.GenericClassInfo genericClassInfo, @NotNull TypeSpec.Builder adapterBuilder,
-                                              @NotNull MethodSpec.Builder constructorBuilder, @NotNull Map<Element, TypeMirror> memberVariables,
-                                              @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                              @NotNull Map<TypeVariable, String> typeVarsMap, @NotNull StagGenerator stagGenerator) {
+    private static AdapterFieldInfo addAdapterFields(@Nullable StagGenerator.GenericClassInfo genericClassInfo, @NotNull TypeSpec.Builder adapterBuilder,
+                                                     @NotNull MethodSpec.Builder constructorBuilder, @NotNull Map<Element, TypeMirror> memberVariables,
+                                                     @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+                                                     @NotNull Map<TypeVariable, String> typeVarsMap, @NotNull StagGenerator stagGenerator) {
 
         HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
         AdapterFieldInfo result = new AdapterFieldInfo(typeSet.size());
@@ -538,7 +538,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @NotNull
-    private MethodSpec getWriteMethodSpec(@NotNull TypeName typeName, @NotNull Map<Element, TypeMirror> memberVariables, @NotNull AdapterFieldInfo adapterFieldInfo) {
+    private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName, @NotNull Map<Element, TypeMirror> memberVariables, @NotNull AdapterFieldInfo adapterFieldInfo) {
         final MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
                 .addParameter(JsonWriter.class, "writer")
                 .addParameter(typeName, "object")
@@ -602,8 +602,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     @Override
     @NotNull
     public TypeSpec getTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator, @NotNull StagGenerator stagGenerator) {
-        mGsonVariableUsed = false;
-        mStagFactoryUsed = false;
+        sGsonVariableUsed = false;
+        sStagFactoryUsed = false;
         TypeMirror typeMirror = mInfo.getType();
         TypeName typeVariableName = TypeVariableName.get(typeMirror);
 
@@ -661,12 +661,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         MethodSpec writeMethod = getWriteMethodSpec(typeVariableName, memberVariables, adapterFieldInfo);
         MethodSpec readMethod = getReadMethodSpec(typeVariableName, memberVariables, adapterFieldInfo);
 
-        if (mGsonVariableUsed) {
+        if (sGsonVariableUsed) {
             adapterBuilder.addField(Gson.class, "mGson", Modifier.FINAL, Modifier.PRIVATE);
             constructorBuilder.addStatement("this.mGson = gson");
         }
 
-        if (mStagFactoryUsed) {
+        if (sStagFactoryUsed) {
             adapterBuilder.addField(stagFactoryTypeName, "mStagFactory", Modifier.FINAL, Modifier.PRIVATE);
             constructorBuilder.addStatement("this.mStagFactory = stagFactory");
         }

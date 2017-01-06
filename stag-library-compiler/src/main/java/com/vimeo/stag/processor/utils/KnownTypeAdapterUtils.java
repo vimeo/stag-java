@@ -31,7 +31,7 @@ import javax.lang.model.type.TypeMirror;
 /**
  * This maintains a list of type vs the known type adapters.
  */
-public class KnownTypeAdapterUtils {
+public final class KnownTypeAdapterUtils {
     @NotNull
     private static final HashMap<String, String> KNOWN_TYPE_ADAPTERS = new HashMap<>();
 
