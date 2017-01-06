@@ -41,8 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
-
 /**
  * This class contains a list of KnownTypeAdapters such as {@link MapTypeAdapter}, {@link ListTypeAdapter} and more.
  * These type adapters are referenced in the Stag Compiler library, where we generate the code for the type adapters.
@@ -62,7 +60,11 @@ import static com.google.gson.stream.JsonToken.BEGIN_ARRAY;
  * is used to read and write the values, and the ObjectConstructor tells the type of List to be instantiated. This will also support the scenario
  * where we have a nested list. In that case the valueTypeAdapter will be again a {@link ListTypeAdapter} with its value TypeAdapter
  */
-public class KnownTypeAdapters {
+public final class KnownTypeAdapters {
+
+    private KnownTypeAdapters() {
+        throw new IllegalStateException("KnownTypeAdapters cannot be instantiated");
+    }
 
     /**
      * Type Adapter for {@link Byte}.
@@ -214,7 +216,7 @@ public class KnownTypeAdapters {
                 reader.nextNull();
                 return null;
             }
-            if (reader.peek() != BEGIN_ARRAY) {
+            if (reader.peek() != JsonToken.BEGIN_ARRAY) {
                 reader.skipValue();
                 return null;
             }
@@ -447,7 +449,7 @@ public class KnownTypeAdapters {
     public static class ListInstantiater<V> implements ObjectConstructor<List<V>> {
         @Override
         public List<V> construct() {
-            return new ArrayList<V>();
+            return new ArrayList<>();
         }
     }
 
@@ -457,7 +459,7 @@ public class KnownTypeAdapters {
     public static class CollectionInstantiater<V> implements ObjectConstructor<Collection<V>> {
         @Override
         public Collection<V> construct() {
-            return new ArrayList<V>();
+            return new ArrayList<>();
         }
     }
 
@@ -467,7 +469,7 @@ public class KnownTypeAdapters {
     public static class ArrayListInstantiater<V> implements ObjectConstructor<ArrayList<V>> {
         @Override
         public ArrayList<V> construct() {
-            return new ArrayList<V>();
+            return new ArrayList<>();
         }
     }
 
@@ -477,7 +479,7 @@ public class KnownTypeAdapters {
     public static class HashMapInstantiater<K, V> implements ObjectConstructor<HashMap<K, V>> {
         @Override
         public HashMap<K, V> construct() {
-            return new HashMap<K, V>();
+            return new HashMap<>();
         }
     }
 
@@ -487,7 +489,7 @@ public class KnownTypeAdapters {
     public static class ConcurrentHashMapInstantiater<K, V> implements ObjectConstructor<ConcurrentHashMap<K, V>> {
         @Override
         public ConcurrentHashMap<K, V> construct() {
-            return new ConcurrentHashMap<K, V>();
+            return new ConcurrentHashMap<>();
         }
     }
 
@@ -497,7 +499,7 @@ public class KnownTypeAdapters {
     public static class LinkedHashMapInstantiater<K, V> implements ObjectConstructor<LinkedHashMap<K, V>> {
         @Override
         public LinkedHashMap<K, V> construct() {
-            return new LinkedHashMap<K, V>();
+            return new LinkedHashMap<>();
         }
     }
 
@@ -542,7 +544,7 @@ public class KnownTypeAdapters {
                 return null;
             }
 
-            if (reader.peek() != BEGIN_ARRAY) {
+            if (reader.peek() != JsonToken.BEGIN_ARRAY) {
                 reader.skipValue();
                 return null;
             }
@@ -582,7 +584,7 @@ public class KnownTypeAdapters {
             List<JsonElement> keys = new ArrayList<>(value.size());
 
             List<V> values = new ArrayList<>(value.size());
-            for (T.Entry<K, V> entry : value.entrySet()) {
+            for (Map.Entry<K, V> entry : value.entrySet()) {
                 JsonElement keyElement = keyTypeAdapter.toJsonTree(entry.getKey());
                 keys.add(keyElement);
                 values.add(entry.getValue());
