@@ -1,6 +1,5 @@
 package com.vimeo.sample_model;
 
-
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 

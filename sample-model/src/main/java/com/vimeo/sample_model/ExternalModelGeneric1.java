@@ -16,5 +16,4 @@ public class ExternalModelGeneric1<T> {
 
     @SerializedName("unkownType")
     public ValueCallback<T> mUnknownType;
-
 }
