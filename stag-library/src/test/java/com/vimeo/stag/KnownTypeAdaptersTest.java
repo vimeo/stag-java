@@ -134,7 +134,7 @@ public class KnownTypeAdaptersTest {
         ArrayList<String> dummyList = Utils.createStringDummyList();
 
         TypeAdapter<ArrayList<String>> listTypeAdapter = new KnownTypeAdapters.ListTypeAdapter<>(TypeAdapters.STRING,
-                new KnownTypeAdapters.ArrayListInstantiater<String>());
+                new KnownTypeAdapters.ArrayListInstantiator<String>());
 
         StringWriter stringWriter = new StringWriter();
         listTypeAdapter.write(new JsonWriter(stringWriter), dummyList);
@@ -151,7 +151,7 @@ public class KnownTypeAdaptersTest {
         ArrayList<Integer> intDummyList = Utils.createIntegerDummyList();
 
         TypeAdapter<ArrayList<Integer>> listTypeAdapter1 = new KnownTypeAdapters.ListTypeAdapter<>(KnownTypeAdapters.INTEGER,
-                new KnownTypeAdapters.ArrayListInstantiater<Integer>());
+                new KnownTypeAdapters.ArrayListInstantiator<Integer>());
         stringWriter = new StringWriter();
         listTypeAdapter1.write(new JsonWriter(stringWriter), intDummyList);
         jsonString = stringWriter.toString();

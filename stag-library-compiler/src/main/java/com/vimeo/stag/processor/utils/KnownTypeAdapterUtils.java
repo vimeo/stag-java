@@ -75,9 +75,9 @@ public final class KnownTypeAdapterUtils {
         KNOWN_TYPE_ADAPTERS.put(JsonPrimitive.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_PRIMITIVE_TYPE_ADAPTER");
         KNOWN_TYPE_ADAPTERS.put(JsonNull.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_NULL_TYPE_ADAPTER");
 
-        SUPPORTED_COLLECTION_INFO.put(ArrayList.class.getName(), "com.vimeo.stag.KnownTypeAdapters.ArrayListInstantiater");
-        SUPPORTED_COLLECTION_INFO.put(List.class.getName(), "com.vimeo.stag.KnownTypeAdapters.ListInstantiater");
-        SUPPORTED_COLLECTION_INFO.put(Collection.class.getName(), "com.vimeo.stag.KnownTypeAdapters.CollectionInstantiater");
+        SUPPORTED_COLLECTION_INFO.put(ArrayList.class.getName(), "com.vimeo.stag.KnownTypeAdapters.ArrayListInstantiator");
+        SUPPORTED_COLLECTION_INFO.put(List.class.getName(), "com.vimeo.stag.KnownTypeAdapters.ListInstantiator");
+        SUPPORTED_COLLECTION_INFO.put(Collection.class.getName(), "com.vimeo.stag.KnownTypeAdapters.CollectionInstantiator");
 
         SUPPORTED_PRIMITIVE_ARRAY.put(int[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveIntegerArrayAdapter");
         SUPPORTED_PRIMITIVE_ARRAY.put(long[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveLongArrayAdapter");
@@ -124,13 +124,13 @@ public final class KnownTypeAdapterUtils {
         String postFix = keyType != null && paramType != null ? "<" + keyType.toString() + ", " + paramType.toString() + ">()" : "()";
 
         if (outerClassType.equals(Map.class.getName())) {
-            return "new com.vimeo.stag.KnownTypeAdapters.MapInstantiater" + postFix;
+            return "new com.vimeo.stag.KnownTypeAdapters.MapInstantiator" + postFix;
         } else if (outerClassType.equals(HashMap.class.getName())) {
-            return "new com.vimeo.stag.KnownTypeAdapters.HashMapInstantiater" + postFix;
+            return "new com.vimeo.stag.KnownTypeAdapters.HashMapInstantiator" + postFix;
         } else if (outerClassType.equals(LinkedHashMap.class.getName())) {
-            return "new com.vimeo.stag.KnownTypeAdapters.LinkedHashMapInstantiater" + postFix;
+            return "new com.vimeo.stag.KnownTypeAdapters.LinkedHashMapInstantiator" + postFix;
         } else if (outerClassType.equals(ConcurrentHashMap.class.getName())) {
-            return "new com.vimeo.stag.KnownTypeAdapters.ConcurrentHashMapInstantiater" + postFix;
+            return "new com.vimeo.stag.KnownTypeAdapters.ConcurrentHashMapInstantiator" + postFix;
         } else {
             String params = keyType != null && paramType != null ? "<" + keyType.toString() + ", " + paramType.toString() + ">" : "";
             return "new com.google.gson.internal.ObjectConstructor<" + outerClassType + params + ">() " +

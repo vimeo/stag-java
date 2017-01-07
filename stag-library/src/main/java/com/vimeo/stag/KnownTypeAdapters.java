@@ -176,13 +176,13 @@ public final class KnownTypeAdapters {
         }
     }.nullSafe();
 
-    public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(INTEGER, new ArrayListInstantiater<Integer>());
-    public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(LONG, new ArrayListInstantiater<Long>());
-    public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiater<Double>());
-    public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(SHORT, new ArrayListInstantiater<Short>());
-    public static final TypeAdapter<ArrayList<Float>> FLOAT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(FLOAT, new ArrayListInstantiater<Float>());
-    public static final TypeAdapter<ArrayList<Boolean>> BOOLEAN_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(TypeAdapters.BOOLEAN, new ArrayListInstantiater<Boolean>());
-    public static final TypeAdapter<ArrayList<Byte>> BYTE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(BYTE, new ArrayListInstantiater<Byte>());
+    public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(INTEGER, new ArrayListInstantiator<Integer>());
+    public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(LONG, new ArrayListInstantiator<Long>());
+    public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiator<Double>());
+    public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(SHORT, new ArrayListInstantiator<Short>());
+    public static final TypeAdapter<ArrayList<Float>> FLOAT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(FLOAT, new ArrayListInstantiator<Float>());
+    public static final TypeAdapter<ArrayList<Boolean>> BOOLEAN_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(TypeAdapters.BOOLEAN, new ArrayListInstantiator<Boolean>());
+    public static final TypeAdapter<ArrayList<Byte>> BYTE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(BYTE, new ArrayListInstantiator<Byte>());
 
     public interface PrimitiveArrayConstructor<T> {
         T[] construct(int size);
@@ -498,7 +498,7 @@ public final class KnownTypeAdapters {
     /**
      * Default Instantiater for List, by default it will create the Map of {@link ArrayList} type
      */
-    public static final class ListInstantiater<V> implements ObjectConstructor<List<V>> {
+    public static final class ListInstantiator<V> implements ObjectConstructor<List<V>> {
         @Override
         public List<V> construct() {
             return new ArrayList<>();
@@ -508,7 +508,7 @@ public final class KnownTypeAdapters {
     /**
      * Instantiater for {@link Collection}
      */
-    public static final class CollectionInstantiater<V> implements ObjectConstructor<Collection<V>> {
+    public static final class CollectionInstantiator<V> implements ObjectConstructor<Collection<V>> {
         @Override
         public Collection<V> construct() {
             return new ArrayList<>();
@@ -518,7 +518,7 @@ public final class KnownTypeAdapters {
     /**
      * Instantiater for {@link ArrayList}
      */
-    public static final class ArrayListInstantiater<V> implements ObjectConstructor<ArrayList<V>> {
+    public static final class ArrayListInstantiator<V> implements ObjectConstructor<ArrayList<V>> {
         @Override
         public ArrayList<V> construct() {
             return new ArrayList<>();
@@ -528,7 +528,7 @@ public final class KnownTypeAdapters {
     /**
      * Instantiater for {@link HashMap}
      */
-    public static final class HashMapInstantiater<K, V> implements ObjectConstructor<HashMap<K, V>> {
+    public static final class HashMapInstantiator<K, V> implements ObjectConstructor<HashMap<K, V>> {
         @Override
         public HashMap<K, V> construct() {
             return new HashMap<>();
@@ -538,7 +538,7 @@ public final class KnownTypeAdapters {
     /**
      * Instantiater for {@link ConcurrentHashMap}
      */
-    public static final class ConcurrentHashMapInstantiater<K, V> implements ObjectConstructor<ConcurrentHashMap<K, V>> {
+    public static final class ConcurrentHashMapInstantiator<K, V> implements ObjectConstructor<ConcurrentHashMap<K, V>> {
         @Override
         public ConcurrentHashMap<K, V> construct() {
             return new ConcurrentHashMap<>();
@@ -548,7 +548,7 @@ public final class KnownTypeAdapters {
     /**
      * Instantiater for {@link LinkedHashMap}
      */
-    public static final class LinkedHashMapInstantiater<K, V> implements ObjectConstructor<LinkedHashMap<K, V>> {
+    public static final class LinkedHashMapInstantiator<K, V> implements ObjectConstructor<LinkedHashMap<K, V>> {
         @Override
         public LinkedHashMap<K, V> construct() {
             return new LinkedHashMap<>();
@@ -558,10 +558,10 @@ public final class KnownTypeAdapters {
     /**
      * Default Instantiater for Maps, by default it will create the Map of {@link LinkedHashMap} type
      */
-    public static final class MapInstantiater<K, V> implements ObjectConstructor<Map<K, V>> {
+    public static final class MapInstantiator<K, V> implements ObjectConstructor<Map<K, V>> {
         @Override
         public Map<K, V> construct() {
-            return new LinkedHashMap<K, V>();
+            return new LinkedHashMap<>();
         }
     }
 
