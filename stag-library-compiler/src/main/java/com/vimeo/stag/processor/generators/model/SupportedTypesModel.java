@@ -47,6 +47,7 @@ public final class SupportedTypesModel {
     private final Set<TypeMirror> mSupportedTypesMirror = new HashSet<>();
     private final Set<ExternalAdapterInfo> mExternalSupportedAdapters = new HashSet<>();
     private String mGeneratedStagFactoryName;
+
     private SupportedTypesModel() {
     }
 
