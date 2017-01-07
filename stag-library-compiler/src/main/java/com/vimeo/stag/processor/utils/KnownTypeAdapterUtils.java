@@ -132,13 +132,23 @@ public final class KnownTypeAdapterUtils {
         } else if (outerClassType.equals(ConcurrentHashMap.class.getName())) {
             return "new com.vimeo.stag.KnownTypeAdapters.ConcurrentHashMapInstantiater" + postFix;
         } else {
-            return "new com.google.gson.internal.ObjectConstructor<" + outerClassType + "<" + keyType.toString() + ", " + paramType.toString() + ">>() " +
-                    "{ " +
-                    "\n@Override " +
-                    "\npublic " + outerClassType + "<" + keyType.toString() + ", " + paramType.toString() + ">" + " construct() {" +
-                    "\n\treturn new " + outerClassType + "<" + keyType.toString() + ", " + paramType.toString() + ">();" +
-                    "\n}" +
-                    "}";
+            if (keyType != null && paramType != null) {
+                return "new com.google.gson.internal.ObjectConstructor<" + outerClassType + "<" + keyType.toString() + ", " + paramType.toString() + ">>() " +
+                        "{ " +
+                        "\n@Override " +
+                        "\npublic " + outerClassType + "<" + keyType.toString() + ", " + paramType.toString() + ">" + " construct() {" +
+                        "\n\treturn new " + outerClassType + "<" + keyType.toString() + ", " + paramType.toString() + ">();" +
+                        "\n}" +
+                        "}";
+            } else {
+                return "new com.google.gson.internal.ObjectConstructor<" + outerClassType + "() " +
+                        "{ " +
+                        "\n@Override " +
+                        "\npublic " + outerClassType + " construct() {" +
+                        "\n\treturn new " + outerClassType + ">();" +
+                        "\n}" +
+                        "}";
+            }
         }
     }
 
