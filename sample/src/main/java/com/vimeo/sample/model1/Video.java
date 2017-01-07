@@ -19,4 +19,7 @@ public class Video {
 
     @GsonAdapterKey("link")
     public String mLink;
+
+    @GsonAdapterKey("mData")
+    public Data mData;
 }
