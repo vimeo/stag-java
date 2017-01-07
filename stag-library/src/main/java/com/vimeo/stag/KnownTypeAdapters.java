@@ -31,6 +31,7 @@ import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -240,6 +241,11 @@ public final class KnownTypeAdapters {
      * Type Adapter for Integer[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveIntegerArrayAdapter {
+
+        private PrimitiveIntegerArrayAdapter() {
+            throw new IllegalStateException("PrimitiveIntegerArrayAdapter cannot be instantiated");
+        }
+
         public static void write(@NotNull JsonWriter writer, @Nullable int[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
@@ -268,6 +274,11 @@ public final class KnownTypeAdapters {
      * Type Adapter for long[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveLongArrayAdapter {
+
+        private PrimitiveLongArrayAdapter() {
+            throw new IllegalStateException("PrimitiveLongArrayAdapter cannot be instantiated");
+        }
+
         public static void write(@NotNull JsonWriter writer, @Nullable long[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
@@ -296,6 +307,11 @@ public final class KnownTypeAdapters {
      * Type Adapter for double[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveDoubleArrayAdapter {
+
+        private PrimitiveDoubleArrayAdapter() {
+            throw new IllegalStateException("PrimitiveDoubleArrayAdapter cannot be instantiated");
+        }
+
         public static void write(@NotNull JsonWriter writer, @Nullable double[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
@@ -324,6 +340,11 @@ public final class KnownTypeAdapters {
      * Type Adapter for short[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveShortArrayAdapter {
+
+        private PrimitiveShortArrayAdapter() {
+            throw new IllegalStateException("PrimitiveShortArrayAdapter cannot be instantiated");
+        }
+
         public static void write(@NotNull JsonWriter writer, @Nullable short[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
@@ -351,6 +372,11 @@ public final class KnownTypeAdapters {
      * Type Adapter for float[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveFloatArrayAdapter {
+
+        private PrimitiveFloatArrayAdapter() {
+            throw new IllegalStateException("PrimitiveFloatArrayAdapter cannot be instantiated");
+        }
+
         public static void write(@NotNull JsonWriter writer, @Nullable float[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
@@ -379,6 +405,11 @@ public final class KnownTypeAdapters {
      * Type Adapter for boolean[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveBooleanArrayAdapter {
+
+        private PrimitiveBooleanArrayAdapter() {
+            throw new IllegalStateException("PrimitiveBooleanArrayAdapter cannot be instantiated");
+        }
+
         public static void write(@NotNull JsonWriter writer, @Nullable boolean[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
@@ -407,6 +438,11 @@ public final class KnownTypeAdapters {
      * Type Adapter for byte[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveByteArrayAdapter {
+
+        private PrimitiveByteArrayAdapter() {
+            throw new IllegalStateException("PrimitiveByteArrayAdapter cannot be instantiated");
+        }
+
         public static void write(@NotNull JsonWriter writer, @Nullable byte[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
@@ -437,6 +473,11 @@ public final class KnownTypeAdapters {
      * Type Adapter for char[] type. This can be directly accessed to read and write
      */
     public static final class PrimitiveCharArrayAdapter {
+
+        private PrimitiveCharArrayAdapter() {
+            throw new IllegalStateException("PrimitiveCharArrayAdapter cannot be instantiated");
+        }
+
         public static void write(@NotNull JsonWriter writer, @Nullable char[] value) throws IOException {
             if (null != value) {
                 writer.beginArray();
