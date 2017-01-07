@@ -43,7 +43,7 @@ public class AccessModifiers {
     @GsonAdapterKey("defaultModifier")
     String defaultModifier;
 
-    public static String STATIC_STRING = "static_string";
+    private static String STATIC_STRING = "static_string";
 
     //do not include fields of these types in TypeAdapter
     public static final String DEMO = "demo";

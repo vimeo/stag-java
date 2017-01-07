@@ -74,18 +74,18 @@ public class AnnotatedClass {
     }
 
     private static void checkModifiers(VariableElement variableElement, Set<Modifier> modifiers) {
-        if (modifiers.contains(Modifier.FINAL)) {
-            if (!modifiers.contains(Modifier.STATIC)) {
+        if (!modifiers.contains(Modifier.STATIC)) {
+            if (modifiers.contains(Modifier.FINAL)) {
                 throw new RuntimeException("Unable to access field \"" +
                         variableElement.getSimpleName().toString() + "\" in class " +
                         variableElement.getEnclosingElement().asType() +
                         ", field must not be final.");
+            } else if (modifiers.contains(Modifier.PRIVATE)) {
+                throw new RuntimeException("Unable to access field \"" +
+                        variableElement.getSimpleName().toString() + "\" in class " +
+                        variableElement.getEnclosingElement().asType() +
+                        ", field must not be private.");
             }
-        } else if (modifiers.contains(Modifier.PRIVATE)) {
-            throw new RuntimeException("Unable to access field \"" +
-                    variableElement.getSimpleName().toString() + "\" in class " +
-                    variableElement.getEnclosingElement().asType() +
-                    ", field must not be private.");
         }
     }
 
@@ -93,7 +93,7 @@ public class AnnotatedClass {
         if (element instanceof VariableElement) {
             final VariableElement variableElement = (VariableElement) element;
             Set<Modifier> modifiers = variableElement.getModifiers();
-            if ((!modifiers.contains(Modifier.FINAL) || !modifiers.contains(Modifier.STATIC)) && !modifiers.contains(Modifier.TRANSIENT)) {
+            if (!modifiers.contains(Modifier.FINAL) && !modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
                 checkModifiers(variableElement, modifiers);
                 if (!TypeUtils.isAbstract(element)) {
                     SupportedTypesModel.getInstance().checkAndAddExternalAdapter(variableElement);
