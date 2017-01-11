@@ -23,7 +23,6 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 
 /**
@@ -32,6 +31,5 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public class Paging {
 
-    @GsonAdapterKey("first")
     public String first;
 }

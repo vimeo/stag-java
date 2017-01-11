@@ -23,7 +23,6 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 
 /**
@@ -34,13 +33,10 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public class AccessModifiers {
 
-    @GsonAdapterKey("publicModifier")
     public String publicModifier;
 
-    @GsonAdapterKey("protectedModifier")
     protected String protectedModifier;
 
-    @GsonAdapterKey("defaultModifier")
     String defaultModifier;
 
     private static String STATIC_STRING = "static_string";

@@ -23,13 +23,18 @@
  */
 package com.vimeo.stag.processor.generators.model;
 
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.StagProcessor;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -52,13 +57,19 @@ public class AnnotatedClass {
     @NotNull
     private final Map<Element, TypeMirror> mMemberVariables;
 
+    private List<Element> mNestedElements;
+
     AnnotatedClass(@NotNull Element element) {
         mType = element.asType();
         mElement = element;
         TypeMirror inheritedType = TypeUtils.getInheritedType(element);
+
+        UseStag useStag = element.getAnnotation(UseStag.class);
+        int fieldOptions = useStag == null ? UseStag.FIELD_OPTION_ALL : useStag.value();
+
         mMemberVariables = new HashMap<>();
         for (Element enclosedElement : element.getEnclosedElements()) {
-            addToSupportedTypes(enclosedElement);
+            addToSupportedTypes(enclosedElement, fieldOptions);
         }
 
         if (inheritedType != null) {
@@ -71,6 +82,15 @@ public class AnnotatedClass {
                     genericInheritedType.getMemberVariables()));
         }
 
+    }
+
+    //This is to avoid the infinite recursive loop where an inner class can be deriving for this class itself
+    void initNestedClasses(){
+        if(null != mNestedElements) {
+            for (Element element: mNestedElements) {
+                SupportedTypesModel.getInstance().getSupportedType(element.asType());
+            }
+        }
     }
 
     private static void checkModifiers(VariableElement variableElement, Set<Modifier> modifiers) {
@@ -89,22 +109,40 @@ public class AnnotatedClass {
         }
     }
 
-    private void addToSupportedTypes(@NotNull Element element) {
+    private void addToSupportedTypes(@NotNull Element element, int fieldOptions) {
         if (element instanceof VariableElement) {
-            final VariableElement variableElement = (VariableElement) element;
-            Set<Modifier> modifiers = variableElement.getModifiers();
-            if (!modifiers.contains(Modifier.FINAL) && !modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
-                checkModifiers(variableElement, modifiers);
-                if (!TypeUtils.isAbstract(element)) {
-                    SupportedTypesModel.getInstance().checkAndAddExternalAdapter(variableElement);
+            if(shouldIncludeField(element, fieldOptions)) {
+                final VariableElement variableElement = (VariableElement) element;
+                Set<Modifier> modifiers = variableElement.getModifiers();
+                if (!modifiers.contains(Modifier.FINAL) && !modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
+                    checkModifiers(variableElement, modifiers);
+                    if (!TypeUtils.isAbstract(element)) {
+                        SupportedTypesModel.getInstance().checkAndAddExternalAdapter(variableElement);
+                    }
+                    if (StagProcessor.DEBUG) {
+                        DebugLog.log(TAG, "\t\tMember variables - " + variableElement.asType().toString());
+                    }
+                    mMemberVariables.put(variableElement, variableElement.asType());
                 }
-                if (StagProcessor.DEBUG) {
-                    DebugLog.log(TAG, "\t\tMember variables - " + variableElement.asType().toString());
-                }
-                mMemberVariables.put(variableElement, variableElement.asType());
             }
         } else if (element instanceof TypeElement) {
-            SupportedTypesModel.getInstance().getSupportedType(element.asType());
+            if(null == mNestedElements) {
+                mNestedElements = new ArrayList<>();
+            }
+            mNestedElements.add(element);
+        }
+    }
+
+    private boolean shouldIncludeField(@NotNull Element element, int fieldOption) {
+        switch (fieldOption){
+            case UseStag.FIELD_OPTION_NONE:
+                return false;
+            case UseStag.FIELD_OPTION_SERIALIZED_NAME:
+                return element.getAnnotation(SerializedName.class) != null || element.getAnnotation(GsonAdapterKey.class) != null;
+            case UseStag.FIELD_OPTION_ALL:
+                return true;
+            default:
+                throw new RuntimeException("Unknown field option provided for class " + mElement.asType());
         }
     }
 

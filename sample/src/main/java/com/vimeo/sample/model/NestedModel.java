@@ -23,7 +23,7 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 
 /**
@@ -34,10 +34,10 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public class NestedModel {
 
-    @GsonAdapterKey("test1")
+    @SerializedName("test1")
     public String test1;
 
-    @GsonAdapterKey("nestedEnum")
+    @SerializedName("nestedEnum")
     public NestedEnum nestedEnum;
 
     @UseStag

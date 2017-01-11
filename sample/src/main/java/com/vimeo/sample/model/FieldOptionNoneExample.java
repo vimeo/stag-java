@@ -4,10 +4,10 @@ package com.vimeo.sample.model;
 import com.vimeo.stag.UseStag;
 
 /**
- * Model class which contains different types of primitive member variables
+ * Model class to demonstrate the usage of FIELD_OPTION_NONE
  */
-@UseStag
-public class PrimitiveTypesExample {
+@UseStag(UseStag.FIELD_OPTION_NONE)
+public class FieldOptionNoneExample {
 
     public int simpleInt;
 

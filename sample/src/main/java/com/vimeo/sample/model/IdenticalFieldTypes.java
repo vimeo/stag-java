@@ -23,7 +23,7 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 
 import java.util.ArrayList;
@@ -41,24 +41,24 @@ import java.util.List;
 @UseStag
 public class IdenticalFieldTypes {
 
-    @GsonAdapterKey("mUser")
+    @SerializedName("mUser")
     User mUser;
 
-    @GsonAdapterKey("mSecondUser")
+    @SerializedName("mSecondUser")
     User mSecondUser;
 
-    @GsonAdapterKey("mUsersList")
+    @SerializedName("mUsersList")
     ArrayList<User> mUsersList;
 
-    @GsonAdapterKey("mSecondUsersList")
+    @SerializedName("mSecondUsersList")
     ArrayList<User> mSecondUsersList;
 
-    @GsonAdapterKey("mStatsArrayList")
+    @SerializedName("mStatsArrayList")
     ArrayList<Stats> mStatsArrayList;
 
-    @GsonAdapterKey("mListOfList")
+    @SerializedName("mListOfList")
     List<List<Stats>> mListOfList;
 
-    @GsonAdapterKey("mStats")
+    @SerializedName("mStats")
     Stats mStats;
 }

@@ -92,6 +92,7 @@ public final class SupportedTypesModel {
         if (model == null) {
             model = new AnnotatedClass(TypeUtils.getUtils().asElement(type));
             addSupportedType(model);
+            model.initNestedClasses();
         }
         return model;
     }

@@ -23,7 +23,6 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 
 /**
@@ -39,9 +38,7 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public abstract class SuperAbstractDataList<T, K> {
 
-    @GsonAdapterKey("paging")
     public T paging;
 
-    @GsonAdapterKey("data")
     public K data;
 }

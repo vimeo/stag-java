@@ -23,7 +23,7 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 
 /**
@@ -32,7 +32,7 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public class Stats {
 
-    @GsonAdapterKey("plays")
+    @SerializedName("plays")
     public int mPlays;
 
     @Override
