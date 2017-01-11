@@ -53,9 +53,15 @@ public final class ElementUtils {
 
     @Nullable
     public static TypeMirror getTypeFromQualifiedName(@NotNull String qualifiedName) {
+        TypeElement typeElement = getTypeElementFromQualifiedName(qualifiedName);
+        return null != typeElement ? typeElement.asType() : null;
+    }
+
+
+    @Nullable
+    public static TypeElement getTypeElementFromQualifiedName(@NotNull String qualifiedName) {
         Elements elements = ElementUtils.getUtils();
-        TypeElement typeElement = elements.getTypeElement(qualifiedName);
-        return typeElement.asType();
+        return elements.getTypeElement(qualifiedName);
     }
 
     @NotNull

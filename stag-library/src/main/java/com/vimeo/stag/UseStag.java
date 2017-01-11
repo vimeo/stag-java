@@ -1,0 +1,62 @@
+/*
+ * The MIT License (MIT)
+ * <p/>
+ * Copyright (c) 2016 Vimeo
+ * <p/>
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * <p/>
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * <p/>
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+package com.vimeo.stag;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
+
+/**
+ * Use this annotation to tell Stag that all the member variables of the class should be processed.
+ * <p/>
+ * If the class is annotated, Stag will generate a TypeAdapter for that class.
+ * Stag does not generate TypeAdapters for abstract classes.
+ * <p/>
+ */
+@Target({ElementType.TYPE})
+public @interface UseStag {
+    /**
+     * Will serialize/de-serialize all member variables which are not static
+     * or transient
+     */
+    int FIELD_OPTION_ALL = 0;
+
+    /**
+     * Will skip serialization and deserialization for all member variables
+     */
+    int FIELD_OPTION_NONE = 1;
+
+
+    /**
+     * Will Serialize or Deserialize Fields only which are annotated with
+     * SerializedName or GsonAdapterKey(deprecated)
+     */
+    int FIELD_OPTION_SERIALIZED_NAME = 3;
+
+    /**
+     * field option chosen
+     *
+     * @return the .
+     */
+    int value() default FIELD_OPTION_ALL;
+}

@@ -23,9 +23,7 @@
  */
 package com.vimeo.sample.model;
 
-import android.support.annotation.NonNull;
-
-import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.UseStag;
 
 /**
  * Ensures that retrieving fields from
@@ -37,13 +35,10 @@ import com.vimeo.stag.GsonAdapterKey;
  * @param <T> the paging type.
  * @param <K> the data type.
  */
+@UseStag
 public abstract class SuperAbstractDataList<T, K> {
 
-    @GsonAdapterKey
     public T paging;
 
-    @NonNull
-    @GsonAdapterKey
     public K data;
-
 }

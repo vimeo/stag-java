@@ -56,10 +56,40 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
     @NotNull
     private final Element mElement;
 
-
     public EnumTypeAdapterGenerator(@NotNull ClassInfo info, @NotNull Element element) {
         mInfo = info;
         mElement = element;
+    }
+
+    @NotNull
+    private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
+                .addParameter(JsonWriter.class, "writer")
+                .addParameter(typeName, "object")
+                .returns(void.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addException(IOException.class);
+
+        builder.addStatement("writer.value(object == null ? null : CONSTANT_TO_NAME.get(object))");
+        return builder.build();
+    }
+
+    @NotNull
+    private static MethodSpec getReadMethodSpec(@NotNull TypeName typeName) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("read")
+                .addParameter(JsonReader.class, "reader")
+                .returns(typeName)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addException(IOException.class);
+
+        builder.beginControlFlow("if (reader.peek() == com.google.gson.stream.JsonToken.NULL)");
+        builder.addStatement("reader.nextNull()");
+        builder.addStatement("return null");
+        builder.endControlFlow();
+        builder.addStatement("return NAME_TO_CONSTANT.get(reader.nextString())");
+        return builder.build();
     }
 
     /**
@@ -98,35 +128,25 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
             }
         }
 
-
         MethodSpec writeMethod = getWriteMethodSpec(typeVariableName);
         MethodSpec readMethod = getReadMethodSpec(typeVariableName);
 
-        TypeName typeName =
-                ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(String.class),
-                                          TypeVariableName.get(typeMirror));
-        adapterBuilder.addField(typeName, "NAME_TO_CONSTANT", Modifier.PRIVATE, Modifier.STATIC,
-                                Modifier.FINAL);
+        TypeName typeName = ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(String.class), TypeVariableName.get(typeMirror));
+        adapterBuilder.addField(typeName, "NAME_TO_CONSTANT", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
 
-        typeName = ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(typeMirror),
-                                             TypeVariableName.get(String.class));
-        adapterBuilder.addField(typeName, "CONSTANT_TO_NAME", Modifier.PRIVATE, Modifier.STATIC,
-                                Modifier.FINAL);
+        typeName = ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(typeMirror), TypeVariableName.get(String.class));
+        adapterBuilder.addField(typeName, "CONSTANT_TO_NAME", Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
 
         CodeBlock.Builder staticBlockBuilder = CodeBlock.builder();
         staticBlockBuilder.addStatement("NAME_TO_CONSTANT = new HashMap<>(" + nameToConstant.size() + ")");
         for (Map.Entry<String, Element> entry : nameToConstant.entrySet()) {
-            staticBlockBuilder.addStatement(
-                    "NAME_TO_CONSTANT.put(\"" + entry.getKey() + "\", " + typeVariableName + "." +
-                    entry.getValue().getSimpleName().toString() + ")");
+            staticBlockBuilder.addStatement("NAME_TO_CONSTANT.put(\"" + entry.getKey() + "\", " + typeVariableName + "." + entry.getValue().getSimpleName().toString() + ")");
         }
 
         staticBlockBuilder.add("\n");
         staticBlockBuilder.addStatement("CONSTANT_TO_NAME = new HashMap<>(" + constantToName.size() + ")");
         for (Map.Entry<Element, String> entry : constantToName.entrySet()) {
-            staticBlockBuilder.addStatement("CONSTANT_TO_NAME.put(" + typeVariableName + "." +
-                                            entry.getKey().getSimpleName().toString() + ", \"" +
-                                            entry.getValue() + "\")");
+            staticBlockBuilder.addStatement("CONSTANT_TO_NAME.put(" + typeVariableName + "." + entry.getKey().getSimpleName().toString() + ", \"" + entry.getValue() + "\")");
         }
 
         adapterBuilder.addStaticBlock(staticBlockBuilder.build());
@@ -135,40 +155,6 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
         adapterBuilder.addMethod(writeMethod);
         adapterBuilder.addMethod(readMethod);
 
-
         return adapterBuilder.build();
     }
-
-    @NotNull
-    private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
-                .addParameter(JsonWriter.class, "writer")
-                .addParameter(typeName, "object")
-                .returns(void.class)
-                .addModifiers(Modifier.PUBLIC)
-                .addAnnotation(Override.class)
-                .addException(IOException.class);
-
-        builder.addStatement("writer.value(object == null ? null : CONSTANT_TO_NAME.get(object))");
-        return builder.build();
-    }
-
-    @NotNull
-    private static MethodSpec getReadMethodSpec(@NotNull TypeName typeName) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("read")
-                .addParameter(JsonReader.class, "reader")
-                .returns(typeName)
-                .addModifiers(Modifier.PUBLIC)
-                .addAnnotation(Override.class)
-                .addException(IOException.class);
-
-        builder.beginControlFlow("if (reader.peek() == com.google.gson.stream.JsonToken.NULL)");
-        builder.addStatement("reader.nextNull()");
-        builder.addStatement("return null");
-        builder.endControlFlow();
-        builder.addStatement("return NAME_TO_CONSTANT.get(reader.nextString())");
-        return builder.build();
-    }
-
-
 }

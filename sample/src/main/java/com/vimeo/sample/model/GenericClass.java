@@ -23,19 +23,25 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.UseStag;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by anirudh.r on 30/11/16.
+ * <p>
+ * A Generic class which has known types.
  */
-
+@UseStag
 public class GenericClass<T> {
 
-    @GsonAdapterKey
     public T name;
 
-    @GsonAdapterKey
     public Map<String, Map<String, T>> mapField;
+
+    public HashMap<Integer, T> mapIntegerField;
+
+    public ArrayList<T> arrayIntegerField;
 }

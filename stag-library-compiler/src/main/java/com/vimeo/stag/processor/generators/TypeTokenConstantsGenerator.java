@@ -53,26 +53,31 @@ public class TypeTokenConstantsGenerator {
 
     @NotNull
     private final Filer mFiler;
-
-    private static class TypeTokenInfo {
-
-        TypeMirror mTypeMirror;
-        String mFieldName;
-        String mMethodName;
-
-        TypeTokenInfo() {
-        }
-    }
-
     @NotNull
     private final HashMap<String, TypeTokenInfo> mTypesToBeGenerated = new HashMap<>();
-
     @NotNull
     private final String mGeneratedPackageName;
 
     public TypeTokenConstantsGenerator(@NotNull Filer filer, @NotNull String generatedPackageName) {
         mFiler = filer;
         mGeneratedPackageName = generatedPackageName;
+    }
+
+    @NotNull
+    private static MethodSpec generateTypeTokenGetters(@NotNull String name, @NotNull TypeName typeName) {
+        MethodSpec.Builder mBuilder = MethodSpec.methodBuilder(getMethodName(name))
+                .returns(ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName))
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .beginControlFlow("if (" + name + " == null)")
+                .addStatement(name + " = new com.google.gson.reflect.TypeToken<" + typeName + ">(){}")
+                .endControlFlow()
+                .addStatement("return " + name);
+        return mBuilder.build();
+    }
+
+    @NotNull
+    private static String getMethodName(@NotNull String name) {
+        return "get" + name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
     }
 
     /**
@@ -94,7 +99,7 @@ public class TypeTokenConstantsGenerator {
         }
 
         return mGeneratedPackageName + "." + CLASS_STAG_TYPE_TOKEN_CONSTANTS + "." +
-               typeTokenInfo.mMethodName;
+                typeTokenInfo.mMethodName;
     }
 
     /**
@@ -117,7 +122,7 @@ public class TypeTokenConstantsGenerator {
                         ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName);
                 FieldSpec.Builder fieldSpecBuilder =
                         FieldSpec.builder(parameterizedTypeName, typeTokenInfo.mFieldName, Modifier.PUBLIC,
-                                          Modifier.STATIC);
+                                Modifier.STATIC);
                 adaptersBuilder.addField(fieldSpecBuilder.build());
                 adaptersBuilder.addMethod(generateTypeTokenGetters(typeTokenInfo.mFieldName, typeName));
             }
@@ -127,20 +132,9 @@ public class TypeTokenConstantsGenerator {
         }
     }
 
-    @NotNull
-    private static MethodSpec generateTypeTokenGetters(@NotNull String name, @NotNull TypeName typeName) {
-        MethodSpec.Builder mBuilder = MethodSpec.methodBuilder(getMethodName(name))
-                .returns(ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName))
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .beginControlFlow("if (" + name + " == null)")
-                .addStatement(name + " = new com.google.gson.reflect.TypeToken<" + typeName + ">(){}")
-                .endControlFlow()
-                .addStatement("return " + name);
-        return mBuilder.build();
-    }
-
-    @NotNull
-    private static String getMethodName(@NotNull String name) {
-        return "get" + name.substring(0, 1).toUpperCase() + name.substring(1).toLowerCase();
+    private static class TypeTokenInfo {
+        TypeMirror mTypeMirror;
+        String mFieldName;
+        String mMethodName;
     }
 }

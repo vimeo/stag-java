@@ -23,7 +23,7 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.UseStag;
 
 /**
  * Since this class has no annotated fields,
@@ -34,7 +34,7 @@ import com.vimeo.stag.GsonAdapterKey;
  * the abstraction hierarchy and to resolve
  * parameterized fields.
  */
-@GsonAdapterKey
+@UseStag
 public class VideoList extends AbstractDataList<Video> {
 
 }

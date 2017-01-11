@@ -23,14 +23,13 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.UseStag;
 
 /**
  * Simple paging info model used by the sample.
  */
+@UseStag
 public class Paging {
 
-    @GsonAdapterKey
     public String first;
-
 }

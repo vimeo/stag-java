@@ -23,27 +23,29 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import android.support.v4.util.ArrayMap;
+
+import com.vimeo.stag.UseStag;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class contains different types of {@link Map}
+ */
+@UseStag
 public class ClassWithMapTypes {
-    @GsonAdapterKey
     public HashMap<String, Video> videoHashMap;
 
-    @GsonAdapterKey
     public LinkedHashMap<String, Integer> stringIntegerMap;
 
-    @GsonAdapterKey
     public Map<Integer, String> integerStringMap;
 
-    @GsonAdapterKey
     public Map<Video, String> complexTypeMap;
 
-    @GsonAdapterKey
     public Map<String, List<Video>> mapOfLists;
 
+    public ArrayMap<String, String> arrayMap;
 }

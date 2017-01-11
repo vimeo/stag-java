@@ -23,24 +23,27 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.UseStag;
 
 /**
  * Entity ensuring that all supported modifiers are allowed.
  * Public, protected, and package-private modifiers are allowed.
  * Private modifier is not allowed.
  */
+@UseStag
 public class AccessModifiers {
 
-    // private modifier is not allowed
-
-    @GsonAdapterKey
-    String defaultModifier;
-
-    @GsonAdapterKey
-    protected String protectedModifier;
-
-    @GsonAdapterKey
     public String publicModifier;
 
+    protected String protectedModifier;
+
+    String defaultModifier;
+
+    private static String STATIC_STRING = "static_string";
+
+    //do not include fields of these types in TypeAdapter
+    public static final String DEMO = "demo";
+
+    //do not serialize/deserialize transient fields
+    transient String transientField;
 }
