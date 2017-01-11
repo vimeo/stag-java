@@ -1,5 +1,6 @@
 package com.vimeo.sample.model1;
 
+import com.google.gson.annotations.SerializedName;
 import com.vimeo.sample.model.User;
 import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
@@ -14,12 +15,12 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public class Video {
 
-    @GsonAdapterKey("user")
+    @SerializedName("user")
     public User mUser;
 
-    @GsonAdapterKey("link")
+    @SerializedName("link")
     public String mLink;
 
-    @GsonAdapterKey("mData")
+    @SerializedName("mData")
     public Data mData;
 }
