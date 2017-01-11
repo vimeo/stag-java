@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,6 +63,7 @@ public class AnnotatedClass {
     AnnotatedClass(@NotNull Element element) {
         mType = element.asType();
         mElement = element;
+        Set<String> variableNames = new HashSet<>(element.getEnclosedElements().size());
         TypeMirror inheritedType = TypeUtils.getInheritedType(element);
 
         UseStag useStag = element.getAnnotation(UseStag.class);
@@ -69,17 +71,30 @@ public class AnnotatedClass {
 
         mMemberVariables = new HashMap<>();
         for (Element enclosedElement : element.getEnclosedElements()) {
-            addToSupportedTypes(enclosedElement, fieldOptions);
+            addToSupportedTypes(enclosedElement, fieldOptions, variableNames);
         }
 
         if (inheritedType != null) {
-            DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
+            if (StagProcessor.DEBUG) {
+                DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
+            }
+
 
             AnnotatedClass genericInheritedType =
                     SupportedTypesModel.getInstance().getSupportedType(inheritedType);
 
-            mMemberVariables.putAll(TypeUtils.getConcreteMembers(inheritedType, genericInheritedType.getElement(),
-                    genericInheritedType.getMemberVariables()));
+            Map<Element, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType, genericInheritedType.getElement(),
+                    genericInheritedType.getMemberVariables());
+
+            for(Map.Entry<Element, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
+                if(!variableNames.contains(entry.getKey().getSimpleName().toString())) {
+                    mMemberVariables.put(entry.getKey(), entry.getValue());
+                } else {
+                    if (StagProcessor.DEBUG) {
+                        DebugLog.log(TAG, "\t\tIgnoring inherited Member variables - " + entry.getKey().asType().toString());
+                    }
+                }
+            }
         }
 
     }
@@ -109,8 +124,9 @@ public class AnnotatedClass {
         }
     }
 
-    private void addToSupportedTypes(@NotNull Element element, int fieldOptions) {
+    private void addToSupportedTypes(@NotNull Element element, int fieldOptions, @NotNull Set<String> variableNames) {
         if (element instanceof VariableElement) {
+            variableNames.add(element.getSimpleName().toString());
             if(shouldIncludeField(element, fieldOptions)) {
                 final VariableElement variableElement = (VariableElement) element;
                 Set<Modifier> modifiers = variableElement.getModifiers();
