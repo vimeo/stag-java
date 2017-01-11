@@ -91,7 +91,7 @@ public class AnnotatedClass {
                     mMemberVariables.put(entry.getKey(), entry.getValue());
                 } else {
                     if (StagProcessor.DEBUG) {
-                        DebugLog.log(TAG, "\t\tIgnoring inherited Member variables - " + entry.getKey().asType().toString());
+                        DebugLog.log(TAG, "\t\tIgnoring inherited Member variable with the same variable name - " + entry.getKey().asType().toString());
                     }
                 }
             }
