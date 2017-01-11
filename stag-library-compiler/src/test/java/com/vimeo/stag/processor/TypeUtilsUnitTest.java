@@ -315,11 +315,11 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
         Assert.assertTrue(TypeUtils.isSupportedPrimitive(boolean.class.getName()));
         Assert.assertTrue(TypeUtils.isSupportedPrimitive(float.class.getName()));
         Assert.assertTrue(TypeUtils.isSupportedPrimitive(double.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedPrimitive(byte.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedPrimitive(char.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedPrimitive(short.class.getName()));
 
         // Check unsupported primitives
-        Assert.assertFalse(TypeUtils.isSupportedPrimitive(byte.class.getName()));
-        Assert.assertFalse(TypeUtils.isSupportedPrimitive(char.class.getName()));
-        Assert.assertFalse(TypeUtils.isSupportedPrimitive(short.class.getName()));
         Assert.assertFalse(TypeUtils.isSupportedPrimitive(void.class.getName()));
 
         // Check non-primitives
@@ -356,23 +356,25 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
         // Check supported types
         Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(List.class)));
         Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList.class)));
+        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection.class)));
 
         // Check unsupported list types
         Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList.class)));
         Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector.class)));
         Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack.class)));
-        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection.class)));
+
 
         Assert.assertFalse(TypeUtils.isSupportedCollection(null));
 
         Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Object.class)));
 
-        // Check unsupported array types
-        Assert.assertFalse(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))));
-        Assert.assertFalse(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))));
-        Assert.assertFalse(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))));
-        Assert.assertFalse(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String.class))));
-        Assert.assertFalse(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Object.class))));
+        // Check supported array types
+        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))));
+        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))));
+        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))));
+        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String.class))));
+        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Object.class))));
+
     }
 
     @Test
@@ -384,11 +386,11 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
         Assert.assertTrue(TypeUtils.isSupportedNative(float.class.getName()));
         Assert.assertTrue(TypeUtils.isSupportedNative(double.class.getName()));
         Assert.assertTrue(TypeUtils.isSupportedNative(String.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedNative(byte.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedNative(char.class.getName()));
+        Assert.assertTrue(TypeUtils.isSupportedNative(short.class.getName()));
 
         // Check unsupported primitives
-        Assert.assertFalse(TypeUtils.isSupportedNative(byte.class.getName()));
-        Assert.assertFalse(TypeUtils.isSupportedNative(char.class.getName()));
-        Assert.assertFalse(TypeUtils.isSupportedNative(short.class.getName()));
         Assert.assertFalse(TypeUtils.isSupportedNative(void.class.getName()));
 
         // Check non-primitives
