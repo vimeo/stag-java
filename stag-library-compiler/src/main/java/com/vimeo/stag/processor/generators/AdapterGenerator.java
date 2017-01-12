@@ -29,6 +29,7 @@ import com.squareup.javapoet.TypeSpec;
 import com.vimeo.stag.GsonAdapterKey;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.lang.model.element.Element;
 
@@ -54,6 +55,14 @@ public abstract class AdapterGenerator {
             name = element.getSimpleName().toString();
         }
         return name;
+    }
+
+    /**
+     * Returns the alternate name for the {@link Element}
+     */
+    @Nullable
+    static String[] getAlternateJsonNames(@NotNull Element element) {
+        return (null != element.getAnnotation(SerializedName.class)) ? element.getAnnotation(SerializedName.class).alternate() : null;
     }
 
     @NotNull
