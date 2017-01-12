@@ -24,6 +24,7 @@
 package com.vimeo.stag.processor.generators.model;
 
 import com.google.gson.annotations.SerializedName;
+import com.sun.org.apache.bcel.internal.generic.Type;
 import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.StagProcessor;
@@ -35,6 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,23 +58,21 @@ public class AnnotatedClass {
     private final Element mElement;
 
     @NotNull
-    private final Map<Element, TypeMirror> mMemberVariables;
+    private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
 
     private List<Element> mNestedElements;
 
     AnnotatedClass(@NotNull Element element) {
         mType = element.asType();
         mElement = element;
-        Set<String> variableNames = new HashSet<>(element.getEnclosedElements().size());
+        Map<String, Element> variableNames = new HashMap<>(element.getEnclosedElements().size());
         TypeMirror inheritedType = TypeUtils.getInheritedType(element);
 
         UseStag useStag = element.getAnnotation(UseStag.class);
         int fieldOptions = useStag == null ? UseStag.FIELD_OPTION_ALL : useStag.value();
 
-        mMemberVariables = new HashMap<>();
-        for (Element enclosedElement : element.getEnclosedElements()) {
-            addToSupportedTypes(enclosedElement, fieldOptions, variableNames);
-        }
+        mMemberVariables = new LinkedHashMap<>();
+
 
         if (inheritedType != null) {
             if (StagProcessor.DEBUG) {
@@ -83,20 +83,29 @@ public class AnnotatedClass {
             AnnotatedClass genericInheritedType =
                     SupportedTypesModel.getInstance().getSupportedType(inheritedType);
 
-            Map<Element, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType, genericInheritedType.getElement(),
+            LinkedHashMap<Element, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType, genericInheritedType.getElement(),
                     genericInheritedType.getMemberVariables());
 
             for(Map.Entry<Element, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
-                if(!variableNames.contains(entry.getKey().getSimpleName().toString())) {
-                    mMemberVariables.put(entry.getKey(), entry.getValue());
-                } else {
-                    if (StagProcessor.DEBUG) {
-                        DebugLog.log(TAG, "\t\tIgnoring inherited Member variable with the same variable name - " + entry.getKey().asType().toString());
-                    }
-                }
+                addMemberVariable(entry.getKey(), entry.getValue(), variableNames);
             }
         }
 
+        for (Element enclosedElement : element.getEnclosedElements()) {
+            addToSupportedTypes(enclosedElement, fieldOptions, variableNames);
+        }
+
+    }
+
+    private void addMemberVariable(@NotNull Element element, @NotNull TypeMirror typeMirror, @NotNull Map<String, Element> variableNames) {
+        Element previousElement = variableNames.put(element.getSimpleName().toString(), element);
+        if(null != previousElement) {
+            mMemberVariables.remove(previousElement);
+            if (StagProcessor.DEBUG) {
+                DebugLog.log(TAG, "\t\tIgnoring inherited Member variable with the same variable name - " + previousElement.asType().toString());
+            }
+        }
+        mMemberVariables.put(element, typeMirror);
     }
 
     //This is to avoid the infinite recursive loop where an inner class can be deriving for this class itself
@@ -124,9 +133,8 @@ public class AnnotatedClass {
         }
     }
 
-    private void addToSupportedTypes(@NotNull Element element, int fieldOptions, @NotNull Set<String> variableNames) {
+    private void addToSupportedTypes(@NotNull Element element, int fieldOptions, @NotNull Map<String, Element> variableNames) {
         if (element instanceof VariableElement) {
-            variableNames.add(element.getSimpleName().toString());
             if(shouldIncludeField(element, fieldOptions)) {
                 final VariableElement variableElement = (VariableElement) element;
                 Set<Modifier> modifiers = variableElement.getModifiers();
@@ -138,7 +146,8 @@ public class AnnotatedClass {
                     if (StagProcessor.DEBUG) {
                         DebugLog.log(TAG, "\t\tMember variables - " + variableElement.asType().toString());
                     }
-                    mMemberVariables.put(variableElement, variableElement.asType());
+
+                    addMemberVariable(variableElement, variableElement.asType(), variableNames);
                 }
             }
         } else if (element instanceof TypeElement) {
@@ -185,7 +194,7 @@ public class AnnotatedClass {
      * types.
      */
     @NotNull
-    public Map<Element, TypeMirror> getMemberVariables() {
-        return new HashMap<>(mMemberVariables);
+    public LinkedHashMap<Element, TypeMirror> getMemberVariables() {
+        return new LinkedHashMap<>(mMemberVariables);
     }
 }

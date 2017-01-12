@@ -286,11 +286,11 @@ public final class TypeUtils {
      * @param members           the member variable map of the field (Element) to their concrete
      *                          type (TypeMirror). This should be retrieved by calling getConcreteMembers
      *                          on the inherited class.
-     * @return returns a map of the member variables mapped to their concrete types for the concrete
-     * inherited class.
+     * @return returns a linked has map of the member variables mapped to their concrete types for the concrete
+     * inherited class. (to maintain the ordering)
      */
     @NotNull
-    public static Map<Element, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
+    public static LinkedHashMap<Element, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
                                                               @NotNull Element genericInherited,
                                                               @NotNull Map<Element, TypeMirror> members) {
 
@@ -299,7 +299,7 @@ public final class TypeUtils {
         List<? extends TypeMirror> concreteTypes = getParameterizedTypes(concreteInherited);
         List<? extends TypeMirror> inheritedTypes = getParameterizedTypes(genericInherited);
 
-        Map<Element, TypeMirror> map = new HashMap<>();
+        LinkedHashMap<Element, TypeMirror> map = new LinkedHashMap<>();
 
         for (Entry<Element, TypeMirror> member : members.entrySet()) {
 
