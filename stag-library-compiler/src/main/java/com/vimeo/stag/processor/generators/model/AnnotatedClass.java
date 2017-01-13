@@ -24,7 +24,6 @@
 package com.vimeo.stag.processor.generators.model;
 
 import com.google.gson.annotations.SerializedName;
-import com.sun.org.apache.bcel.internal.generic.Type;
 import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.StagProcessor;
