@@ -37,6 +37,7 @@ import java.util.List;
  */
 @UseStag
 public class RecursiveClass {
+
     @SerializedName("checkSum")
     public String checkSum;
 

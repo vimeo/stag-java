@@ -176,15 +176,23 @@ public final class KnownTypeAdapters {
         }
     }.nullSafe();
 
-    public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(INTEGER, new ArrayListInstantiator<Integer>());
-    public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(LONG, new ArrayListInstantiator<Long>());
-    public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiator<Double>());
-    public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(SHORT, new ArrayListInstantiator<Short>());
-    public static final TypeAdapter<ArrayList<Float>> FLOAT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(FLOAT, new ArrayListInstantiator<Float>());
-    public static final TypeAdapter<ArrayList<Boolean>> BOOLEAN_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(TypeAdapters.BOOLEAN, new ArrayListInstantiator<Boolean>());
-    public static final TypeAdapter<ArrayList<Byte>> BYTE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(BYTE, new ArrayListInstantiator<Byte>());
+    public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(INTEGER, new ArrayListInstantiator<Integer>());
+    public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(LONG, new ArrayListInstantiator<Long>());
+    public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiator<Double>());
+    public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(SHORT, new ArrayListInstantiator<Short>());
+    public static final TypeAdapter<ArrayList<Float>> FLOAT_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(FLOAT, new ArrayListInstantiator<Float>());
+    public static final TypeAdapter<ArrayList<Boolean>> BOOLEAN_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(TypeAdapters.BOOLEAN, new ArrayListInstantiator<Boolean>());
+    public static final TypeAdapter<ArrayList<Byte>> BYTE_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(BYTE, new ArrayListInstantiator<Byte>());
 
     public interface PrimitiveArrayConstructor<T> {
+
         T[] construct(int size);
     }
 
@@ -194,10 +202,12 @@ public final class KnownTypeAdapters {
      * given below
      */
     public static final class ArrayTypeAdapter<T> extends TypeAdapter<T[]> {
+
         TypeAdapter<T> mValueTypeAdapter;
         PrimitiveArrayConstructor<T> mObjectCreator;
 
-        public ArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter, PrimitiveArrayConstructor<T> instanceCreator) {
+        public ArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter,
+                                PrimitiveArrayConstructor<T> instanceCreator) {
             this.mValueTypeAdapter = valueTypeAdapter;
             this.mObjectCreator = instanceCreator;
         }
@@ -205,7 +215,7 @@ public final class KnownTypeAdapters {
         @Override
         public void write(JsonWriter writer, T[] value) throws IOException {
             writer.beginArray();
-            if(null != value) {
+            if (null != value) {
                 for (T item : value) {
                     mValueTypeAdapter.write(writer, item);
                 }
@@ -368,6 +378,7 @@ public final class KnownTypeAdapters {
             return result;
         }
     }
+
     /**
      * Type Adapter for float[] type. This can be directly accessed to read and write
      */
@@ -467,7 +478,8 @@ public final class KnownTypeAdapters {
         }
     }
 
-    private static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER = com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe();
+    private static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER =
+            com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe();
 
     /**
      * Type Adapter for char[] type. This can be directly accessed to read and write
@@ -499,6 +511,7 @@ public final class KnownTypeAdapters {
      * Default Instantiator for List, by default it will create the Map of {@link ArrayList} type
      */
     public static final class ListInstantiator<V> implements ObjectConstructor<List<V>> {
+
         @Override
         public List<V> construct() {
             return new ArrayList<>();
@@ -509,6 +522,7 @@ public final class KnownTypeAdapters {
      * Instantiator for {@link Collection}
      */
     public static final class CollectionInstantiator<V> implements ObjectConstructor<Collection<V>> {
+
         @Override
         public Collection<V> construct() {
             return new ArrayList<>();
@@ -519,6 +533,7 @@ public final class KnownTypeAdapters {
      * Instantiator for {@link ArrayList}
      */
     public static final class ArrayListInstantiator<V> implements ObjectConstructor<ArrayList<V>> {
+
         @Override
         public ArrayList<V> construct() {
             return new ArrayList<>();
@@ -529,6 +544,7 @@ public final class KnownTypeAdapters {
      * Instantiator for {@link HashMap}
      */
     public static final class HashMapInstantiator<K, V> implements ObjectConstructor<HashMap<K, V>> {
+
         @Override
         public HashMap<K, V> construct() {
             return new HashMap<>();
@@ -538,7 +554,9 @@ public final class KnownTypeAdapters {
     /**
      * Instantiator for {@link ConcurrentHashMap}
      */
-    public static final class ConcurrentHashMapInstantiator<K, V> implements ObjectConstructor<ConcurrentHashMap<K, V>> {
+    public static final class ConcurrentHashMapInstantiator<K, V>
+            implements ObjectConstructor<ConcurrentHashMap<K, V>> {
+
         @Override
         public ConcurrentHashMap<K, V> construct() {
             return new ConcurrentHashMap<>();
@@ -548,7 +566,9 @@ public final class KnownTypeAdapters {
     /**
      * Instantiator for {@link LinkedHashMap}
      */
-    public static final class LinkedHashMapInstantiator<K, V> implements ObjectConstructor<LinkedHashMap<K, V>> {
+    public static final class LinkedHashMapInstantiator<K, V>
+            implements ObjectConstructor<LinkedHashMap<K, V>> {
+
         @Override
         public LinkedHashMap<K, V> construct() {
             return new LinkedHashMap<>();
@@ -559,6 +579,7 @@ public final class KnownTypeAdapters {
      * Default Instantiator for Maps, by default it will create the Map of {@link LinkedHashMap} type
      */
     public static final class MapInstantiator<K, V> implements ObjectConstructor<Map<K, V>> {
+
         @Override
         public Map<K, V> construct() {
             return new LinkedHashMap<>();
@@ -581,7 +602,7 @@ public final class KnownTypeAdapters {
         @Override
         public void write(JsonWriter writer, T value) throws IOException {
             writer.beginArray();
-            if(null != value) {
+            if (null != value) {
                 for (V item : value) {
                     valueTypeAdapter.write(writer, item);
                 }
@@ -616,11 +637,13 @@ public final class KnownTypeAdapters {
      * used to instantiate maps of particular types eg, {@link HashMap} {@link LinkedHashMap} etc
      */
     public static final class MapTypeAdapter<K, V, T extends Map<K, V>> extends TypeAdapter<T> {
+
         private ObjectConstructor<T> objectConstructor;
         private TypeAdapter<V> valueTypeAdapter;
         private TypeAdapter<K> keyTypeAdapter;
 
-        public MapTypeAdapter(TypeAdapter<K> keyTypeAdapter, TypeAdapter<V> valueTypeAdapter, ObjectConstructor<T> objectConstructor) {
+        public MapTypeAdapter(TypeAdapter<K> keyTypeAdapter, TypeAdapter<V> valueTypeAdapter,
+                              ObjectConstructor<T> objectConstructor) {
             this.keyTypeAdapter = keyTypeAdapter;
             this.valueTypeAdapter = valueTypeAdapter;
             this.objectConstructor = objectConstructor;
@@ -628,7 +651,7 @@ public final class KnownTypeAdapters {
 
         @Override
         public void write(JsonWriter writer, T value) throws IOException {
-            if(null == value) {
+            if (null == value) {
                 writer.nullValue();
                 return;
             }
@@ -792,7 +815,8 @@ public final class KnownTypeAdapters {
         }
     }
 
-    public static final TypeAdapter<JsonElement> JSON_ELEMENT_TYPE_ADAPTER = com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT.nullSafe();
+    public static final TypeAdapter<JsonElement> JSON_ELEMENT_TYPE_ADAPTER =
+            com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT.nullSafe();
 
     public static final TypeAdapter<JsonObject> JSON_OBJECT_TYPE_ADAPTER = new TypeAdapter<JsonObject>() {
         @Override
@@ -820,19 +844,21 @@ public final class KnownTypeAdapters {
         }
     }.nullSafe();
 
-    public static final TypeAdapter<JsonPrimitive> JSON_PRIMITIVE_TYPE_ADAPTER = new TypeAdapter<JsonPrimitive>() {
+    public static final TypeAdapter<JsonPrimitive> JSON_PRIMITIVE_TYPE_ADAPTER =
+            new TypeAdapter<JsonPrimitive>() {
 
-        @Override
-        public void write(JsonWriter out, JsonPrimitive value) throws IOException {
-            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
-        }
+                @Override
+                public void write(JsonWriter out, JsonPrimitive value) throws IOException {
+                    JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
+                }
 
-        @Override
-        public JsonPrimitive read(JsonReader in) throws IOException {
-            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
-            return jsonElement != null && jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
-        }
-    }.nullSafe();
+                @Override
+                public JsonPrimitive read(JsonReader in) throws IOException {
+                    JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+                    return jsonElement != null &&
+                           jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
+                }
+            }.nullSafe();
 
     public static final TypeAdapter<JsonNull> JSON_NULL_TYPE_ADAPTER = new TypeAdapter<JsonNull>() {
 

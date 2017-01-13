@@ -42,13 +42,13 @@ public abstract class AdapterGenerator {
     @NotNull
     static String getJsonName(@NotNull Element element) {
 
-        String name = (null != element.getAnnotation(GsonAdapterKey.class)) ?
-                element.getAnnotation(GsonAdapterKey.class).value() : null;
+        String name = (null != element.getAnnotation(GsonAdapterKey.class)) ? element.getAnnotation(
+                GsonAdapterKey.class).value() : null;
 
 
         if (null == name || name.isEmpty()) {
-            name = (null != element.getAnnotation(SerializedName.class)) ?
-                    element.getAnnotation(SerializedName.class).value() : null;
+            name = (null != element.getAnnotation(SerializedName.class)) ? element.getAnnotation(
+                    SerializedName.class).value() : null;
         }
 
         if (null == name || name.isEmpty()) {
@@ -62,9 +62,12 @@ public abstract class AdapterGenerator {
      */
     @Nullable
     static String[] getAlternateJsonNames(@NotNull Element element) {
-        return (null != element.getAnnotation(SerializedName.class)) ? element.getAnnotation(SerializedName.class).alternate() : null;
+        return (null != element.getAnnotation(SerializedName.class)) ? element.getAnnotation(
+                SerializedName.class).alternate() : null;
     }
 
     @NotNull
-    public abstract TypeSpec getTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator, @NotNull StagGenerator stagGenerator);
+    public abstract TypeSpec getTypeAdapterSpec(
+            @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+            @NotNull StagGenerator stagGenerator);
 }

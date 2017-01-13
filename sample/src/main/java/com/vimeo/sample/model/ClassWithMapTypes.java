@@ -37,6 +37,7 @@ import java.util.Map;
  */
 @UseStag
 public class ClassWithMapTypes {
+
     public HashMap<String, Video> videoHashMap;
 
     public LinkedHashMap<String, Integer> stringIntegerMap;
