@@ -225,8 +225,16 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             final String variableName = element.getKey().getSimpleName().toString();
             final TypeMirror elementValue = element.getValue();
 
-            builder.addCode("\t\t\tcase \"" + name + "\":\n" +
-                    "\t\t\t\tobject." + variableName + " = " + adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);");
+            builder.addCode("\t\t\tcase \"" + name + "\":\n");
+
+            String[] alternateJsonNames = getAlternateJsonNames(element.getKey());
+            if (alternateJsonNames != null && alternateJsonNames.length > 0) {
+                for (String alternateJsonName : alternateJsonNames) {
+                    builder.addCode("\t\t\tcase \"" + alternateJsonName + "\":\n");
+                }
+            }
+
+            builder.addCode("\t\t\t\tobject." + variableName + " = " + adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);");
 
             builder.addCode("\n\t\t\t\tbreak;\n");
             runIfAnnotationSupported(element.getKey().getAnnotationMirrors(), new Runnable() {

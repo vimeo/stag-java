@@ -125,6 +125,13 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
                 String name = getJsonName(enclosingElement);
                 nameToConstant.put(name, enclosingElement);
                 constantToName.put(enclosingElement, name);
+
+                String[] alternateJsonNames = getAlternateJsonNames(enclosingElement);
+                if (alternateJsonNames != null && alternateJsonNames.length > 0) {
+                    for (String alternate : alternateJsonNames) {
+                        nameToConstant.put(alternate, enclosingElement);
+                    }
+                }
             }
         }
 

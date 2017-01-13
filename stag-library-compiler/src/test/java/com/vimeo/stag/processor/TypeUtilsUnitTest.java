@@ -139,7 +139,7 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
 
         assertNotNull(genericType);
 
-        Map<Element, TypeMirror> members =
+        LinkedHashMap<Element, TypeMirror> members =
                 TypeUtils.getConcreteMembers(concreteType, types.asElement(genericType), genericMembers);
 
 
