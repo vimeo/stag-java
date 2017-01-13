@@ -129,13 +129,13 @@ public class StagGenerator {
                     adapterFactoryMethodName = classInfo.getTypeAdapterClassName();
                     ClassInfo clashingClass = knownFieldNames.get(adapterFactoryMethodName);
                     if (null != clashingClass) {
-                        List<ClassInfo> classInfos = clashingClassNames.get(adapterFactoryMethodName);
-                        if (null == classInfos) {
-                            classInfos = new ArrayList<>();
-                            classInfos.add(clashingClass);
-                            clashingClassNames.put(adapterFactoryMethodName, classInfos);
+                        List<ClassInfo> classInfoList = clashingClassNames.get(adapterFactoryMethodName);
+                        if (null == classInfoList) {
+                            classInfoList = new ArrayList<>();
+                            classInfoList.add(clashingClass);
+                            clashingClassNames.put(adapterFactoryMethodName, classInfoList);
                         }
-                        classInfos.add(classInfo);
+                        classInfoList.add(classInfo);
                     } else {
                         knownFieldNames.put(adapterFactoryMethodName, classInfo);
                     }
@@ -528,8 +528,8 @@ public class StagGenerator {
 
     static class GenericClassInfo {
 
-        int mNumArguments;
-        boolean mHasUnknownVarTypeFields;
+        final int mNumArguments;
+        final boolean mHasUnknownVarTypeFields;
 
         GenericClassInfo(int numArguments, boolean hasUnknownVarTypeFields) {
             mNumArguments = numArguments;

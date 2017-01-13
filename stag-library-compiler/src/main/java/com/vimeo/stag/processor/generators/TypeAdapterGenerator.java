@@ -169,7 +169,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                              KnownTypeAdapterUtils.getListInstantiator(fieldType) + ")";
                 } else {
                     /**
-                     * If the fieldType is of Known parameterized type, recursively call the function to generate the typeadapter code.
+                     * If the fieldType is of Known parameterized type, recursively call the function to generate the type adapter code.
                      */
                     TypeMirror outerClass = declaredFieldType.asElement().asType();
                     sGsonVariableUsed = true;
@@ -418,7 +418,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     arguments = "<" + keyType.toString() + ", " + valueType.toString() + ", " +
                                 fieldType.toString() + ">";
                 } else {
-                    //If the map does not have any type arguments, use Object as typeparams in this case
+                    //If the map does not have any type arguments, use Object as type params in this case
                     keyAdapterAccessor = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
                     valueAdapterAccessor = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
                 }
@@ -502,7 +502,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         } else {
 
             /*
-             * If the fieldType is parameterized, generate the typeadapter in the constructor itself.
+             * If the fieldType is parameterized, generate the type adapter in the constructor itself.
              */
             String fieldName = adapterFieldInfo.getFieldName(fieldType);
             if (null == fieldName) {

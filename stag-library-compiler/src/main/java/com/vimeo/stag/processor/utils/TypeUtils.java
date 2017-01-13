@@ -212,7 +212,7 @@ public final class TypeUtils {
      * Determines where the the type mirrors contains type var params or not
      *
      * @param typeMirror the element to check.
-     * @return true if it contains typevar
+     * @return true if it contains type variables
      */
     public static boolean containsTypeVarParams(@NotNull TypeMirror typeMirror) {
         if (typeMirror.getKind() == TypeKind.TYPEVAR) {
@@ -426,13 +426,7 @@ public final class TypeUtils {
      * @return boolean
      */
     public static boolean isSupportedCollection(@Nullable TypeMirror type) {
-        if (type == null) {
-            return false;
-        }
-        if (isNativeArray(type)) {
-            return true;
-        }
-        return isSupportedList(type);
+        return type != null && (isNativeArray(type) || isSupportedList(type));
     }
 
     /**

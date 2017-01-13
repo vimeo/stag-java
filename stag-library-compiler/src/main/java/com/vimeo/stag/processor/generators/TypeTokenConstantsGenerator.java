@@ -137,5 +137,8 @@ public class TypeTokenConstantsGenerator {
         TypeMirror mTypeMirror;
         String mFieldName;
         String mMethodName;
+
+        TypeTokenInfo() {
+        }
     }
 }

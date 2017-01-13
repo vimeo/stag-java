@@ -31,23 +31,22 @@ public class ExternalAdapterInfo {
     @NotNull
     private final ExecutableElement mAdapterConstructor;
 
-    public ExternalAdapterInfo(@NotNull Element typeElement, @NotNull TypeElement adapterTypeElement,
-                               @NotNull ExecutableElement adapterConstructor) {
-        this.mExternalClassType = typeElement;
-        this.mAdapterType = adapterTypeElement;
-        this.mAdapterConstructor = adapterConstructor;
+    private ExternalAdapterInfo(@NotNull Element typeElement, @NotNull TypeElement adapterTypeElement,
+                                @NotNull ExecutableElement adapterConstructor) {
+        mExternalClassType = typeElement;
+        mAdapterType = adapterTypeElement;
+        mAdapterConstructor = adapterConstructor;
     }
 
     /**
      * Add adapters for the external models.
-     *
-     * @param stagFactoryGeneratedName stagFactoryGeneratedName
+     *  @param stagFactoryGeneratedName stagFactoryGeneratedName
      * @param typeMirror               typeMirror
-     * @param externalAdapterInfos     externalAdapterInfos
+     * @param externalAdapterInfoSet     externalAdapterInfos
      */
     public static void addExternalAdapters(@NotNull String stagFactoryGeneratedName,
                                            @NotNull TypeMirror typeMirror,
-                                           @NotNull Set<ExternalAdapterInfo> externalAdapterInfos) {
+                                           @NotNull Set<ExternalAdapterInfo> externalAdapterInfoSet) {
         if (!TypeUtils.isSupportedPrimitive(typeMirror.toString()) && typeMirror instanceof DeclaredType) {
             DeclaredType declaredType = (DeclaredType) typeMirror;
             Element typeElement = declaredType.asElement();
@@ -77,7 +76,7 @@ public class ExternalAdapterInfo {
                                             new ExternalAdapterInfo(typeElement, adapterTypeElement,
                                                                     executableElement);
                                     sCheckedClasses.add(classAdapterName);
-                                    externalAdapterInfos.add(result);
+                                    externalAdapterInfoSet.add(result);
                                 }
                             }
                         }
@@ -87,7 +86,7 @@ public class ExternalAdapterInfo {
             List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
             if (null != typeArguments) {
                 for (TypeMirror typeArgument : typeArguments) {
-                    addExternalAdapters(stagFactoryGeneratedName, typeArgument, externalAdapterInfos);
+                    addExternalAdapters(stagFactoryGeneratedName, typeArgument, externalAdapterInfoSet);
                 }
             }
         }

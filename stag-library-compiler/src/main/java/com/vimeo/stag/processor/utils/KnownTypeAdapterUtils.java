@@ -90,6 +90,9 @@ public final class KnownTypeAdapterUtils {
         SUPPORTED_PRIMITIVE_ARRAY.put(byte[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveByteArrayAdapter");
     }
 
+    private KnownTypeAdapterUtils() {
+    }
+
     @Nullable
     public static String getKnownTypeAdapterForType(@NotNull TypeMirror typeMirror) {
         return KNOWN_TYPE_ADAPTERS.get(typeMirror.toString());
