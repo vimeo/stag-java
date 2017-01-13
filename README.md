@@ -88,14 +88,14 @@ Stag supports class level annotation `@UseStag` which processes all the fields f
 
 `@UseStag` has three different variants:
 
- - `@UseStag(UseStag.FIELD_OPTION_ALL)` : Will serialize/de-serialize all member variables which are not static or transient
- - `@UseStag(UseStag.FIELD_OPTION_NONE)` : Will skip serialization and deserialization for all member variables
- - `@UseStag(UseStag.FIELD_OPTION_SERIALIZED_NAME)` : Will Serialize or Deserialize Fields only which are annotated with SerializedName or GsonAdapterKey(deprecated)
+ - `@UseStag(FieldOption.ALL)` : Will serialize/de-serialize all member variables which are not static or transient
+ - `@UseStag(FieldOption.NONE)` : Will skip serialization and deserialization for all member variables. Only member variables inherited from annotated classes will be included.
+ - `@UseStag(FieldOption.SERIALIZED_NAME)` : Will Serialize or Deserialize Fields only which are annotated with `SerializedName` or `GsonAdapterKey` (deprecated).
 
 #### 2. `@SerializedName("key")` Support
 
 Similar to GSON, you can use the`@SerializedName` annotation to provide a different JSON name to a member field. It also supports alternate name feature of the `@SerializedName` annotation.
- `@SerializedName("name')` or `@SerializedName(value = "name", alternate = {"name1", "name2"})`.
+ `@SerializedName("name")` or `@SerializedName(value = "name", alternate = {"name1", "name2"})`.
 
 #### 3. Cross Module Support
 
@@ -115,7 +115,7 @@ Last but not the least, Stag is almost in parity with GSON.
 6. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
 7. You're done!
 
-<b>NOTE</b> : ``@GsonAdapterKey` has been deprecated and will be removed in future releases. It is advisable to migrate to ``@SerializedName` and ``@UseStag` annotations.
+<b>NOTE</b> : `@GsonAdapterKey` has been deprecated and will be removed in future releases. It is advisable to migrate to `@SerializedName` and `@UseStag` annotations.
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 

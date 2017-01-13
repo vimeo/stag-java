@@ -2,11 +2,12 @@ package com.vimeo.sample.model;
 
 
 import com.vimeo.stag.UseStag;
+import com.vimeo.stag.UseStag.FieldOption;
 
 /**
  * Model class which uses FIELD_OPTION_ALL explicitly
  */
-@UseStag(UseStag.FIELD_OPTION_ALL)
+@UseStag(FieldOption.ALL)
 public class FieldOptionAllExample {
 
     public int simpleInt;

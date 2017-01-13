@@ -58,7 +58,7 @@ import javax.lang.model.type.TypeMirror;
 
 
 @AutoService(Processor.class)
-@SupportedAnnotationTypes("com.vimeo.stag.UseStag")
+@SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag", "com.vimeo.stag.GsonAdapterKey"})
 @SupportedOptions(value = {"stagGeneratedPackageName"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {

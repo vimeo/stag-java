@@ -23,6 +23,10 @@
  */
 package com.vimeo.stag;
 
+import com.google.gson.annotations.SerializedName;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
@@ -37,28 +41,32 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 public @interface UseStag {
 
-    /**
-     * Will serialize/de-serialize all member variables which are not static
-     * or transient
-     */
-    int FIELD_OPTION_ALL = 0;
+    enum FieldOption {
+        /**
+         * Will serialize/de-serialize all member variables
+         * which are not static or transient.
+         */
+        ALL,
+        /**
+         * Will skip serialization and deserialization
+         * for all member variables. Only inherited members
+         * will be included.
+         */
+        NONE,
+        /**
+         * Will Serialize or Deserialize Fields only which are
+         * annotated with {@link SerializedName} or
+         * {@link GsonAdapterKey} (deprecated).
+         */
+        SERIALIZED_NAME
+    }
+
 
     /**
-     * Will skip serialization and deserialization for all member variables
-     */
-    int FIELD_OPTION_NONE = 1;
-
-
-    /**
-     * Will Serialize or Deserialize Fields only which are annotated with
-     * SerializedName or GsonAdapterKey(deprecated)
-     */
-    int FIELD_OPTION_SERIALIZED_NAME = 3;
-
-    /**
-     * field option chosen
+     * The chosen field option.
      *
-     * @return the .
+     * @return the field option specified, or the default
+     * if none is specified.
      */
-    int value() default FIELD_OPTION_ALL;
+    @NotNull FieldOption value() default FieldOption.ALL;
 }

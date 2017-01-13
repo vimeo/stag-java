@@ -26,6 +26,7 @@ package com.vimeo.stag.processor.generators.model;
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
+import com.vimeo.stag.UseStag.FieldOption;
 import com.vimeo.stag.processor.StagProcessor;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.TypeUtils;
@@ -67,7 +68,7 @@ public class AnnotatedClass {
         TypeMirror inheritedType = TypeUtils.getInheritedType(element);
 
         UseStag useStag = element.getAnnotation(UseStag.class);
-        int fieldOptions = useStag == null ? UseStag.FIELD_OPTION_ALL : useStag.value();
+        FieldOption fieldOption = useStag == null ? FieldOption.ALL : useStag.value();
 
         mMemberVariables = new LinkedHashMap<>();
 
@@ -91,7 +92,7 @@ public class AnnotatedClass {
         }
 
         for (Element enclosedElement : element.getEnclosedElements()) {
-            addToSupportedTypes(enclosedElement, fieldOptions, variableNames);
+            addToSupportedTypes(enclosedElement, fieldOption, variableNames);
         }
 
     }
@@ -134,10 +135,10 @@ public class AnnotatedClass {
         }
     }
 
-    private void addToSupportedTypes(@NotNull Element element, int fieldOptions,
+    private void addToSupportedTypes(@NotNull Element element, FieldOption fieldOption,
                                      @NotNull Map<String, Element> variableNames) {
         if (element instanceof VariableElement) {
-            if (shouldIncludeField(element, fieldOptions)) {
+            if (shouldIncludeField(element, fieldOption)) {
                 final VariableElement variableElement = (VariableElement) element;
                 Set<Modifier> modifiers = variableElement.getModifiers();
                 if (!modifiers.contains(Modifier.FINAL) && !modifiers.contains(Modifier.STATIC) &&
@@ -161,14 +162,14 @@ public class AnnotatedClass {
         }
     }
 
-    private boolean shouldIncludeField(@NotNull Element element, int fieldOption) {
+    private boolean shouldIncludeField(@NotNull Element element, FieldOption fieldOption) {
         switch (fieldOption) {
-            case UseStag.FIELD_OPTION_NONE:
+            case NONE:
                 return false;
-            case UseStag.FIELD_OPTION_SERIALIZED_NAME:
+            case SERIALIZED_NAME:
                 return element.getAnnotation(SerializedName.class) != null ||
                        element.getAnnotation(GsonAdapterKey.class) != null;
-            case UseStag.FIELD_OPTION_ALL:
+            case ALL:
                 return true;
             default:
                 throw new RuntimeException("Unknown field option provided for class " + mElement.asType());
