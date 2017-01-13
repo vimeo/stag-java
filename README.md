@@ -8,7 +8,7 @@ Stag improves Gson performance by automatically generating reflection-less TypeA
 | dev    | [![Build Status](https://circleci.com/gh/vimeo/stag-java/tree/dev.svg?style=shield&circle-token=4d5dd11678a93587658d1677d0ef2b8c64b56574)](https://circleci.com/gh/vimeo/stag-java/tree/dev) |
 
 
-## Why Build Stag ?
+## Why Build Stag?
 
 Gson is the essential JSON parsing library. It greatly simplifies what can be the verbose and boilerplate-ridden process of parsing JSON into model objects. It does this by leveraging reflection. Unfortunately, using reflection can be slow (particularly on the Android OS).
 
@@ -86,25 +86,22 @@ apt {
 
 Stag supports class level annotation `@UseStag` which processes all the fields for a particular class, which makes it easy to use and integrate.
 
-`@UseStag` has three different variants -
+`@UseStag` has three different variants:
 
-    * @UseStag(UseStag.FIELD_OPTION_ALL) : Will serialize/de-serialize all member variables which are not static or transient
+ - `@UseStag(UseStag.FIELD_OPTION_ALL)` : Will serialize/de-serialize all member variables which are not static or transient
+ - `@UseStag(UseStag.FIELD_OPTION_NONE)` : Will skip serialization and deserialization for all member variables
+ - `@UseStag(UseStag.FIELD_OPTION_SERIALIZED_NAME)` : Will Serialize or Deserialize Fields only which are annotated with SerializedName or GsonAdapterKey(deprecated)
 
-    * @UseStag(UseStag.FIELD_OPTION_NONE) : Will skip serialization and deserialization for all member variables
+#### 2. `@SerializedName("key")` Support
 
-    * @UseStag(UseStag.FIELD_OPTION_SERIALIZED_NAME) : Will Serialize or Deserialize Fields only which are annotated with SerializedName or GsonAdapterKey(deprecated)
-
-#### 2. @SerializedName("") Support
-
-Similar to GSON, you can use @SerializedName annotation to provide a different JSON name to a member field. It also supports alternate name feature of the @SerializedName
-
-    @SerializedName("name') or @SerializedName(value = "name", alternate = {"name1", "name2"})
+Similar to GSON, you can use the`@SerializedName` annotation to provide a different JSON name to a member field. It also supports alternate name feature of the `@SerializedName` annotation.
+ `@SerializedName("name')` or `@SerializedName(value = "name", alternate = {"name1", "name2"})`.
 
 #### 3. Cross Module Support
 
-Stag has the ability to cross reference TypeAdapters accross modules.
+Stag has the ability to reference TypeAdapters across modules.
 
-#### 4. In parity with GSON
+#### 4. Parity with GSON
 
 Last but not the least, Stag is almost in parity with GSON.
 
@@ -113,12 +110,12 @@ Last but not the least, Stag is almost in parity with GSON.
 1. Make sure the member variables of your model class are not private (should be public, protected, or package-local visibility)
 2. Make sure your model class is not private and has a zero argument non-private constructor
 3. Annotate the classes with `@UseStag` annotation. This will process all the member variables of the class, which makes it easy to use.
-4. Use the @SerializedName("") annotation to give the variables a different JSON name. (similiar to GSON)
+4. Use the `@SerializedName("key")` annotation to give the variables a different JSON name. (same as GSON)
 5. Use your favorite `@NonNull` annotation to tell Stag to throw an exception if the field is null while deserializing or while serializing the object.
 6. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
 7. You're done!
 
-<b>NOTE</b> : @GsonAdapterKey has been deprecated and will be removed in future releases. It is advisable to migrate to @SerializedName and @UseStag annotations.   
+<b>NOTE</b> : ``@GsonAdapterKey` has been deprecated and will be removed in future releases. It is advisable to migrate to ``@SerializedName` and ``@UseStag` annotations.
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 

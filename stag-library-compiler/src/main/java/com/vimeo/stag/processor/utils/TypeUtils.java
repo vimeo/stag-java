@@ -209,7 +209,7 @@ public final class TypeUtils {
     }
 
     /**
-     * Determines where the the type mirros contains type var params or not
+     * Determines where the the type mirrors contains type var params or not
      *
      * @param typeMirror the element to check.
      * @return true if it contains typevar

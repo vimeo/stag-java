@@ -496,7 +496,7 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Default Instantiater for List, by default it will create the Map of {@link ArrayList} type
+     * Default Instantiator for List, by default it will create the Map of {@link ArrayList} type
      */
     public static final class ListInstantiator<V> implements ObjectConstructor<List<V>> {
         @Override
@@ -506,7 +506,7 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Instantiater for {@link Collection}
+     * Instantiator for {@link Collection}
      */
     public static final class CollectionInstantiator<V> implements ObjectConstructor<Collection<V>> {
         @Override
@@ -516,7 +516,7 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Instantiater for {@link ArrayList}
+     * Instantiator for {@link ArrayList}
      */
     public static final class ArrayListInstantiator<V> implements ObjectConstructor<ArrayList<V>> {
         @Override
@@ -526,7 +526,7 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Instantiater for {@link HashMap}
+     * Instantiator for {@link HashMap}
      */
     public static final class HashMapInstantiator<K, V> implements ObjectConstructor<HashMap<K, V>> {
         @Override
@@ -536,7 +536,7 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Instantiater for {@link ConcurrentHashMap}
+     * Instantiator for {@link ConcurrentHashMap}
      */
     public static final class ConcurrentHashMapInstantiator<K, V> implements ObjectConstructor<ConcurrentHashMap<K, V>> {
         @Override
@@ -546,7 +546,7 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Instantiater for {@link LinkedHashMap}
+     * Instantiator for {@link LinkedHashMap}
      */
     public static final class LinkedHashMapInstantiator<K, V> implements ObjectConstructor<LinkedHashMap<K, V>> {
         @Override
@@ -556,7 +556,7 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Default Instantiater for Maps, by default it will create the Map of {@link LinkedHashMap} type
+     * Default Instantiator for Maps, by default it will create the Map of {@link LinkedHashMap} type
      */
     public static final class MapInstantiator<K, V> implements ObjectConstructor<Map<K, V>> {
         @Override

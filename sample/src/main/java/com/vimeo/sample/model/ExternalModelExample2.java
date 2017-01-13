@@ -25,6 +25,6 @@ public class ExternalModelExample2<T> {
     public GenericClass<T> mParametrizedInternalGenericExample;
 
 
-    @SerializedName("parametrizedUnkownExternalGenericExample")
-    public ExternalModelExample2<T> mParametrizedUnkownExternalGenericExample;
+    @SerializedName("parametrizedUnknownExternalGenericExample")
+    public ExternalModelExample2<T> mParametrizedUnknownExternalGenericExample;
 }

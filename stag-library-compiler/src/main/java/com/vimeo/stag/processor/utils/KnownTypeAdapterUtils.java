@@ -95,13 +95,13 @@ public final class KnownTypeAdapterUtils {
     }
 
     /**
-     * Get the instantiater for {@link List} types
+     * Get the instantiator for {@link List} types
      *
      * @param typeMirror TypeMirror typeMirror
-     * @return instantiater
+     * @return instantiator
      */
     @NotNull
-    public static String getListInstantiater(@NotNull TypeMirror typeMirror) {
+    public static String getListInstantiator(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
         DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType) typeMirror : null;
         TypeMirror valueType = declaredType != null && declaredType.getTypeArguments() != null && !declaredType.getTypeArguments().isEmpty() ? declaredType.getTypeArguments().get(0) : null;
@@ -110,13 +110,13 @@ public final class KnownTypeAdapterUtils {
     }
 
     /**
-     * Get the instantiater for {@link Map} types
+     * Get the instantiator for {@link Map} types
      *
      * @param typeMirror TypeMirror typeMirror
-     * @return instantiater
+     * @return instantiator
      */
     @NotNull
-    public static String getMapInstantiater(@NotNull TypeMirror typeMirror) {
+    public static String getMapInstantiator(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
         DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType) typeMirror : null;
         TypeMirror keyType = declaredType != null && declaredType.getTypeArguments() != null && declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments().get(0) : null;
@@ -144,13 +144,13 @@ public final class KnownTypeAdapterUtils {
     }
 
     /**
-     * Get the instantiater for native array types
+     * Get the instantiator for native array types
      *
      * @param typeMirror TypeMirror typeMirror
-     * @return instantiater
+     * @return instantiator
      */
     @Nullable
-    public static String getNativeArrayInstantiater(@NotNull TypeMirror typeMirror) {
+    public static String getNativeArrayInstantiator(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
         return "new com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor<" + outerClassType + ">(){ @Override public " + outerClassType + "[] construct(int size){ return new " + outerClassType + "[size]; } }";
     }
