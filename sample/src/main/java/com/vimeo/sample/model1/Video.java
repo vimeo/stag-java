@@ -1,8 +1,9 @@
 package com.vimeo.sample.model1;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.sample.model.User;
-import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 
 /**
@@ -15,12 +16,15 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public class Video {
 
+    @NonNull
     @SerializedName("user")
     public User mUser;
 
+    @NonNull
     @SerializedName("link")
     public String mLink;
 
+    @NonNull
     @SerializedName("mData")
     public Data mData;
 }

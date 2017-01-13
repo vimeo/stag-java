@@ -1,5 +1,8 @@
 package com.vimeo.sample.model1;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -7,9 +10,11 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Data {
 
+    @NonNull
     @SerializedName("size")
     public int size;
 
+    @Nullable
     @SerializedName("name")
     public String name;
 }

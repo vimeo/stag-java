@@ -137,20 +137,18 @@ public class Deer {
     int mPoints;     // mPoints = json value with key "points"
     
     @SerializedName("weight")
-    float mWeight;     // mWeight = json value with key "weight"
+    float mWeight;   // mWeight = json value with key "weight"
 }
 
 @UseStag
 public class Herd {
 
-    @NonNull                    // add NonNull annotation to throw an exception if the field is null
+    @NonNull                     // add NonNull annotation to throw an exception if the field is null
     @SerializedName("data_list")
-    ArrayList<Deer> data_list;  // data_list = json value with key "data_list"
+    ArrayList<Deer> data;        // data_list = json value with key "data_list"
     
-    @SerializedName("data_list_copy")
-    List<Deer> data_list_copy;  // data_list_copy = json value with key "data_list_copy"
+    List<Deer> data_list_copy;   // data_list_copy = json value with key "data_list_copy"
     
-    @SerializedName("data_map")
     Map<String, Deer> data_map;  // data_map = json value with key "data_map"
 }
 
