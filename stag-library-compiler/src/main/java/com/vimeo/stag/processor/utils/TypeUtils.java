@@ -286,7 +286,7 @@ public final class TypeUtils {
      * @param members           the member variable map of the field (Element) to their concrete
      *                          type (TypeMirror). This should be retrieved by calling getConcreteMembers
      *                          on the inherited class.
-     * @return returns a linked has map of the member variables mapped to their concrete types for the concrete
+     * @return returns a LinkedHashMap of the member variables mapped to their concrete types for the concrete
      * inherited class. (to maintain the ordering)
      */
     @NotNull
