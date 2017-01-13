@@ -115,7 +115,7 @@ Last but not the least, Stag is almost in parity with GSON.
 6. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
 7. You're done!
 
-##### NOTE: `@GsonAdapterKey` has been deprecated and will be removed in a future release. It is advisable to migrate to `@SerializedName` and `@UseStag` annotations.
+##### <b>NOTE</b>: `@GsonAdapterKey` has been deprecated and will be removed in a future release. It is advisable to migrate to `@SerializedName` and `@UseStag` annotations.
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 
