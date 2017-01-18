@@ -63,6 +63,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * is used to read and write the values, and the ObjectConstructor tells the type of List to be instantiated. This will also support the scenario
  * where we have a nested list. In that case the valueTypeAdapter will be again a {@link ListTypeAdapter} with its value TypeAdapter
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class KnownTypeAdapters {
 
     private KnownTypeAdapters() {
@@ -478,7 +479,7 @@ public final class KnownTypeAdapters {
         }
     }
 
-    private static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER =
+    static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER =
             com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe();
 
     /**
@@ -591,8 +592,8 @@ public final class KnownTypeAdapters {
      */
     public static final class ListTypeAdapter<V, T extends Collection<V>> extends TypeAdapter<T> {
 
-        private TypeAdapter<V> valueTypeAdapter;
-        private ObjectConstructor<T> objectConstructor;
+        private final TypeAdapter<V> valueTypeAdapter;
+        private final ObjectConstructor<T> objectConstructor;
 
         public ListTypeAdapter(TypeAdapter<V> valueTypeAdapter, ObjectConstructor<T> objectConstructor) {
             this.valueTypeAdapter = valueTypeAdapter;
@@ -638,9 +639,9 @@ public final class KnownTypeAdapters {
      */
     public static final class MapTypeAdapter<K, V, T extends Map<K, V>> extends TypeAdapter<T> {
 
-        private ObjectConstructor<T> objectConstructor;
-        private TypeAdapter<V> valueTypeAdapter;
-        private TypeAdapter<K> keyTypeAdapter;
+        private final ObjectConstructor<T> objectConstructor;
+        private final TypeAdapter<V> valueTypeAdapter;
+        private final TypeAdapter<K> keyTypeAdapter;
 
         public MapTypeAdapter(TypeAdapter<K> keyTypeAdapter, TypeAdapter<V> valueTypeAdapter,
                               ObjectConstructor<T> objectConstructor) {
@@ -761,36 +762,34 @@ public final class KnownTypeAdapters {
             JsonToken token = in.peek();
             switch (token) {
                 case BEGIN_ARRAY:
-                    List<Object> list = new ArrayList<Object>();
+                    List<Object> list = new ArrayList<>();
                     in.beginArray();
                     while (in.hasNext()) {
                         list.add(read(in));
                     }
                     in.endArray();
                     return list;
-
                 case BEGIN_OBJECT:
-                    Map<String, Object> map = new LinkedTreeMap<String, Object>();
+                    Map<String, Object> map = new LinkedTreeMap<>();
                     in.beginObject();
                     while (in.hasNext()) {
                         map.put(in.nextName(), read(in));
                     }
                     in.endObject();
                     return map;
-
                 case STRING:
                     return in.nextString();
-
                 case NUMBER:
                     return in.nextDouble();
-
                 case BOOLEAN:
                     return in.nextBoolean();
-
                 case NULL:
                     in.nextNull();
                     return null;
-
+                case NAME:
+                case END_OBJECT:
+                case END_ARRAY:
+                case END_DOCUMENT:
                 default:
                     throw new IllegalStateException();
             }
