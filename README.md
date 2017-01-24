@@ -4,8 +4,8 @@ Stag improves Gson performance by automatically generating reflection-less TypeA
 
 | Branch | Build Status |
 |--------|--------------|
-| master | [![Build Status](https://circleci.com/gh/vimeo/stag-java/tree/master.svg?style=shield&circle-token=4d5dd11678a93587658d1677d0ef2b8c64b56574)](https://circleci.com/gh/vimeo/stag-java/tree/master) |
-| dev    | [![Build Status](https://circleci.com/gh/vimeo/stag-java/tree/dev.svg?style=shield&circle-token=4d5dd11678a93587658d1677d0ef2b8c64b56574)](https://circleci.com/gh/vimeo/stag-java/tree/dev) |
+| master | [![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=master)](https://travis-ci.org/vimeo/stag-java) |
+| dev    | [![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=dev)](https://travis-ci.org/vimeo/stag-java) |
 
 
 ## Why Build Stag ?
@@ -178,6 +178,20 @@ MyParsingClass {
 ## Future Enhancements
 
 - Add an option to absorb parsing errors rather than crashing and halting parsing (default gson behavior)
+
+## Development
+```sh
+git clone git@github.com:vimeo/stag-java.git
+cd stag-java
+bundle install
+# dev like a boss
+bundle exec fastlane test
+# commit and push like a boss
+```
+
+#### Manage build dependencies
+Aside from specifying Java dependencies in the `.gradle` files, you can use the `.travis.yml` file to specify external build depencies such as the Android SDK to compile against (see the `android.components` section).
+
 
 ## License
 `stag-java` is available under the MIT license. See the [LICENSE](LICENSE) file for more information.
