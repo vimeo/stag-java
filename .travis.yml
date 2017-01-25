@@ -5,12 +5,11 @@ android:
   components:
   - android-25
   - platform-tools
-  - platform-tools-preview
   - tools
   - build-tools-25.0.2
   - extra-android-m2repository
-#  - extra-google-google_play_services
-#  - extra-google-m2repository
+licenses:
+    - 'android-sdk-license-.+'
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
