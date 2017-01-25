@@ -3,13 +3,13 @@ jdk:
 - oraclejdk8
 android:
   components:
-  - android-25
-  - platform-tools
-  - tools
-  - build-tools-25.0.2
-  - extra-android-m2repository
-licenses:
-    - 'android-sdk-license-.+'
+    - tools
+    - build-tools-25.0.2
+    - android-25
+    - extra-android-support
+    - extra-android-m2repository
+  licenses:
+      - 'android-sdk-license-.+'
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
