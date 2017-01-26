@@ -13,7 +13,7 @@ dependencies {
     compile project(':stag-library')
 
     compile 'com.google.code.gson:gson:2.8.0'
-    compile 'com.squareup:javapoet:1.7.0'
+    compile 'com.squareup:javapoet:1.8.0'
     compile 'com.intellij:annotations:12.0@jar'
     compile 'com.google.auto.service:auto-service:1.0-rc2'
 }
@@ -42,8 +42,8 @@ artifacts {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            // We dont have any complex artifacts, so let's just reference the fact that we
-            // rely on plugin java
+            // We don't have any complex artifacts, so let's just
+            // reference the fact that we rely on plugin java
             from components.java
             groupId project.group
             artifactId 'stag-library-compiler'

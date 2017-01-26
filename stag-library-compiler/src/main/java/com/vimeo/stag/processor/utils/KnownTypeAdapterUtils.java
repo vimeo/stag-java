@@ -32,6 +32,7 @@ import javax.lang.model.type.TypeMirror;
  * This maintains a list of type vs the known type adapters.
  */
 public final class KnownTypeAdapterUtils {
+
     @NotNull
     private static final HashMap<String, String> KNOWN_TYPE_ADAPTERS = new HashMap<>();
 
@@ -89,39 +90,49 @@ public final class KnownTypeAdapterUtils {
         SUPPORTED_PRIMITIVE_ARRAY.put(byte[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveByteArrayAdapter");
     }
 
+    private KnownTypeAdapterUtils() {
+    }
+
     @Nullable
     public static String getKnownTypeAdapterForType(@NotNull TypeMirror typeMirror) {
         return KNOWN_TYPE_ADAPTERS.get(typeMirror.toString());
     }
 
     /**
-     * Get the instantiater for {@link List} types
+     * Get the instantiator for {@link List} types
      *
      * @param typeMirror TypeMirror typeMirror
-     * @return instantiater
+     * @return instantiator
      */
     @NotNull
-    public static String getListInstantiater(@NotNull TypeMirror typeMirror) {
+    public static String getListInstantiator(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
         DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType) typeMirror : null;
-        TypeMirror valueType = declaredType != null && declaredType.getTypeArguments() != null && !declaredType.getTypeArguments().isEmpty() ? declaredType.getTypeArguments().get(0) : null;
+        TypeMirror valueType = declaredType != null && declaredType.getTypeArguments() != null &&
+                               !declaredType.getTypeArguments().isEmpty() ? declaredType.getTypeArguments()
+                .get(0) : null;
         String postFix = valueType != null ? "<" + valueType.toString() + ">()" : "()";
         return "new " + SUPPORTED_COLLECTION_INFO.get(outerClassType) + postFix;
     }
 
     /**
-     * Get the instantiater for {@link Map} types
+     * Get the instantiator for {@link Map} types
      *
      * @param typeMirror TypeMirror typeMirror
-     * @return instantiater
+     * @return instantiator
      */
     @NotNull
-    public static String getMapInstantiater(@NotNull TypeMirror typeMirror) {
+    public static String getMapInstantiator(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
         DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType) typeMirror : null;
-        TypeMirror keyType = declaredType != null && declaredType.getTypeArguments() != null && declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments().get(0) : null;
-        TypeMirror paramType = declaredType != null && declaredType.getTypeArguments() != null && declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments().get(1) : null;
-        String postFix = keyType != null && paramType != null ? "<" + keyType.toString() + ", " + paramType.toString() + ">()" : "()";
+        TypeMirror keyType = declaredType != null && declaredType.getTypeArguments() != null &&
+                             declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments()
+                .get(0) : null;
+        TypeMirror paramType = declaredType != null && declaredType.getTypeArguments() != null &&
+                               declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments()
+                .get(1) : null;
+        String postFix = keyType != null && paramType != null ?
+                "<" + keyType.toString() + ", " + paramType.toString() + ">()" : "()";
 
         if (outerClassType.equals(Map.class.getName())) {
             return "new com.vimeo.stag.KnownTypeAdapters.MapInstantiator" + postFix;
@@ -132,27 +143,30 @@ public final class KnownTypeAdapterUtils {
         } else if (outerClassType.equals(ConcurrentHashMap.class.getName())) {
             return "new com.vimeo.stag.KnownTypeAdapters.ConcurrentHashMapInstantiator" + postFix;
         } else {
-            String params = keyType != null && paramType != null ? "<" + keyType.toString() + ", " + paramType.toString() + ">" : "";
+            String params = keyType != null && paramType != null ?
+                    "<" + keyType.toString() + ", " + paramType.toString() + ">" : "";
             return "new com.google.gson.internal.ObjectConstructor<" + outerClassType + params + ">() " +
-                    "{ " +
-                    "\n@Override " +
-                    "\npublic " + outerClassType + params + " construct() {" +
-                    "\n\treturn new " + outerClassType + params + "();" +
-                    "\n}" +
-                    "}";
+                   "{ " +
+                   "\n@Override " +
+                   "\npublic " + outerClassType + params + " construct() {" +
+                   "\n\treturn new " + outerClassType + params + "();" +
+                   "\n}" +
+                   "}";
         }
     }
 
     /**
-     * Get the instantiater for native array types
+     * Get the instantiator for native array types
      *
      * @param typeMirror TypeMirror typeMirror
-     * @return instantiater
+     * @return instantiator
      */
     @Nullable
-    public static String getNativeArrayInstantiater(@NotNull TypeMirror typeMirror) {
+    public static String getNativeArrayInstantiator(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
-        return "new com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor<" + outerClassType + ">(){ @Override public " + outerClassType + "[] construct(int size){ return new " + outerClassType + "[size]; } }";
+        return "new com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor<" + outerClassType +
+               ">(){ @Override public " + outerClassType + "[] construct(int size){ return new " +
+               outerClassType + "[size]; } }";
     }
 
     /**

@@ -1,6 +1,8 @@
 package com.vimeo.sample.model;
 
 
+import android.support.annotation.NonNull;
+
 import com.vimeo.stag.UseStag;
 
 /**
@@ -9,6 +11,10 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public class PrimitiveTypesExample {
 
+    /**
+     * Test that non null check ignores primitive types
+     */
+    @NonNull
     public int simpleInt;
 
     public float simpleFloat;

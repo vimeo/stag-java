@@ -35,13 +35,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.TypeAdapter;
-import com.google.gson.internal.bind.JsonTreeReader;
-import com.google.gson.stream.JsonReader;
 import com.vimeo.sample.model.DateParser;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
 import com.vimeo.sample.stag.generated.Stag;
-import com.vimeo.stag.KnownTypeAdapters;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -55,7 +52,7 @@ import java.util.concurrent.Executors;
 
 public final class NetworkRequest {
 
-    static final String TAG = NetworkRequest.class.getSimpleName();
+    private static final String TAG = "NetworkRequest";
 
     public interface Callback {
 

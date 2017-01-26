@@ -99,7 +99,7 @@ public class TypeTokenConstantsGenerator {
         }
 
         return mGeneratedPackageName + "." + CLASS_STAG_TYPE_TOKEN_CONSTANTS + "." +
-                typeTokenInfo.mMethodName;
+               typeTokenInfo.mMethodName;
     }
 
     /**
@@ -122,7 +122,7 @@ public class TypeTokenConstantsGenerator {
                         ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName);
                 FieldSpec.Builder fieldSpecBuilder =
                         FieldSpec.builder(parameterizedTypeName, typeTokenInfo.mFieldName, Modifier.PUBLIC,
-                                Modifier.STATIC);
+                                          Modifier.STATIC);
                 adaptersBuilder.addField(fieldSpecBuilder.build());
                 adaptersBuilder.addMethod(generateTypeTokenGetters(typeTokenInfo.mFieldName, typeName));
             }
@@ -133,8 +133,12 @@ public class TypeTokenConstantsGenerator {
     }
 
     private static class TypeTokenInfo {
+
         TypeMirror mTypeMirror;
         String mFieldName;
         String mMethodName;
+
+        TypeTokenInfo() {
+        }
     }
 }

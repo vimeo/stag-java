@@ -14,6 +14,6 @@ public class ExternalModelGeneric1<T> {
     @SerializedName("genericField")
     public T mGenericField;
 
-    @SerializedName("unkownType")
+    @SerializedName("unknownType")
     public ValueCallback<T> mUnknownType;
 }

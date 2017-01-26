@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
 /**
  * An annotation that indicates this member should be serialized to JSON with
  * the provided name value as its field name.
- *
+ * <p>
  * We will be removing this with v2.1. Please use Class level annotation UserStag
  * or SerializedName as required
  */

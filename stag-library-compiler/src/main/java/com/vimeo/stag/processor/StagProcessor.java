@@ -58,7 +58,7 @@ import javax.lang.model.type.TypeMirror;
 
 
 @AutoService(Processor.class)
-@SupportedAnnotationTypes("com.vimeo.stag.UseStag")
+@SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag", "com.vimeo.stag.GsonAdapterKey"})
 @SupportedOptions(value = {"stagGeneratedPackageName"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
@@ -111,19 +111,30 @@ public final class StagProcessor extends AbstractProcessor {
         try {
             Set<TypeMirror> mSupportedTypes = SupportedTypesModel.getInstance().getSupportedTypesMirror();
             try {
-                mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
+                mSupportedTypes.addAll(
+                        KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
             } catch (Exception ignored) {
             }
 
-            StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes, SupportedTypesModel.getInstance().getExternalSupportedAdapters());
-            TypeTokenConstantsGenerator typeTokenConstantsGenerator = new TypeTokenConstantsGenerator(filer, packageName);
+            StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes,
+                                                               SupportedTypesModel.getInstance()
+                                                                       .getExternalSupportedAdapters());
+            TypeTokenConstantsGenerator typeTokenConstantsGenerator =
+                    new TypeTokenConstantsGenerator(filer, packageName);
 
             Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
             for (Element element : list) {
-                if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) && !TypeUtils.isAbstract(element)) {
+                if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) &&
+                    !TypeUtils.isAbstract(element)) {
                     ClassInfo classInfo = new ClassInfo(element.asType());
-                    AdapterGenerator independentAdapter = element.getKind() == ElementKind.ENUM ? new EnumTypeAdapterGenerator(classInfo, element) : new TypeAdapterGenerator(classInfo);
-                    JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(), independentAdapter.getTypeAdapterSpec(typeTokenConstantsGenerator, adapterGenerator)).build();
+                    AdapterGenerator independentAdapter =
+                            element.getKind() == ElementKind.ENUM ? new EnumTypeAdapterGenerator(classInfo,
+                                                                                                 element) : new TypeAdapterGenerator(
+                                    classInfo);
+                    JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(),
+                                                         independentAdapter.getTypeAdapterSpec(
+                                                                 typeTokenConstantsGenerator,
+                                                                 adapterGenerator)).build();
                     FileGenUtils.writeToFile(javaFile, filer);
                 }
             }

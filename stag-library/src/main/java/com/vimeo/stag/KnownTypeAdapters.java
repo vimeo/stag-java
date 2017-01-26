@@ -63,6 +63,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * is used to read and write the values, and the ObjectConstructor tells the type of List to be instantiated. This will also support the scenario
  * where we have a nested list. In that case the valueTypeAdapter will be again a {@link ListTypeAdapter} with its value TypeAdapter
  */
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class KnownTypeAdapters {
 
     private KnownTypeAdapters() {
@@ -176,15 +177,23 @@ public final class KnownTypeAdapters {
         }
     }.nullSafe();
 
-    public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(INTEGER, new ArrayListInstantiator<Integer>());
-    public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(LONG, new ArrayListInstantiator<Long>());
-    public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiator<Double>());
-    public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(SHORT, new ArrayListInstantiator<Short>());
-    public static final TypeAdapter<ArrayList<Float>> FLOAT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(FLOAT, new ArrayListInstantiator<Float>());
-    public static final TypeAdapter<ArrayList<Boolean>> BOOLEAN_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(TypeAdapters.BOOLEAN, new ArrayListInstantiator<Boolean>());
-    public static final TypeAdapter<ArrayList<Byte>> BYTE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(BYTE, new ArrayListInstantiator<Byte>());
+    public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(INTEGER, new ArrayListInstantiator<Integer>());
+    public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(LONG, new ArrayListInstantiator<Long>());
+    public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiator<Double>());
+    public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(SHORT, new ArrayListInstantiator<Short>());
+    public static final TypeAdapter<ArrayList<Float>> FLOAT_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(FLOAT, new ArrayListInstantiator<Float>());
+    public static final TypeAdapter<ArrayList<Boolean>> BOOLEAN_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(TypeAdapters.BOOLEAN, new ArrayListInstantiator<Boolean>());
+    public static final TypeAdapter<ArrayList<Byte>> BYTE_ARRAY_LIST_ADAPTER =
+            new ListTypeAdapter<>(BYTE, new ArrayListInstantiator<Byte>());
 
     public interface PrimitiveArrayConstructor<T> {
+
         T[] construct(int size);
     }
 
@@ -194,10 +203,12 @@ public final class KnownTypeAdapters {
      * given below
      */
     public static final class ArrayTypeAdapter<T> extends TypeAdapter<T[]> {
-        TypeAdapter<T> mValueTypeAdapter;
-        PrimitiveArrayConstructor<T> mObjectCreator;
 
-        public ArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter, PrimitiveArrayConstructor<T> instanceCreator) {
+        final TypeAdapter<T> mValueTypeAdapter;
+        final PrimitiveArrayConstructor<T> mObjectCreator;
+
+        public ArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter,
+                                PrimitiveArrayConstructor<T> instanceCreator) {
             this.mValueTypeAdapter = valueTypeAdapter;
             this.mObjectCreator = instanceCreator;
         }
@@ -205,7 +216,7 @@ public final class KnownTypeAdapters {
         @Override
         public void write(JsonWriter writer, T[] value) throws IOException {
             writer.beginArray();
-            if(null != value) {
+            if (null != value) {
                 for (T item : value) {
                     mValueTypeAdapter.write(writer, item);
                 }
@@ -368,6 +379,7 @@ public final class KnownTypeAdapters {
             return result;
         }
     }
+
     /**
      * Type Adapter for float[] type. This can be directly accessed to read and write
      */
@@ -467,7 +479,8 @@ public final class KnownTypeAdapters {
         }
     }
 
-    private static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER = com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe();
+    static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER =
+            com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe();
 
     /**
      * Type Adapter for char[] type. This can be directly accessed to read and write
@@ -496,9 +509,10 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Default Instantiater for List, by default it will create the Map of {@link ArrayList} type
+     * Default Instantiator for List, by default it will create the Map of {@link ArrayList} type
      */
     public static final class ListInstantiator<V> implements ObjectConstructor<List<V>> {
+
         @Override
         public List<V> construct() {
             return new ArrayList<>();
@@ -506,9 +520,10 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Instantiater for {@link Collection}
+     * Instantiator for {@link Collection}
      */
     public static final class CollectionInstantiator<V> implements ObjectConstructor<Collection<V>> {
+
         @Override
         public Collection<V> construct() {
             return new ArrayList<>();
@@ -516,9 +531,10 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Instantiater for {@link ArrayList}
+     * Instantiator for {@link ArrayList}
      */
     public static final class ArrayListInstantiator<V> implements ObjectConstructor<ArrayList<V>> {
+
         @Override
         public ArrayList<V> construct() {
             return new ArrayList<>();
@@ -526,9 +542,10 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Instantiater for {@link HashMap}
+     * Instantiator for {@link HashMap}
      */
     public static final class HashMapInstantiator<K, V> implements ObjectConstructor<HashMap<K, V>> {
+
         @Override
         public HashMap<K, V> construct() {
             return new HashMap<>();
@@ -536,9 +553,11 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Instantiater for {@link ConcurrentHashMap}
+     * Instantiator for {@link ConcurrentHashMap}
      */
-    public static final class ConcurrentHashMapInstantiator<K, V> implements ObjectConstructor<ConcurrentHashMap<K, V>> {
+    public static final class ConcurrentHashMapInstantiator<K, V>
+            implements ObjectConstructor<ConcurrentHashMap<K, V>> {
+
         @Override
         public ConcurrentHashMap<K, V> construct() {
             return new ConcurrentHashMap<>();
@@ -546,9 +565,11 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Instantiater for {@link LinkedHashMap}
+     * Instantiator for {@link LinkedHashMap}
      */
-    public static final class LinkedHashMapInstantiator<K, V> implements ObjectConstructor<LinkedHashMap<K, V>> {
+    public static final class LinkedHashMapInstantiator<K, V>
+            implements ObjectConstructor<LinkedHashMap<K, V>> {
+
         @Override
         public LinkedHashMap<K, V> construct() {
             return new LinkedHashMap<>();
@@ -556,9 +577,10 @@ public final class KnownTypeAdapters {
     }
 
     /**
-     * Default Instantiater for Maps, by default it will create the Map of {@link LinkedHashMap} type
+     * Default Instantiator for Maps, by default it will create the Map of {@link LinkedHashMap} type
      */
     public static final class MapInstantiator<K, V> implements ObjectConstructor<Map<K, V>> {
+
         @Override
         public Map<K, V> construct() {
             return new LinkedHashMap<>();
@@ -570,8 +592,8 @@ public final class KnownTypeAdapters {
      */
     public static final class ListTypeAdapter<V, T extends Collection<V>> extends TypeAdapter<T> {
 
-        private TypeAdapter<V> valueTypeAdapter;
-        private ObjectConstructor<T> objectConstructor;
+        private final TypeAdapter<V> valueTypeAdapter;
+        private final ObjectConstructor<T> objectConstructor;
 
         public ListTypeAdapter(TypeAdapter<V> valueTypeAdapter, ObjectConstructor<T> objectConstructor) {
             this.valueTypeAdapter = valueTypeAdapter;
@@ -581,7 +603,7 @@ public final class KnownTypeAdapters {
         @Override
         public void write(JsonWriter writer, T value) throws IOException {
             writer.beginArray();
-            if(null != value) {
+            if (null != value) {
                 for (V item : value) {
                     valueTypeAdapter.write(writer, item);
                 }
@@ -616,11 +638,13 @@ public final class KnownTypeAdapters {
      * used to instantiate maps of particular types eg, {@link HashMap} {@link LinkedHashMap} etc
      */
     public static final class MapTypeAdapter<K, V, T extends Map<K, V>> extends TypeAdapter<T> {
-        private ObjectConstructor<T> objectConstructor;
-        private TypeAdapter<V> valueTypeAdapter;
-        private TypeAdapter<K> keyTypeAdapter;
 
-        public MapTypeAdapter(TypeAdapter<K> keyTypeAdapter, TypeAdapter<V> valueTypeAdapter, ObjectConstructor<T> objectConstructor) {
+        private final ObjectConstructor<T> objectConstructor;
+        private final TypeAdapter<V> valueTypeAdapter;
+        private final TypeAdapter<K> keyTypeAdapter;
+
+        public MapTypeAdapter(TypeAdapter<K> keyTypeAdapter, TypeAdapter<V> valueTypeAdapter,
+                              ObjectConstructor<T> objectConstructor) {
             this.keyTypeAdapter = keyTypeAdapter;
             this.valueTypeAdapter = valueTypeAdapter;
             this.objectConstructor = objectConstructor;
@@ -628,7 +652,7 @@ public final class KnownTypeAdapters {
 
         @Override
         public void write(JsonWriter writer, T value) throws IOException {
-            if(null == value) {
+            if (null == value) {
                 writer.nullValue();
                 return;
             }
@@ -738,36 +762,34 @@ public final class KnownTypeAdapters {
             JsonToken token = in.peek();
             switch (token) {
                 case BEGIN_ARRAY:
-                    List<Object> list = new ArrayList<Object>();
+                    List<Object> list = new ArrayList<>();
                     in.beginArray();
                     while (in.hasNext()) {
                         list.add(read(in));
                     }
                     in.endArray();
                     return list;
-
                 case BEGIN_OBJECT:
-                    Map<String, Object> map = new LinkedTreeMap<String, Object>();
+                    Map<String, Object> map = new LinkedTreeMap<>();
                     in.beginObject();
                     while (in.hasNext()) {
                         map.put(in.nextName(), read(in));
                     }
                     in.endObject();
                     return map;
-
                 case STRING:
                     return in.nextString();
-
                 case NUMBER:
                     return in.nextDouble();
-
                 case BOOLEAN:
                     return in.nextBoolean();
-
                 case NULL:
                     in.nextNull();
                     return null;
-
+                case NAME:
+                case END_OBJECT:
+                case END_ARRAY:
+                case END_DOCUMENT:
                 default:
                     throw new IllegalStateException();
             }
@@ -792,7 +814,8 @@ public final class KnownTypeAdapters {
         }
     }
 
-    public static final TypeAdapter<JsonElement> JSON_ELEMENT_TYPE_ADAPTER = com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT.nullSafe();
+    public static final TypeAdapter<JsonElement> JSON_ELEMENT_TYPE_ADAPTER =
+            com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT.nullSafe();
 
     public static final TypeAdapter<JsonObject> JSON_OBJECT_TYPE_ADAPTER = new TypeAdapter<JsonObject>() {
         @Override
@@ -820,19 +843,21 @@ public final class KnownTypeAdapters {
         }
     }.nullSafe();
 
-    public static final TypeAdapter<JsonPrimitive> JSON_PRIMITIVE_TYPE_ADAPTER = new TypeAdapter<JsonPrimitive>() {
+    public static final TypeAdapter<JsonPrimitive> JSON_PRIMITIVE_TYPE_ADAPTER =
+            new TypeAdapter<JsonPrimitive>() {
 
-        @Override
-        public void write(JsonWriter out, JsonPrimitive value) throws IOException {
-            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
-        }
+                @Override
+                public void write(JsonWriter out, JsonPrimitive value) throws IOException {
+                    JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
+                }
 
-        @Override
-        public JsonPrimitive read(JsonReader in) throws IOException {
-            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
-            return jsonElement != null && jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
-        }
-    }.nullSafe();
+                @Override
+                public JsonPrimitive read(JsonReader in) throws IOException {
+                    JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+                    return jsonElement != null &&
+                           jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
+                }
+            }.nullSafe();
 
     public static final TypeAdapter<JsonNull> JSON_NULL_TYPE_ADAPTER = new TypeAdapter<JsonNull>() {
 

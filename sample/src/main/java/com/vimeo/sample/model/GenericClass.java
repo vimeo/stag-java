@@ -30,9 +30,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by anirudh.r on 30/11/16.
- * <p>
  * A Generic class which has known types.
+ * <p>
+ * Created by anirudh.r on 30/11/16.
  */
 @UseStag
 public class GenericClass<T> {

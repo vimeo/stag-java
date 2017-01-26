@@ -54,7 +54,7 @@ public class Video {
     @Override
     public String toString() {
         return "user: { " + (mUser != null ? mUser.toString() : null) + " }\nlink: " + mLink + "\nname: " +
-                mName + "\ncreated_time: " + mCreatedTime + "\nstats: { " +
-                (mStats != null ? mStats.toString() : null) + " }";
+               mName + "\ncreated_time: " + mCreatedTime + "\nstats: { " +
+               (mStats != null ? mStats.toString() : null) + " }";
     }
 }

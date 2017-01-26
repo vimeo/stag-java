@@ -4,5 +4,6 @@ import com.vimeo.stag.UseStag;
 
 @UseStag
 public class NestedClass {
+
     public static class Nested extends NestedClass {}
 }

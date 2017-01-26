@@ -39,11 +39,12 @@ public class AccessModifiers {
 
     String defaultModifier;
 
+    // Do not include static non-final fields in the TypeAdapter
     private static String STATIC_STRING = "static_string";
 
-    //do not include fields of these types in TypeAdapter
+    // Do not include static final fields in the TypeAdapter
     public static final String DEMO = "demo";
 
-    //do not serialize/deserialize transient fields
+    // Do not serialize/deserialize transient fields
     transient String transientField;
 }

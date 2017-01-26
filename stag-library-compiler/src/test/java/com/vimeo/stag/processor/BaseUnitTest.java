@@ -37,7 +37,7 @@ import javax.lang.model.util.Types;
 public class BaseUnitTest {
 
     @Rule
-    public CompilationRule rule = new CompilationRule();
+    public final CompilationRule rule = new CompilationRule();
     protected Elements elements;
     protected Types types;
 

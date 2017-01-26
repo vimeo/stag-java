@@ -209,10 +209,10 @@ public final class TypeUtils {
     }
 
     /**
-     * Determines where the the type mirros contains type var params or not
+     * Determines where the the type mirrors contains type var params or not
      *
      * @param typeMirror the element to check.
-     * @return true if it contains typevar
+     * @return true if it contains type variables
      */
     public static boolean containsTypeVarParams(@NotNull TypeMirror typeMirror) {
         if (typeMirror.getKind() == TypeKind.TYPEVAR) {
@@ -291,8 +291,9 @@ public final class TypeUtils {
      */
     @NotNull
     public static LinkedHashMap<Element, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
-                                                              @NotNull Element genericInherited,
-                                                              @NotNull Map<Element, TypeMirror> members) {
+                                                                        @NotNull Element genericInherited,
+                                                                        @NotNull
+                                                                                Map<Element, TypeMirror> members) {
 
         DebugLog.log(TAG, "Inherited concrete type: " + concreteInherited.toString());
         DebugLog.log(TAG, "Inherited generic type: " + genericInherited.asType().toString());
@@ -402,14 +403,10 @@ public final class TypeUtils {
      * @return boolean
      */
     public static boolean isSupportedPrimitive(@NotNull String type) {
-        return type.equals(long.class.getName())
-                || type.equals(double.class.getName())
-                || type.equals(boolean.class.getName())
-                || type.equals(float.class.getName())
-                || type.equals(int.class.getName())
-                || type.equals(char.class.getName())
-                || type.equals(short.class.getName())
-                || type.equals(byte.class.getName());
+        return type.equals(long.class.getName()) || type.equals(double.class.getName()) ||
+                type.equals(boolean.class.getName()) || type.equals(float.class.getName()) ||
+                type.equals(int.class.getName()) || type.equals(char.class.getName()) ||
+                type.equals(short.class.getName()) || type.equals(byte.class.getName());
     }
 
     /**
@@ -429,13 +426,7 @@ public final class TypeUtils {
      * @return boolean
      */
     public static boolean isSupportedCollection(@Nullable TypeMirror type) {
-        if (type == null) {
-            return false;
-        }
-        if (isNativeArray(type)) {
-            return true;
-        }
-        return isSupportedList(type);
+        return type != null && (isNativeArray(type) || isSupportedList(type));
     }
 
     /**
@@ -469,22 +460,6 @@ public final class TypeUtils {
     }
 
     /**
-     * Method to check if the {@link TypeMirror} is of {@link JsonElement} type
-     *
-     * @param type :TypeMirror type
-     * @return boolean
-     */
-    public static boolean isJsonElement(@Nullable TypeMirror type) {
-        if (type == null) {
-            return false;
-        }
-        String outerClassType = TypeUtils.getOuterClassType(type);
-        return outerClassType.equals(JsonElement.class.getName())
-                || outerClassType.equals(JsonObject.class.getName())
-                || outerClassType.equals(JsonArray.class.getName());
-    }
-
-    /**
      * Method to check if the {@link TypeMirror} is of {@link Map} type
      *
      * @param type :TypeMirror type
@@ -510,14 +485,10 @@ public final class TypeUtils {
      * @return boolean
      */
     public static boolean isSupportedNative(@NotNull String type) {
-        return isSupportedPrimitive(type)
-                || type.equals(String.class.getName())
-                || type.equals(Long.class.getName())
-                || type.equals(Integer.class.getName())
-                || type.equals(Boolean.class.getName())
-                || type.equals(Double.class.getName())
-                || type.equals(Float.class.getName())
-                || type.equals(Number.class.getName());
+        return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
+                type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
+                type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
+                type.equals(Float.class.getName()) || type.equals(Number.class.getName());
     }
 
     /**
@@ -525,6 +496,7 @@ public final class TypeUtils {
      */
     @NotNull
     public static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
-        return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments().get(0);
+        return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments()
+                .get(0);
     }
 }

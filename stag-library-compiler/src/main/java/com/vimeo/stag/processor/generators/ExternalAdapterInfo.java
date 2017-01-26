@@ -31,10 +31,11 @@ public class ExternalAdapterInfo {
     @NotNull
     private final ExecutableElement mAdapterConstructor;
 
-    public ExternalAdapterInfo(@NotNull Element typeElement, @NotNull TypeElement adapterTypeElement, @NotNull ExecutableElement adapterConstructor) {
-        this.mExternalClassType = typeElement;
-        this.mAdapterType = adapterTypeElement;
-        this.mAdapterConstructor = adapterConstructor;
+    private ExternalAdapterInfo(@NotNull Element typeElement, @NotNull TypeElement adapterTypeElement,
+                                @NotNull ExecutableElement adapterConstructor) {
+        mExternalClassType = typeElement;
+        mAdapterType = adapterTypeElement;
+        mAdapterConstructor = adapterConstructor;
     }
 
     /**
@@ -42,10 +43,11 @@ public class ExternalAdapterInfo {
      *
      * @param stagFactoryGeneratedName stagFactoryGeneratedName
      * @param typeMirror               typeMirror
-     * @param externalAdapterInfos     externalAdapterInfos
+     * @param externalAdapterInfoSet   externalAdapterInfoSet
      */
     public static void addExternalAdapters(@NotNull String stagFactoryGeneratedName,
-                                           @NotNull TypeMirror typeMirror, @NotNull Set<ExternalAdapterInfo> externalAdapterInfos) {
+                                           @NotNull TypeMirror typeMirror,
+                                           @NotNull Set<ExternalAdapterInfo> externalAdapterInfoSet) {
         if (!TypeUtils.isSupportedPrimitive(typeMirror.toString()) && typeMirror instanceof DeclaredType) {
             DeclaredType declaredType = (DeclaredType) typeMirror;
             Element typeElement = declaredType.asElement();
@@ -55,19 +57,27 @@ public class ExternalAdapterInfo {
              */
             if (null != useStag) {
                 ClassInfo classInfo = new ClassInfo(typeElement.asType());
-                String classAdapterName = FileGenUtils.unescapeEscapedString(classInfo.getTypeAdapterQualifiedClassName());
+                String classAdapterName =
+                        FileGenUtils.unescapeEscapedString(classInfo.getTypeAdapterQualifiedClassName());
                 if (!sCheckedClasses.contains(classAdapterName)) {
                     sCheckedClasses.add(classAdapterName);
-                    TypeElement adapterTypeElement = ElementUtils.getTypeElementFromQualifiedName(classAdapterName);
+                    TypeElement adapterTypeElement =
+                            ElementUtils.getTypeElementFromQualifiedName(classAdapterName);
                     if (null != adapterTypeElement) {
                         for (Element adapterEnclosedElement : adapterTypeElement.getEnclosedElements()) {
                             if (adapterEnclosedElement instanceof ExecutableElement) {
-                                ExecutableElement executableElement = ((ExecutableElement) adapterEnclosedElement);
+                                ExecutableElement executableElement =
+                                        ((ExecutableElement) adapterEnclosedElement);
                                 Name name = executableElement.getSimpleName();
-                                if (name.contentEquals("<init>") && executableElement.getParameters().size() >= 2 && !stagFactoryGeneratedName.equals(executableElement.getParameters().get(1).asType().toString())) {
-                                    ExternalAdapterInfo result = new ExternalAdapterInfo(typeElement, adapterTypeElement, executableElement);
+                                if (name.contentEquals("<init>") &&
+                                        executableElement.getParameters().size() >= 2 &&
+                                        !stagFactoryGeneratedName.equals(
+                                                executableElement.getParameters().get(1).asType().toString())) {
+                                    ExternalAdapterInfo result =
+                                            new ExternalAdapterInfo(typeElement, adapterTypeElement,
+                                                    executableElement);
                                     sCheckedClasses.add(classAdapterName);
-                                    externalAdapterInfos.add(result);
+                                    externalAdapterInfoSet.add(result);
                                 }
                             }
                         }
@@ -77,7 +87,7 @@ public class ExternalAdapterInfo {
             List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
             if (null != typeArguments) {
                 for (TypeMirror typeArgument : typeArguments) {
-                    addExternalAdapters(stagFactoryGeneratedName, typeArgument, externalAdapterInfos);
+                    addExternalAdapters(stagFactoryGeneratedName, typeArgument, externalAdapterInfoSet);
                 }
             }
         }
@@ -87,9 +97,11 @@ public class ExternalAdapterInfo {
     String getInitializer(@NotNull String gsonVariableName, @NotNull String concatenatedTypeAdapters) {
         int paramsSize = mAdapterConstructor.getParameters().size();
         if (paramsSize == 2) {
-            return "new " + FileGenUtils.escapeStringForCodeBlock(mAdapterType.toString()) + "(" + gsonVariableName + ", " + getFactoryInitializer() + ")";
+            return "new " + FileGenUtils.escapeStringForCodeBlock(mAdapterType.toString()) + "(" +
+                    gsonVariableName + ", " + getFactoryInitializer() + ")";
         } else {
-            return "new " + FileGenUtils.escapeStringForCodeBlock(mAdapterType.toString()) + "(" + gsonVariableName + ", " + getFactoryInitializer() + concatenatedTypeAdapters + ")";
+            return "new " + FileGenUtils.escapeStringForCodeBlock(mAdapterType.toString()) + "(" +
+                    gsonVariableName + ", " + getFactoryInitializer() + concatenatedTypeAdapters + ")";
         }
     }
 
