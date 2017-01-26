@@ -31,13 +31,37 @@ platform :android do
   desc "test"
   lane :test do
     
-    # gotta do some setup before running gradle
-    sh 'touch ../local.properties'
+  # gotta do some setup before running gradle
+  sh 'touch ../local.properties'
 
+  # run the tests, but dont puke everywhere until the report is printed.
+  junit_report_path = "stag-library*/build/test-results/*.xml"
+  begin
     gradle(
-        task: "stag-library:build stag-library-compiler:build sample:build"
+      task: "stag-library:test stag-library-compiler:test sample:build"
     )
-    pretty_junit(file_pattern: "stag-library-compiler/build/test-results/TEST-*")
+  rescue => error
+  begin
+    pretty_junit(file_pattern: junit_report_path)
+  rescue => error
+  end
+
+  if is_ci
+    danger(use_bundle_exec: false)
+  end
+
+  raise error
+  end
+
+  begin
+    pretty_junit(file_pattern: junit_report_path)
+  rescue => error
+  end
+
+  if is_ci
+    danger(use_bundle_exec: false)
+  end
+
 
   end
 

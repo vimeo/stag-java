@@ -23,25 +23,29 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
 /**
  * This class provides an example of using
  * nested static inner model classes.
  */
+@UseStag
 public class ConcreteClass {
 
-    @GsonAdapterKey
+    @SerializedName("doublyNestedModel")
     NestedModel.DoublyNestedModel doublyNestedModel;
 
+    @UseStag
     public static class NestedModel {
 
-        @GsonAdapterKey
+        @SerializedName("message")
         public String message;
 
+        @UseStag
         public static class DoublyNestedModel {
 
-            @GsonAdapterKey
+            @SerializedName("message")
             public String message;
         }
     }

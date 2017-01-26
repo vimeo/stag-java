@@ -23,30 +23,32 @@
  */
 package com.vimeo.sample.model;
 
-import android.support.annotation.NonNull;
-
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
 import java.util.Date;
 
 /**
  * Simple video model used by the sample app.
  */
+@UseStag
 public class Video {
 
-    @GsonAdapterKey("user")
+    @SerializedName("user")
     public User mUser;
 
-    @GsonAdapterKey("link")
+    @SerializedName("link")
     public String mLink;
 
-    @GsonAdapterKey("name")
+    public com.vimeo.sample.model1.Video video;
+
+    @SerializedName("name")
     public String mName;
 
-    @GsonAdapterKey("created_time")
+    @SerializedName("created_time")
     public Date mCreatedTime;
 
-    @GsonAdapterKey("stats")
+    @SerializedName("stats")
     public Stats mStats;
 
     @Override

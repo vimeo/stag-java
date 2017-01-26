@@ -34,6 +34,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.TypeAdapter;
 import com.vimeo.sample.model.DateParser;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
@@ -51,7 +52,7 @@ import java.util.concurrent.Executors;
 
 public final class NetworkRequest {
 
-    static final String TAG = NetworkRequest.class.getSimpleName();
+    private static final String TAG = "NetworkRequest";
 
     public interface Callback {
 
@@ -116,16 +117,17 @@ public final class NetworkRequest {
                     builder.append(line);
                 }
 
+                Stag.Factory factory = new Stag.Factory();
                 Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateParser())
-                        .registerTypeAdapterFactory(new Stag.Factory())
+                        .registerTypeAdapterFactory(factory)
                         .create();
 
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
 
+                TypeAdapter<VideoList> videoListTypeAdapter = factory.getVideoList$TypeAdapter(gson);
                 long time = System.currentTimeMillis();
 
-                videos.addAll(gson.fromJson(jsonObject, VideoList.class).data);
-
+                videos.addAll(videoListTypeAdapter.fromJsonTree(jsonObject).data);
                 Log.d(TAG, "Time elapsed while parsing: " + (System.currentTimeMillis() - time) + " ms");
 
             } catch (IOException e) {

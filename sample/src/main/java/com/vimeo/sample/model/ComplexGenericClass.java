@@ -23,22 +23,30 @@
  */
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import android.webkit.ValueCallback;
 
-import java.util.List;
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
+
 import java.util.Map;
 
 /**
- * This class ensures that the generated
- * adapter properly parses and serializes
- * the interface fields for Map and List,
- * according to what stag supports.
+ * Complex generic class which contains the parameterized type
+ *
+ * @param <T>
  */
-public class TypeTokenBasedModels {
+@UseStag
+public class ComplexGenericClass<T> {
 
-    @GsonAdapterKey("videoMap")
-    public Map<String, Video> videoMap;
+    @SerializedName("name")
+    public T name;
 
-    @GsonAdapterKey("videoList")
-    public List<Video> videoList;
+    @SerializedName("map")
+    public Map<String, Map<String, T>> mapField;
+
+    @SerializedName("sparseArray")
+    public ValueCallback<T> sparseArrayField;
+
+    @SerializedName("regularMap")
+    public Map<String, String> regularMapField;
 }

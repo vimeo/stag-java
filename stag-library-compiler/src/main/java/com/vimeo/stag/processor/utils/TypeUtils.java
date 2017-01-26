@@ -23,18 +23,26 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -74,6 +82,26 @@ public final class TypeUtils {
     public static String getOuterClassType(@NotNull TypeMirror type) {
         if (type instanceof DeclaredType) {
             return ((DeclaredType) type).asElement().toString();
+        } else {
+            return type.toString();
+        }
+    }
+
+    /**
+     * Retrieves the outer type of a parameterized class.
+     * e.g. an ArrayList{@literal <T>} would be returned as
+     * just ArrayList. If an interface is passed in, i.e. a
+     * List, the underlying implementation will be returned,
+     * i.e. ArrayList.
+     *
+     * @param type the type to get the outer class from/
+     * @return the outer class of the type passed in, or the
+     * type itself if it is not parameterized.
+     */
+    @NotNull
+    public static String getSimpleOuterClassType(@NotNull TypeMirror type) {
+        if (type instanceof DeclaredType) {
+            return ((DeclaredType) type).asElement().getSimpleName().toString();
         } else {
             return type.toString();
         }
@@ -128,6 +156,17 @@ public final class TypeUtils {
     }
 
     /**
+     * Determines whether or not the Element is a abstract type.
+     *
+     * @param typeMirror the element to check.
+     * @return true if the element is abstract and
+     * contains no generic type arguments, false otherwise.
+     */
+    public static boolean isAbstract(@Nullable TypeMirror typeMirror) {
+        return (typeMirror instanceof DeclaredType) && isAbstract(((DeclaredType) typeMirror).asElement());
+    }
+
+    /**
      * Determines whether or not the Element is a parameterized type.
      * If the element is a parameterized type or contains parameterized type
      * arguments, this method will return false.
@@ -151,7 +190,6 @@ public final class TypeUtils {
      * contains no generic type arguments, false otherwise.
      */
     public static boolean isConcreteType(@NotNull TypeMirror typeMirror) {
-
         if (typeMirror.getKind() == TypeKind.TYPEVAR) {
             return false;
         }
@@ -168,6 +206,30 @@ public final class TypeUtils {
             }
         }
         return true;
+    }
+
+    /**
+     * Determines where the the type mirrors contains type var params or not
+     *
+     * @param typeMirror the element to check.
+     * @return true if it contains type variables
+     */
+    public static boolean containsTypeVarParams(@NotNull TypeMirror typeMirror) {
+        if (typeMirror.getKind() == TypeKind.TYPEVAR) {
+            return true;
+        }
+
+        if (typeMirror instanceof DeclaredType) {
+            List<? extends TypeMirror> typeMirrors = ((DeclaredType) typeMirror).getTypeArguments();
+
+            for (TypeMirror type : typeMirrors) {
+                if (containsTypeVarParams(type)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -196,7 +258,7 @@ public final class TypeUtils {
      * {@code
      * Factory<T> {
      *
-     *  @literal @GsonAdapterKey
+     *  @literal @UseStag
      *   public T data;
      *
      * }
@@ -209,7 +271,7 @@ public final class TypeUtils {
      * }
      * </pre>
      * In this example, VideoFactory has a public member variable T that is of type Video.
-     * Since the Factory class has the GsonAdapterKey annotation, we cannot just generate
+     * Since the Factory class has the UseStag annotation, we cannot just generate
      * parsing code for the Factory class, since it is generic and we need concrete types.
      * Instead when we generate the adapter for VideoFactory, we crawl the inheritance
      * hierarchy gathering the member variables. When we get to VideoFactory, we see it
@@ -224,20 +286,21 @@ public final class TypeUtils {
      * @param members           the member variable map of the field (Element) to their concrete
      *                          type (TypeMirror). This should be retrieved by calling getConcreteMembers
      *                          on the inherited class.
-     * @return returns a map of the member variables mapped to their concrete types for the concrete
-     * inherited class.
+     * @return returns a LinkedHashMap of the member variables mapped to their concrete types for the concrete
+     * inherited class. (to maintain the ordering)
      */
     @NotNull
-    public static Map<Element, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
-                                                              @NotNull Element genericInherited,
-                                                              @NotNull Map<Element, TypeMirror> members) {
+    public static LinkedHashMap<Element, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
+                                                                        @NotNull Element genericInherited,
+                                                                        @NotNull
+                                                                                Map<Element, TypeMirror> members) {
 
         DebugLog.log(TAG, "Inherited concrete type: " + concreteInherited.toString());
         DebugLog.log(TAG, "Inherited generic type: " + genericInherited.asType().toString());
         List<? extends TypeMirror> concreteTypes = getParameterizedTypes(concreteInherited);
         List<? extends TypeMirror> inheritedTypes = getParameterizedTypes(genericInherited);
 
-        Map<Element, TypeMirror> map = new HashMap<>();
+        LinkedHashMap<Element, TypeMirror> map = new LinkedHashMap<>();
 
         for (Entry<Element, TypeMirror> member : members.entrySet()) {
 
@@ -277,7 +340,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), declaredType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                                      " resolved to - " + declaredType.toString());
+                            " resolved to - " + declaredType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -285,7 +348,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                                      " resolved to - " + concreteType.toString());
+                            " resolved to - " + concreteType.toString());
                 }
             }
         }
@@ -320,7 +383,6 @@ public final class TypeUtils {
         }
 
         // if the type is not parameterized, we will return an empty list
-
         return genericTypes;
     }
 
@@ -333,5 +395,108 @@ public final class TypeUtils {
     private static List<? extends TypeMirror> getParameterizedTypes(@NotNull TypeMirror typeMirror) {
         return ((DeclaredType) typeMirror).getTypeArguments();
     }
-}
 
+    /**
+     * Method to check if the {@link TypeMirror} is of primitive type
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
+    public static boolean isSupportedPrimitive(@NotNull String type) {
+        return type.equals(long.class.getName()) || type.equals(double.class.getName()) ||
+                type.equals(boolean.class.getName()) || type.equals(float.class.getName()) ||
+                type.equals(int.class.getName()) || type.equals(char.class.getName()) ||
+                type.equals(short.class.getName()) || type.equals(byte.class.getName());
+    }
+
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link ArrayType}
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
+    public static boolean isNativeArray(@NotNull TypeMirror type) {
+        return (type instanceof ArrayType);
+    }
+
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link Collection} type
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
+    public static boolean isSupportedCollection(@Nullable TypeMirror type) {
+        return type != null && (isNativeArray(type) || isSupportedList(type));
+    }
+
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link List} type
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
+    public static boolean isSupportedList(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return outerClassType.equals(ArrayList.class.getName()) ||
+                outerClassType.equals(List.class.getName()) ||
+                outerClassType.equals(Collection.class.getName());
+    }
+
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link Object}
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
+    public static boolean isNativeObject(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return outerClassType.equals(Object.class.getName());
+    }
+
+    /**
+     * Method to check if the {@link TypeMirror} is of {@link Map} type
+     *
+     * @param type :TypeMirror type
+     * @return boolean
+     */
+    public static boolean isSupportedMap(@Nullable TypeMirror type) {
+        if (type == null) {
+            return false;
+        }
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        return outerClassType.equals(Map.class.getName()) ||
+                outerClassType.equals(HashMap.class.getName()) ||
+                outerClassType.equals(ConcurrentHashMap.class.getName()) ||
+                outerClassType.equals("android.util.ArrayMap") ||
+                outerClassType.equals("android.support.v4.util.ArrayMap") ||
+                outerClassType.equals(LinkedHashMap.class.getName());
+    }
+
+    /**
+     * Method to check if the type is natively supported such as {@link String} etc
+     *
+     * @param type String type
+     * @return boolean
+     */
+    public static boolean isSupportedNative(@NotNull String type) {
+        return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
+                type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
+                type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
+                type.equals(Float.class.getName()) || type.equals(Number.class.getName());
+    }
+
+    /**
+     * Returns the inner {@link TypeMirror} for a given {@link TypeMirror}
+     */
+    @NotNull
+    public static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
+        return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments()
+                .get(0);
+    }
+}

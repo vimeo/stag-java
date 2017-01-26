@@ -56,10 +56,40 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
     @NotNull
     private final Element mElement;
 
-
     public EnumTypeAdapterGenerator(@NotNull ClassInfo info, @NotNull Element element) {
         mInfo = info;
         mElement = element;
+    }
+
+    @NotNull
+    private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
+                .addParameter(JsonWriter.class, "writer")
+                .addParameter(typeName, "object")
+                .returns(void.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addException(IOException.class);
+
+        builder.addStatement("writer.value(object == null ? null : CONSTANT_TO_NAME.get(object))");
+        return builder.build();
+    }
+
+    @NotNull
+    private static MethodSpec getReadMethodSpec(@NotNull TypeName typeName) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("read")
+                .addParameter(JsonReader.class, "reader")
+                .returns(typeName)
+                .addModifiers(Modifier.PUBLIC)
+                .addAnnotation(Override.class)
+                .addException(IOException.class);
+
+        builder.beginControlFlow("if (reader.peek() == com.google.gson.stream.JsonToken.NULL)");
+        builder.addStatement("reader.nextNull()");
+        builder.addStatement("return null");
+        builder.endControlFlow();
+        builder.addStatement("return NAME_TO_CONSTANT.get(reader.nextString())");
+        return builder.build();
     }
 
     /**
@@ -95,9 +125,15 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
                 String name = getJsonName(enclosingElement);
                 nameToConstant.put(name, enclosingElement);
                 constantToName.put(enclosingElement, name);
+
+                String[] alternateJsonNames = getAlternateJsonNames(enclosingElement);
+                if (alternateJsonNames != null && alternateJsonNames.length > 0) {
+                    for (String alternate : alternateJsonNames) {
+                        nameToConstant.put(alternate, enclosingElement);
+                    }
+                }
             }
         }
-
 
         MethodSpec writeMethod = getWriteMethodSpec(typeVariableName);
         MethodSpec readMethod = getReadMethodSpec(typeVariableName);
@@ -135,40 +171,6 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
         adapterBuilder.addMethod(writeMethod);
         adapterBuilder.addMethod(readMethod);
 
-
         return adapterBuilder.build();
     }
-
-    @NotNull
-    private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
-                .addParameter(JsonWriter.class, "writer")
-                .addParameter(typeName, "object")
-                .returns(void.class)
-                .addModifiers(Modifier.PUBLIC)
-                .addAnnotation(Override.class)
-                .addException(IOException.class);
-
-        builder.addStatement("writer.value(object == null ? null : CONSTANT_TO_NAME.get(object))");
-        return builder.build();
-    }
-
-    @NotNull
-    private static MethodSpec getReadMethodSpec(@NotNull TypeName typeName) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("read")
-                .addParameter(JsonReader.class, "reader")
-                .returns(typeName)
-                .addModifiers(Modifier.PUBLIC)
-                .addAnnotation(Override.class)
-                .addException(IOException.class);
-
-        builder.beginControlFlow("if (reader.peek() == com.google.gson.stream.JsonToken.NULL)");
-        builder.addStatement("reader.nextNull()");
-        builder.addStatement("return null");
-        builder.endControlFlow();
-        builder.addStatement("return NAME_TO_CONSTANT.get(reader.nextString())");
-        return builder.build();
-    }
-
-
 }

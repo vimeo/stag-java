@@ -67,7 +67,7 @@ public class DummyMapClass implements Map {
     }
 
     @Override
-    public void putAll(Map map) {
+    public void putAll(@NotNull Map map) {
 
     }
 

@@ -25,13 +25,12 @@ package com.vimeo.stag.processor;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
-import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.TypeTokenConstantsGenerator;
-import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.utils.DebugLog;
@@ -40,16 +39,8 @@ import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -62,13 +53,12 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
+
 @AutoService(Processor.class)
-@SupportedAnnotationTypes("com.vimeo.stag.GsonAdapterKey")
+@SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag", "com.vimeo.stag.GsonAdapterKey"})
 @SupportedOptions(value = {"stagGeneratedPackageName"})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
@@ -76,28 +66,12 @@ public final class StagProcessor extends AbstractProcessor {
     public static final boolean DEBUG = false;
     private static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
-    private final Set<TypeMirror> mSupportedTypes = new HashSet<>();
     private boolean mHasBeenProcessed;
-
-    private static void addToListMap(@NotNull Map<Element, List<VariableElement>> map, @Nullable Element key,
-                                     @Nullable VariableElement value) {
-        if (key == null) {
-            return;
-        }
-        List<VariableElement> list = map.get(key);
-        if (list == null) {
-            list = new ArrayList<>();
-        }
-        if (value != null) {
-            list.add(value);
-        }
-        map.put(key, list);
-    }
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         Set<String> set = new HashSet<>();
-        set.add(GsonAdapterKey.class.getCanonicalName());
+        set.add(UseStag.class.getCanonicalName());
         return set;
     }
 
@@ -117,62 +91,34 @@ public final class StagProcessor extends AbstractProcessor {
             packageName = DEFAULT_GENERATED_PACKAGE_NAME;
         }
 
+        String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
         TypeUtils.initialize(processingEnv.getTypeUtils());
         ElementUtils.initialize(processingEnv.getElementUtils());
+        SupportedTypesModel.getInstance().initialize(stagFactoryGeneratedName);
 
-        DebugLog.log("\nBeginning @GsonAdapterKey annotation processing\n");
+        DebugLog.log("\nBeginning @UseStag annotation processing\n");
 
         mHasBeenProcessed = true;
-        Map<Element, List<VariableElement>> variableMap = new HashMap<>();
-        for (Element element : roundEnv.getElementsAnnotatedWith(GsonAdapterKey.class)) {
-            if (element instanceof VariableElement) {
-                final VariableElement variableElement = (VariableElement) element;
 
-                Element enclosingClassElement = variableElement.getEnclosingElement();
-                TypeMirror enclosingClass = enclosingClassElement.asType();
-
-                if (!ElementUtils.isEnum(enclosingClassElement)) {
-                    Set<Modifier> modifiers = variableElement.getModifiers();
-                    if (modifiers.contains(Modifier.FINAL)) {
-                        throw new RuntimeException("Unable to access field \"" +
-                                                   variableElement.getSimpleName().toString() +
-                                                   "\" in class " +
-                                                   variableElement.getEnclosingElement().asType() +
-                                                   ", field must not be final.");
-                    } else if (modifiers.contains(Modifier.PRIVATE)) {
-                        throw new RuntimeException("Unable to access field \"" +
-                                                   variableElement.getSimpleName().toString() +
-                                                   "\" in class " +
-                                                   variableElement.getEnclosingElement().asType() +
-                                                   ", field must not be private.");
-                    }
-
-                    if (TypeUtils.isParameterizedType(enclosingClass) ||
-                        TypeUtils.isConcreteType(enclosingClass)) {
-                        if (!TypeUtils.isAbstract(enclosingClassElement)) {
-                            mSupportedTypes.add(enclosingClass);
-                        }
-                        addToListMap(variableMap, enclosingClassElement, variableElement);
-                    }
-                }
-
-            } else if (element instanceof TypeElement) {
-                if (!TypeUtils.isAbstract(element)) {
-                    mSupportedTypes.add(element.asType());
-                }
-                addToListMap(variableMap, element, null);
+        Set<? extends Element> rootElements = roundEnv.getRootElements();
+        for (Element rootElement : rootElements) {
+            if (rootElement.getAnnotation(UseStag.class) != null) {
+                SupportedTypesModel.getInstance().getSupportedType(rootElement.asType());
             }
         }
 
         Filer filer = processingEnv.getFiler();
         try {
-            for (Entry<Element, List<VariableElement>> entry : variableMap.entrySet()) {
-                SupportedTypesModel.getInstance()
-                        .addSupportedType(new AnnotatedClass(entry.getKey(), entry.getValue()));
+            Set<TypeMirror> mSupportedTypes = SupportedTypesModel.getInstance().getSupportedTypesMirror();
+            try {
+                mSupportedTypes.addAll(
+                        KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
+            } catch (Exception ignored) {
             }
-            mSupportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
 
-            StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes);
+            StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes,
+                                                               SupportedTypesModel.getInstance()
+                                                                       .getExternalSupportedAdapters());
             TypeTokenConstantsGenerator typeTokenConstantsGenerator =
                     new TypeTokenConstantsGenerator(filer, packageName);
 
@@ -192,15 +138,15 @@ public final class StagProcessor extends AbstractProcessor {
                     FileGenUtils.writeToFile(javaFile, filer);
                 }
             }
-            adapterGenerator.generateTypeAdapterFactory(packageName);
 
+            adapterGenerator.generateTypeAdapterFactory(packageName);
             typeTokenConstantsGenerator.generateTypeTokenConstants();
             KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, mSupportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        DebugLog.log("\nSuccessfully processed @GsonAdapterKey annotations\n");
+        DebugLog.log("\nSuccessfully processed @UseStag annotations\n");
 
         return true;
     }
