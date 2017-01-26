@@ -204,8 +204,8 @@ public final class KnownTypeAdapters {
      */
     public static final class ArrayTypeAdapter<T> extends TypeAdapter<T[]> {
 
-        TypeAdapter<T> mValueTypeAdapter;
-        PrimitiveArrayConstructor<T> mObjectCreator;
+        final TypeAdapter<T> mValueTypeAdapter;
+        final PrimitiveArrayConstructor<T> mObjectCreator;
 
         public ArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter,
                                 PrimitiveArrayConstructor<T> instanceCreator) {

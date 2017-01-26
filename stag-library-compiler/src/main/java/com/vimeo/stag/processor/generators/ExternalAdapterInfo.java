@@ -40,9 +40,10 @@ public class ExternalAdapterInfo {
 
     /**
      * Add adapters for the external models.
-     *  @param stagFactoryGeneratedName stagFactoryGeneratedName
+     *
+     * @param stagFactoryGeneratedName stagFactoryGeneratedName
      * @param typeMirror               typeMirror
-     * @param externalAdapterInfoSet     externalAdapterInfos
+     * @param externalAdapterInfoSet   externalAdapterInfoSet
      */
     public static void addExternalAdapters(@NotNull String stagFactoryGeneratedName,
                                            @NotNull TypeMirror typeMirror,
@@ -69,12 +70,12 @@ public class ExternalAdapterInfo {
                                         ((ExecutableElement) adapterEnclosedElement);
                                 Name name = executableElement.getSimpleName();
                                 if (name.contentEquals("<init>") &&
-                                    executableElement.getParameters().size() >= 2 &&
-                                    !stagFactoryGeneratedName.equals(
-                                            executableElement.getParameters().get(1).asType().toString())) {
+                                        executableElement.getParameters().size() >= 2 &&
+                                        !stagFactoryGeneratedName.equals(
+                                                executableElement.getParameters().get(1).asType().toString())) {
                                     ExternalAdapterInfo result =
                                             new ExternalAdapterInfo(typeElement, adapterTypeElement,
-                                                                    executableElement);
+                                                    executableElement);
                                     sCheckedClasses.add(classAdapterName);
                                     externalAdapterInfoSet.add(result);
                                 }
@@ -97,10 +98,10 @@ public class ExternalAdapterInfo {
         int paramsSize = mAdapterConstructor.getParameters().size();
         if (paramsSize == 2) {
             return "new " + FileGenUtils.escapeStringForCodeBlock(mAdapterType.toString()) + "(" +
-                   gsonVariableName + ", " + getFactoryInitializer() + ")";
+                    gsonVariableName + ", " + getFactoryInitializer() + ")";
         } else {
             return "new " + FileGenUtils.escapeStringForCodeBlock(mAdapterType.toString()) + "(" +
-                   gsonVariableName + ", " + getFactoryInitializer() + concatenatedTypeAdapters + ")";
+                    gsonVariableName + ", " + getFactoryInitializer() + concatenatedTypeAdapters + ")";
         }
     }
 
