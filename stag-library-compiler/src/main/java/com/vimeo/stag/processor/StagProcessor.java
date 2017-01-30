@@ -104,7 +104,7 @@ public final class StagProcessor extends AbstractProcessor {
         for (Element useStagElement : useStagElements)
         {
             TypeMirror rootType = useStagElement.asType();
-            DebugLog.log("Annotated root type: " + rootType + "\n");
+            DebugLog.log("Annotated type: " + rootType + "\n");
             SupportedTypesModel.getInstance().getSupportedType(rootType);
         }
 
