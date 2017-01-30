@@ -124,6 +124,8 @@ Last but not the least, Stag is almost in parity with GSON.
 7. You're done!
 
 <b>NOTE</b>: `@GsonAdapterKey` has been deprecated and will be removed in a future release. It is advisable to migrate to `@SerializedName` and `@UseStag` annotations.
+As of 2.0.0, `@GsonAdapterKey` is no longer supported at the class level, please use `@UseStag` with the appropriate `FieldOption` if you were using it at the class level.
+Other usage of `@GsonAdapterKey` is currently supported for backwards compatibility.
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 
