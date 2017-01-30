@@ -48,6 +48,7 @@ dependencies {
 apt {
     arguments {
         stagGeneratedPackageName "com.vimeo.sample.stag.generated"
+        stagDebug true
     }
 }
 

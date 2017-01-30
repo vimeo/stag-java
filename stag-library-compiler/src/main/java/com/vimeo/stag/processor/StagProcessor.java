@@ -25,6 +25,7 @@ package com.vimeo.stag.processor;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
+import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
@@ -54,6 +55,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 
@@ -106,12 +108,25 @@ public final class StagProcessor extends AbstractProcessor {
 
         mHasBeenProcessed = true;
 
+        // Pick up the classes annotated with @UseStag
         Set<? extends Element> useStagElements = roundEnv.getElementsAnnotatedWith(UseStag.class);
-        for (Element useStagElement : useStagElements)
-        {
+        for (Element useStagElement : useStagElements) {
             TypeMirror rootType = useStagElement.asType();
             DebugLog.log("Annotated type: " + rootType + "\n");
             SupportedTypesModel.getInstance().getSupportedType(rootType);
+        }
+
+        // Pick up classes that contain @GsonAdapterKey annotations for backwards compatibility
+        // TODO: Remove this code when we remove @GsonAdapterKey support 1/30/17 [AR]
+        Set<? extends Element> gsonAdapterKeyElements =
+                roundEnv.getElementsAnnotatedWith(GsonAdapterKey.class);
+        for (Element gsonAdapterKeyElement : gsonAdapterKeyElements) {
+            final VariableElement variableElement = (VariableElement) gsonAdapterKeyElement;
+
+            Element enclosingClassElement = variableElement.getEnclosingElement();
+            TypeMirror enclosingClass = enclosingClassElement.asType();
+            DebugLog.log("Annotated type: " + enclosingClass + "\n");
+            SupportedTypesModel.getInstance().getSupportedType(enclosingClass);
         }
 
         Filer filer = processingEnv.getFiler();
