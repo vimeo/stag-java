@@ -25,8 +25,8 @@ The Stag library solves this problem. It leverages annotations to automatically 
 from jCenter
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.0.0'
-    apt 'com.vimeo.stag:stag-library-compiler:2.0.0'
+    compile 'com.vimeo.stag:stag-library:2.0.1'
+    apt 'com.vimeo.stag:stag-library-compiler:2.0.1'
 }
 ```
 
@@ -70,12 +70,20 @@ buildscript {
 apply plugin: 'com.neenbedankt.android-apt'
 ```
 
-#### 3. Pass package name as an argument for the generated files (Optional)
-By default, the files will be in generated in `com.vimeo.sample.stag.generated` package. But, you can specify your own package for the generated files by passing it as an argument to the apt compiler.
+#### 3. Provide optional compiler arguments to Stag
+ - `stagGeneratedPackageName`: Pass package name as an argument for the generated files. By default, the files will be in generated
+ in `com.vimeo.sample.stag.generated` package. But, you can specify your own package for the generated files
+ by passing it as an argument to the apt compiler.
+ - `stagDebug`: Turn on debugging in Stag. This will cause Stag to spit out a lot of output into the gradle console
+ that can aid you in figuring out what class is giving you trouble if the exception gradle prints out
+ isn't sufficient.
+
 ```groovy
 apt {
     arguments {
         stagGeneratedPackageName "com.vimeo.sample.stag.generated"
+
+        stagDebug true
     }
 }
 ```
