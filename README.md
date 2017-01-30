@@ -74,8 +74,8 @@ apply plugin: 'com.neenbedankt.android-apt'
  - `stagGeneratedPackageName`: Pass package name as an argument for the generated files. By default, the files will be in generated
  in `com.vimeo.sample.stag.generated` package. But, you can specify your own package for the generated files
  by passing it as an argument to the apt compiler.
- - `stagDebug`: Turn on debugging in Stag. This will cause Stag to spit out a lot of output into the gradle console
- that can aid you in figuring out what class is giving you trouble if the exception gradle prints out
+ - `stagDebug`: Turn on debugging in Stag. This will cause Stag to spit out a lot of output into the gradle console.
+ This can aid you in figuring out what class is giving you trouble, if the exception gradle prints out
  isn't sufficient.
 
 ```groovy
@@ -96,9 +96,9 @@ Stag supports class level annotation `@UseStag` which processes all the fields f
 
 `@UseStag` has three different variants:
 
- - `@UseStag(FieldOption.ALL)` : Will serialize/de-serialize all member variables which are not static or transient
- - `@UseStag(FieldOption.NONE)` : Will skip serialization and deserialization for all member variables. Only member variables inherited from annotated classes will be included.
- - `@UseStag(FieldOption.SERIALIZED_NAME)` : Will Serialize or Deserialize Fields only which are annotated with `SerializedName` or `GsonAdapterKey` (deprecated).
+ - `@UseStag(FieldOption.ALL)`: Will serialize/de-serialize all member variables which are not static or transient
+ - `@UseStag(FieldOption.NONE)`: Will skip serialization and deserialization for all member variables. Only member variables inherited from annotated classes will be included.
+ - `@UseStag(FieldOption.SERIALIZED_NAME)`: Will Serialize or Deserialize Fields only which are annotated with `SerializedName` or `GsonAdapterKey` (deprecated).
 
 #### 2. `@SerializedName("key")` Support
 
