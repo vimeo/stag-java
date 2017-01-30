@@ -10,8 +10,8 @@ import org.junit.Test;
 public class NoUseStagAnnotationTest {
 
     @Test
-    public void typeAdapterWasNotGenerated() throws Exception {
-        Utils.verifyNoTypeAdapterGeneration(NoUseStagAnnotation.class);
+    public void typeAdapterWasGenerated() throws Exception {
+        Utils.verifyTypeAdapterGeneration(NoUseStagAnnotation.class);
     }
 
 }
