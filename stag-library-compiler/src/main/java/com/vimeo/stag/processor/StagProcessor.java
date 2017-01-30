@@ -100,11 +100,12 @@ public final class StagProcessor extends AbstractProcessor {
 
         mHasBeenProcessed = true;
 
-        Set<? extends Element> rootElements = roundEnv.getRootElements();
-        for (Element rootElement : rootElements) {
-            if (rootElement.getAnnotation(UseStag.class) != null) {
-                SupportedTypesModel.getInstance().getSupportedType(rootElement.asType());
-            }
+        Set<? extends Element> useStagElements = roundEnv.getElementsAnnotatedWith(UseStag.class);
+        for (Element useStagElement : useStagElements)
+        {
+            TypeMirror rootType = useStagElement.asType();
+            DebugLog.log("Annotated root type: " + rootType + "\n");
+            SupportedTypesModel.getInstance().getSupportedType(rootType);
         }
 
         Filer filer = processingEnv.getFiler();
