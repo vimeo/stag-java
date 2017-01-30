@@ -63,7 +63,8 @@ import javax.lang.model.type.TypeMirror;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
 
-    public static final boolean DEBUG = false;
+    public static volatile boolean DEBUG = false;
+    private static final String OPTION_DEBUG = "stagDebug";
     private static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
     private boolean mHasBeenProcessed;
@@ -89,6 +90,11 @@ public final class StagProcessor extends AbstractProcessor {
         String packageName = processingEnv.getOptions().get(OPTION_PACKAGE_NAME);
         if (packageName == null || packageName.isEmpty()) {
             packageName = DEFAULT_GENERATED_PACKAGE_NAME;
+        }
+
+        String debugString = processingEnv.getOptions().get(OPTION_DEBUG);
+        if (debugString != null) {
+            DEBUG = Boolean.valueOf(debugString);
         }
 
         String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
