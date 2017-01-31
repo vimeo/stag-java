@@ -25,8 +25,8 @@ The Stag library solves this problem. It leverages annotations to automatically 
 from jCenter
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.0.0'
-    apt 'com.vimeo.stag:stag-library-compiler:2.0.0'
+    compile 'com.vimeo.stag:stag-library:2.0.1'
+    apt 'com.vimeo.stag:stag-library-compiler:2.0.1'
 }
 ```
 
@@ -70,12 +70,20 @@ buildscript {
 apply plugin: 'com.neenbedankt.android-apt'
 ```
 
-#### 3. Pass package name as an argument for the generated files (Optional)
-By default, the files will be in generated in `com.vimeo.sample.stag.generated` package. But, you can specify your own package for the generated files by passing it as an argument to the apt compiler.
+#### 3. Provide optional compiler arguments to Stag
+ - `stagGeneratedPackageName`: Pass package name as an argument for the generated files. By default, the files will be in generated
+ in `com.vimeo.sample.stag.generated` package. But, you can specify your own package for the generated files
+ by passing it as an argument to the apt compiler.
+ - `stagDebug`: Turn on debugging in Stag. This will cause Stag to spit out a lot of output into the gradle console.
+ This can aid you in figuring out what class is giving you trouble, if the exception gradle prints out
+ isn't sufficient.
+
 ```groovy
 apt {
     arguments {
         stagGeneratedPackageName "com.vimeo.sample.stag.generated"
+
+        stagDebug true
     }
 }
 ```
@@ -88,9 +96,9 @@ Stag supports class level annotation `@UseStag` which processes all the fields f
 
 `@UseStag` has three different variants:
 
- - `@UseStag(FieldOption.ALL)` : Will serialize/de-serialize all member variables which are not static or transient
- - `@UseStag(FieldOption.NONE)` : Will skip serialization and deserialization for all member variables. Only member variables inherited from annotated classes will be included.
- - `@UseStag(FieldOption.SERIALIZED_NAME)` : Will Serialize or Deserialize Fields only which are annotated with `SerializedName` or `GsonAdapterKey` (deprecated).
+ - `@UseStag(FieldOption.ALL)`: Will serialize/de-serialize all member variables which are not static or transient
+ - `@UseStag(FieldOption.NONE)`: Will skip serialization and deserialization for all member variables. Only member variables inherited from annotated classes will be included.
+ - `@UseStag(FieldOption.SERIALIZED_NAME)`: Will Serialize or Deserialize Fields only which are annotated with `SerializedName` or `GsonAdapterKey` (deprecated).
 
 #### 2. `@SerializedName("key")` Support
 
@@ -116,6 +124,8 @@ Last but not the least, Stag is almost in parity with GSON.
 7. You're done!
 
 <b>NOTE</b>: `@GsonAdapterKey` has been deprecated and will be removed in a future release. It is advisable to migrate to `@SerializedName` and `@UseStag` annotations.
+As of 2.0.0, `@GsonAdapterKey` is no longer supported at the class level, please use `@UseStag` with the appropriate `FieldOption` if you were using it at the class level.
+Other usage of `@GsonAdapterKey` is currently supported for backwards compatibility.
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 

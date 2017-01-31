@@ -46,7 +46,7 @@ platform :android do
   rescue => error
   end
 
-  if is_ci
+  if is_ci && ENV['DANGER_GITHUB_API_TOKEN']
     danger(use_bundle_exec: false)
   end
 
@@ -58,7 +58,7 @@ platform :android do
   rescue => error
   end
 
-  if is_ci
+  if is_ci && ENV['DANGER_GITHUB_API_TOKEN']
     danger(use_bundle_exec: false)
   end
 
