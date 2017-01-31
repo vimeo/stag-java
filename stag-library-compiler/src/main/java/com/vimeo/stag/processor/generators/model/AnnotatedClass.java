@@ -32,6 +32,7 @@ import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -68,10 +69,15 @@ public class AnnotatedClass {
         TypeMirror inheritedType = TypeUtils.getInheritedType(element);
 
         UseStag useStag = element.getAnnotation(UseStag.class);
-        FieldOption fieldOption = useStag == null ? FieldOption.ALL : useStag.value();
+
+        FieldOption fieldOption = useStag != null ? useStag.value() : null;
+        if (fieldOption == null) {
+            useStag = findParentUseStagAnnotation(element);
+            // TODO: Do not default to FieldOption.SERIALIZED_NAME, instead set to null and fail after removing @GsonAdapterKey 1/30/17 [AR]
+            fieldOption = useStag != null ? useStag.value() : FieldOption.SERIALIZED_NAME;
+        }
 
         mMemberVariables = new LinkedHashMap<>();
-
 
         if (inheritedType != null) {
             if (StagProcessor.DEBUG) {
@@ -95,6 +101,19 @@ public class AnnotatedClass {
             addToSupportedTypes(enclosedElement, fieldOption, variableNames);
         }
 
+    }
+
+    @Nullable
+    private static UseStag findParentUseStagAnnotation(@NotNull Element element) {
+        Element parent = element.getEnclosingElement();
+        if (parent == null) {
+            return null;
+        }
+        UseStag useStag = parent.getAnnotation(UseStag.class);
+        if (useStag != null) {
+            return useStag;
+        }
+        return findParentUseStagAnnotation(parent);
     }
 
     private void addMemberVariable(@NotNull Element element, @NotNull TypeMirror typeMirror,
