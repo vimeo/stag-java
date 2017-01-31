@@ -1,6 +1,7 @@
 package com.vimeo.sample;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
@@ -12,7 +13,7 @@ import static org.junit.Assert.assertNull;
 
 /**
  * Utils class for testing type adapter generation.
- *
+ * <p>
  * Created by restainoa on 1/30/17.
  */
 public final class Utils {
@@ -20,6 +21,7 @@ public final class Utils {
     private Utils() {
     }
 
+    @Nullable
     private static <T> TypeAdapter<T> getTypeAdapter(@NonNull Class<T> clazz) {
         Gson gson = new Gson();
         Stag.Factory factory = new Stag.Factory();
