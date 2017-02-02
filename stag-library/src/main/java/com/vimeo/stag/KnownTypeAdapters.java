@@ -63,7 +63,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * is used to read and write the values, and the ObjectConstructor tells the type of List to be instantiated. This will also support the scenario
  * where we have a nested list. In that case the valueTypeAdapter will be again a {@link ListTypeAdapter} with its value TypeAdapter
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
+@SuppressWarnings({"WeakerAccess"})
 public final class KnownTypeAdapters {
 
     private KnownTypeAdapters() {
@@ -855,7 +855,7 @@ public final class KnownTypeAdapters {
                 public JsonPrimitive read(JsonReader in) throws IOException {
                     JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
                     return jsonElement != null &&
-                           jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
+                            jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
                 }
             }.nullSafe();
 
