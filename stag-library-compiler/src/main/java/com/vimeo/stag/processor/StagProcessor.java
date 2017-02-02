@@ -111,9 +111,11 @@ public final class StagProcessor extends AbstractProcessor {
         // Pick up the classes annotated with @UseStag
         Set<? extends Element> useStagElements = roundEnv.getElementsAnnotatedWith(UseStag.class);
         for (Element useStagElement : useStagElements) {
-            TypeMirror rootType = useStagElement.asType();
-            DebugLog.log("Annotated type: " + rootType + "\n");
-            SupportedTypesModel.getInstance().getSupportedType(rootType);
+            if (ElementUtils.isClass(useStagElement)) {
+                TypeMirror rootType = useStagElement.asType();
+                DebugLog.log("Annotated type: " + rootType + "\n");
+                SupportedTypesModel.getInstance().getSupportedType(rootType);
+            }
         }
 
         // Pick up classes that contain @GsonAdapterKey annotations for backwards compatibility

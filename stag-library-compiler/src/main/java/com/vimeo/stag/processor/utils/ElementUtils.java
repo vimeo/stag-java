@@ -74,4 +74,8 @@ public final class ElementUtils {
     public static boolean isEnum(@Nullable Element element) {
         return element != null && element.getKind() == ElementKind.ENUM;
     }
+
+    public static boolean isClass(@Nullable Element element){
+        return element != null && element.getKind() == ElementKind.CLASS;
+    }
 }
