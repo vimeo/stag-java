@@ -40,8 +40,11 @@ import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -111,11 +114,7 @@ public final class StagProcessor extends AbstractProcessor {
         // Pick up the classes annotated with @UseStag
         Set<? extends Element> useStagElements = roundEnv.getElementsAnnotatedWith(UseStag.class);
         for (Element useStagElement : useStagElements) {
-            if (ElementUtils.isClass(useStagElement)) {
-                TypeMirror rootType = useStagElement.asType();
-                DebugLog.log("Annotated type: " + rootType + "\n");
-                SupportedTypesModel.getInstance().getSupportedType(rootType);
-            }
+            processSupportedElements(useStagElement);
         }
 
         // Pick up classes that contain @GsonAdapterKey annotations for backwards compatibility
@@ -173,5 +172,30 @@ public final class StagProcessor extends AbstractProcessor {
         DebugLog.log("\nSuccessfully processed @UseStag annotations\n");
 
         return true;
+    }
+
+    /**
+     * Adds all classes annotated with {@link UseStag}
+     * to the supported type model. It does this recursively
+     * for unsupported types. Supported types handle their
+     * own enclosed element adding. Unsupported types that
+     * could be annotated are @interface and interface. Enums
+     * and classes are supported.
+     *
+     * @param useStagElement the element to add to the
+     *                       supported type model.
+     */
+    private static void processSupportedElements(@NotNull Element useStagElement) {
+        if (ElementUtils.isSupportedElementKind(useStagElement)) {
+            TypeMirror rootType = useStagElement.asType();
+            DebugLog.log("Annotated type: " + rootType + "\n");
+            SupportedTypesModel.getInstance().getSupportedType(rootType);
+            // TODO: Should we switch to adding all elements here or continue to let AnnotatedClass.initNestedClasses do its thing 2/2/17 [AR]
+        } else {
+            List<? extends Element> enclosedElements = useStagElement.getEnclosedElements();
+            for (Element element : enclosedElements) {
+                processSupportedElements(element);
+            }
+        }
     }
 }

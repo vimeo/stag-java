@@ -16,8 +16,7 @@ public class SampleInterfaceTest {
 
     @Test
     public void typeAdapterWasGenerated_NestedClass() throws Exception {
-        // TODO: This use case is broken 2/2/17 [AR]
-//        Utils.verifyTypeAdapterGeneration(SampleInterface.NestedClass.class);
+        Utils.verifyTypeAdapterGeneration(SampleInterface.NestedClass.class);
     }
 
     @Test

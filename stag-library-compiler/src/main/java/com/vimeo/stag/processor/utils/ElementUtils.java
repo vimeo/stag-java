@@ -75,7 +75,15 @@ public final class ElementUtils {
         return element != null && element.getKind() == ElementKind.ENUM;
     }
 
-    public static boolean isClass(@Nullable Element element){
+    public static boolean isClass(@Nullable Element element) {
         return element != null && element.getKind() == ElementKind.CLASS;
+    }
+
+    public static boolean isSupportedElementKind(@Nullable Element element) {
+        if (element == null) {
+            return false;
+        }
+        ElementKind elementKind = element.getKind();
+        return elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM;
     }
 }

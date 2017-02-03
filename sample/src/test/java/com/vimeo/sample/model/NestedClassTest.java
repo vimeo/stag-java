@@ -30,5 +30,5 @@ public class NestedClassTest {
             throws Exception {
         Utils.verifyTypeAdapterGeneration(NestedWithoutAnnotation.class);
     }
-    
+
 }
