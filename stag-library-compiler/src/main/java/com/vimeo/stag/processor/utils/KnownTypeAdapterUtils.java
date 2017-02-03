@@ -31,6 +31,8 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
+import static com.vimeo.stag.processor.utils.TypeUtils.className;
+
 /**
  * This maintains a list of type vs the known type adapters.
  */
@@ -98,11 +100,6 @@ public final class KnownTypeAdapterUtils {
         SUPPORTED_MAP_INSTANTIATORS.put(HashMap.class.getName(), className(KnownTypeAdapters.HashMapInstantiator.class));
         SUPPORTED_MAP_INSTANTIATORS.put(LinkedHashMap.class.getName(), className(KnownTypeAdapters.LinkedHashMapInstantiator.class));
         SUPPORTED_MAP_INSTANTIATORS.put(ConcurrentHashMap.class.getName(), className(KnownTypeAdapters.ConcurrentHashMapInstantiator.class));
-    }
-
-    @NotNull
-    private static String className(@NotNull Class clazz) {
-        return clazz.getName().replace('$', '.');
     }
 
     @NotNull

@@ -34,6 +34,10 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter;
+import com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter;
+import com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter;
+import com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
@@ -150,7 +154,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                             getAdapterAccessor(valueTypeMirror, adapterBuilder, constructorBuilder,
                                                typeTokenConstantsGenerator, typeVarsMap, stagGenerator,
                                                adapterFieldInfo);
-                    result = "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter<" +
+                    result = "new " + TypeUtils.className(MapTypeAdapter.class) + "<" +
                              keyTypeMirror.toString() + "," + valueTypeMirror.toString() + "," +
                              fieldType.toString() + ">(" + keyAdapterAccessor + " ," + valueAdapterAccessor +
                              ", " + KnownTypeAdapterUtils.getMapInstantiator(fieldType) + ")";
@@ -163,7 +167,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                             getAdapterAccessor(valueTypeMirror, adapterBuilder, constructorBuilder,
                                                typeTokenConstantsGenerator, typeVarsMap, stagGenerator,
                                                adapterFieldInfo);
-                    result = "new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter<" +
+                    result = "new " + TypeUtils.className(ListTypeAdapter.class) + "<" +
                              valueTypeMirror.toString() + "," + fieldType.toString() + ">(" +
                              valueAdapterAccessor + ", " +
                              KnownTypeAdapterUtils.getListInstantiator(fieldType) + ")";
@@ -355,7 +359,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                                                adapterFieldInfo);
                     String nativeArrayInstantiator =
                             KnownTypeAdapterUtils.getNativeArrayInstantiator(arrayInnerType);
-                    String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter<" +
+                    String adapterCode = "new " + TypeUtils.className(ArrayTypeAdapter.class) + "<" +
                                          arrayInnerType.toString() + ">" +
                                          "(" + adapterAccessor + ", " + nativeArrayInstantiator + ")";
                     if (arrayType.getComponentType().getKind() != TypeKind.TYPEVAR &&
@@ -383,7 +387,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
                 String listInstantiator = KnownTypeAdapterUtils.getListInstantiator(fieldType);
                 String adapterCode =
-                        "new com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter<" + param.toString() + "," +
+                        "new " + TypeUtils.className(ListTypeAdapter.class) + "<" + param.toString() + "," +
                         fieldType.toString() + ">" +
                         "(" + paramAdapterAccessor + ", " + listInstantiator + ")";
                 if (declaredType.getKind() != TypeKind.TYPEVAR &&
@@ -418,12 +422,13 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     arguments = "<" + keyType.toString() + ", " + valueType.toString() + ", " +
                                 fieldType.toString() + ">";
                 } else {
-                    //If the map does not have any type arguments, use Object as type params in this case
-                    keyAdapterAccessor = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
-                    valueAdapterAccessor = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
+                    // If the map does not have any type arguments, use Object as type params in this case
+                    String objectTypeAdapter = TypeUtils.className(ObjectTypeAdapter.class);
+                    keyAdapterAccessor = "new " + objectTypeAdapter + "(mGson)";
+                    valueAdapterAccessor = "new " + objectTypeAdapter + "(mGson)";
                 }
 
-                String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter" + arguments +
+                String adapterCode = "new " + TypeUtils.className(MapTypeAdapter.class) + arguments +
                                      "(" + keyAdapterAccessor + ", " + valueAdapterAccessor + ", " +
                                      mapInstantiator + ")";
                 if (declaredType.getKind() != TypeKind.TYPEVAR &&
@@ -439,7 +444,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  * If the fieldType is Object, use ObjectTypeAdapter
                  */
                 sGsonVariableUsed = true;
-                String adapterCode = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
+                String adapterCode = "new " + TypeUtils.className(ObjectTypeAdapter.class) + "(mGson)";
                 String getterName = stagGenerator.addFieldForKnownType(fieldType,
                                                                        adapterCode.replaceAll("mStagFactory.",
                                                                                               "")

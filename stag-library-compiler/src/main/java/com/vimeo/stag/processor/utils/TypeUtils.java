@@ -23,10 +23,6 @@
  */
 package com.vimeo.stag.processor.utils;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,6 +61,21 @@ public final class TypeUtils {
     public static Types getUtils() {
         Preconditions.checkNotNull(sTypeUtils);
         return sTypeUtils;
+    }
+
+    /**
+     * Creates the full class name including package
+     * name for the given class. Anonymous classes
+     * and classes with the '$' character in their names
+     * are not supported.
+     *
+     * @param clazz the class to get the name of.
+     * @return the class's name, without any dollar
+     * signs for inner classes and with periods instead.
+     */
+    @NotNull
+    public static String className(@NotNull Class clazz) {
+        return clazz.getName().replace('$', '.');
     }
 
     /**
@@ -340,7 +351,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), declaredType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                            " resolved to - " + declaredType.toString());
+                                      " resolved to - " + declaredType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -348,7 +359,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                            " resolved to - " + concreteType.toString());
+                                      " resolved to - " + concreteType.toString());
                 }
             }
         }
@@ -404,9 +415,9 @@ public final class TypeUtils {
      */
     public static boolean isSupportedPrimitive(@NotNull String type) {
         return type.equals(long.class.getName()) || type.equals(double.class.getName()) ||
-                type.equals(boolean.class.getName()) || type.equals(float.class.getName()) ||
-                type.equals(int.class.getName()) || type.equals(char.class.getName()) ||
-                type.equals(short.class.getName()) || type.equals(byte.class.getName());
+               type.equals(boolean.class.getName()) || type.equals(float.class.getName()) ||
+               type.equals(int.class.getName()) || type.equals(char.class.getName()) ||
+               type.equals(short.class.getName()) || type.equals(byte.class.getName());
     }
 
     /**
@@ -441,8 +452,8 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-                outerClassType.equals(List.class.getName()) ||
-                outerClassType.equals(Collection.class.getName());
+               outerClassType.equals(List.class.getName()) ||
+               outerClassType.equals(Collection.class.getName());
     }
 
     /**
@@ -471,11 +482,11 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(Map.class.getName()) ||
-                outerClassType.equals(HashMap.class.getName()) ||
-                outerClassType.equals(ConcurrentHashMap.class.getName()) ||
-                outerClassType.equals("android.util.ArrayMap") ||
-                outerClassType.equals("android.support.v4.util.ArrayMap") ||
-                outerClassType.equals(LinkedHashMap.class.getName());
+               outerClassType.equals(HashMap.class.getName()) ||
+               outerClassType.equals(ConcurrentHashMap.class.getName()) ||
+               outerClassType.equals("android.util.ArrayMap") ||
+               outerClassType.equals("android.support.v4.util.ArrayMap") ||
+               outerClassType.equals(LinkedHashMap.class.getName());
     }
 
     /**
@@ -486,9 +497,9 @@ public final class TypeUtils {
      */
     public static boolean isSupportedNative(@NotNull String type) {
         return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
-                type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
-                type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
-                type.equals(Float.class.getName()) || type.equals(Number.class.getName());
+               type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
+               type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
+               type.equals(Float.class.getName()) || type.equals(Number.class.getName());
     }
 
     /**
