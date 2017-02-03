@@ -40,13 +40,13 @@ public final class KnownTypeAdapterUtils {
     private static final HashMap<String, String> KNOWN_TYPE_ADAPTERS = new HashMap<>();
 
     @NotNull
-    private static final HashMap<String, String> SUPPORTED_COLLECTION_INFO = new HashMap<>();
+    private static final HashMap<String, String> SUPPORTED_COLLECTION_INSTANTIATORS = new HashMap<>();
 
     @NotNull
-    private static final HashMap<String, String> SUPPORTED_MAP_INFO = new HashMap<>();
+    private static final HashMap<String, String> SUPPORTED_MAP_INSTANTIATORS = new HashMap<>();
 
     @NotNull
-    private static final HashMap<String, String> SUPPORTED_PRIMITIVE_ARRAY = new HashMap<>();
+    private static final HashMap<String, String> KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS = new HashMap<>();
 
     static {
         KNOWN_TYPE_ADAPTERS.put(BitSet.class.getName(), typeAdapters(TypeAdapters.BIT_SET));
@@ -81,23 +81,23 @@ public final class KnownTypeAdapterUtils {
         KNOWN_TYPE_ADAPTERS.put(JsonPrimitive.class.getName(), knownTypeAdapters(KnownTypeAdapters.JSON_PRIMITIVE));
         KNOWN_TYPE_ADAPTERS.put(JsonNull.class.getName(), knownTypeAdapters(KnownTypeAdapters.JSON_NULL));
 
-        SUPPORTED_COLLECTION_INFO.put(ArrayList.class.getName(), className(KnownTypeAdapters.ArrayListInstantiator.class));
-        SUPPORTED_COLLECTION_INFO.put(List.class.getName(), className(KnownTypeAdapters.ListInstantiator.class));
-        SUPPORTED_COLLECTION_INFO.put(Collection.class.getName(), className(KnownTypeAdapters.CollectionInstantiator.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(int[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveIntegerArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(long[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveLongArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(double[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveDoubleArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(short[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveShortArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(char[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveCharArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(float[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveFloatArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(boolean[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveBooleanArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(byte[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveByteArrayAdapter.class));
 
-        SUPPORTED_MAP_INFO.put(Map.class.getName(), className(KnownTypeAdapters.MapInstantiator.class));
-        SUPPORTED_MAP_INFO.put(HashMap.class.getName(), className(KnownTypeAdapters.HashMapInstantiator.class));
-        SUPPORTED_MAP_INFO.put(LinkedHashMap.class.getName(), className(KnownTypeAdapters.LinkedHashMapInstantiator.class));
-        SUPPORTED_MAP_INFO.put(ConcurrentHashMap.class.getName(), className(KnownTypeAdapters.ConcurrentHashMapInstantiator.class));
+        SUPPORTED_COLLECTION_INSTANTIATORS.put(ArrayList.class.getName(), className(KnownTypeAdapters.ArrayListInstantiator.class));
+        SUPPORTED_COLLECTION_INSTANTIATORS.put(List.class.getName(), className(KnownTypeAdapters.ListInstantiator.class));
+        SUPPORTED_COLLECTION_INSTANTIATORS.put(Collection.class.getName(), className(KnownTypeAdapters.CollectionInstantiator.class));
 
-        SUPPORTED_PRIMITIVE_ARRAY.put(int[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveIntegerArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(long[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveLongArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(double[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveDoubleArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(short[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveShortArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(char[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveCharArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(float[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveFloatArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(boolean[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveBooleanArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(byte[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveByteArrayAdapter.class));
+        SUPPORTED_MAP_INSTANTIATORS.put(Map.class.getName(), className(KnownTypeAdapters.MapInstantiator.class));
+        SUPPORTED_MAP_INSTANTIATORS.put(HashMap.class.getName(), className(KnownTypeAdapters.HashMapInstantiator.class));
+        SUPPORTED_MAP_INSTANTIATORS.put(LinkedHashMap.class.getName(), className(KnownTypeAdapters.LinkedHashMapInstantiator.class));
+        SUPPORTED_MAP_INSTANTIATORS.put(ConcurrentHashMap.class.getName(), className(KnownTypeAdapters.ConcurrentHashMapInstantiator.class));
     }
 
     @NotNull
@@ -153,7 +153,7 @@ public final class KnownTypeAdapterUtils {
                                !declaredType.getTypeArguments().isEmpty() ? declaredType.getTypeArguments()
                 .get(0) : null;
         String postFix = valueType != null ? "<" + valueType.toString() + ">()" : "()";
-        return "new " + SUPPORTED_COLLECTION_INFO.get(outerClassType) + postFix;
+        return "new " + SUPPORTED_COLLECTION_INSTANTIATORS.get(outerClassType) + postFix;
     }
 
     /**
@@ -175,7 +175,7 @@ public final class KnownTypeAdapterUtils {
         String postFix = keyType != null && paramType != null ?
                 "<" + keyType.toString() + ", " + paramType.toString() + ">()" : "()";
 
-        String instantiator = SUPPORTED_MAP_INFO.get(outerClassType);
+        String instantiator = SUPPORTED_MAP_INSTANTIATORS.get(outerClassType);
 
         if (instantiator != null) {
             return "new " + instantiator + postFix;
@@ -217,6 +217,6 @@ public final class KnownTypeAdapterUtils {
     @Nullable
     public static String getNativePrimitiveArrayTypeAdapter(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
-        return SUPPORTED_PRIMITIVE_ARRAY.get(outerClassType);
+        return KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.get(outerClassType);
     }
 }
