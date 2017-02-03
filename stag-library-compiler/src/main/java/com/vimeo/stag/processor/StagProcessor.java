@@ -61,16 +61,15 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-
 @AutoService(Processor.class)
 @SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag", "com.vimeo.stag.GsonAdapterKey"})
-@SupportedOptions(value = {"stagGeneratedPackageName"})
+@SupportedOptions(value = {StagProcessor.OPTION_PACKAGE_NAME, StagProcessor.OPTION_DEBUG})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
 
-    public static volatile boolean DEBUG = false;
-    private static final String OPTION_DEBUG = "stagDebug";
-    private static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
+    public static volatile boolean DEBUG;
+    static final String OPTION_DEBUG = "stagDebug";
+    static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
     private boolean mHasBeenProcessed;
 
