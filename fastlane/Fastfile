@@ -38,7 +38,7 @@ platform :android do
   junit_report_path = "stag-library*/build/test-results/*.xml"
   begin
     gradle(
-      task: "stag-library:test stag-library-compiler:test sample:build"
+      task: "stag-library:test stag-library-compiler:test sample:test sample-model:test sample:build"
     )
   rescue => error
   begin
