@@ -36,7 +36,7 @@ platform :android do
 
   # run the tests, but dont puke everywhere until the report is printed.
   junit_report_path = "stag-library*/build/test-results/*.xml"
-  junit_report_path1 = "sample*/build/test-results/*.xml"
+  junit_report_path1 = "sample*/build/test-results/debug/*.xml"
   begin
     gradle(
       task: "stag-library:test stag-library-compiler:test sample:test sample-model:test sample:build"
