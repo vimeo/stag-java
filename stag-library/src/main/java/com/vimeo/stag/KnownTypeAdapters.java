@@ -814,61 +814,61 @@ public final class KnownTypeAdapters {
         }
     }
 
-    public static final TypeAdapter<JsonElement> JSON_ELEMENT_TYPE_ADAPTER =
+    public static final TypeAdapter<JsonElement> JSON_ELEMENT =
             com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT.nullSafe();
 
-    public static final TypeAdapter<JsonObject> JSON_OBJECT_TYPE_ADAPTER = new TypeAdapter<JsonObject>() {
+    public static final TypeAdapter<JsonObject> JSON_OBJECT = new TypeAdapter<JsonObject>() {
         @Override
         public void write(JsonWriter out, JsonObject value) throws IOException {
-            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
+            JSON_ELEMENT.write(out, value);
         }
 
         @Override
         public JsonObject read(JsonReader in) throws IOException {
-            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+            JsonElement jsonElement = JSON_ELEMENT.read(in);
             return jsonElement != null && jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : null;
         }
     }.nullSafe();
 
-    public static final TypeAdapter<JsonArray> JSON_ARRAY_TYPE_ADAPTER = new TypeAdapter<JsonArray>() {
+    public static final TypeAdapter<JsonArray> JSON_ARRAY = new TypeAdapter<JsonArray>() {
         @Override
         public void write(JsonWriter out, JsonArray value) throws IOException {
-            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
+            JSON_ELEMENT.write(out, value);
         }
 
         @Override
         public JsonArray read(JsonReader in) throws IOException {
-            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+            JsonElement jsonElement = JSON_ELEMENT.read(in);
             return jsonElement != null && jsonElement.isJsonArray() ? jsonElement.getAsJsonArray() : null;
         }
     }.nullSafe();
 
-    public static final TypeAdapter<JsonPrimitive> JSON_PRIMITIVE_TYPE_ADAPTER =
+    public static final TypeAdapter<JsonPrimitive> JSON_PRIMITIVE =
             new TypeAdapter<JsonPrimitive>() {
 
                 @Override
                 public void write(JsonWriter out, JsonPrimitive value) throws IOException {
-                    JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
+                    JSON_ELEMENT.write(out, value);
                 }
 
                 @Override
                 public JsonPrimitive read(JsonReader in) throws IOException {
-                    JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+                    JsonElement jsonElement = JSON_ELEMENT.read(in);
                     return jsonElement != null &&
                             jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
                 }
             }.nullSafe();
 
-    public static final TypeAdapter<JsonNull> JSON_NULL_TYPE_ADAPTER = new TypeAdapter<JsonNull>() {
+    public static final TypeAdapter<JsonNull> JSON_NULL = new TypeAdapter<JsonNull>() {
 
         @Override
         public void write(JsonWriter out, JsonNull value) throws IOException {
-            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
+            JSON_ELEMENT.write(out, value);
         }
 
         @Override
         public JsonNull read(JsonReader in) throws IOException {
-            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+            JsonElement jsonElement = JSON_ELEMENT.read(in);
             return jsonElement != null && jsonElement.isJsonNull() ? jsonElement.getAsJsonNull() : null;
         }
     }.nullSafe();
