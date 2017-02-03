@@ -81,27 +81,27 @@ public final class KnownTypeAdapterUtils {
         KNOWN_TYPE_ADAPTERS.put(JsonPrimitive.class.getName(), knownTypeAdapters(KnownTypeAdapters.JSON_PRIMITIVE_TYPE_ADAPTER));
         KNOWN_TYPE_ADAPTERS.put(JsonNull.class.getName(), knownTypeAdapters(KnownTypeAdapters.JSON_NULL_TYPE_ADAPTER));
 
-        SUPPORTED_COLLECTION_INFO.put(ArrayList.class.getName(), sanitizeClassName(KnownTypeAdapters.ArrayListInstantiator.class));
-        SUPPORTED_COLLECTION_INFO.put(List.class.getName(), sanitizeClassName(KnownTypeAdapters.ListInstantiator.class));
-        SUPPORTED_COLLECTION_INFO.put(Collection.class.getName(), sanitizeClassName(KnownTypeAdapters.CollectionInstantiator.class));
+        SUPPORTED_COLLECTION_INFO.put(ArrayList.class.getName(), className(KnownTypeAdapters.ArrayListInstantiator.class));
+        SUPPORTED_COLLECTION_INFO.put(List.class.getName(), className(KnownTypeAdapters.ListInstantiator.class));
+        SUPPORTED_COLLECTION_INFO.put(Collection.class.getName(), className(KnownTypeAdapters.CollectionInstantiator.class));
 
-        SUPPORTED_MAP_INFO.put(Map.class.getName(), sanitizeClassName(KnownTypeAdapters.MapInstantiator.class));
-        SUPPORTED_MAP_INFO.put(HashMap.class.getName(), sanitizeClassName(KnownTypeAdapters.HashMapInstantiator.class));
-        SUPPORTED_MAP_INFO.put(LinkedHashMap.class.getName(), sanitizeClassName(KnownTypeAdapters.LinkedHashMapInstantiator.class));
-        SUPPORTED_MAP_INFO.put(ConcurrentHashMap.class.getName(), sanitizeClassName(KnownTypeAdapters.ConcurrentHashMapInstantiator.class));
+        SUPPORTED_MAP_INFO.put(Map.class.getName(), className(KnownTypeAdapters.MapInstantiator.class));
+        SUPPORTED_MAP_INFO.put(HashMap.class.getName(), className(KnownTypeAdapters.HashMapInstantiator.class));
+        SUPPORTED_MAP_INFO.put(LinkedHashMap.class.getName(), className(KnownTypeAdapters.LinkedHashMapInstantiator.class));
+        SUPPORTED_MAP_INFO.put(ConcurrentHashMap.class.getName(), className(KnownTypeAdapters.ConcurrentHashMapInstantiator.class));
 
-        SUPPORTED_PRIMITIVE_ARRAY.put(int[].class.getSimpleName(), sanitizeClassName(KnownTypeAdapters.PrimitiveIntegerArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(long[].class.getSimpleName(), sanitizeClassName(KnownTypeAdapters.PrimitiveLongArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(double[].class.getSimpleName(), sanitizeClassName(KnownTypeAdapters.PrimitiveDoubleArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(short[].class.getSimpleName(), sanitizeClassName(KnownTypeAdapters.PrimitiveShortArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(char[].class.getSimpleName(), sanitizeClassName(KnownTypeAdapters.PrimitiveCharArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(float[].class.getSimpleName(), sanitizeClassName(KnownTypeAdapters.PrimitiveFloatArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(boolean[].class.getSimpleName(), sanitizeClassName(KnownTypeAdapters.PrimitiveBooleanArrayAdapter.class));
-        SUPPORTED_PRIMITIVE_ARRAY.put(byte[].class.getSimpleName(), sanitizeClassName(KnownTypeAdapters.PrimitiveByteArrayAdapter.class));
+        SUPPORTED_PRIMITIVE_ARRAY.put(int[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveIntegerArrayAdapter.class));
+        SUPPORTED_PRIMITIVE_ARRAY.put(long[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveLongArrayAdapter.class));
+        SUPPORTED_PRIMITIVE_ARRAY.put(double[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveDoubleArrayAdapter.class));
+        SUPPORTED_PRIMITIVE_ARRAY.put(short[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveShortArrayAdapter.class));
+        SUPPORTED_PRIMITIVE_ARRAY.put(char[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveCharArrayAdapter.class));
+        SUPPORTED_PRIMITIVE_ARRAY.put(float[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveFloatArrayAdapter.class));
+        SUPPORTED_PRIMITIVE_ARRAY.put(boolean[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveBooleanArrayAdapter.class));
+        SUPPORTED_PRIMITIVE_ARRAY.put(byte[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveByteArrayAdapter.class));
     }
 
     @NotNull
-    private static String sanitizeClassName(@NotNull Class clazz) {
+    private static String className(@NotNull Class clazz) {
         return clazz.getName().replace('$', '.');
     }
 
@@ -182,13 +182,13 @@ public final class KnownTypeAdapterUtils {
         } else {
             String params = keyType != null && paramType != null ?
                     "<" + keyType.toString() + ", " + paramType.toString() + ">" : "";
-            return "new " + sanitizeClassName(com.google.gson.internal.ObjectConstructor.class) + "<" + outerClassType + params + ">() " +
-                    "{ " +
-                    "\n@Override " +
-                    "\npublic " + outerClassType + params + " construct() {" +
-                    "\n\treturn new " + outerClassType + params + "();" +
-                    "\n}" +
-                    "}";
+            return "new " + className(com.google.gson.internal.ObjectConstructor.class) + "<" + outerClassType + params + ">() " +
+                   "{ " +
+                   "\n@Override " +
+                   "\npublic " + outerClassType + params + " construct() {" +
+                   "\n\treturn new " + outerClassType + params + "();" +
+                   "\n}" +
+                   "}";
         }
     }
 
