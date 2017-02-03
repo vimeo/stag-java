@@ -22,7 +22,7 @@ public class NestedClass {
          * This class should have a TypeAdapter created
          * for it with FieldOption.SERIALIZED_NAME
          */
-        public static class NestedNestedWithoutAnnotation {
+        public static class NestedWithoutAnnotation {
 
             // won't be picked up by stag because it inherits the parent annotation
             protected String field;
