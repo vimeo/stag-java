@@ -150,7 +150,7 @@ public final class KnownTypeAdapterUtils {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
         DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType) typeMirror : null;
         TypeMirror valueType = declaredType != null && declaredType.getTypeArguments() != null &&
-                !declaredType.getTypeArguments().isEmpty() ? declaredType.getTypeArguments()
+                               !declaredType.getTypeArguments().isEmpty() ? declaredType.getTypeArguments()
                 .get(0) : null;
         String postFix = valueType != null ? "<" + valueType.toString() + ">()" : "()";
         return "new " + SUPPORTED_COLLECTION_INFO.get(outerClassType) + postFix;
@@ -167,10 +167,10 @@ public final class KnownTypeAdapterUtils {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
         DeclaredType declaredType = typeMirror instanceof DeclaredType ? (DeclaredType) typeMirror : null;
         TypeMirror keyType = declaredType != null && declaredType.getTypeArguments() != null &&
-                declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments()
+                             declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments()
                 .get(0) : null;
         TypeMirror paramType = declaredType != null && declaredType.getTypeArguments() != null &&
-                declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments()
+                               declaredType.getTypeArguments().size() == 2 ? declaredType.getTypeArguments()
                 .get(1) : null;
         String postFix = keyType != null && paramType != null ?
                 "<" + keyType.toString() + ", " + paramType.toString() + ">()" : "()";
@@ -182,7 +182,8 @@ public final class KnownTypeAdapterUtils {
         } else {
             String params = keyType != null && paramType != null ?
                     "<" + keyType.toString() + ", " + paramType.toString() + ">" : "";
-            return "new " + className(com.google.gson.internal.ObjectConstructor.class) + "<" + outerClassType + params + ">() " +
+            return "new " + className(com.google.gson.internal.ObjectConstructor.class) + "<" +
+                   outerClassType + params + ">() " +
                    "{ " +
                    "\n@Override " +
                    "\npublic " + outerClassType + params + " construct() {" +
@@ -201,9 +202,10 @@ public final class KnownTypeAdapterUtils {
     @Nullable
     public static String getNativeArrayInstantiator(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
-        return "new com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor<" + outerClassType +
-                ">(){ @Override public " + outerClassType + "[] construct(int size){ return new " +
-                outerClassType + "[size]; } }";
+        return "new " + className(com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor.class) + "<" +
+               outerClassType +
+               ">(){ @Override public " + outerClassType + "[] construct(int size){ return new " +
+               outerClassType + "[size]; } }";
     }
 
     /**
