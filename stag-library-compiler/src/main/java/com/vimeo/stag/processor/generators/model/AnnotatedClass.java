@@ -29,6 +29,7 @@ import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
 import com.vimeo.stag.processor.StagProcessor;
 import com.vimeo.stag.processor.utils.DebugLog;
+import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +43,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -133,7 +135,9 @@ public class AnnotatedClass {
     void initNestedClasses() {
         if (null != mNestedElements) {
             for (Element element : mNestedElements) {
-                SupportedTypesModel.getInstance().getSupportedType(element.asType());
+                if (ElementUtils.isClass(element)) {
+                    SupportedTypesModel.getInstance().getSupportedType(element.asType());
+                }
             }
         }
     }
