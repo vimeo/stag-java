@@ -119,13 +119,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
      * This is used to generate the type token code for the types that are known.
      */
     @Nullable
-    private static String getTypeAdapterCode(@NotNull TypeMirror fieldType,
-                                             @NotNull TypeSpec.Builder adapterBuilder,
-                                             @NotNull MethodSpec.Builder constructorBuilder,
-                                             @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                             @NotNull Map<TypeVariable, String> typeVarsMap,
-                                             @NotNull StagGenerator stagGenerator,
-                                             @NotNull AdapterFieldInfo adapterFieldInfo) {
+    private String getTypeAdapterCode(@NotNull TypeMirror fieldType, @NotNull TypeSpec.Builder adapterBuilder,
+                                      @NotNull MethodSpec.Builder constructorBuilder,
+                                      @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+                                      @NotNull Map<TypeVariable, String> typeVarsMap,
+                                      @NotNull StagGenerator stagGenerator,
+                                      @NotNull AdapterFieldInfo adapterFieldInfo) {
         String result = null;
         if (!TypeUtils.isConcreteType(fieldType)) {
             if (fieldType.getKind() == TypeKind.TYPEVAR) {
@@ -187,14 +186,19 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
                     String adapterCode;
                     if (null != externalAdapterInfo) {
-                        //if the field type is an external model
+                        // If the field type is an external model
                         adapterCode = externalAdapterInfo.getInitializer("gson", typeAdapterCode);
                     } else {
                         ClassInfo classInfo = new ClassInfo(outerClass);
-                        int idx1 = fieldType.toString().indexOf("<");
-                        String argument = idx1 > 0 ? fieldType.toString().substring(idx1) : "";
-                        adapterCode = "new " + classInfo.getTypeAdapterQualifiedClassName() + argument +
-                                      "(gson, stagFactory" + typeAdapterCode + ")";
+                        if (classInfo.equals(mInfo)) {
+                            // In this case the adapter will be the same as the one we are generating
+                            adapterCode = "this";
+                        } else {
+                            int idx1 = fieldType.toString().indexOf("<");
+                            String argument = idx1 > 0 ? fieldType.toString().substring(idx1) : "";
+                            adapterCode = "new " + classInfo.getTypeAdapterQualifiedClassName() + argument +
+                                          "(gson, stagFactory" + typeAdapterCode + ")";
+                        }
                     }
                     return adapterCode;
                 }
@@ -313,13 +317,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     /**
      * Returns the adapter code for the known types.
      */
-    private static String getAdapterAccessor(@NotNull TypeMirror fieldType,
-                                             @NotNull TypeSpec.Builder adapterBuilder,
-                                             @NotNull MethodSpec.Builder constructorBuilder,
-                                             @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                             @NotNull Map<TypeVariable, String> typeVarsMap,
-                                             @NotNull StagGenerator stagGenerator,
-                                             @NotNull AdapterFieldInfo adapterFieldInfo) {
+    private String getAdapterAccessor(@NotNull TypeMirror fieldType, @NotNull TypeSpec.Builder adapterBuilder,
+                                      @NotNull MethodSpec.Builder constructorBuilder,
+                                      @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+                                      @NotNull Map<TypeVariable, String> typeVarsMap,
+                                      @NotNull StagGenerator stagGenerator,
+                                      @NotNull AdapterFieldInfo adapterFieldInfo) {
 
         String knownTypeAdapter = KnownTypeAdapterUtils.getKnownTypeAdapterForType(fieldType);
 
@@ -582,12 +585,13 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @NotNull
-    private static AdapterFieldInfo addAdapterFields(
-            @Nullable StagGenerator.GenericClassInfo genericClassInfo,
-            @NotNull TypeSpec.Builder adapterBuilder, @NotNull MethodSpec.Builder constructorBuilder,
-            @NotNull Map<Element, TypeMirror> memberVariables,
-            @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-            @NotNull Map<TypeVariable, String> typeVarsMap, @NotNull StagGenerator stagGenerator) {
+    private AdapterFieldInfo addAdapterFields(@Nullable StagGenerator.GenericClassInfo genericClassInfo,
+                                              @NotNull TypeSpec.Builder adapterBuilder,
+                                              @NotNull MethodSpec.Builder constructorBuilder,
+                                              @NotNull Map<Element, TypeMirror> memberVariables, @NotNull
+                                                      TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+                                              @NotNull Map<TypeVariable, String> typeVarsMap,
+                                              @NotNull StagGenerator stagGenerator) {
 
         HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
         AdapterFieldInfo result = new AdapterFieldInfo(typeSet.size());

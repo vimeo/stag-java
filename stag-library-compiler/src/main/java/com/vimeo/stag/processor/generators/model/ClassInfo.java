@@ -34,7 +34,7 @@ import java.util.List;
 
 import javax.lang.model.type.TypeMirror;
 
-public class ClassInfo {
+public final class ClassInfo {
 
     @NotNull
     private final String mClassName;
@@ -125,5 +125,30 @@ public class ClassInfo {
     @Nullable
     public List<? extends TypeMirror> getTypeArguments() {
         return TypeUtils.getTypeArguments(mType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ClassInfo classInfo = (ClassInfo) o;
+
+        return mClassName.equals(classInfo.mClassName) && mPackageName.equals(classInfo.mPackageName) &&
+               mTypeName.equals(classInfo.mTypeName) && mType.equals(classInfo.mType);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mClassName.hashCode();
+        result = 31 * result + mPackageName.hashCode();
+        result = 31 * result + mTypeName.hashCode();
+        result = 31 * result + mType.hashCode();
+        return result;
     }
 }
