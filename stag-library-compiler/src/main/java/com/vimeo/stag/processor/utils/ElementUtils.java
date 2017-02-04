@@ -79,6 +79,13 @@ public final class ElementUtils {
         return element != null && element.getKind() == ElementKind.CLASS;
     }
 
+    /**
+     * Determines if an element is a supported type.
+     *
+     * @param element the element to check.
+     * @return true if the element is supported
+     * (class or enum), false otherwise.
+     */
     public static boolean isSupportedElementKind(@Nullable Element element) {
         if (element == null) {
             return false;

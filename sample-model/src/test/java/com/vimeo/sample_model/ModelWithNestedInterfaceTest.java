@@ -1,0 +1,27 @@
+package com.vimeo.sample_model;
+
+import org.junit.Test;
+
+/**
+ * Created by restainoa on 2/3/17.
+ */
+public class ModelWithNestedInterfaceTest {
+
+    @Test
+    public void typeAdapterWasGenerated_ModelWithNestedInterface() throws Exception {
+        Utils.verifyTypeAdapterGeneration(ModelWithNestedInterface.class);
+    }
+
+    @Test
+    public void typeAdapterWasNotGenerated_ModelWithNestedInterface_NestedInterface() throws Exception {
+        Utils.verifyNoTypeAdapterGeneration(ModelWithNestedInterface.NestedInterface.class);
+    }
+
+    @Test
+    public void typeAdapterWasGenerated_ModelWithNestedInterface_NestedInterface_NestedModel()
+            throws Exception {
+        // TODO: The use case where classes are nested inside unsupported types is currently broken 2/3/17 [AR]
+//        Utils.verifyTypeAdapterGeneration(ModelWithNestedInterface.NestedInterface.NestedModel.class);
+    }
+
+}
