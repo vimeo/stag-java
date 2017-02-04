@@ -27,7 +27,6 @@ import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
-import com.vimeo.stag.processor.StagProcessor;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
@@ -75,10 +74,7 @@ public class AnnotatedClass {
         mMemberVariables = new LinkedHashMap<>();
 
         if (inheritedType != null) {
-            if (StagProcessor.DEBUG) {
-                DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
-            }
-
+            DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
 
             AnnotatedClass genericInheritedType =
                     SupportedTypesModel.getInstance().getSupportedType(inheritedType);
@@ -116,10 +112,8 @@ public class AnnotatedClass {
         Element previousElement = variableNames.put(element.getSimpleName().toString(), element);
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
-            if (StagProcessor.DEBUG) {
-                DebugLog.log(TAG, "\t\tIgnoring inherited Member variable with the same variable name - " +
-                                  previousElement.asType().toString());
-            }
+            DebugLog.log(TAG, "\t\tIgnoring inherited Member variable with the same variable name - " +
+                              previousElement.asType().toString());
         }
         mMemberVariables.put(element, typeMirror);
     }
@@ -152,9 +146,7 @@ public class AnnotatedClass {
                     if (!TypeUtils.isAbstract(element)) {
                         SupportedTypesModel.getInstance().checkAndAddExternalAdapter(variableElement);
                     }
-                    if (StagProcessor.DEBUG) {
-                        DebugLog.log(TAG, "\t\tMember variables - " + variableElement.asType().toString());
-                    }
+                    DebugLog.log(TAG, "\t\tMember variables - " + variableElement.asType().toString());
 
                     addMemberVariable(variableElement, variableElement.asType(), variableNames);
                 }
