@@ -1,5 +1,6 @@
-package com.vimeo.sample;
+package com.vimeo.sample.model;
 
+import com.vimeo.sample.Utils;
 import com.vimeo.sample.model.OuterClassWithInnerModel;
 
 import org.junit.Test;

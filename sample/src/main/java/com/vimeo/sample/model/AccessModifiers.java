@@ -40,6 +40,7 @@ public class AccessModifiers {
     String defaultModifier;
 
     // Do not include static non-final fields in the TypeAdapter
+    @SuppressWarnings("FieldMayBeFinal")
     private static String STATIC_STRING = "static_string";
 
     // Do not include static final fields in the TypeAdapter

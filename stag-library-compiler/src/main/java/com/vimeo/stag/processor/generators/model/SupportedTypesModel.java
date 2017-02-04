@@ -90,9 +90,9 @@ public final class SupportedTypesModel {
         AnnotatedClass model = mSupportedTypesMap.get(TypeUtils.getOuterClassType(type));
 
         if (model == null) {
+            // TODO: Refactor so that getSupportedType doesn't modify internal state 2/3/17 [AR]
             model = new AnnotatedClass(TypeUtils.getUtils().asElement(type));
             addSupportedType(model);
-            model.initNestedClasses();
         }
         return model;
     }

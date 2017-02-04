@@ -40,8 +40,11 @@ import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -58,16 +61,15 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
-
 @AutoService(Processor.class)
 @SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag", "com.vimeo.stag.GsonAdapterKey"})
-@SupportedOptions(value = {"stagGeneratedPackageName"})
+@SupportedOptions(value = {StagProcessor.OPTION_PACKAGE_NAME, StagProcessor.OPTION_DEBUG})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
 
-    public static volatile boolean DEBUG = false;
-    private static final String OPTION_DEBUG = "stagDebug";
-    private static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
+    public static volatile boolean DEBUG;
+    static final String OPTION_DEBUG = "stagDebug";
+    static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
     private boolean mHasBeenProcessed;
 
@@ -111,11 +113,7 @@ public final class StagProcessor extends AbstractProcessor {
         // Pick up the classes annotated with @UseStag
         Set<? extends Element> useStagElements = roundEnv.getElementsAnnotatedWith(UseStag.class);
         for (Element useStagElement : useStagElements) {
-            if (ElementUtils.isClass(useStagElement)) {
-                TypeMirror rootType = useStagElement.asType();
-                DebugLog.log("Annotated type: " + rootType + "\n");
-                SupportedTypesModel.getInstance().getSupportedType(rootType);
-            }
+            processSupportedElements(useStagElement);
         }
 
         // Pick up classes that contain @GsonAdapterKey annotations for backwards compatibility
@@ -173,5 +171,29 @@ public final class StagProcessor extends AbstractProcessor {
         DebugLog.log("\nSuccessfully processed @UseStag annotations\n");
 
         return true;
+    }
+
+    /**
+     * Adds all classes annotated with {@link UseStag}
+     * to the supported type model. It does this recursively
+     * for unsupported types. Supported types handle their
+     * own enclosed element adding. Unsupported types that
+     * could be annotated are @interface and interface. Enums
+     * and classes are supported.
+     *
+     * @param useStagElement the element to add to the
+     *                       supported type model.
+     */
+    private static void processSupportedElements(@NotNull Element useStagElement) {
+        if (ElementUtils.isSupportedElementKind(useStagElement)) {
+            TypeMirror rootType = useStagElement.asType();
+            DebugLog.log("Annotated type: " + rootType + "\n");
+            SupportedTypesModel.getInstance().getSupportedType(rootType);
+        }
+
+        List<? extends Element> enclosedElements = useStagElement.getEnclosedElements();
+        for (Element element : enclosedElements) {
+            processSupportedElements(element);
+        }
     }
 }

@@ -27,25 +27,19 @@ import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
-import com.vimeo.stag.processor.StagProcessor;
 import com.vimeo.stag.processor.utils.DebugLog;
-import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -61,8 +55,6 @@ public class AnnotatedClass {
 
     @NotNull
     private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
-
-    private List<Element> mNestedElements;
 
     AnnotatedClass(@NotNull Element element) {
         mType = element.asType();
@@ -82,10 +74,7 @@ public class AnnotatedClass {
         mMemberVariables = new LinkedHashMap<>();
 
         if (inheritedType != null) {
-            if (StagProcessor.DEBUG) {
-                DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
-            }
-
+            DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
 
             AnnotatedClass genericInheritedType =
                     SupportedTypesModel.getInstance().getSupportedType(inheritedType);
@@ -123,23 +112,10 @@ public class AnnotatedClass {
         Element previousElement = variableNames.put(element.getSimpleName().toString(), element);
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
-            if (StagProcessor.DEBUG) {
-                DebugLog.log(TAG, "\t\tIgnoring inherited Member variable with the same variable name - " +
-                                  previousElement.asType().toString());
-            }
+            DebugLog.log(TAG, "\t\tIgnoring inherited Member variable with the same variable name - " +
+                              previousElement.asType().toString());
         }
         mMemberVariables.put(element, typeMirror);
-    }
-
-    //This is to avoid the infinite recursive loop where an inner class can be deriving for this class itself
-    void initNestedClasses() {
-        if (null != mNestedElements) {
-            for (Element element : mNestedElements) {
-                if (ElementUtils.isClass(element)) {
-                    SupportedTypesModel.getInstance().getSupportedType(element.asType());
-                }
-            }
-        }
     }
 
     private static void checkModifiers(VariableElement variableElement, Set<Modifier> modifiers) {
@@ -170,18 +146,11 @@ public class AnnotatedClass {
                     if (!TypeUtils.isAbstract(element)) {
                         SupportedTypesModel.getInstance().checkAndAddExternalAdapter(variableElement);
                     }
-                    if (StagProcessor.DEBUG) {
-                        DebugLog.log(TAG, "\t\tMember variables - " + variableElement.asType().toString());
-                    }
+                    DebugLog.log(TAG, "\t\tMember variables - " + variableElement.asType().toString());
 
                     addMemberVariable(variableElement, variableElement.asType(), variableNames);
                 }
             }
-        } else if (element instanceof TypeElement) {
-            if (null == mNestedElements) {
-                mNestedElements = new ArrayList<>();
-            }
-            mNestedElements.add(element);
         }
     }
 
