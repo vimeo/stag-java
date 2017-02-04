@@ -189,12 +189,11 @@ public final class StagProcessor extends AbstractProcessor {
             TypeMirror rootType = useStagElement.asType();
             DebugLog.log("Annotated type: " + rootType + "\n");
             SupportedTypesModel.getInstance().getSupportedType(rootType);
-            // TODO: Should we switch to adding all elements here or continue to let AnnotatedClass.initNestedClasses do its thing 2/2/17 [AR]
-        } else {
-            List<? extends Element> enclosedElements = useStagElement.getEnclosedElements();
-            for (Element element : enclosedElements) {
-                processSupportedElements(element);
-            }
+        }
+
+        List<? extends Element> enclosedElements = useStagElement.getEnclosedElements();
+        for (Element element : enclosedElements) {
+            processSupportedElements(element);
         }
     }
 }

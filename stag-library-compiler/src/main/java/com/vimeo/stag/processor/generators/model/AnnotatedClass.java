@@ -29,23 +29,18 @@ import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
 import com.vimeo.stag.processor.StagProcessor;
 import com.vimeo.stag.processor.utils.DebugLog;
-import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -61,8 +56,6 @@ public class AnnotatedClass {
 
     @NotNull
     private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
-
-    private List<Element> mNestedElements;
 
     AnnotatedClass(@NotNull Element element) {
         mType = element.asType();
@@ -131,17 +124,6 @@ public class AnnotatedClass {
         mMemberVariables.put(element, typeMirror);
     }
 
-    //This is to avoid the infinite recursive loop where an inner class can be deriving for this class itself
-    void initNestedClasses() {
-        if (null != mNestedElements) {
-            for (Element element : mNestedElements) {
-                if (ElementUtils.isClass(element)) {
-                    SupportedTypesModel.getInstance().getSupportedType(element.asType());
-                }
-            }
-        }
-    }
-
     private static void checkModifiers(VariableElement variableElement, Set<Modifier> modifiers) {
         if (!modifiers.contains(Modifier.STATIC)) {
             if (modifiers.contains(Modifier.FINAL)) {
@@ -177,11 +159,6 @@ public class AnnotatedClass {
                     addMemberVariable(variableElement, variableElement.asType(), variableNames);
                 }
             }
-        } else if (element instanceof TypeElement) {
-            if (null == mNestedElements) {
-                mNestedElements = new ArrayList<>();
-            }
-            mNestedElements.add(element);
         }
     }
 

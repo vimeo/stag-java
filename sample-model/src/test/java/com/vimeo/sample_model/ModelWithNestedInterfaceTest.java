@@ -20,8 +20,7 @@ public class ModelWithNestedInterfaceTest {
     @Test
     public void typeAdapterWasGenerated_ModelWithNestedInterface_NestedInterface_NestedModel()
             throws Exception {
-        // TODO: The use case where classes are nested inside unsupported types is currently broken 2/3/17 [AR]
-//        Utils.verifyTypeAdapterGeneration(ModelWithNestedInterface.NestedInterface.NestedModel.class);
+        Utils.verifyTypeAdapterGeneration(ModelWithNestedInterface.NestedInterface.NestedModel.class);
     }
 
 }
