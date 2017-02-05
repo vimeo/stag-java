@@ -165,7 +165,7 @@ public class KnownTypeAdaptersTest {
     }
 
     /**
-     * Test for {@link KnownTypeAdapters#JSON_OBJECT_TYPE_ADAPTER}
+     * Test for {@link KnownTypeAdapters#JSON_OBJECT}
      *
      * @throws Exception
      */
@@ -173,7 +173,7 @@ public class KnownTypeAdaptersTest {
     public void testForJsonObjectTypeAdapter() throws Exception {
         JsonObject jsonObject = Utils.createDummyJsonObject();
 
-        TypeAdapter<JsonObject> jsonObjectTypeAdapter = KnownTypeAdapters.JSON_OBJECT_TYPE_ADAPTER;
+        TypeAdapter<JsonObject> jsonObjectTypeAdapter = KnownTypeAdapters.JSON_OBJECT;
         StringWriter stringWriter = new StringWriter();
         jsonObjectTypeAdapter.write(new JsonWriter(stringWriter), jsonObject);
         String jsonString = stringWriter.toString();
@@ -184,7 +184,7 @@ public class KnownTypeAdaptersTest {
     }
 
     /**
-     * Test for {@link KnownTypeAdapters#JSON_ARRAY_TYPE_ADAPTER}
+     * Test for {@link KnownTypeAdapters#JSON_ARRAY}
      *
      * @throws Exception
      */
@@ -192,7 +192,7 @@ public class KnownTypeAdaptersTest {
     public void testForJsonArrayTypeAdapter() throws Exception {
         JsonArray jsonArray = Utils.createDummyJsonArray();
 
-        TypeAdapter<JsonArray> jsonObjectTypeAdapter = KnownTypeAdapters.JSON_ARRAY_TYPE_ADAPTER;
+        TypeAdapter<JsonArray> jsonObjectTypeAdapter = KnownTypeAdapters.JSON_ARRAY;
         StringWriter stringWriter = new StringWriter();
         jsonObjectTypeAdapter.write(new JsonWriter(stringWriter), jsonArray);
         String jsonString = stringWriter.toString();

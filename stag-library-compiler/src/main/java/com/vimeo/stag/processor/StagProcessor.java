@@ -26,6 +26,7 @@ package com.vimeo.stag.processor;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import com.vimeo.stag.GsonAdapterKey;
+import com.vimeo.stag.KnownTypeAdapters;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
@@ -38,6 +39,7 @@ import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
+import com.vimeo.stag.processor.utils.KnownTypeAdapterUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -49,6 +51,7 @@ import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -85,21 +88,32 @@ public final class StagProcessor extends AbstractProcessor {
         return SourceVersion.RELEASE_7;
     }
 
+    private static boolean getDebugBoolean(@NotNull ProcessingEnvironment processingEnvironment) {
+        String debugString = processingEnvironment.getOptions().get(OPTION_DEBUG);
+        if (debugString != null) {
+            return Boolean.valueOf(debugString);
+        }
+        return false;
+    }
+
+    @NotNull
+    private static String getOptionalPackageName(@NotNull ProcessingEnvironment processingEnvironment) {
+        String packageName = processingEnvironment.getOptions().get(OPTION_PACKAGE_NAME);
+        if (packageName == null || packageName.isEmpty()) {
+            packageName = DEFAULT_GENERATED_PACKAGE_NAME;
+        }
+        return packageName;
+    }
+
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         if (mHasBeenProcessed) {
             return true;
         }
 
-        String packageName = processingEnv.getOptions().get(OPTION_PACKAGE_NAME);
-        if (packageName == null || packageName.isEmpty()) {
-            packageName = DEFAULT_GENERATED_PACKAGE_NAME;
-        }
+        DEBUG = getDebugBoolean(processingEnv);
 
-        String debugString = processingEnv.getOptions().get(OPTION_DEBUG);
-        if (debugString != null) {
-            DEBUG = Boolean.valueOf(debugString);
-        }
+        String packageName = getOptionalPackageName(processingEnv);
 
         String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
         TypeUtils.initialize(processingEnv.getTypeUtils());
@@ -139,24 +153,24 @@ public final class StagProcessor extends AbstractProcessor {
             }
 
             StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes,
-                                                               SupportedTypesModel.getInstance()
-                                                                       .getExternalSupportedAdapters());
+                    SupportedTypesModel.getInstance()
+                            .getExternalSupportedAdapters());
             TypeTokenConstantsGenerator typeTokenConstantsGenerator =
                     new TypeTokenConstantsGenerator(filer, packageName);
 
             Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
             for (Element element : list) {
                 if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) &&
-                    !TypeUtils.isAbstract(element)) {
+                        !TypeUtils.isAbstract(element)) {
                     ClassInfo classInfo = new ClassInfo(element.asType());
                     AdapterGenerator independentAdapter =
                             element.getKind() == ElementKind.ENUM ? new EnumTypeAdapterGenerator(classInfo,
-                                                                                                 element) : new TypeAdapterGenerator(
+                                    element) : new TypeAdapterGenerator(
                                     classInfo);
                     JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(),
-                                                         independentAdapter.getTypeAdapterSpec(
-                                                                 typeTokenConstantsGenerator,
-                                                                 adapterGenerator)).build();
+                            independentAdapter.getTypeAdapterSpec(
+                                    typeTokenConstantsGenerator,
+                                    adapterGenerator)).build();
                     FileGenUtils.writeToFile(javaFile, filer);
                 }
             }
