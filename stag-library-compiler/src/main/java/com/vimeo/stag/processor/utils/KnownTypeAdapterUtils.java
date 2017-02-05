@@ -5,10 +5,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.internal.bind.TypeAdapters;
+import com.vimeo.stag.KnownTypeAdapters;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -28,6 +31,8 @@ import java.util.concurrent.atomic.AtomicIntegerArray;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
+import static com.vimeo.stag.processor.utils.TypeUtils.className;
+
 /**
  * This maintains a list of type vs the known type adapters.
  */
@@ -37,57 +42,90 @@ public final class KnownTypeAdapterUtils {
     private static final HashMap<String, String> KNOWN_TYPE_ADAPTERS = new HashMap<>();
 
     @NotNull
-    private static final HashMap<String, String> SUPPORTED_COLLECTION_INFO = new HashMap<>();
+    private static final HashMap<String, String> SUPPORTED_COLLECTION_INSTANTIATORS = new HashMap<>();
 
     @NotNull
-    private static final HashMap<String, String> SUPPORTED_PRIMITIVE_ARRAY = new HashMap<>();
+    private static final HashMap<String, String> SUPPORTED_MAP_INSTANTIATORS = new HashMap<>();
+
+    @NotNull
+    private static final HashMap<String, String> KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS = new HashMap<>();
 
     static {
-        KNOWN_TYPE_ADAPTERS.put(BitSet.class.getName(), "com.google.gson.internal.bind.TypeAdapters.BIT_SET");
-        KNOWN_TYPE_ADAPTERS.put(Boolean.class.getName(), "com.google.gson.internal.bind.TypeAdapters.BOOLEAN");
-        KNOWN_TYPE_ADAPTERS.put(boolean.class.getName(), "com.google.gson.internal.bind.TypeAdapters.BOOLEAN");
-        KNOWN_TYPE_ADAPTERS.put(Byte.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BYTE");
-        KNOWN_TYPE_ADAPTERS.put(byte.class.getName(), "com.vimeo.stag.KnownTypeAdapters.BYTE");
-        KNOWN_TYPE_ADAPTERS.put(Short.class.getName(), "com.vimeo.stag.KnownTypeAdapters.SHORT");
-        KNOWN_TYPE_ADAPTERS.put(short.class.getName(), "com.vimeo.stag.KnownTypeAdapters.SHORT");
-        KNOWN_TYPE_ADAPTERS.put(Integer.class.getName(), "com.vimeo.stag.KnownTypeAdapters.INTEGER");
-        KNOWN_TYPE_ADAPTERS.put(int.class.getName(), "com.vimeo.stag.KnownTypeAdapters.INTEGER");
-        KNOWN_TYPE_ADAPTERS.put(Long.class.getName(), "com.vimeo.stag.KnownTypeAdapters.LONG");
-        KNOWN_TYPE_ADAPTERS.put(long.class.getName(), "com.vimeo.stag.KnownTypeAdapters.LONG");
-        KNOWN_TYPE_ADAPTERS.put(Float.class.getName(), "com.vimeo.stag.KnownTypeAdapters.FLOAT");
-        KNOWN_TYPE_ADAPTERS.put(float.class.getName(), "com.vimeo.stag.KnownTypeAdapters.FLOAT");
-        KNOWN_TYPE_ADAPTERS.put(Double.class.getName(), "com.vimeo.stag.KnownTypeAdapters.DOUBLE");
-        KNOWN_TYPE_ADAPTERS.put(double.class.getName(), "com.vimeo.stag.KnownTypeAdapters.DOUBLE");
-        KNOWN_TYPE_ADAPTERS.put(Number.class.getName(), "com.google.gson.internal.bind.TypeAdapters.NUMBER");
-        KNOWN_TYPE_ADAPTERS.put(Character.class.getName(), "com.google.gson.internal.bind.TypeAdapters.CHARACTER");
-        KNOWN_TYPE_ADAPTERS.put(char.class.getName(), "com.google.gson.internal.bind.TypeAdapters.CHARACTER");
-        KNOWN_TYPE_ADAPTERS.put(String.class.getName(), "com.google.gson.internal.bind.TypeAdapters.STRING");
-        KNOWN_TYPE_ADAPTERS.put(BigDecimal.class.getName(), "com.google.gson.internal.bind.TypeAdapters.BIG_DECIMAL");
-        KNOWN_TYPE_ADAPTERS.put(BigInteger.class.getName(), "com.google.gson.internal.bind.TypeAdapters.BIG_INTEGER");
-        KNOWN_TYPE_ADAPTERS.put(AtomicBoolean.class.getName(), "com.google.gson.internal.bind.TypeAdapters.ATOMIC_BOOLEAN");
-        KNOWN_TYPE_ADAPTERS.put(AtomicInteger.class.getName(), "com.google.gson.internal.bind.TypeAdapters.ATOMIC_INTEGER");
-        KNOWN_TYPE_ADAPTERS.put(AtomicIntegerArray.class.getName(), "com.google.gson.internal.bind.TypeAdapters.ATOMIC_INTEGER_ARRAY");
-        KNOWN_TYPE_ADAPTERS.put(Currency.class.getName(), "com.google.gson.internal.bind.TypeAdapters.CURRENCY");
-        KNOWN_TYPE_ADAPTERS.put(Calendar.class.getName(), "com.google.gson.internal.bind.TypeAdapters.CALENDAR");
-        KNOWN_TYPE_ADAPTERS.put(Number.class.getName(), "com.google.gson.internal.bind.TypeAdapters.NUMBER");
-        KNOWN_TYPE_ADAPTERS.put(JsonElement.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_ELEMENT_TYPE_ADAPTER");
-        KNOWN_TYPE_ADAPTERS.put(JsonObject.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_OBJECT_TYPE_ADAPTER");
-        KNOWN_TYPE_ADAPTERS.put(JsonArray.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_ARRAY_TYPE_ADAPTER");
-        KNOWN_TYPE_ADAPTERS.put(JsonPrimitive.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_PRIMITIVE_TYPE_ADAPTER");
-        KNOWN_TYPE_ADAPTERS.put(JsonNull.class.getName(), "com.vimeo.stag.KnownTypeAdapters.JSON_NULL_TYPE_ADAPTER");
+        KNOWN_TYPE_ADAPTERS.put(BitSet.class.getName(), typeAdapters(TypeAdapters.BIT_SET));
+        KNOWN_TYPE_ADAPTERS.put(Boolean.class.getName(), typeAdapters(TypeAdapters.BOOLEAN));
+        KNOWN_TYPE_ADAPTERS.put(boolean.class.getName(), typeAdapters(TypeAdapters.BOOLEAN));
+        KNOWN_TYPE_ADAPTERS.put(Byte.class.getName(), knownTypeAdapters(KnownTypeAdapters.BYTE));
+        KNOWN_TYPE_ADAPTERS.put(byte.class.getName(), knownTypeAdapters(KnownTypeAdapters.BYTE));
+        KNOWN_TYPE_ADAPTERS.put(Short.class.getName(), knownTypeAdapters(KnownTypeAdapters.SHORT));
+        KNOWN_TYPE_ADAPTERS.put(short.class.getName(), knownTypeAdapters(KnownTypeAdapters.SHORT));
+        KNOWN_TYPE_ADAPTERS.put(Integer.class.getName(), knownTypeAdapters(KnownTypeAdapters.INTEGER));
+        KNOWN_TYPE_ADAPTERS.put(int.class.getName(), knownTypeAdapters(KnownTypeAdapters.INTEGER));
+        KNOWN_TYPE_ADAPTERS.put(Long.class.getName(), knownTypeAdapters(KnownTypeAdapters.LONG));
+        KNOWN_TYPE_ADAPTERS.put(long.class.getName(), knownTypeAdapters(KnownTypeAdapters.LONG));
+        KNOWN_TYPE_ADAPTERS.put(Float.class.getName(), knownTypeAdapters(KnownTypeAdapters.FLOAT));
+        KNOWN_TYPE_ADAPTERS.put(float.class.getName(), knownTypeAdapters(KnownTypeAdapters.FLOAT));
+        KNOWN_TYPE_ADAPTERS.put(Double.class.getName(), knownTypeAdapters(KnownTypeAdapters.DOUBLE));
+        KNOWN_TYPE_ADAPTERS.put(double.class.getName(), knownTypeAdapters(KnownTypeAdapters.DOUBLE));
+        KNOWN_TYPE_ADAPTERS.put(Number.class.getName(), typeAdapters(TypeAdapters.NUMBER));
+        KNOWN_TYPE_ADAPTERS.put(Character.class.getName(), typeAdapters(TypeAdapters.CHARACTER));
+        KNOWN_TYPE_ADAPTERS.put(char.class.getName(), typeAdapters(TypeAdapters.CHARACTER));
+        KNOWN_TYPE_ADAPTERS.put(String.class.getName(), typeAdapters(TypeAdapters.STRING));
+        KNOWN_TYPE_ADAPTERS.put(BigDecimal.class.getName(), typeAdapters(TypeAdapters.BIG_DECIMAL));
+        KNOWN_TYPE_ADAPTERS.put(BigInteger.class.getName(), typeAdapters(TypeAdapters.BIG_INTEGER));
+        KNOWN_TYPE_ADAPTERS.put(AtomicBoolean.class.getName(), typeAdapters(TypeAdapters.ATOMIC_BOOLEAN));
+        KNOWN_TYPE_ADAPTERS.put(AtomicInteger.class.getName(), typeAdapters(TypeAdapters.ATOMIC_INTEGER));
+        KNOWN_TYPE_ADAPTERS.put(AtomicIntegerArray.class.getName(), typeAdapters(TypeAdapters.ATOMIC_INTEGER_ARRAY));
+        KNOWN_TYPE_ADAPTERS.put(Currency.class.getName(), typeAdapters(TypeAdapters.CURRENCY));
+        KNOWN_TYPE_ADAPTERS.put(Calendar.class.getName(), typeAdapters(TypeAdapters.CALENDAR));
+        KNOWN_TYPE_ADAPTERS.put(JsonElement.class.getName(), knownTypeAdapters(KnownTypeAdapters.JSON_ELEMENT));
+        KNOWN_TYPE_ADAPTERS.put(JsonObject.class.getName(), knownTypeAdapters(KnownTypeAdapters.JSON_OBJECT));
+        KNOWN_TYPE_ADAPTERS.put(JsonArray.class.getName(), knownTypeAdapters(KnownTypeAdapters.JSON_ARRAY));
+        KNOWN_TYPE_ADAPTERS.put(JsonPrimitive.class.getName(), knownTypeAdapters(KnownTypeAdapters.JSON_PRIMITIVE));
+        KNOWN_TYPE_ADAPTERS.put(JsonNull.class.getName(), knownTypeAdapters(KnownTypeAdapters.JSON_NULL));
 
-        SUPPORTED_COLLECTION_INFO.put(ArrayList.class.getName(), "com.vimeo.stag.KnownTypeAdapters.ArrayListInstantiator");
-        SUPPORTED_COLLECTION_INFO.put(List.class.getName(), "com.vimeo.stag.KnownTypeAdapters.ListInstantiator");
-        SUPPORTED_COLLECTION_INFO.put(Collection.class.getName(), "com.vimeo.stag.KnownTypeAdapters.CollectionInstantiator");
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(int[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveIntegerArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(long[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveLongArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(double[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveDoubleArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(short[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveShortArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(char[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveCharArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(float[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveFloatArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(boolean[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveBooleanArrayAdapter.class));
+        KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(byte[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveByteArrayAdapter.class));
 
-        SUPPORTED_PRIMITIVE_ARRAY.put(int[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveIntegerArrayAdapter");
-        SUPPORTED_PRIMITIVE_ARRAY.put(long[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveLongArrayAdapter");
-        SUPPORTED_PRIMITIVE_ARRAY.put(double[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveDoubleArrayAdapter");
-        SUPPORTED_PRIMITIVE_ARRAY.put(short[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveShortArrayAdapter");
-        SUPPORTED_PRIMITIVE_ARRAY.put(char[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveCharArrayAdapter");
-        SUPPORTED_PRIMITIVE_ARRAY.put(float[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveFloatArrayAdapter");
-        SUPPORTED_PRIMITIVE_ARRAY.put(boolean[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveBooleanArrayAdapter");
-        SUPPORTED_PRIMITIVE_ARRAY.put(byte[].class.getSimpleName(), "com.vimeo.stag.KnownTypeAdapters.PrimitiveByteArrayAdapter");
+        SUPPORTED_COLLECTION_INSTANTIATORS.put(ArrayList.class.getName(), className(KnownTypeAdapters.ArrayListInstantiator.class));
+        SUPPORTED_COLLECTION_INSTANTIATORS.put(List.class.getName(), className(KnownTypeAdapters.ListInstantiator.class));
+        SUPPORTED_COLLECTION_INSTANTIATORS.put(Collection.class.getName(), className(KnownTypeAdapters.CollectionInstantiator.class));
+
+        SUPPORTED_MAP_INSTANTIATORS.put(Map.class.getName(), className(KnownTypeAdapters.MapInstantiator.class));
+        SUPPORTED_MAP_INSTANTIATORS.put(HashMap.class.getName(), className(KnownTypeAdapters.HashMapInstantiator.class));
+        SUPPORTED_MAP_INSTANTIATORS.put(LinkedHashMap.class.getName(), className(KnownTypeAdapters.LinkedHashMapInstantiator.class));
+        SUPPORTED_MAP_INSTANTIATORS.put(ConcurrentHashMap.class.getName(), className(KnownTypeAdapters.ConcurrentHashMapInstantiator.class));
+    }
+
+    @NotNull
+    private static String typeAdapters(@NotNull Object object) {
+        return fieldToString(TypeAdapters.class, object);
+    }
+
+    @NotNull
+    private static String knownTypeAdapters(@NotNull Object object) {
+        return fieldToString(KnownTypeAdapters.class, object);
+    }
+
+    @NotNull
+    private static String fieldToString(@NotNull Class clazz, @NotNull Object object) {
+        Field[] fields = clazz.getFields();
+        for (Field field : fields) {
+            try {
+                if (field.get(null) == object) {
+                    return clazz.getName() + '.' + field.getName();
+                }
+            } catch (IllegalAccessException e) {
+                DebugLog.log(e.getMessage());
+            }
+        }
+
+        throw new IllegalStateException("Unable to find field: " + clazz.getName());
     }
 
     private KnownTypeAdapterUtils() {
@@ -112,7 +150,7 @@ public final class KnownTypeAdapterUtils {
                                !declaredType.getTypeArguments().isEmpty() ? declaredType.getTypeArguments()
                 .get(0) : null;
         String postFix = valueType != null ? "<" + valueType.toString() + ">()" : "()";
-        return "new " + SUPPORTED_COLLECTION_INFO.get(outerClassType) + postFix;
+        return "new " + SUPPORTED_COLLECTION_INSTANTIATORS.get(outerClassType) + postFix;
     }
 
     /**
@@ -134,18 +172,15 @@ public final class KnownTypeAdapterUtils {
         String postFix = keyType != null && paramType != null ?
                 "<" + keyType.toString() + ", " + paramType.toString() + ">()" : "()";
 
-        if (outerClassType.equals(Map.class.getName())) {
-            return "new com.vimeo.stag.KnownTypeAdapters.MapInstantiator" + postFix;
-        } else if (outerClassType.equals(HashMap.class.getName())) {
-            return "new com.vimeo.stag.KnownTypeAdapters.HashMapInstantiator" + postFix;
-        } else if (outerClassType.equals(LinkedHashMap.class.getName())) {
-            return "new com.vimeo.stag.KnownTypeAdapters.LinkedHashMapInstantiator" + postFix;
-        } else if (outerClassType.equals(ConcurrentHashMap.class.getName())) {
-            return "new com.vimeo.stag.KnownTypeAdapters.ConcurrentHashMapInstantiator" + postFix;
+        String instantiator = SUPPORTED_MAP_INSTANTIATORS.get(outerClassType);
+
+        if (instantiator != null) {
+            return "new " + instantiator + postFix;
         } else {
             String params = keyType != null && paramType != null ?
                     "<" + keyType.toString() + ", " + paramType.toString() + ">" : "";
-            return "new com.google.gson.internal.ObjectConstructor<" + outerClassType + params + ">() " +
+            return "new " + className(com.google.gson.internal.ObjectConstructor.class) + "<" +
+                   outerClassType + params + ">() " +
                    "{ " +
                    "\n@Override " +
                    "\npublic " + outerClassType + params + " construct() {" +
@@ -164,7 +199,8 @@ public final class KnownTypeAdapterUtils {
     @Nullable
     public static String getNativeArrayInstantiator(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
-        return "new com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor<" + outerClassType +
+        return "new " + className(com.vimeo.stag.KnownTypeAdapters.PrimitiveArrayConstructor.class) + "<" +
+               outerClassType +
                ">(){ @Override public " + outerClassType + "[] construct(int size){ return new " +
                outerClassType + "[size]; } }";
     }
@@ -178,6 +214,6 @@ public final class KnownTypeAdapterUtils {
     @Nullable
     public static String getNativePrimitiveArrayTypeAdapter(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
-        return SUPPORTED_PRIMITIVE_ARRAY.get(outerClassType);
+        return KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.get(outerClassType);
     }
 }
