@@ -140,7 +140,7 @@ public final class StagProcessor extends AbstractProcessor {
             Element enclosingClassElement = variableElement.getEnclosingElement();
             TypeMirror enclosingClass = enclosingClassElement.asType();
             DebugLog.log("Annotated type: " + enclosingClass + "\n");
-            SupportedTypesModel.getInstance().getSupportedType(enclosingClass);
+            SupportedTypesModel.getInstance().addSupportedType(enclosingClass);
         }
 
         Filer filer = processingEnv.getFiler();
@@ -202,7 +202,7 @@ public final class StagProcessor extends AbstractProcessor {
         if (ElementUtils.isSupportedElementKind(useStagElement)) {
             TypeMirror rootType = useStagElement.asType();
             DebugLog.log("Annotated type: " + rootType + "\n");
-            SupportedTypesModel.getInstance().getSupportedType(rootType);
+            SupportedTypesModel.getInstance().addSupportedType(rootType);
         }
 
         List<? extends Element> enclosedElements = useStagElement.getEnclosedElements();
