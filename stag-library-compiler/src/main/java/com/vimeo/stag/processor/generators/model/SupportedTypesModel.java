@@ -117,8 +117,6 @@ public final class SupportedTypesModel {
      */
     @NotNull
     public AnnotatedClass addToKnownInheritedType(TypeMirror type) {
-        return addSupportedType(type);
-        /*
         String outerClassType = TypeUtils.getOuterClassType(type);
         AnnotatedClass model = getSupportedType(outerClassType);
         if(null == model) {
@@ -128,7 +126,7 @@ public final class SupportedTypesModel {
                 mKnownInheritedTypesMap.put(outerClassType, model);
             }
         }
-        return model;*/
+        return model;
     }
 
     /**
