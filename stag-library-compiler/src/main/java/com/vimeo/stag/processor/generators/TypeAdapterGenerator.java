@@ -759,7 +759,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         }
 
         AnnotatedClass annotatedClass = SupportedTypesModel.getInstance().getSupportedType(typeMirror);
-        if(null == annotatedClass) {
+        if (null == annotatedClass) {
             throw new IllegalStateException("The AnnotatedClass class can't be null in TypeAdapterGenerator : " + typeMirror.toString());
         }
         Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
