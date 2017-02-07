@@ -77,7 +77,7 @@ public class AnnotatedClass {
             DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
 
             AnnotatedClass genericInheritedType =
-                    SupportedTypesModel.getInstance().getSupportedType(inheritedType);
+                    SupportedTypesModel.getInstance().addToKnownInheritedType(inheritedType);
 
             LinkedHashMap<Element, TypeMirror> inheritedMemberVariables =
                     TypeUtils.getConcreteMembers(inheritedType, genericInheritedType.getElement(),

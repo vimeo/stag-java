@@ -43,6 +43,7 @@ public final class SupportedTypesModel {
     @Nullable
     private static SupportedTypesModel sInstance;
     private final Map<String, AnnotatedClass> mSupportedTypesMap = new HashMap<>();
+    private final Map<String, AnnotatedClass> mKnownInheritedTypesMap = new HashMap<>();
     private final Set<Element> mSupportedTypes = new HashSet<>();
     private final Set<TypeMirror> mSupportedTypesMirror = new HashSet<>();
     private final Set<ExternalAdapterInfo> mExternalSupportedAdapters = new HashSet<>();
@@ -85,13 +86,68 @@ public final class SupportedTypesModel {
      * @return the AnnotatedClass object associated
      * with the class type.
      */
-    @NotNull
+    @Nullable
     public AnnotatedClass getSupportedType(@NotNull TypeMirror type) {
-        AnnotatedClass model = mSupportedTypesMap.get(TypeUtils.getOuterClassType(type));
+        return getSupportedType(TypeUtils.getOuterClassType(type));
+    }
+
+    /**
+     * Retrieves the AnnotatedClass object for the
+     * specific TypeMirror.
+     *
+     * @param type the type that maps to a specific
+     *             AnnotatedClass.
+     * @return the AnnotatedClass object associated
+     * with the class type.
+     */
+    @Nullable
+    private AnnotatedClass getSupportedType(@NotNull String type) {
+        return mSupportedTypesMap.get(type);
+    }
+
+    /**
+     * Adds an AnnotatedClass object for the
+     * specific TypeMirror if it does not exist in the list of
+     * known inherited types
+     *
+     * @param type the type that maps to a specific
+     *             AnnotatedClass.
+     * @return the AnnotatedClass object associated
+     * with the class type.
+     */
+    @NotNull
+    public AnnotatedClass addToKnownInheritedType(TypeMirror type) {
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        AnnotatedClass model = getSupportedType(outerClassType);
+        if(null == model) {
+            model = mKnownInheritedTypesMap.get(outerClassType);
+            if(null == model) {
+                model = new AnnotatedClass(TypeUtils.getUtils().asElement(type));
+                mKnownInheritedTypesMap.put(outerClassType, model);
+            }
+        }
+        return model;
+    }
+
+    /**
+     * Adds an AnnotatedClass object for the
+     * specific TypeMirror if it does not exist.
+     *
+     * @param type the type that maps to a specific
+     *             AnnotatedClass.
+     * @return the AnnotatedClass object associated
+     * with the class type.
+     */
+    @NotNull
+    public AnnotatedClass addSupportedType(@NotNull TypeMirror type) {
+        String outerClassType = TypeUtils.getOuterClassType(type);
+        AnnotatedClass model = getSupportedType(outerClassType);
 
         if (model == null) {
-            // TODO: Refactor so that getSupportedType doesn't modify internal state 2/3/17 [AR]
-            model = new AnnotatedClass(TypeUtils.getUtils().asElement(type));
+            model = mKnownInheritedTypesMap.get(outerClassType);
+            if(null == model) {
+                model = new AnnotatedClass(TypeUtils.getUtils().asElement(type));
+            }
             addSupportedType(model);
         }
         return model;
@@ -123,4 +179,6 @@ public final class SupportedTypesModel {
     public Set<ExternalAdapterInfo> getExternalSupportedAdapters() {
         return new HashSet<>(mExternalSupportedAdapters);
     }
+
+
 }
