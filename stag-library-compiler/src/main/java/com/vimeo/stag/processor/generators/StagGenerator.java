@@ -172,6 +172,9 @@ public class StagGenerator {
             List<? extends TypeMirror> typeArguments = knownGenericType.getTypeArguments();
             AnnotatedClass annotatedClass =
                     SupportedTypesModel.getInstance().getSupportedType(knownGenericType.getType());
+            if (null == annotatedClass) {
+                throw new IllegalStateException("The AnnotatedClass class can't be null in StagGenerator : " + knownGenericType.toString());
+            }
             Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
             boolean hasUnknownTypeFields = false;
             for (TypeMirror type : memberVariables.values()) {
