@@ -52,16 +52,8 @@ public final class ClassInfo {
         mType = typeMirror;
         mPackageName = ElementUtils.getPackage(mType);
 
-        String classAndPackage = mType.toString();
+        String classAndPackage = TypeUtils.getClassNameFromTypeMirror(mType);
 
-        /**
-         * This is done to avoid the generic template from being included in the file name to be generated
-         * (since it will be an invalid file name)
-         */
-        int idx = classAndPackage.indexOf("<");
-        if (idx > 0) {
-            classAndPackage = classAndPackage.substring(0, idx);
-        }
         mTypeName = classAndPackage;
         mClassName = classAndPackage.substring(mPackageName.length() + 1, classAndPackage.length())
                 .replaceAll("\\.", "\\$");
@@ -139,7 +131,7 @@ public final class ClassInfo {
         ClassInfo classInfo = (ClassInfo) o;
 
         return mClassName.equals(classInfo.mClassName) && mPackageName.equals(classInfo.mPackageName) &&
-               mTypeName.equals(classInfo.mTypeName) && mType.equals(classInfo.mType);
+                mTypeName.equals(classInfo.mTypeName) && mType.equals(classInfo.mType);
 
     }
 
