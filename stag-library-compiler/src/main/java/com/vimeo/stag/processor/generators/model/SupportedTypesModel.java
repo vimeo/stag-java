@@ -122,7 +122,7 @@ public final class SupportedTypesModel {
         if (null == model) {
             model = mKnownInheritedTypesMap.get(outerClassType);
             if (null == model) {
-                model = new AnnotatedClass(TypeUtils.getUtils().asElement(type));
+                model = new AnnotatedClass(TypeUtils.getElementFromTypeMirror(type));
                 mKnownInheritedTypesMap.put(outerClassType, model);
             }
         }
@@ -146,7 +146,7 @@ public final class SupportedTypesModel {
         if (model == null) {
             model = mKnownInheritedTypesMap.get(outerClassType);
             if (null == model) {
-                model = new AnnotatedClass(TypeUtils.getUtils().asElement(type));
+                model = new AnnotatedClass(TypeUtils.getElementFromTypeMirror(type));
             }
             addSupportedType(model);
         }

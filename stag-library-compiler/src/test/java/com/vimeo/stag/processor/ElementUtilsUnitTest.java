@@ -103,24 +103,4 @@ public class ElementUtilsUnitTest extends BaseUnitTest {
                 ElementUtils.getPackage(Utils.getTypeMirrorFromClass(Object.class)));
     }
 
-    @Test
-    public void testIsEnum() throws Exception {
-        Assert.assertFalse(ElementUtils.isEnum(null));
-
-        Element enumElement = Utils.getElementFromClass(DummyEnumClass.class);
-        Assert.assertTrue(ElementUtils.isEnum(enumElement));
-
-        Element concreteElement = Utils.getElementFromClass(DummyConcreteClass.class);
-        Assert.assertFalse(ElementUtils.isEnum(concreteElement));
-
-        Element genericElement = Utils.getElementFromClass(DummyGenericClass.class);
-        Assert.assertFalse(ElementUtils.isEnum(genericElement));
-
-        Element inheritedElement = Utils.getElementFromClass(DummyInheritedClass.class);
-        Assert.assertFalse(ElementUtils.isEnum(inheritedElement));
-
-        Element abstractElement = Utils.getElementFromClass(DummyAbstractClass.class);
-        Assert.assertFalse(ElementUtils.isEnum(abstractElement));
-    }
-
 }
