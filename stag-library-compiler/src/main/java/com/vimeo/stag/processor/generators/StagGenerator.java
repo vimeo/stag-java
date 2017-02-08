@@ -535,7 +535,7 @@ public class StagGenerator {
 
         final boolean mHasUnknownVarTypeFields;
 
-        private GenericClassInfo(boolean hasUnknownVarTypeFields) {
+        GenericClassInfo(boolean hasUnknownVarTypeFields) {
             mHasUnknownVarTypeFields = hasUnknownVarTypeFields;
         }
     }
