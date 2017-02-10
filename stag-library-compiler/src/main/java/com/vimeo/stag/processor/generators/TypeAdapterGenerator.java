@@ -25,6 +25,7 @@ package com.vimeo.stag.processor.generators;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.AnnotationSpec;
@@ -41,6 +42,7 @@ import com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
+import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
@@ -57,10 +59,14 @@ import java.util.List;
 import java.util.Map;
 
 import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.Name;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
@@ -589,6 +595,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         return fieldName;
     }
 
+
     @NotNull
     private AdapterFieldInfo addAdapterFields(@Nullable StagGenerator.GenericClassInfo genericClassInfo,
                                               @NotNull TypeSpec.Builder adapterBuilder,
@@ -598,12 +605,41 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                                               @NotNull Map<TypeVariable, String> typeVarsMap,
                                               @NotNull StagGenerator stagGenerator) {
 
-        HashSet<TypeMirror> typeSet = new HashSet<>(memberVariables.values());
-        AdapterFieldInfo result = new AdapterFieldInfo(typeSet.size());
+        AdapterFieldInfo result = new AdapterFieldInfo(memberVariables.size());
         boolean hasUnknownGenericField =
                 genericClassInfo != null && genericClassInfo.mHasUnknownVarTypeFields;
-        for (TypeMirror fieldType : typeSet) {
+        for (Map.Entry<Element, TypeMirror> entry : memberVariables.entrySet()) {
+            TypeMirror fieldType = entry.getValue();
+            JsonAdapter annotation = entry.getKey().getAnnotation(JsonAdapter.class);
             String adapterAccessor;
+            if(null != annotation) {
+                TypeMirror jsonAdapterType = null;
+                Element jsonAdapterTypeElement = null;
+                // Using this trick to get the class type
+                // https://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
+                try
+                {
+                    annotation.value();
+                }
+                catch( MirroredTypeException mte )
+                {
+                    jsonAdapterType = mte.getTypeMirror();
+                    jsonAdapterTypeElement = TypeUtils.getUtils().asElement(jsonAdapterType);
+                    TypeUtils.JsonAdapterType jsonAdapterType1 = TypeUtils.getJsonAdapterType(jsonAdapterType);
+                    for(Element element : jsonAdapterTypeElement.getEnclosedElements()) {
+                        if (element instanceof ExecutableElement) {
+                            ExecutableElement executableElement =
+                                    ((ExecutableElement) element);
+                            Name name = executableElement.getSimpleName();
+                            if (name.contentEquals("<init>")) {
+                                System.out.println("Yasir : " + fieldType.toString() + " " + executableElement.toString() + " jsonAdapterType1 : " + jsonAdapterType1.name());
+                            }
+                        }
+                    }
+                }
+
+            }
+
             if (hasUnknownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
                 adapterAccessor = getAdapterForUnknownType(fieldType, adapterBuilder, constructorBuilder,
                                                            typeTokenConstantsGenerator, typeVarsMap, result);

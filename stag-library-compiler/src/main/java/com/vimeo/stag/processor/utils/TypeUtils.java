@@ -23,6 +23,12 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+import com.google.gson.annotations.JsonAdapter;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -509,5 +515,41 @@ public final class TypeUtils {
     public static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
         return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments()
                 .get(0);
+    }
+
+
+    public static enum JsonAdapterType {
+        NONE,
+        TYPE_ADAPTER,
+        TYPE_ADAPTER_FACTORY,
+        JSON_SERIALIZER,
+        JSON_DESERIALIZER,
+        JSON_SERIALIZER_DESERIALIZER
+
+    }
+    /**
+     * Return the type of JsonAdapter {@link TypeMirror}
+     *
+     * @param type :TypeMirror type
+     * @return {@link JsonAdapterType}
+     */
+    public static JsonAdapterType getJsonAdapterType(@NotNull TypeMirror type) {
+        if(sTypeUtils.isSubtype(type, ElementUtils.getTypeFromQualifiedName(TypeAdapter.class.getName()))) {
+            return JsonAdapterType.TYPE_ADAPTER;
+        } else if(sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
+            return JsonAdapterType.TYPE_ADAPTER_FACTORY;
+        } else {
+            boolean isDeserializer = sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(JsonDeserializer.class.getName()));
+            boolean isSerializer = sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(JsonSerializer.class.getName()));
+            if(isSerializer && isDeserializer) {
+                return JsonAdapterType.JSON_SERIALIZER_DESERIALIZER;
+            } else if(isSerializer) {
+                return JsonAdapterType.JSON_SERIALIZER;
+            } else if(isDeserializer) {
+                return JsonAdapterType.JSON_DESERIALIZER;
+            } else {
+                return JsonAdapterType.NONE;
+            }
+        }
     }
 }
