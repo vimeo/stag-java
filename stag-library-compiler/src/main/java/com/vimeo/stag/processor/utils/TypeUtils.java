@@ -53,6 +53,7 @@ import javax.lang.model.util.Types;
 public final class TypeUtils {
 
     private static final String TAG = TypeUtils.class.getSimpleName();
+    @Nullable
     private static Types sTypeUtils;
 
     private TypeUtils() {
@@ -64,7 +65,7 @@ public final class TypeUtils {
     }
 
     @NotNull
-    public static Types getUtils() {
+    private static Types getUtils() {
         Preconditions.checkNotNull(sTypeUtils);
         return sTypeUtils;
     }
@@ -210,7 +211,7 @@ public final class TypeUtils {
         if (typeMirror.getKind() == TypeKind.TYPEVAR) {
             return false;
         }
-        if (isPrimitive(typeMirror, sTypeUtils)) {
+        if (isPrimitive(typeMirror, getUtils())) {
             return true;
         }
         if (typeMirror instanceof DeclaredType) {
@@ -348,16 +349,16 @@ public final class TypeUtils {
                         }
                     }
 
-                    TypeElement typeElement = (TypeElement) sTypeUtils.asElement(member.getValue());
+                    TypeElement typeElement = (TypeElement) getUtils().asElement(member.getValue());
                     TypeMirror[] concreteTypeArray =
                             concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
 
-                    DeclaredType declaredType = sTypeUtils.getDeclaredType(typeElement, concreteTypeArray);
+                    DeclaredType declaredType = getUtils().getDeclaredType(typeElement, concreteTypeArray);
 
                     map.put(member.getKey(), declaredType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                                      " resolved to - " + declaredType.toString());
+                            " resolved to - " + declaredType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -365,7 +366,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                                      " resolved to - " + concreteType.toString());
+                            " resolved to - " + concreteType.toString());
                 }
             }
         }
@@ -421,9 +422,9 @@ public final class TypeUtils {
      */
     public static boolean isSupportedPrimitive(@NotNull String type) {
         return type.equals(long.class.getName()) || type.equals(double.class.getName()) ||
-               type.equals(boolean.class.getName()) || type.equals(float.class.getName()) ||
-               type.equals(int.class.getName()) || type.equals(char.class.getName()) ||
-               type.equals(short.class.getName()) || type.equals(byte.class.getName());
+                type.equals(boolean.class.getName()) || type.equals(float.class.getName()) ||
+                type.equals(int.class.getName()) || type.equals(char.class.getName()) ||
+                type.equals(short.class.getName()) || type.equals(byte.class.getName());
     }
 
     /**
@@ -458,8 +459,8 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-               outerClassType.equals(List.class.getName()) ||
-               outerClassType.equals(Collection.class.getName());
+                outerClassType.equals(List.class.getName()) ||
+                outerClassType.equals(Collection.class.getName());
     }
 
     /**
@@ -488,11 +489,11 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(Map.class.getName()) ||
-               outerClassType.equals(HashMap.class.getName()) ||
-               outerClassType.equals(ConcurrentHashMap.class.getName()) ||
-               outerClassType.equals("android.util.ArrayMap") ||
-               outerClassType.equals("android.support.v4.util.ArrayMap") ||
-               outerClassType.equals(LinkedHashMap.class.getName());
+                outerClassType.equals(HashMap.class.getName()) ||
+                outerClassType.equals(ConcurrentHashMap.class.getName()) ||
+                outerClassType.equals("android.util.ArrayMap") ||
+                outerClassType.equals("android.support.v4.util.ArrayMap") ||
+                outerClassType.equals(LinkedHashMap.class.getName());
     }
 
     /**
@@ -503,9 +504,9 @@ public final class TypeUtils {
      */
     public static boolean isSupportedNative(@NotNull String type) {
         return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
-               type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
-               type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
-               type.equals(Float.class.getName()) || type.equals(Number.class.getName());
+                type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
+                type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
+                type.equals(Float.class.getName()) || type.equals(Number.class.getName());
     }
 
     /**
@@ -515,6 +516,25 @@ public final class TypeUtils {
     public static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
         return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments()
                 .get(0);
+    }
+
+    @NotNull
+    public static String getClassNameFromTypeMirror(@NotNull TypeMirror typeMirror) {
+        String classAndPackage = typeMirror.toString();
+
+        // This is done to avoid the generic template from being included in the file name
+        // to be generated (since it will be an invalid file name)
+        int idx = classAndPackage.indexOf("<");
+        if (idx > 0) {
+            classAndPackage = classAndPackage.substring(0, idx);
+        }
+
+        return classAndPackage;
+    }
+
+    @NotNull
+    public static Element getElementFromTypeMirror(@NotNull TypeMirror typeMirror) {
+        return getUtils().asElement(typeMirror);
     }
 
 

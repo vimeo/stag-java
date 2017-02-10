@@ -115,9 +115,10 @@ public final class StagProcessor extends AbstractProcessor {
 
         String packageName = getOptionalPackageName(processingEnv);
 
-        String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
         TypeUtils.initialize(processingEnv.getTypeUtils());
         ElementUtils.initialize(processingEnv.getElementUtils());
+
+        String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
         SupportedTypesModel.getInstance().initialize(stagFactoryGeneratedName);
 
         DebugLog.log("\nBeginning @UseStag annotation processing\n");

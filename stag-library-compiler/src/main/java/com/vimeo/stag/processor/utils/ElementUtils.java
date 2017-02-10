@@ -35,6 +35,7 @@ import javax.lang.model.util.Elements;
 
 public final class ElementUtils {
 
+    @Nullable
     private static Elements sElementUtils;
 
     private ElementUtils() {
@@ -57,7 +58,6 @@ public final class ElementUtils {
         return null != typeElement ? typeElement.asType() : null;
     }
 
-
     @Nullable
     public static TypeElement getTypeElementFromQualifiedName(@NotNull String qualifiedName) {
         Elements elements = ElementUtils.getUtils();
@@ -66,17 +66,9 @@ public final class ElementUtils {
 
     @NotNull
     public static String getPackage(@NotNull TypeMirror type) {
-        Element element = TypeUtils.getUtils().asElement(type);
-        PackageElement packageElement = sElementUtils.getPackageOf(element);
+        Element element = TypeUtils.getElementFromTypeMirror(type);
+        PackageElement packageElement = getUtils().getPackageOf(element);
         return packageElement.getQualifiedName().toString();
-    }
-
-    public static boolean isEnum(@Nullable Element element) {
-        return element != null && element.getKind() == ElementKind.ENUM;
-    }
-
-    public static boolean isClass(@Nullable Element element) {
-        return element != null && element.getKind() == ElementKind.CLASS;
     }
 
     /**
@@ -93,4 +85,5 @@ public final class ElementUtils {
         ElementKind elementKind = element.getKind();
         return elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM;
     }
+
 }

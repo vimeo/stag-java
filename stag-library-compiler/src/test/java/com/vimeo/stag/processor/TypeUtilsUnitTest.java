@@ -75,26 +75,6 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
     }
 
     @Test
-    public void testInitialize_works() throws Exception {
-        // Initialize it to null in order to test correctly
-        //noinspection ConstantConditions
-        TypeUtils.initialize(null);
-
-        boolean exceptionThrown = false;
-
-        try {
-            TypeUtils.getUtils();
-        } catch (NullPointerException e) {
-            exceptionThrown = true;
-        }
-
-        assertTrue(exceptionThrown);
-
-        TypeUtils.initialize(types);
-        assertNotNull(TypeUtils.getUtils());
-    }
-
-    @Test
     public void getInheritedType_isCorrect() throws Exception {
         TypeMirror concreteType =
                 TypeUtils.getInheritedType(Utils.getElementFromClass(DummyInheritedClass.class));
