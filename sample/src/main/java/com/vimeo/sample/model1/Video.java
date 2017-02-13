@@ -30,6 +30,5 @@ public class Video {
 
     @NonNull
     @SerializedName("mData")
-    @JsonAdapter(value = ReflectiveTypeAdapterFactory.class)
     public Data mData;
 }

@@ -632,7 +632,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                                     ((ExecutableElement) element);
                             Name name = executableElement.getSimpleName();
                             if (name.contentEquals("<init>")) {
-                                System.out.println("Yasir : " + fieldType.toString() + " " + executableElement.toString() + " jsonAdapterType1 : " + jsonAdapterType1.name());
+                                System.out.println("Yasir : " + fieldType.toString() + " " + executableElement.toString() + " jsonAdapterType1 : " + jsonAdapterType1.name() );
                             }
                         }
                     }

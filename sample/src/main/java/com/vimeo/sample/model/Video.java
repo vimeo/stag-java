@@ -48,7 +48,6 @@ public class Video {
     public String mName;
 
     @SerializedName("created_time")
-    @JsonAdapter(value = DateParser.class, nullSafe = true)
     public Date mCreatedTime;
 
     @SerializedName("stats")
