@@ -624,7 +624,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 catch( MirroredTypeException mte )
                 {
                     jsonAdapterType = mte.getTypeMirror();
-                    jsonAdapterTypeElement = TypeUtils.getUtils().asElement(jsonAdapterType);
+                    jsonAdapterTypeElement = TypeUtils.getElementFromTypeMirror(jsonAdapterType);
                     TypeUtils.JsonAdapterType jsonAdapterType1 = TypeUtils.getJsonAdapterType(jsonAdapterType);
                     for(Element element : jsonAdapterTypeElement.getEnclosedElements()) {
                         if (element instanceof ExecutableElement) {

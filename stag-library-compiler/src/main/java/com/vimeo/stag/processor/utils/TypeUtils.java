@@ -554,6 +554,7 @@ public final class TypeUtils {
      * @return {@link JsonAdapterType}
      */
     public static JsonAdapterType getJsonAdapterType(@NotNull TypeMirror type) {
+        System.out.println("type : " + );
         if(sTypeUtils.isSubtype(type, ElementUtils.getTypeFromQualifiedName(TypeAdapter.class.getName()))) {
             return JsonAdapterType.TYPE_ADAPTER;
         } else if(sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
