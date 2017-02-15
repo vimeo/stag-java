@@ -115,7 +115,7 @@ public final class KnownTypeAdapters {
         @Override
         public Integer read(JsonReader in) throws IOException {
             try {
-                return in.nextInt();
+                return Integer.valueOf(in.nextInt());
             } catch (NumberFormatException e) {
                 throw new JsonSyntaxException(e);
             }
@@ -134,7 +134,7 @@ public final class KnownTypeAdapters {
         @Override
         public Long read(JsonReader in) throws IOException {
             try {
-                return in.nextLong();
+                return Long.valueOf(in.nextLong());
             } catch (NumberFormatException e) {
                 throw new JsonSyntaxException(e);
             }
@@ -152,7 +152,7 @@ public final class KnownTypeAdapters {
     public static final TypeAdapter<Float> FLOAT = new TypeAdapter<Float>() {
         @Override
         public Float read(JsonReader in) throws IOException {
-            return (float) in.nextDouble();
+            return Float.valueOf((float) in.nextDouble());
         }
 
         @Override
@@ -167,7 +167,7 @@ public final class KnownTypeAdapters {
     public static final TypeAdapter<Double> DOUBLE = new TypeAdapter<Double>() {
         @Override
         public Double read(JsonReader in) throws IOException {
-            return in.nextDouble();
+            return Double.valueOf(in.nextDouble());
         }
 
         @Override
