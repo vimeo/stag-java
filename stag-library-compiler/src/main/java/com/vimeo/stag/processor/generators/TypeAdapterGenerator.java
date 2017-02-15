@@ -264,8 +264,21 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 }
             }
 
-            builder.addCode("\t\t\t\tobject." + variableName + " = " +
-                            adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);");
+            String variableType = element.getValue().toString();
+            boolean isPrimitive = TypeUtils.isSupportedPrimitive(variableType);
+
+            if(isPrimitive) {
+                builder.addCode("\t\t\t\t" + TypeUtils.getObjectForPrimitive(variableType) + " " + variableName + " = " +
+                        adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);\n");
+                builder.addCode("\t\t\t\tif(null != " + variableName + ") {\n");
+                builder.addCode("\t\t\t\t\tobject." + variableName + " = " + variableName + ";\n");
+                builder.addCode("\t\t\t\t}");
+
+            } else {
+                builder.addCode("\t\t\t\tobject." + variableName + " = " +
+                        adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);");
+            }
+
 
             builder.addCode("\n\t\t\t\tbreak;\n");
             runIfAnnotationSupported(element.getKey().getAnnotationMirrors(), new Runnable() {
