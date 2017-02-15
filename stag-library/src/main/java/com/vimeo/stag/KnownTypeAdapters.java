@@ -225,11 +225,12 @@ public final class KnownTypeAdapters {
 
         @Override
         public T[] read(JsonReader reader) throws IOException {
-            if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
+            JsonToken peek = reader.peek();
+            if (JsonToken.NULL == peek) {
                 reader.nextNull();
                 return null;
             }
-            if (reader.peek() != JsonToken.BEGIN_ARRAY) {
+            if (JsonToken.BEGIN_ARRAY != peek) {
                 reader.skipValue();
                 return null;
             }
@@ -613,12 +614,13 @@ public final class KnownTypeAdapters {
 
         @Override
         public T read(JsonReader reader) throws IOException {
-            if (reader.peek() == JsonToken.NULL) {
+            JsonToken peek = reader.peek();
+            if (JsonToken.NULL == peek) {
                 reader.nextNull();
                 return null;
             }
 
-            if (reader.peek() != JsonToken.BEGIN_ARRAY) {
+            if (JsonToken.BEGIN_ARRAY != peek) {
                 reader.skipValue();
                 return null;
             }
