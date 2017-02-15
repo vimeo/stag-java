@@ -77,7 +77,7 @@ public final class KnownTypeAdapters {
         public Byte read(JsonReader in) throws IOException {
             try {
                 int intValue = in.nextInt();
-                return (byte) intValue;
+                return Byte.valueOf((byte) intValue);
             } catch (NumberFormatException e) {
                 throw new JsonSyntaxException(e);
             }
@@ -96,7 +96,7 @@ public final class KnownTypeAdapters {
         @Override
         public Short read(JsonReader in) throws IOException {
             try {
-                return (short) in.nextInt();
+                return Short.valueOf((short)in.nextInt());
             } catch (NumberFormatException e) {
                 throw new JsonSyntaxException(e);
             }
