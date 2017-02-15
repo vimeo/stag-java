@@ -231,11 +231,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 .addAnnotation(Override.class)
                 .addException(IOException.class);
 
-        builder.addCode("\tif (reader.peek() == com.google.gson.stream.JsonToken.NULL) {\n" +
+        builder.addCode("\tcom.google.gson.stream.JsonToken peek = reader.peek();\n");
+        builder.addCode("\tif (com.google.gson.stream.JsonToken.NULL == peek) {\n" +
                         "\t\treader.nextNull();\n" +
                         "\t\treturn null;\n" +
                         "\t}\n" +
-                        "\tif (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
+                        "\tif (com.google.gson.stream.JsonToken.BEGIN_OBJECT != peek) {\n" +
                         "\t\treader.skipValue();\n" +
                         "\t\treturn null;\n" +
                         "\t}\n" +
@@ -245,11 +246,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         "();\n" +
                         "\twhile (reader.hasNext()) {\n" +
                         "\t\tString name = reader.nextName();\n" +
-                        "\t\tcom.google.gson.stream.JsonToken jsonToken = reader.peek();\n" +
-                        "\t\tif (jsonToken == com.google.gson.stream.JsonToken.NULL) {\n" +
-                        "\t\t\treader.skipValue();\n" +
-                        "\t\t\tcontinue;\n" +
-                        "\t\t}\n" +
                         "\t\tswitch (name) {\n");
 
         final List<String> nonNullFields = new ArrayList<>();
