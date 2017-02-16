@@ -34,6 +34,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.KnownTypeAdapters;
 import com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter;
 import com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter;
 import com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter;
@@ -268,11 +269,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             boolean isPrimitive = TypeUtils.isSupportedPrimitive(variableType);
 
             if(isPrimitive) {
-                builder.addCode("\t\t\t\t" + TypeUtils.getObjectForPrimitive(variableType) + " " + variableName + " = " +
-                        adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);\n");
-                builder.addCode("\t\t\t\tif(null != " + variableName + ") {\n");
-                builder.addCode("\t\t\t\t\tobject." + variableName + " = " + variableName + ";\n");
-                builder.addCode("\t\t\t\t}");
+                builder.addCode("\t\t\t\tobject." + variableName + " = " +
+                        adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader, object." + variableName +  ");");
 
             } else {
                 builder.addCode("\t\t\t\tobject." + variableName + " = " +
@@ -616,6 +614,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             if (hasUnknownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
                 adapterAccessor = getAdapterForUnknownType(fieldType, adapterBuilder, constructorBuilder,
                                                            typeTokenConstantsGenerator, typeVarsMap, result);
+            } else if(KnownTypeAdapterUtils.hasNativePrimitiveTypeAdapter(fieldType)) {
+                adapterAccessor = KnownTypeAdapterUtils.getNativePrimitiveTypeAdapter(fieldType);
             } else {
                 adapterAccessor = getAdapterAccessor(fieldType, adapterBuilder, constructorBuilder,
                                                      typeTokenConstantsGenerator, typeVarsMap, stagGenerator,
