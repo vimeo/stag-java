@@ -14,7 +14,6 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class KnownTypeAdaptersTest {
 
@@ -58,6 +57,32 @@ public class KnownTypeAdaptersTest {
         int readValue = KnownTypeAdapters.PrimitiveIntTypeAdapter.read(new JsonReader(new StringReader(jsonString)), 0);
 
         Assert.assertEquals(value, readValue);
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters.PrimitiveIntegerArrayAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForPrimitiveArrayIntegerTypeAdapter() throws Exception {
+        int[] value = new int[5];
+
+        value[0] = 0;
+        value[1] = 1;
+        value[2] = 2;
+        value[3] = 3;
+        value[4] = 4;
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveIntegerArrayAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        int[] readValue = KnownTypeAdapters.PrimitiveIntegerArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertArrayEquals(value, readValue);
     }
 
     /**
@@ -105,6 +130,32 @@ public class KnownTypeAdaptersTest {
     }
 
     /**
+     * Test for {@link KnownTypeAdapters.PrimitiveByteArrayAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForPrimitiveArrayByteTypeAdapter() throws Exception {
+        byte[] value = new byte[5];
+
+        value[0] = 0;
+        value[1] = 1;
+        value[2] = 2;
+        value[3] = 3;
+        value[4] = 4;
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveByteArrayAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        byte[] readValue = KnownTypeAdapters.PrimitiveByteArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertArrayEquals(value, readValue);
+    }
+
+    /**
      * Test for {@link KnownTypeAdapters#SHORT}
      *
      * @throws Exception
@@ -149,6 +200,32 @@ public class KnownTypeAdaptersTest {
     }
 
     /**
+     * Test for {@link KnownTypeAdapters.PrimitiveShortArrayAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForPrimitiveArrayShortTypeAdapter() throws Exception {
+        short[] value = new short[5];
+
+        value[0] = 0;
+        value[1] = 1;
+        value[2] = 2;
+        value[3] = 3;
+        value[4] = 4;
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveShortArrayAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        short[] readValue = KnownTypeAdapters.PrimitiveShortArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertArrayEquals(value, readValue);
+    }
+
+    /**
      * Test for {@link KnownTypeAdapters#LONG}
      *
      * @throws Exception
@@ -173,7 +250,7 @@ public class KnownTypeAdaptersTest {
     }
 
     /**
-     * Test for {@link KnownTypeAdapters.PrimitiveLongArrayAdapter}
+     * Test for {@link KnownTypeAdapters.PrimitiveLongTypeAdapter}
      *
      * @throws Exception
      */
@@ -192,6 +269,31 @@ public class KnownTypeAdaptersTest {
         Assert.assertEquals(value, readValue);
     }
 
+    /**
+     * Test for {@link KnownTypeAdapters.PrimitiveLongArrayAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForPrimitiveArrayLongTypeAdapter() throws Exception {
+        long[] value = new long[5];
+
+        value[0] = 0;
+        value[1] = 1;
+        value[2] = 2;
+        value[3] = 3;
+        value[4] = 4;
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveLongArrayAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        long[] readValue = KnownTypeAdapters.PrimitiveLongArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertArrayEquals(value, readValue);
+    }
 
     /**
      * Test for {@link KnownTypeAdapters#FLOAT}
@@ -235,6 +337,101 @@ public class KnownTypeAdaptersTest {
         float readValue = KnownTypeAdapters.PrimitiveFloatTypeAdapter.read(new JsonReader(new StringReader(jsonString)), 0f);
 
         Assert.assertEquals(value, readValue, 0);
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters.PrimitiveFloatArrayAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForPrimitiveArrayFloatTypeAdapter() throws Exception {
+        float[] value = new float[5];
+
+        value[0] = 0.0f;
+        value[1] = 1.0f;
+        value[2] = 2.0f;
+        value[3] = 3.0f;
+        value[4] = 4.0f;
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveFloatArrayAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        float[] readValue = KnownTypeAdapters.PrimitiveFloatArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertArrayEquals(value, readValue, 0);
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters#DOUBLE}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForDoubleTypeAdapter() throws Exception {
+        Double value = 1234.1243;
+
+        TypeAdapter<Double> floatTypeAdapter = KnownTypeAdapters.DOUBLE;
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        floatTypeAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        Double readValue = floatTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertEquals(value.intValue(), readValue.intValue());
+        Assert.assertEquals(value, readValue, 0);
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters.PrimitiveDoubleTypeAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForPrimitiveDoubleTypeAdapter() throws Exception {
+        double value = 1234.1243;
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveDoubleTypeAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        double readValue = KnownTypeAdapters.PrimitiveDoubleTypeAdapter.read(new JsonReader(new StringReader(jsonString)), 0f);
+
+        Assert.assertEquals(value, readValue, 0);
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters.PrimitiveDoubleArrayAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForPrimitiveArrayDoubleTypeAdapter() throws Exception {
+        double[] value = new double[5];
+
+        value[0] = 0.0;
+        value[1] = 1.0;
+        value[2] = 2.0;
+        value[3] = 3.0;
+        value[4] = 4.0;
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveDoubleArrayAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        double[] readValue = KnownTypeAdapters.PrimitiveDoubleArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertArrayEquals(value, readValue, 0);
     }
 
     /**

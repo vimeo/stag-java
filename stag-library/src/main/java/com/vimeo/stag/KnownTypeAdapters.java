@@ -662,8 +662,7 @@ public final class KnownTypeAdapters {
         }
     }
 
-    static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER =
-            com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe();
+    static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER = TypeAdapters.STRING.nullSafe();
 
     /**
      * Type Adapter for char[] type. This can be directly accessed to read and write
