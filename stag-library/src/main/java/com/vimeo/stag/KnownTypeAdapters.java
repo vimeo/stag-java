@@ -77,7 +77,7 @@ public final class KnownTypeAdapters {
         public Byte read(JsonReader in) throws IOException {
             try {
                 int intValue = in.nextInt();
-                return Byte.valueOf((byte) intValue);
+                return (byte) intValue;
             } catch (NumberFormatException e) {
                 throw new JsonSyntaxException(e);
             }
@@ -92,7 +92,7 @@ public final class KnownTypeAdapters {
     /**
      * Helper class for {@link byte}.
      */
-    public static final class PrimitiveByteTypeAdapter{
+    public static final class PrimitiveByteTypeAdapter {
 
         public static byte read(JsonReader in, byte defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -100,7 +100,7 @@ public final class KnownTypeAdapters {
                 return defaultValue;
             }
             try {
-                return (byte)in.nextInt();
+                return (byte) in.nextInt();
             } catch (NumberFormatException e) {
                 throw new JsonSyntaxException(e);
             }
@@ -119,7 +119,7 @@ public final class KnownTypeAdapters {
         @Override
         public Short read(JsonReader in) throws IOException {
             try {
-                return Short.valueOf((short)in.nextInt());
+                return (short) in.nextInt();
             } catch (NumberFormatException e) {
                 throw new JsonSyntaxException(e);
             }
@@ -134,7 +134,7 @@ public final class KnownTypeAdapters {
     /**
      * Helper class for {@link short}.
      */
-    public static final class PrimitiveShortTypeAdapter{
+    public static final class PrimitiveShortTypeAdapter {
 
         public static short read(JsonReader in, short defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -175,7 +175,7 @@ public final class KnownTypeAdapters {
     /**
      * Helper class for {@link int}.
      */
-    public static final class PrimitiveIntTypeAdapter{
+    public static final class PrimitiveIntTypeAdapter {
 
         public static int read(JsonReader in, int defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -218,7 +218,7 @@ public final class KnownTypeAdapters {
     /**
      * Helper class for {@link long}.
      */
-    public static final class PrimitiveLongTypeAdapter{
+    public static final class PrimitiveLongTypeAdapter {
 
         public static long read(JsonReader in, long defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -257,7 +257,7 @@ public final class KnownTypeAdapters {
     /**
      * Helper class for {@link float}.
      */
-    public static final class PrimitiveFloatTypeAdapter{
+    public static final class PrimitiveFloatTypeAdapter {
 
         public static float read(JsonReader in, float defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -275,8 +275,6 @@ public final class KnownTypeAdapters {
             out.value(value);
         }
     }
-
-
 
 
     /**
@@ -297,7 +295,7 @@ public final class KnownTypeAdapters {
     /**
      * Helper class for {@link double}.
      */
-    public static final class PrimitiveDoubleTypeAdapter{
+    public static final class PrimitiveDoubleTypeAdapter {
 
         public static double read(JsonReader in, double defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -319,7 +317,7 @@ public final class KnownTypeAdapters {
     /**
      * Helper class for {@link char}.
      */
-    public static final class PrimitiveCharTypeAdapter{
+    public static final class PrimitiveCharTypeAdapter {
 
         public static char read(JsonReader in, char defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -342,7 +340,7 @@ public final class KnownTypeAdapters {
     /**
      * Helper class for {@link boolean}.
      */
-    public static final class PrimitiveBooleanTypeAdapter{
+    public static final class PrimitiveBooleanTypeAdapter {
 
         public static boolean read(JsonReader in, boolean defaultValue) throws IOException {
             JsonToken peek = in.peek();
@@ -1043,7 +1041,7 @@ public final class KnownTypeAdapters {
         public JsonPrimitive read(JsonReader in) throws IOException {
             JsonElement jsonElement = JSON_ELEMENT.read(in);
             return jsonElement != null &&
-                   jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
+                    jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
         }
     }.nullSafe();
 
