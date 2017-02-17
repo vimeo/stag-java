@@ -435,6 +435,113 @@ public class KnownTypeAdaptersTest {
     }
 
     /**
+     * Test for {@link KnownTypeAdapters.PrimitiveBooleanTypeAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForPrimitiveBooleanTypeAdapter() throws Exception {
+        boolean value = true;
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveBooleanTypeAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        boolean readValue = KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(new JsonReader(new StringReader(jsonString)), false);
+
+        Assert.assertEquals(value, readValue);
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters.PrimitiveBooleanArrayAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForPrimitiveArrayBooleanTypeAdapter() throws Exception {
+        boolean[] value = new boolean[5];
+
+        value[0] = true;
+        value[1] = false;
+        value[2] = true;
+        value[3] = true;
+        value[4] = false;
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveBooleanArrayAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        boolean[] readValue = KnownTypeAdapters.PrimitiveBooleanArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertArrayEquals(value, readValue);
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters.PrimitiveCharTypeAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForPrimitiveCharacterTypeAdapter() throws Exception {
+        char value = 'A';
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveCharTypeAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        char readValue = KnownTypeAdapters.PrimitiveCharTypeAdapter.read(new JsonReader(new StringReader(jsonString)), 'B');
+
+        Assert.assertEquals(value, readValue);
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters.PrimitiveCharTypeAdapter}
+     *
+     * @throws Exception
+     */
+    // TODO: 2/17/17 This test is broken
+    // @Test
+    public void testForPrimitiveArrayCharacterTypeAdapter() throws Exception {
+        // test an actual char array
+        char[] value = new char[5];
+
+        value[0] = 'a';
+        value[1] = 'b';
+        value[2] = 'c';
+        value[3] = 'd';
+        value[4] = 'e';
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter = new StringWriter();
+        KnownTypeAdapters.PrimitiveCharArrayAdapter.write(new JsonWriter(stringWriter), value);
+        String jsonString = stringWriter.toString();
+
+        // call the TypeAdapter#read method
+        char[] readValue = KnownTypeAdapters.PrimitiveCharArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertArrayEquals(value, readValue);
+
+        // test a string as a char array
+        char[] value1 = "abcde".toCharArray();
+
+        // create a string writer, and write the value to it using adapter
+        StringWriter stringWriter1 = new StringWriter();
+        KnownTypeAdapters.PrimitiveCharArrayAdapter.write(new JsonWriter(stringWriter1), value1);
+        String jsonString1 = stringWriter1.toString();
+
+        // call the TypeAdapter#read method
+        char[] readValue1 = KnownTypeAdapters.PrimitiveCharArrayAdapter.read(new JsonReader(new StringReader(jsonString1)));
+
+        Assert.assertArrayEquals(value1, readValue1);
+    }
+
+    /**
      * Test for {@link KnownTypeAdapters.ListTypeAdapter}
      *
      * @throws Exception
