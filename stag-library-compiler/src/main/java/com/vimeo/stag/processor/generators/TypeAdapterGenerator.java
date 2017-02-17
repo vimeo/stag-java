@@ -34,6 +34,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.KnownTypeAdapters;
 import com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter;
 import com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter;
 import com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter;
@@ -231,11 +232,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 .addAnnotation(Override.class)
                 .addException(IOException.class);
 
-        builder.addCode("\tif (reader.peek() == com.google.gson.stream.JsonToken.NULL) {\n" +
+        builder.addCode("\tcom.google.gson.stream.JsonToken peek = reader.peek();\n");
+        builder.addCode("\tif (com.google.gson.stream.JsonToken.NULL == peek) {\n" +
                         "\t\treader.nextNull();\n" +
                         "\t\treturn null;\n" +
                         "\t}\n" +
-                        "\tif (reader.peek() != com.google.gson.stream.JsonToken.BEGIN_OBJECT) {\n" +
+                        "\tif (com.google.gson.stream.JsonToken.BEGIN_OBJECT != peek) {\n" +
                         "\t\treader.skipValue();\n" +
                         "\t\treturn null;\n" +
                         "\t}\n" +
@@ -245,11 +247,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         "();\n" +
                         "\twhile (reader.hasNext()) {\n" +
                         "\t\tString name = reader.nextName();\n" +
-                        "\t\tcom.google.gson.stream.JsonToken jsonToken = reader.peek();\n" +
-                        "\t\tif (jsonToken == com.google.gson.stream.JsonToken.NULL) {\n" +
-                        "\t\t\treader.skipValue();\n" +
-                        "\t\t\tcontinue;\n" +
-                        "\t\t}\n" +
                         "\t\tswitch (name) {\n");
 
         final List<String> nonNullFields = new ArrayList<>();
@@ -268,8 +265,18 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 }
             }
 
-            builder.addCode("\t\t\t\tobject." + variableName + " = " +
-                            adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);");
+            String variableType = element.getValue().toString();
+            boolean isPrimitive = TypeUtils.isSupportedPrimitive(variableType);
+
+            if(isPrimitive) {
+                builder.addCode("\t\t\t\tobject." + variableName + " = " +
+                        adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader, object." + variableName +  ");");
+
+            } else {
+                builder.addCode("\t\t\t\tobject." + variableName + " = " +
+                        adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);");
+            }
+
 
             builder.addCode("\n\t\t\t\tbreak;\n");
             runIfAnnotationSupported(element.getKey().getAnnotationMirrors(), new Runnable() {
@@ -607,6 +614,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             if (hasUnknownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
                 adapterAccessor = getAdapterForUnknownType(fieldType, adapterBuilder, constructorBuilder,
                                                            typeTokenConstantsGenerator, typeVarsMap, result);
+            } else if(KnownTypeAdapterUtils.hasNativePrimitiveTypeAdapter(fieldType)) {
+                adapterAccessor = KnownTypeAdapterUtils.getNativePrimitiveTypeAdapter(fieldType);
             } else {
                 adapterAccessor = getAdapterAccessor(fieldType, adapterBuilder, constructorBuilder,
                                                      typeTokenConstantsGenerator, typeVarsMap, stagGenerator,

@@ -46,10 +46,24 @@ import javax.lang.model.util.Types;
 
 public final class TypeUtils {
 
+    @NotNull
+    private static final HashMap<String, String> PRIMITIVE_TO_OBJECT_MAP = new HashMap<>();
+
     private static final String TAG = TypeUtils.class.getSimpleName();
     @Nullable
     private static Types sTypeUtils;
 
+
+    static {
+        PRIMITIVE_TO_OBJECT_MAP.put(boolean.class.getName(), Boolean.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(int.class.getName(), Integer.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(short.class.getName(), Short.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(double.class.getName(), Double.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(long.class.getName(), Long.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(float.class.getName(), Float.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(char.class.getName(), Character.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(byte.class.getName(), Byte.class.getName());
+    }
     private TypeUtils() {
         throw new UnsupportedOperationException("This class is not instantiable");
     }
@@ -415,10 +429,17 @@ public final class TypeUtils {
      * @return boolean
      */
     public static boolean isSupportedPrimitive(@NotNull String type) {
-        return type.equals(long.class.getName()) || type.equals(double.class.getName()) ||
-                type.equals(boolean.class.getName()) || type.equals(float.class.getName()) ||
-                type.equals(int.class.getName()) || type.equals(char.class.getName()) ||
-                type.equals(short.class.getName()) || type.equals(byte.class.getName());
+        return PRIMITIVE_TO_OBJECT_MAP.containsKey(type);
+    }
+
+    /**
+     * Method to check if the {@link TypeMirror} is of primitive type
+     *
+     * @param type :TypeMirror type
+     * @return String
+     */
+    public static String getObjectForPrimitive(@NotNull String type) {
+        return PRIMITIVE_TO_OBJECT_MAP.get(type);
     }
 
     /**

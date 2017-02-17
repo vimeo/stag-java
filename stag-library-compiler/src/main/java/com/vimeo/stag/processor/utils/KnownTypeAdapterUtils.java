@@ -50,6 +50,9 @@ public final class KnownTypeAdapterUtils {
     @NotNull
     private static final HashMap<String, String> KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS = new HashMap<>();
 
+    @NotNull
+    private static final HashMap<String, String> KNOWN_PRIMITIVE_TYPE_ADAPTERS = new HashMap<>();
+
     static {
         KNOWN_TYPE_ADAPTERS.put(BitSet.class.getName(), typeAdapters(TypeAdapters.BIT_SET));
         KNOWN_TYPE_ADAPTERS.put(Boolean.class.getName(), typeAdapters(TypeAdapters.BOOLEAN));
@@ -91,6 +94,15 @@ public final class KnownTypeAdapterUtils {
         KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(float[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveFloatArrayAdapter.class));
         KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(boolean[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveBooleanArrayAdapter.class));
         KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.put(byte[].class.getSimpleName(), className(KnownTypeAdapters.PrimitiveByteArrayAdapter.class));
+
+        KNOWN_PRIMITIVE_TYPE_ADAPTERS.put(int.class.getSimpleName(), className(KnownTypeAdapters.PrimitiveIntTypeAdapter.class));
+        KNOWN_PRIMITIVE_TYPE_ADAPTERS.put(long.class.getSimpleName(), className(KnownTypeAdapters.PrimitiveLongTypeAdapter.class));
+        KNOWN_PRIMITIVE_TYPE_ADAPTERS.put(double.class.getSimpleName(), className(KnownTypeAdapters.PrimitiveDoubleTypeAdapter.class));
+        KNOWN_PRIMITIVE_TYPE_ADAPTERS.put(short.class.getSimpleName(), className(KnownTypeAdapters.PrimitiveShortTypeAdapter.class));
+        KNOWN_PRIMITIVE_TYPE_ADAPTERS.put(char.class.getSimpleName(), className(KnownTypeAdapters.PrimitiveCharTypeAdapter.class));
+        KNOWN_PRIMITIVE_TYPE_ADAPTERS.put(float.class.getSimpleName(), className(KnownTypeAdapters.PrimitiveFloatTypeAdapter.class));
+        KNOWN_PRIMITIVE_TYPE_ADAPTERS.put(boolean.class.getSimpleName(), className(KnownTypeAdapters.PrimitiveBooleanTypeAdapter.class));
+        KNOWN_PRIMITIVE_TYPE_ADAPTERS.put(byte.class.getSimpleName(), className(KnownTypeAdapters.PrimitiveByteTypeAdapter.class));
 
         SUPPORTED_COLLECTION_INSTANTIATORS.put(ArrayList.class.getName(), className(KnownTypeAdapters.ArrayListInstantiator.class));
         SUPPORTED_COLLECTION_INSTANTIATORS.put(List.class.getName(), className(KnownTypeAdapters.ListInstantiator.class));
@@ -215,5 +227,27 @@ public final class KnownTypeAdapterUtils {
     public static String getNativePrimitiveArrayTypeAdapter(@NotNull TypeMirror typeMirror) {
         String outerClassType = TypeUtils.getOuterClassType(typeMirror);
         return KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS.get(outerClassType);
+    }
+
+    /**
+     * Get the type adapter for primitive types
+     *
+     * @param typeMirror TypeMirror typeMirror
+     * @return adapterName
+     */
+    @Nullable
+    public static String getNativePrimitiveTypeAdapter(@NotNull TypeMirror typeMirror) {
+        return KNOWN_PRIMITIVE_TYPE_ADAPTERS.get(typeMirror.toString());
+    }
+
+    /**
+     * Get the type adapter for primitive types
+     *
+     * @param typeMirror TypeMirror typeMirror
+     * @return true if this has a primitive type Adapater
+     */
+    @Nullable
+    public static boolean hasNativePrimitiveTypeAdapter(@NotNull TypeMirror typeMirror) {
+        return KNOWN_PRIMITIVE_TYPE_ADAPTERS.containsKey(typeMirror.toString());
     }
 }
