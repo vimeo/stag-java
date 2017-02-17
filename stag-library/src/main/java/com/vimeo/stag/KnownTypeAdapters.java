@@ -345,10 +345,11 @@ public final class KnownTypeAdapters {
     public static final class PrimitiveBooleanTypeAdapter{
 
         public static boolean read(JsonReader in, boolean defaultValue) throws IOException {
-            if (in.peek() == JsonToken.NULL) {
+            JsonToken peek = in.peek();
+            if (peek == JsonToken.NULL) {
                 in.nextNull();
                 return defaultValue;
-            } else if (in.peek() == JsonToken.STRING) {
+            } else if (peek == JsonToken.STRING) {
                 // support strings for compatibility with GSON 1.7
                 return Boolean.parseBoolean(in.nextString());
             }
@@ -356,7 +357,7 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(JsonWriter out, boolean value) throws IOException {
-            out.value(String.valueOf(value));
+            out.value(value);
         }
     }
 
