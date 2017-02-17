@@ -501,7 +501,7 @@ public class KnownTypeAdaptersTest {
     }
 
     /**
-     * Test for {@link KnownTypeAdapters.PrimitiveCharTypeAdapter}
+     * Test for {@link KnownTypeAdapters.PrimitiveCharArrayAdapter}
      *
      * @throws Exception
      */
