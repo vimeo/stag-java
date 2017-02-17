@@ -13,6 +13,8 @@ import org.junit.Test;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class KnownTypeAdaptersTest {
 
@@ -236,7 +238,7 @@ public class KnownTypeAdaptersTest {
     }
 
     /**
-     * Test for ListTypeAdapter
+     * Test for {@link KnownTypeAdapters.ListTypeAdapter}
      *
      * @throws Exception
      */
@@ -275,6 +277,44 @@ public class KnownTypeAdaptersTest {
         for (int i = 0; i < intDummyList.size(); i++) {
             Assert.assertEquals(intDummyList.get(i), readValue1.get(i));
         }
+    }
+
+    /**
+     * Test for {@link KnownTypeAdapters.MapTypeAdapter}
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testForMapTypeAdapter() throws Exception {
+
+        // for string arrays
+        HashMap<String, String> dummyMap = Utils.createStringDummyMap();
+
+        TypeAdapter<HashMap<String, String>> mapTypeAdapter = new KnownTypeAdapters.MapTypeAdapter<>(TypeAdapters.STRING, TypeAdapters.STRING,
+                new KnownTypeAdapters.HashMapInstantiator<String, String>());
+
+        StringWriter stringWriter = new StringWriter();
+        mapTypeAdapter.write(new JsonWriter(stringWriter), dummyMap);
+        String jsonString = stringWriter.toString();
+
+        HashMap<String, String> readValue = mapTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertEquals(dummyMap.size(), readValue.size());
+        Utils.assertMapsEqual(dummyMap, readValue);
+
+        // for integer arrays
+        HashMap<Integer, Integer> intDummyMap = Utils.createIntegerDummyMap();
+
+        TypeAdapter<HashMap<Integer, Integer>> mapTypeAdapter1 = new KnownTypeAdapters.MapTypeAdapter<>(KnownTypeAdapters.INTEGER, KnownTypeAdapters.INTEGER,
+                new KnownTypeAdapters.HashMapInstantiator<Integer, Integer>());
+        stringWriter = new StringWriter();
+        mapTypeAdapter1.write(new JsonWriter(stringWriter), intDummyMap);
+        jsonString = stringWriter.toString();
+
+        HashMap<Integer, Integer> readValue1 = mapTypeAdapter1.read(new JsonReader(new StringReader(jsonString)));
+
+        Assert.assertEquals(intDummyMap.size(), readValue1.size());
+        Utils.assertMapsEqual(intDummyMap, readValue1);
     }
 
     /**
