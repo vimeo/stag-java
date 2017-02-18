@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -338,11 +339,12 @@ public final class KnownTypeAdapters {
         }
     }
 
-
     /**
      * Helper class for {@link boolean}.
      */
     public static final class PrimitiveBooleanTypeAdapter{
+
+        private static final List<String> VALID_BOOLEAN_AS_STRING = Arrays.asList("true", "false", "1", "0");
 
         public static boolean read(JsonReader in, boolean defaultValue) throws IOException {
             JsonToken peek = in.peek();
@@ -351,13 +353,23 @@ public final class KnownTypeAdapters {
                 return defaultValue;
             } else if (peek == JsonToken.STRING) {
                 // support strings for compatibility with GSON 1.7
-                return Boolean.parseBoolean(in.nextString());
+                return Boolean.parseBoolean(booleanAsString(in.nextString()));
             }
             return in.nextBoolean();
         }
 
         public static void write(JsonWriter out, boolean value) throws IOException {
             out.value(value);
+        }
+
+        private static String booleanAsString(String string) {
+            String value;
+            if (VALID_BOOLEAN_AS_STRING.contains(string)) {
+                value = string.equals("1") || string.equals("true") ? "true" : "false";
+            } else {
+                throw new JsonSyntaxException(string + " cannot be parsed as a boolean value");
+            }
+            return value;
         }
     }
 
