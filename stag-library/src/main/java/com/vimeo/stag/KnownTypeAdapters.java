@@ -677,8 +677,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable char[] value) throws IOException {
-            if (null != value) {
-                String string = String.valueOf(value);
+            int length = value != null ? value.length : 0;
+            if (length > 0) {
+                String string = String.valueOf(value, 0, length);
                 STRING_NULL_SAFE_TYPE_ADAPTER.write(writer, string);
             }
         }
