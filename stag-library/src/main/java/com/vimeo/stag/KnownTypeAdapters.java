@@ -678,11 +678,8 @@ public final class KnownTypeAdapters {
 
         public static void write(@NotNull JsonWriter writer, @Nullable char[] value) throws IOException {
             if (null != value) {
-                writer.beginArray();
-                for (char item : value) {
-                    writer.value(item);
-                }
-                writer.endArray();
+                String string = String.valueOf(value);
+                STRING_NULL_SAFE_TYPE_ADAPTER.write(writer, string);
             }
         }
 
