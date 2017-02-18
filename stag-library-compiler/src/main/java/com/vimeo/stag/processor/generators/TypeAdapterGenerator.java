@@ -299,11 +299,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         for (String nonNullField : nonNullFields) {
             builder.addCode("\n\tif (object." + nonNullField + " == null) {");
-            builder.addCode("\n\t\tthrow new java.io.IOException(\"" + nonNullField + " cannot be null\");");
-            builder.addCode("\n\t}\n\n");
+            builder.addCode("\n\t\tthrow new java.io.IOException(\"" + nonNullField +
+                    " marked as @NonNull, but was null while reading " + typeName  + " object\");");
+            builder.addCode("\n\t}\n");
         }
 
-        builder.addCode("\treturn object;\n");
+        builder.addCode("\n\treturn object;\n");
 
         return builder.build();
     }
@@ -642,7 +643,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @NotNull
-    private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName,
+    private static MethodSpec getWriteMethodSpec(@NotNull final TypeName typeName,
                                                  @NotNull Map<Element, TypeMirror> memberVariables,
                                                  @NotNull AdapterFieldInfo adapterFieldInfo) {
         final MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
@@ -685,7 +686,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         builder.endControlFlow();
                         builder.beginControlFlow("else if (object." + variableName + " == null)");
                         builder.addStatement("throw new java.io.IOException(\"" + variableName +
-                                             " cannot be null\")");
+                                             " marked as @NonNull, but was null while writing " + typeName + " object\")");
                     }
                 });
 
