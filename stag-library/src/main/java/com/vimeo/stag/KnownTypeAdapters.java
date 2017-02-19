@@ -31,6 +31,7 @@ import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.MalformedJsonException;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -349,7 +350,7 @@ public final class KnownTypeAdapters {
             if (peek == JsonToken.NULL) {
                 in.nextNull();
                 return defaultValue;
-            } else if (peek == JsonToken.STRING) {
+            } else if (peek == JsonToken.STRING || peek == JsonToken.NUMBER) {
                 // support strings for compatibility with GSON 1.7
                 return Boolean.parseBoolean(booleanAsString(in.nextString()));
             }
@@ -360,11 +361,11 @@ public final class KnownTypeAdapters {
             out.value(value);
         }
 
-        private static String booleanAsString(String string) {
+        private static String booleanAsString(String string) throws MalformedJsonException {
             if (VALID_BOOLEAN_AS_STRING.contains(string)) {
                 return string.equals("1") || string.equals("true") ? "true" : "false";
             } else {
-                throw new JsonSyntaxException(string + " cannot be parsed as a boolean value");
+                throw new MalformedJsonException(string + " cannot be parsed as a boolean value");
             }
         }
     }
