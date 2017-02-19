@@ -2,10 +2,12 @@ package com.vimeo.stag;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.google.gson.stream.MalformedJsonException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -439,7 +441,7 @@ public class KnownTypeAdaptersTest {
      *
      * @throws Exception
      */
-    @Test
+    @Test (expected = MalformedJsonException.class)
     public void testForPrimitiveBooleanTypeAdapter() throws Exception {
         boolean value = true;
 
@@ -450,8 +452,36 @@ public class KnownTypeAdaptersTest {
 
         // call the TypeAdapter#read method
         boolean readValue = KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(new JsonReader(new StringReader(jsonString)), false);
-
         Assert.assertEquals(value, readValue);
+
+        String booleanString = "true";
+        // call the TypeAdapter#read method
+        readValue = KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(new JsonReader(new StringReader(booleanString)), false);
+        Assert.assertEquals(true, readValue);
+
+        booleanString = "false";
+        // call the TypeAdapter#read method
+        readValue = KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(new JsonReader(new StringReader(booleanString)), false);
+        Assert.assertEquals(false, readValue);
+
+        booleanString = "abcde"; // not valid, throw exception
+        // call the TypeAdapter#read method
+        readValue = KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(new JsonReader(new StringReader(booleanString)), false);
+        Assert.assertEquals(false, readValue);
+
+        booleanString = "1"; // 1 is treated as true
+        // call the TypeAdapter#read method
+        readValue = KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(new JsonReader(new StringReader(booleanString)), false);
+        Assert.assertEquals(true, readValue);
+
+        booleanString = "0"; // 0 is treated as false
+        // call the TypeAdapter#read method
+        readValue = KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(new JsonReader(new StringReader(booleanString)), false);
+        Assert.assertEquals(false, readValue);
+
+        booleanString = "2"; // not valid, throw exception
+        // call the TypeAdapter#read method
+        readValue = KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(new JsonReader(new StringReader(booleanString)), false);
     }
 
     /**
