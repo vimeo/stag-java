@@ -505,8 +505,7 @@ public class KnownTypeAdaptersTest {
      *
      * @throws Exception
      */
-    // TODO: 2/17/17 This test is broken
-    // @Test
+    @Test
     public void testForPrimitiveArrayCharacterTypeAdapter() throws Exception {
         // test an actual char array
         char[] value = new char[5];
@@ -662,38 +661,4 @@ public class KnownTypeAdaptersTest {
         }
     }
 
-    @Test
-    public void testForPrimitiveArrayCharacterTypeAdapter() throws Exception {
-        // test an actual char array
-        char[] value = new char[5];
-
-        value[0] = 'a';
-        value[1] = 'b';
-        value[2] = 'c';
-        value[3] = 'd';
-        value[4] = 'e';
-
-        // create a string writer, and write the value to it using adapter
-        StringWriter stringWriter = new StringWriter();
-        KnownTypeAdapters.PrimitiveCharArrayAdapter.write(new JsonWriter(stringWriter), value);
-        String jsonString = stringWriter.toString();
-
-        // call the TypeAdapter#read method
-        char[] readValue = KnownTypeAdapters.PrimitiveCharArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
-
-        Assert.assertArrayEquals(value, readValue);
-
-        // test a string as a char array
-        char[] value1 = "abcde".toCharArray();
-
-        // create a string writer, and write the value to it using adapter
-        StringWriter stringWriter1 = new StringWriter();
-        KnownTypeAdapters.PrimitiveCharArrayAdapter.write(new JsonWriter(stringWriter1), value1);
-        String jsonString1 = stringWriter1.toString();
-
-        // call the TypeAdapter#read method
-        char[] readValue1 = KnownTypeAdapters.PrimitiveCharArrayAdapter.read(new JsonReader(new StringReader(jsonString1)));
-
-        Assert.assertArrayEquals(value1, readValue1);
-    }
 }
