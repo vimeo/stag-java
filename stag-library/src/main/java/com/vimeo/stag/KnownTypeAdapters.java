@@ -363,13 +363,11 @@ public final class KnownTypeAdapters {
         }
 
         private static String booleanAsString(String string) {
-            String value;
             if (VALID_BOOLEAN_AS_STRING.contains(string)) {
-                value = string.equals("1") || string.equals("true") ? "true" : "false";
+                return string.equals("1") || string.equals("true") ? "true" : "false";
             } else {
                 throw new JsonSyntaxException(string + " cannot be parsed as a boolean value");
             }
-            return value;
         }
     }
 
