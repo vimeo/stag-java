@@ -27,7 +27,6 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.annotations.JsonAdapter;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,6 +47,7 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Types;
 
 public final class TypeUtils {
@@ -554,7 +554,11 @@ public final class TypeUtils {
      * @return {@link JsonAdapterType}
      */
     public static JsonAdapterType getJsonAdapterType(@NotNull TypeMirror type) {
-        if(sTypeUtils.isSubtype(type, ElementUtils.getTypeFromQualifiedName(TypeAdapter.class.getName()))) {
+        WildcardType WILDCARD_TYPE_NULL = sTypeUtils.getWildcardType(null, null);
+        TypeMirror[] typex = {WILDCARD_TYPE_NULL};
+        final TypeElement typeAdapterElement = ElementUtils.getTypeElementFromQualifiedName(TypeAdapter.class.getName());
+        DeclaredType typeAdapter = sTypeUtils.getDeclaredType(typeAdapterElement, typex);
+        if(sTypeUtils.isSubtype(type, typeAdapter)) {
             return JsonAdapterType.TYPE_ADAPTER;
         } else if(sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
             return JsonAdapterType.TYPE_ADAPTER_FACTORY;

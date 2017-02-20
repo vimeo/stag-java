@@ -42,7 +42,6 @@ import com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
-import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
@@ -54,12 +53,10 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import javax.lang.model.element.AnnotationMirror;
-import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
@@ -612,6 +609,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             TypeMirror fieldType = entry.getValue();
             JsonAdapter annotation = entry.getKey().getAnnotation(JsonAdapter.class);
             String adapterAccessor;
+            TypeUtils.JsonAdapterType jsonAdapterType1 = TypeUtils.JsonAdapterType.NONE;
             if(null != annotation) {
                 TypeMirror jsonAdapterType = null;
                 Element jsonAdapterTypeElement = null;
@@ -625,7 +623,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 {
                     jsonAdapterType = mte.getTypeMirror();
                     jsonAdapterTypeElement = TypeUtils.getElementFromTypeMirror(jsonAdapterType);
-                    TypeUtils.JsonAdapterType jsonAdapterType1 = TypeUtils.getJsonAdapterType(jsonAdapterType);
+                    jsonAdapterType1 = TypeUtils.getJsonAdapterType(jsonAdapterType);
                     for(Element element : jsonAdapterTypeElement.getEnclosedElements()) {
                         if (element instanceof ExecutableElement) {
                             ExecutableElement executableElement =
