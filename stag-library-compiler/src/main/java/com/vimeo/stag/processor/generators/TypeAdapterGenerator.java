@@ -34,7 +34,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.vimeo.stag.KnownTypeAdapters;
 import com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter;
 import com.vimeo.stag.KnownTypeAdapters.ListTypeAdapter;
 import com.vimeo.stag.KnownTypeAdapters.MapTypeAdapter;
@@ -722,6 +721,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
                 .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
                                        .addMember("value", "\"unchecked\"")
+                                       .addMember("value", "\"rawtypes\"")
                                        .build())
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Gson.class, "gson")
