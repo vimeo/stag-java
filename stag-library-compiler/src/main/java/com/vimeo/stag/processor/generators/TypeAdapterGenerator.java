@@ -708,8 +708,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
      */
     @Override
     @NotNull
-    public TypeSpec getTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                       @NotNull StagGenerator stagGenerator) {
+    public TypeSpec createTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
+                                          @NotNull StagGenerator stagGenerator) {
         sGsonVariableUsed = false;
         sStagFactoryUsed = false;
         TypeMirror typeMirror = mInfo.getType();

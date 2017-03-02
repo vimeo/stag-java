@@ -67,7 +67,7 @@ public abstract class AdapterGenerator {
     }
 
     @NotNull
-    public abstract TypeSpec getTypeAdapterSpec(
+    public abstract TypeSpec createTypeAdapterSpec(
             @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
             @NotNull StagGenerator stagGenerator);
 }

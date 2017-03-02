@@ -30,7 +30,6 @@ import com.google.gson.reflect.TypeToken;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -47,7 +46,6 @@ import com.vimeo.stag.processor.utils.TypeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -58,7 +56,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.DeclaredType;
@@ -86,8 +83,6 @@ public class StagGenerator {
     }
 
     @NotNull
-    private final Filer mFiler;
-    @NotNull
     private final List<ClassInfo> mKnownClasses;
     @NotNull
     private final HashMap<String, String> mFieldNameMap = new HashMap<>();
@@ -108,10 +103,9 @@ public class StagGenerator {
     @NotNull
     private final HashMap<String, String> mKnownFieldToMethodNameMap = new HashMap<>();
 
-    public StagGenerator(@NotNull String generatedPackageName, @NotNull Filer filer,
+    public StagGenerator(@NotNull String generatedPackageName,
                          @NotNull Set<TypeMirror> knownTypes,
                          @NotNull Set<ExternalAdapterInfo> externalSupportedAdapters) {
-        mFiler = filer;
         mKnownTypes = knownTypes;
         mGeneratedPackageName = generatedPackageName;
         mKnownClasses = new ArrayList<>(knownTypes.size());
@@ -282,19 +276,17 @@ public class StagGenerator {
 
     /**
      * Generates the public API in the form of the {@code Stag.Factory} type adapter factory
-     * for the annotated classes.
+     * for the annotated classes. Creates the spec for the class.
      *
-     * @throws IOException throws an exception
-     *                     if we are unable to write the file
-     *                     to the filesystem.
+     * @return A non null TypeSpec for the factory class.
      */
-    public void generateTypeAdapterFactory(@NotNull String generatedPackageName) throws IOException {
-        TypeSpec.Builder adaptersBuilder =
+    @NotNull
+    public TypeSpec createStagSpec() {
+        TypeSpec.Builder stagBuilder =
                 TypeSpec.classBuilder(CLASS_STAG).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-        adaptersBuilder.addType(getAdapterFactorySpec());
+        stagBuilder.addType(getAdapterFactorySpec());
 
-        JavaFile javaFile = JavaFile.builder(generatedPackageName, adaptersBuilder.build()).build();
-        FileGenUtils.writeToFile(javaFile, mFiler);
+        return stagBuilder.build();
     }
 
     @NotNull

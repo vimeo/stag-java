@@ -27,21 +27,17 @@ package com.vimeo.stag.processor.generators;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.vimeo.stag.processor.utils.FileGenUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
 
@@ -52,14 +48,11 @@ public class TypeTokenConstantsGenerator {
     private static final String FIELD_PREFIX = "TYPE_TOKEN_";
 
     @NotNull
-    private final Filer mFiler;
-    @NotNull
     private final HashMap<String, TypeTokenInfo> mTypesToBeGenerated = new HashMap<>();
     @NotNull
     private final String mGeneratedPackageName;
 
-    public TypeTokenConstantsGenerator(@NotNull Filer filer, @NotNull String generatedPackageName) {
-        mFiler = filer;
+    public TypeTokenConstantsGenerator(@NotNull String generatedPackageName) {
         mGeneratedPackageName = generatedPackageName;
     }
 
@@ -98,38 +91,30 @@ public class TypeTokenConstantsGenerator {
             mTypesToBeGenerated.put(typeString, typeTokenInfo);
         }
 
-        return mGeneratedPackageName + "." + CLASS_STAG_TYPE_TOKEN_CONSTANTS + "." +
-               typeTokenInfo.mMethodName;
+        return mGeneratedPackageName + "." + CLASS_STAG_TYPE_TOKEN_CONSTANTS + "." + typeTokenInfo.mMethodName;
     }
 
     /**
      * Generates the public API in the form of the {@code Stag.Factory} type adapter factory
-     * for the annotated classes.
+     * for the annotated classes. Creates the spec for the class.
      *
-     * @throws IOException throws an exception
-     *                     if we are unable to write the file
-     *                     to the filesystem.
+     * @return A non null TypeSpec for the type token constants class.
      */
-    public void generateTypeTokenConstants() throws IOException {
-        if (!mTypesToBeGenerated.isEmpty()) {
-            TypeSpec.Builder adaptersBuilder = TypeSpec.classBuilder(CLASS_STAG_TYPE_TOKEN_CONSTANTS)
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+    public TypeSpec createTypeTokenConstantsSpec() {
+        TypeSpec.Builder typeTokenConstantsBuilder = TypeSpec.classBuilder(CLASS_STAG_TYPE_TOKEN_CONSTANTS)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
-            for (Map.Entry<String, TypeTokenInfo> entry : mTypesToBeGenerated.entrySet()) {
-                TypeTokenInfo typeTokenInfo = entry.getValue();
-                TypeName typeName = TypeVariableName.get(typeTokenInfo.mTypeMirror);
-                TypeName parameterizedTypeName =
-                        ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName);
-                FieldSpec.Builder fieldSpecBuilder =
-                        FieldSpec.builder(parameterizedTypeName, typeTokenInfo.mFieldName, Modifier.PUBLIC,
-                                          Modifier.STATIC);
-                adaptersBuilder.addField(fieldSpecBuilder.build());
-                adaptersBuilder.addMethod(generateTypeTokenGetters(typeTokenInfo.mFieldName, typeName));
-            }
+        for (Map.Entry<String, TypeTokenInfo> entry : mTypesToBeGenerated.entrySet()) {
+            TypeTokenInfo typeTokenInfo = entry.getValue();
+            TypeName typeName = TypeVariableName.get(typeTokenInfo.mTypeMirror);
+            TypeName parameterizedTypeName = ParameterizedTypeName.get(ClassName.get(TypeToken.class), typeName);
 
-            JavaFile javaFile = JavaFile.builder(mGeneratedPackageName, adaptersBuilder.build()).build();
-            FileGenUtils.writeToFile(javaFile, mFiler);
+            FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName, typeTokenInfo.mFieldName, Modifier.PUBLIC, Modifier.STATIC);
+            typeTokenConstantsBuilder.addField(fieldSpecBuilder.build());
+            typeTokenConstantsBuilder.addMethod(generateTypeTokenGetters(typeTokenInfo.mFieldName, typeName));
         }
+
+        return typeTokenConstantsBuilder.build();
     }
 
     private static class TypeTokenInfo {
