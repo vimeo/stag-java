@@ -77,14 +77,6 @@ public final class StagProcessor extends AbstractProcessor {
     private boolean mHasBeenProcessed;
 
     @Override
-    public Set<String> getSupportedAnnotationTypes() {
-        Set<String> set = new HashSet<>();
-        set.add(GsonAdapterKey.class.getCanonicalName());
-        set.add(UseStag.class.getCanonicalName());
-        return set;
-    }
-
-    @Override
     public SourceVersion getSupportedSourceVersion() {
         return SourceVersion.RELEASE_7;
     }
