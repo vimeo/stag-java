@@ -54,6 +54,6 @@ apt {
 
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+        options.compilerArgs << "-Xlint:all,-deprecation,-serial,-processing" << "-Werror"
     }
 }

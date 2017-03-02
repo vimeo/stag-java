@@ -90,6 +90,29 @@ public final class KnownTypeAdapters {
     }.nullSafe();
 
     /**
+     * Helper class for {@link byte}.
+     */
+    public static final class PrimitiveByteTypeAdapter {
+
+        public static byte read(JsonReader in, byte defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return (byte) in.nextInt();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, byte value) throws IOException {
+            out.value(value);
+        }
+    }
+
+
+    /**
      * Type Adapter for {@link Short}.
      */
     public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
@@ -107,6 +130,28 @@ public final class KnownTypeAdapters {
             out.value(value);
         }
     }.nullSafe();
+
+    /**
+     * Helper class for {@link short}.
+     */
+    public static final class PrimitiveShortTypeAdapter {
+
+        public static short read(JsonReader in, short defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return (short) in.nextInt();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, short value) throws IOException {
+            out.value(value);
+        }
+    }
 
     /**
      * Type Adapter for {@link Integer}.
@@ -128,6 +173,29 @@ public final class KnownTypeAdapters {
     }.nullSafe();
 
     /**
+     * Helper class for {@link int}.
+     */
+    public static final class PrimitiveIntTypeAdapter {
+
+        public static int read(JsonReader in, int defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return in.nextInt();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, int value) throws IOException {
+            out.value(value);
+        }
+    }
+
+
+    /**
      * Type Adapter for {@link Long}.
      */
     public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
@@ -146,6 +214,30 @@ public final class KnownTypeAdapters {
         }
     }.nullSafe();
 
+
+    /**
+     * Helper class for {@link long}.
+     */
+    public static final class PrimitiveLongTypeAdapter {
+
+        public static long read(JsonReader in, long defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return in.nextLong();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, long value) throws IOException {
+            out.value(value);
+        }
+    }
+
+
     /**
      * Type Adapter for {@link Float}.
      */
@@ -161,6 +253,30 @@ public final class KnownTypeAdapters {
         }
     }.nullSafe();
 
+
+    /**
+     * Helper class for {@link float}.
+     */
+    public static final class PrimitiveFloatTypeAdapter {
+
+        public static float read(JsonReader in, float defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return (float) in.nextDouble();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, float value) throws IOException {
+            out.value(value);
+        }
+    }
+
+
     /**
      * Type Adapter for {@link Double}.
      */
@@ -175,6 +291,73 @@ public final class KnownTypeAdapters {
             out.value(value);
         }
     }.nullSafe();
+
+    /**
+     * Helper class for {@link double}.
+     */
+    public static final class PrimitiveDoubleTypeAdapter {
+
+        public static double read(JsonReader in, double defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return in.nextDouble();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, double value) throws IOException {
+            out.value(value);
+        }
+    }
+
+    /**
+     * Helper class for {@link char}.
+     */
+    public static final class PrimitiveCharTypeAdapter {
+
+        public static char read(JsonReader in, char defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            String str = in.nextString();
+            if (str.length() != 1) {
+                throw new JsonSyntaxException("Expecting character, got: " + str);
+            }
+            return str.charAt(0);
+        }
+
+        public static void write(JsonWriter out, char value) throws IOException {
+            out.value(String.valueOf(value));
+        }
+    }
+
+
+    /**
+     * Helper class for {@link boolean}.
+     */
+    public static final class PrimitiveBooleanTypeAdapter {
+
+        public static boolean read(JsonReader in, boolean defaultValue) throws IOException {
+            JsonToken peek = in.peek();
+            if (peek == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            } else if (peek == JsonToken.STRING) {
+                // support strings for compatibility with GSON 1.7
+                return Boolean.parseBoolean(in.nextString());
+            }
+            return in.nextBoolean();
+        }
+
+        public static void write(JsonWriter out, boolean value) throws IOException {
+            out.value(value);
+        }
+    }
 
     public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER =
             new ListTypeAdapter<>(INTEGER, new ArrayListInstantiator<Integer>());
@@ -225,11 +408,12 @@ public final class KnownTypeAdapters {
 
         @Override
         public T[] read(JsonReader reader) throws IOException {
-            if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
+            JsonToken peek = reader.peek();
+            if (JsonToken.NULL == peek) {
                 reader.nextNull();
                 return null;
             }
-            if (reader.peek() != JsonToken.BEGIN_ARRAY) {
+            if (JsonToken.BEGIN_ARRAY != peek) {
                 reader.skipValue();
                 return null;
             }
@@ -478,8 +662,7 @@ public final class KnownTypeAdapters {
         }
     }
 
-    static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER =
-            com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe();
+    static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER = TypeAdapters.STRING.nullSafe();
 
     /**
      * Type Adapter for char[] type. This can be directly accessed to read and write
@@ -491,12 +674,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable char[] value) throws IOException {
-            if (null != value) {
-                writer.beginArray();
-                for (char item : value) {
-                    writer.value(item);
-                }
-                writer.endArray();
+            if (value != null) {
+                String string = String.valueOf(value);
+                STRING_NULL_SAFE_TYPE_ADAPTER.write(writer, string);
             }
         }
 
@@ -613,12 +793,13 @@ public final class KnownTypeAdapters {
 
         @Override
         public T read(JsonReader reader) throws IOException {
-            if (reader.peek() == JsonToken.NULL) {
+            JsonToken peek = reader.peek();
+            if (JsonToken.NULL == peek) {
                 reader.nextNull();
                 return null;
             }
 
-            if (reader.peek() != JsonToken.BEGIN_ARRAY) {
+            if (JsonToken.BEGIN_ARRAY != peek) {
                 reader.skipValue();
                 return null;
             }
@@ -856,7 +1037,7 @@ public final class KnownTypeAdapters {
         public JsonPrimitive read(JsonReader in) throws IOException {
             JsonElement jsonElement = JSON_ELEMENT.read(in);
             return jsonElement != null &&
-                   jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
+                    jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
         }
     }.nullSafe();
 
