@@ -26,7 +26,6 @@ package com.vimeo.stag.processor;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
-import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
@@ -45,7 +44,6 @@ import com.vimeo.stag.processor.utils.TypeUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -61,11 +59,10 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 @AutoService(Processor.class)
-@SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag", "com.vimeo.stag.GsonAdapterKey"})
+@SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag"})
 @SupportedOptions(value = {StagProcessor.OPTION_PACKAGE_NAME, StagProcessor.OPTION_DEBUG})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
@@ -104,6 +101,8 @@ public final class StagProcessor extends AbstractProcessor {
             return true;
         }
 
+        mHasBeenProcessed = true;
+
         DEBUG = getDebugBoolean(processingEnv);
 
         String packageName = getOptionalPackageName(processingEnv);
@@ -116,25 +115,10 @@ public final class StagProcessor extends AbstractProcessor {
 
         DebugLog.log("\nBeginning @UseStag annotation processing\n");
 
-        mHasBeenProcessed = true;
-
         // Pick up the classes annotated with @UseStag
         Set<? extends Element> useStagElements = roundEnv.getElementsAnnotatedWith(UseStag.class);
         for (Element useStagElement : useStagElements) {
             processSupportedElements(useStagElement);
-        }
-
-        // Pick up classes that contain @GsonAdapterKey annotations for backwards compatibility
-        // TODO: Remove this code when we remove @GsonAdapterKey support 1/30/17 [AR]
-        Set<? extends Element> gsonAdapterKeyElements =
-                roundEnv.getElementsAnnotatedWith(GsonAdapterKey.class);
-        for (Element gsonAdapterKeyElement : gsonAdapterKeyElements) {
-            final VariableElement variableElement = (VariableElement) gsonAdapterKeyElement;
-
-            Element enclosingClassElement = variableElement.getEnclosingElement();
-            TypeMirror enclosingClass = enclosingClassElement.asType();
-            DebugLog.log("Annotated type: " + enclosingClass + "\n");
-            SupportedTypesModel.getInstance().addSupportedType(enclosingClass);
         }
 
         try {

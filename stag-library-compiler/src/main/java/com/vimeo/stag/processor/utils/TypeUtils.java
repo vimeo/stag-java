@@ -260,18 +260,20 @@ public final class TypeUtils {
 
     /**
      * Gets the inherited type from the element. If
-     * the inherited type is Object, then this method
-     * will return null.
+     * the inherited type is {@link Object} or {@link Enum},
+     * then this method will return null.
      *
      * @param element the element to get the inherited type.
      * @return the inherited type, or null if the element
-     * inherits from Object.
+     * inherits from Object or Enum.
      */
     @Nullable
     public static TypeMirror getInheritedType(@Nullable Element element) {
         TypeElement typeElement = (TypeElement) element;
-        if (typeElement != null && !typeElement.getSuperclass().toString().equals(Object.class.getName())) {
-            return typeElement.getSuperclass();
+        TypeMirror typeMirror = typeElement != null ? typeElement.getSuperclass() : null;
+        String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
+        if (!Object.class.getName().equals(className) && !Enum.class.getName().equals(className)) {
+            return typeMirror;
         }
         return null;
     }

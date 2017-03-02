@@ -24,10 +24,10 @@
 package com.vimeo.stag.processor.generators.model;
 
 import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
 import com.vimeo.stag.processor.utils.DebugLog;
+import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -62,8 +62,10 @@ public class AnnotatedClass {
         FieldOption fieldOption = useStag != null ? useStag.value() : null;
         if (fieldOption == null) {
             useStag = findParentUseStagAnnotation(element);
-            // TODO: Do not default to FieldOption.SERIALIZED_NAME, instead set to null and fail after removing @GsonAdapterKey 1/30/17 [AR]
-            fieldOption = useStag != null ? useStag.value() : FieldOption.SERIALIZED_NAME;
+            fieldOption = useStag != null ? useStag.value() : null;
+
+            // The field option should never be null
+            Preconditions.checkNotNull(fieldOption);
         }
 
         mMemberVariables = new LinkedHashMap<>();
@@ -129,7 +131,7 @@ public class AnnotatedClass {
         }
     }
 
-    private void addToSupportedTypes(@NotNull Element element, FieldOption fieldOption,
+    private void addToSupportedTypes(@NotNull Element element, @NotNull FieldOption fieldOption,
                                      @NotNull Map<String, Element> variableNames) {
         if (element instanceof VariableElement) {
             if (shouldIncludeField(element, fieldOption)) {
@@ -149,13 +151,12 @@ public class AnnotatedClass {
         }
     }
 
-    private boolean shouldIncludeField(@NotNull Element element, FieldOption fieldOption) {
+    private boolean shouldIncludeField(@NotNull Element element, @NotNull FieldOption fieldOption) {
         switch (fieldOption) {
             case NONE:
                 return false;
             case SERIALIZED_NAME:
-                return element.getAnnotation(SerializedName.class) != null ||
-                       element.getAnnotation(GsonAdapterKey.class) != null;
+                return element.getAnnotation(SerializedName.class) != null;
             case ALL:
                 return true;
             default:
