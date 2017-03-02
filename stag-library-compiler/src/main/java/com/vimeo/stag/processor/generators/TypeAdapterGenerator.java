@@ -55,7 +55,6 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -276,11 +275,11 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
             if(isPrimitive) {
                 builder.addCode("\t\t\t\tobject." + variableName + " = " +
-                        adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader, object." + variableName +  ");");
+                        adapterFieldInfo.getAdapterAccessor(elementValue, name) + ".read(reader, object." + variableName +  ");");
 
             } else {
                 builder.addCode("\t\t\t\tobject." + variableName + " = " +
-                        adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);");
+                        adapterFieldInfo.getAdapterAccessor(elementValue, name) + ".read(reader);");
             }
 
 
