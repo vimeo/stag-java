@@ -1,6 +1,16 @@
 Change Log
 ==========
 
+Version 2.0.2 *(2017-03-02)*
+----------------------------
+- Interfaces are now ignored by stag instead of throwing an error if they are annotated.
+- Fixed bug where type adapters for self referential classes (see `sample/ExternalModelExample2`) would cause stack overflows when instantiated.
+- Fixed bug where duplicate type adapters would be generated if a class in one module extended a class in another module.
+- Fixed bug where the type adapter for `char` arrays was broken.
+- Correctly suppress raw types in generated code so as to not interfere with compilation settings on projects.
+- Added unit tests for all model classes to validate the creation of type adapters and their ability to be instantiated.
+- Added unit tests to validate type adapters in `KnownTypeAdapters`.
+
 Version 2.0.1 *(2017-01-31)*
 ----------------------------
 - Fixed backwards compatibility bug where Stag wasn't generating TypeAdapters for classes containing only `@GsonAdapterKey`. (Please note that it's still advised to move away from `@GsonAdapterKey` as soon as possible).
