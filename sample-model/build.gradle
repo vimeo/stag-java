@@ -31,8 +31,11 @@ android {
 }
 
 dependencies {
+    testCompile 'junit:junit:4.12'
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:25.1.0'
+
+    compile 'com.android.support:support-annotations:25.1.1'
+
     compile project(':stag-library')
     apt project(':stag-library-compiler')
     compile 'com.google.code.gson:gson:2.8.0'
@@ -41,11 +44,12 @@ dependencies {
 apt {
     arguments {
         stagGeneratedPackageName "com.vimeo.sample.sample_model.stag.generated"
+        stagDebug true
     }
 }
 
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Werror"
+        options.compilerArgs << "-Xlint:all,-deprecation,-serial,-processing" << "-Werror"
     }
 }

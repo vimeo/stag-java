@@ -35,6 +35,7 @@ import javax.lang.model.util.Elements;
 
 public final class ElementUtils {
 
+    @Nullable
     private static Elements sElementUtils;
 
     private ElementUtils() {
@@ -57,7 +58,6 @@ public final class ElementUtils {
         return null != typeElement ? typeElement.asType() : null;
     }
 
-
     @Nullable
     public static TypeElement getTypeElementFromQualifiedName(@NotNull String qualifiedName) {
         Elements elements = ElementUtils.getUtils();
@@ -66,12 +66,24 @@ public final class ElementUtils {
 
     @NotNull
     public static String getPackage(@NotNull TypeMirror type) {
-        Element element = TypeUtils.getUtils().asElement(type);
-        PackageElement packageElement = sElementUtils.getPackageOf(element);
+        Element element = TypeUtils.getElementFromTypeMirror(type);
+        PackageElement packageElement = getUtils().getPackageOf(element);
         return packageElement.getQualifiedName().toString();
     }
 
-    public static boolean isEnum(@Nullable Element element) {
-        return element != null && element.getKind() == ElementKind.ENUM;
+    /**
+     * Determines if an element is a supported type.
+     *
+     * @param element the element to check.
+     * @return true if the element is supported
+     * (class or enum), false otherwise.
+     */
+    public static boolean isSupportedElementKind(@Nullable Element element) {
+        if (element == null) {
+            return false;
+        }
+        ElementKind elementKind = element.getKind();
+        return elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM;
     }
+
 }

@@ -23,10 +23,6 @@
  */
 package com.vimeo.stag.processor.utils;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,9 +46,24 @@ import javax.lang.model.util.Types;
 
 public final class TypeUtils {
 
+    @NotNull
+    private static final HashMap<String, String> PRIMITIVE_TO_OBJECT_MAP = new HashMap<>();
+
     private static final String TAG = TypeUtils.class.getSimpleName();
+    @Nullable
     private static Types sTypeUtils;
 
+
+    static {
+        PRIMITIVE_TO_OBJECT_MAP.put(boolean.class.getName(), Boolean.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(int.class.getName(), Integer.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(short.class.getName(), Short.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(double.class.getName(), Double.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(long.class.getName(), Long.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(float.class.getName(), Float.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(char.class.getName(), Character.class.getName());
+        PRIMITIVE_TO_OBJECT_MAP.put(byte.class.getName(), Byte.class.getName());
+    }
     private TypeUtils() {
         throw new UnsupportedOperationException("This class is not instantiable");
     }
@@ -62,9 +73,24 @@ public final class TypeUtils {
     }
 
     @NotNull
-    public static Types getUtils() {
+    private static Types getUtils() {
         Preconditions.checkNotNull(sTypeUtils);
         return sTypeUtils;
+    }
+
+    /**
+     * Creates the full class name including package
+     * name for the given class. Anonymous classes
+     * and classes with the '$' character in their names
+     * are not supported.
+     *
+     * @param clazz the class to get the name of.
+     * @return the class's name, without any dollar
+     * signs for inner classes and with periods instead.
+     */
+    @NotNull
+    public static String className(@NotNull Class clazz) {
+        return clazz.getName().replace('$', '.');
     }
 
     /**
@@ -193,7 +219,7 @@ public final class TypeUtils {
         if (typeMirror.getKind() == TypeKind.TYPEVAR) {
             return false;
         }
-        if (isPrimitive(typeMirror, sTypeUtils)) {
+        if (isPrimitive(typeMirror, getUtils())) {
             return true;
         }
         if (typeMirror instanceof DeclaredType) {
@@ -331,11 +357,11 @@ public final class TypeUtils {
                         }
                     }
 
-                    TypeElement typeElement = (TypeElement) sTypeUtils.asElement(member.getValue());
+                    TypeElement typeElement = (TypeElement) getUtils().asElement(member.getValue());
                     TypeMirror[] concreteTypeArray =
                             concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
 
-                    DeclaredType declaredType = sTypeUtils.getDeclaredType(typeElement, concreteTypeArray);
+                    DeclaredType declaredType = getUtils().getDeclaredType(typeElement, concreteTypeArray);
 
                     map.put(member.getKey(), declaredType);
 
@@ -403,10 +429,17 @@ public final class TypeUtils {
      * @return boolean
      */
     public static boolean isSupportedPrimitive(@NotNull String type) {
-        return type.equals(long.class.getName()) || type.equals(double.class.getName()) ||
-                type.equals(boolean.class.getName()) || type.equals(float.class.getName()) ||
-                type.equals(int.class.getName()) || type.equals(char.class.getName()) ||
-                type.equals(short.class.getName()) || type.equals(byte.class.getName());
+        return PRIMITIVE_TO_OBJECT_MAP.containsKey(type);
+    }
+
+    /**
+     * Method to check if the {@link TypeMirror} is of primitive type
+     *
+     * @param type :TypeMirror type
+     * @return String
+     */
+    public static String getObjectForPrimitive(@NotNull String type) {
+        return PRIMITIVE_TO_OBJECT_MAP.get(type);
     }
 
     /**
@@ -499,4 +532,24 @@ public final class TypeUtils {
         return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments()
                 .get(0);
     }
+
+    @NotNull
+    public static String getClassNameFromTypeMirror(@NotNull TypeMirror typeMirror) {
+        String classAndPackage = typeMirror.toString();
+
+        // This is done to avoid the generic template from being included in the file name
+        // to be generated (since it will be an invalid file name)
+        int idx = classAndPackage.indexOf("<");
+        if (idx > 0) {
+            classAndPackage = classAndPackage.substring(0, idx);
+        }
+
+        return classAndPackage;
+    }
+
+    @NotNull
+    public static Element getElementFromTypeMirror(@NotNull TypeMirror typeMirror) {
+        return getUtils().asElement(typeMirror);
+    }
+
 }

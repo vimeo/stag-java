@@ -34,7 +34,7 @@ import java.util.List;
 
 import javax.lang.model.type.TypeMirror;
 
-public class ClassInfo {
+public final class ClassInfo {
 
     @NotNull
     private final String mClassName;
@@ -52,16 +52,8 @@ public class ClassInfo {
         mType = typeMirror;
         mPackageName = ElementUtils.getPackage(mType);
 
-        String classAndPackage = mType.toString();
+        String classAndPackage = TypeUtils.getClassNameFromTypeMirror(mType);
 
-        /**
-         * This is done to avoid the generic template from being included in the file name to be generated
-         * (since it will be an invalid file name)
-         */
-        int idx = classAndPackage.indexOf("<");
-        if (idx > 0) {
-            classAndPackage = classAndPackage.substring(0, idx);
-        }
         mTypeName = classAndPackage;
         mClassName = classAndPackage.substring(mPackageName.length() + 1, classAndPackage.length())
                 .replaceAll("\\.", "\\$");
@@ -125,5 +117,30 @@ public class ClassInfo {
     @Nullable
     public List<? extends TypeMirror> getTypeArguments() {
         return TypeUtils.getTypeArguments(mType);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ClassInfo classInfo = (ClassInfo) o;
+
+        return mClassName.equals(classInfo.mClassName) && mPackageName.equals(classInfo.mPackageName) &&
+                mTypeName.equals(classInfo.mTypeName) && mType.equals(classInfo.mType);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mClassName.hashCode();
+        result = 31 * result + mPackageName.hashCode();
+        result = 31 * result + mTypeName.hashCode();
+        result = 31 * result + mType.hashCode();
+        return result;
     }
 }

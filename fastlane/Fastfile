@@ -36,13 +36,15 @@ platform :android do
 
   # run the tests, but dont puke everywhere until the report is printed.
   junit_report_path = "stag-library*/build/test-results/*.xml"
+  junit_report_path1 = "sample*/build/test-results/debug/*.xml"
   begin
     gradle(
-      task: "stag-library:test stag-library-compiler:test sample:build"
+      task: "stag-library:test stag-library-compiler:test sample:test sample-model:test sample:build"
     )
   rescue => error
   begin
     pretty_junit(file_pattern: junit_report_path)
+    pretty_junit(file_pattern: junit_report_path1)
   rescue => error
   end
 
@@ -55,6 +57,7 @@ platform :android do
 
   begin
     pretty_junit(file_pattern: junit_report_path)
+    pretty_junit(file_pattern: junit_report_path1)
   rescue => error
   end
 

@@ -63,7 +63,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * is used to read and write the values, and the ObjectConstructor tells the type of List to be instantiated. This will also support the scenario
  * where we have a nested list. In that case the valueTypeAdapter will be again a {@link ListTypeAdapter} with its value TypeAdapter
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
 public final class KnownTypeAdapters {
 
     private KnownTypeAdapters() {
@@ -91,6 +90,29 @@ public final class KnownTypeAdapters {
     }.nullSafe();
 
     /**
+     * Helper class for {@link byte}.
+     */
+    public static final class PrimitiveByteTypeAdapter {
+
+        public static byte read(JsonReader in, byte defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return (byte) in.nextInt();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, byte value) throws IOException {
+            out.value(value);
+        }
+    }
+
+
+    /**
      * Type Adapter for {@link Short}.
      */
     public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
@@ -108,6 +130,28 @@ public final class KnownTypeAdapters {
             out.value(value);
         }
     }.nullSafe();
+
+    /**
+     * Helper class for {@link short}.
+     */
+    public static final class PrimitiveShortTypeAdapter {
+
+        public static short read(JsonReader in, short defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return (short) in.nextInt();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, short value) throws IOException {
+            out.value(value);
+        }
+    }
 
     /**
      * Type Adapter for {@link Integer}.
@@ -129,6 +173,29 @@ public final class KnownTypeAdapters {
     }.nullSafe();
 
     /**
+     * Helper class for {@link int}.
+     */
+    public static final class PrimitiveIntTypeAdapter {
+
+        public static int read(JsonReader in, int defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return in.nextInt();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, int value) throws IOException {
+            out.value(value);
+        }
+    }
+
+
+    /**
      * Type Adapter for {@link Long}.
      */
     public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
@@ -147,6 +214,30 @@ public final class KnownTypeAdapters {
         }
     }.nullSafe();
 
+
+    /**
+     * Helper class for {@link long}.
+     */
+    public static final class PrimitiveLongTypeAdapter {
+
+        public static long read(JsonReader in, long defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return in.nextLong();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, long value) throws IOException {
+            out.value(value);
+        }
+    }
+
+
     /**
      * Type Adapter for {@link Float}.
      */
@@ -162,6 +253,30 @@ public final class KnownTypeAdapters {
         }
     }.nullSafe();
 
+
+    /**
+     * Helper class for {@link float}.
+     */
+    public static final class PrimitiveFloatTypeAdapter {
+
+        public static float read(JsonReader in, float defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return (float) in.nextDouble();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, float value) throws IOException {
+            out.value(value);
+        }
+    }
+
+
     /**
      * Type Adapter for {@link Double}.
      */
@@ -176,6 +291,73 @@ public final class KnownTypeAdapters {
             out.value(value);
         }
     }.nullSafe();
+
+    /**
+     * Helper class for {@link double}.
+     */
+    public static final class PrimitiveDoubleTypeAdapter {
+
+        public static double read(JsonReader in, double defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            try {
+                return in.nextDouble();
+            } catch (NumberFormatException e) {
+                throw new JsonSyntaxException(e);
+            }
+        }
+
+        public static void write(JsonWriter out, double value) throws IOException {
+            out.value(value);
+        }
+    }
+
+    /**
+     * Helper class for {@link char}.
+     */
+    public static final class PrimitiveCharTypeAdapter {
+
+        public static char read(JsonReader in, char defaultValue) throws IOException {
+            if (in.peek() == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            }
+            String str = in.nextString();
+            if (str.length() != 1) {
+                throw new JsonSyntaxException("Expecting character, got: " + str);
+            }
+            return str.charAt(0);
+        }
+
+        public static void write(JsonWriter out, char value) throws IOException {
+            out.value(String.valueOf(value));
+        }
+    }
+
+
+    /**
+     * Helper class for {@link boolean}.
+     */
+    public static final class PrimitiveBooleanTypeAdapter {
+
+        public static boolean read(JsonReader in, boolean defaultValue) throws IOException {
+            JsonToken peek = in.peek();
+            if (peek == JsonToken.NULL) {
+                in.nextNull();
+                return defaultValue;
+            } else if (peek == JsonToken.STRING) {
+                // support strings for compatibility with GSON 1.7
+                return Boolean.parseBoolean(in.nextString());
+            }
+            return in.nextBoolean();
+        }
+
+        public static void write(JsonWriter out, boolean value) throws IOException {
+            out.value(value);
+        }
+    }
 
     public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER =
             new ListTypeAdapter<>(INTEGER, new ArrayListInstantiator<Integer>());
@@ -207,8 +389,8 @@ public final class KnownTypeAdapters {
         final TypeAdapter<T> mValueTypeAdapter;
         final PrimitiveArrayConstructor<T> mObjectCreator;
 
-        public ArrayTypeAdapter(TypeAdapter<T> valueTypeAdapter,
-                                PrimitiveArrayConstructor<T> instanceCreator) {
+        public ArrayTypeAdapter(@NotNull TypeAdapter<T> valueTypeAdapter,
+                                @NotNull PrimitiveArrayConstructor<T> instanceCreator) {
             this.mValueTypeAdapter = valueTypeAdapter;
             this.mObjectCreator = instanceCreator;
         }
@@ -226,11 +408,12 @@ public final class KnownTypeAdapters {
 
         @Override
         public T[] read(JsonReader reader) throws IOException {
-            if (reader.peek() == com.google.gson.stream.JsonToken.NULL) {
+            JsonToken peek = reader.peek();
+            if (JsonToken.NULL == peek) {
                 reader.nextNull();
                 return null;
             }
-            if (reader.peek() != JsonToken.BEGIN_ARRAY) {
+            if (JsonToken.BEGIN_ARRAY != peek) {
                 reader.skipValue();
                 return null;
             }
@@ -479,8 +662,7 @@ public final class KnownTypeAdapters {
         }
     }
 
-    static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER =
-            com.google.gson.internal.bind.TypeAdapters.STRING.nullSafe();
+    static final TypeAdapter<String> STRING_NULL_SAFE_TYPE_ADAPTER = TypeAdapters.STRING.nullSafe();
 
     /**
      * Type Adapter for char[] type. This can be directly accessed to read and write
@@ -492,12 +674,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable char[] value) throws IOException {
-            if (null != value) {
-                writer.beginArray();
-                for (char item : value) {
-                    writer.value(item);
-                }
-                writer.endArray();
+            if (value != null) {
+                String string = String.valueOf(value);
+                STRING_NULL_SAFE_TYPE_ADAPTER.write(writer, string);
             }
         }
 
@@ -595,7 +774,8 @@ public final class KnownTypeAdapters {
         private final TypeAdapter<V> valueTypeAdapter;
         private final ObjectConstructor<T> objectConstructor;
 
-        public ListTypeAdapter(TypeAdapter<V> valueTypeAdapter, ObjectConstructor<T> objectConstructor) {
+        public ListTypeAdapter(@NotNull TypeAdapter<V> valueTypeAdapter,
+                               @NotNull ObjectConstructor<T> objectConstructor) {
             this.valueTypeAdapter = valueTypeAdapter;
             this.objectConstructor = objectConstructor;
         }
@@ -613,12 +793,13 @@ public final class KnownTypeAdapters {
 
         @Override
         public T read(JsonReader reader) throws IOException {
-            if (reader.peek() == JsonToken.NULL) {
+            JsonToken peek = reader.peek();
+            if (JsonToken.NULL == peek) {
                 reader.nextNull();
                 return null;
             }
 
-            if (reader.peek() != JsonToken.BEGIN_ARRAY) {
+            if (JsonToken.BEGIN_ARRAY != peek) {
                 reader.skipValue();
                 return null;
             }
@@ -643,8 +824,9 @@ public final class KnownTypeAdapters {
         private final TypeAdapter<V> valueTypeAdapter;
         private final TypeAdapter<K> keyTypeAdapter;
 
-        public MapTypeAdapter(TypeAdapter<K> keyTypeAdapter, TypeAdapter<V> valueTypeAdapter,
-                              ObjectConstructor<T> objectConstructor) {
+        public MapTypeAdapter(@NotNull TypeAdapter<K> keyTypeAdapter,
+                              @NotNull TypeAdapter<V> valueTypeAdapter,
+                              @NotNull ObjectConstructor<T> objectConstructor) {
             this.keyTypeAdapter = keyTypeAdapter;
             this.valueTypeAdapter = valueTypeAdapter;
             this.objectConstructor = objectConstructor;
@@ -726,7 +908,8 @@ public final class KnownTypeAdapters {
             return map;
         }
 
-        private static String keyToString(JsonElement keyElement) {
+        @NotNull
+        private static String keyToString(@NotNull JsonElement keyElement) {
             if (keyElement.isJsonPrimitive()) {
                 JsonPrimitive primitive = keyElement.getAsJsonPrimitive();
                 if (primitive.isNumber()) {
@@ -753,7 +936,7 @@ public final class KnownTypeAdapters {
 
         private final Gson gson;
 
-        public ObjectTypeAdapter(Gson gson) {
+        public ObjectTypeAdapter(@NotNull Gson gson) {
             this.gson = gson;
         }
 
@@ -814,61 +997,60 @@ public final class KnownTypeAdapters {
         }
     }
 
-    public static final TypeAdapter<JsonElement> JSON_ELEMENT_TYPE_ADAPTER =
+    public static final TypeAdapter<JsonElement> JSON_ELEMENT =
             com.google.gson.internal.bind.TypeAdapters.JSON_ELEMENT.nullSafe();
 
-    public static final TypeAdapter<JsonObject> JSON_OBJECT_TYPE_ADAPTER = new TypeAdapter<JsonObject>() {
+    public static final TypeAdapter<JsonObject> JSON_OBJECT = new TypeAdapter<JsonObject>() {
         @Override
         public void write(JsonWriter out, JsonObject value) throws IOException {
-            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
+            JSON_ELEMENT.write(out, value);
         }
 
         @Override
         public JsonObject read(JsonReader in) throws IOException {
-            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+            JsonElement jsonElement = JSON_ELEMENT.read(in);
             return jsonElement != null && jsonElement.isJsonObject() ? jsonElement.getAsJsonObject() : null;
         }
     }.nullSafe();
 
-    public static final TypeAdapter<JsonArray> JSON_ARRAY_TYPE_ADAPTER = new TypeAdapter<JsonArray>() {
+    public static final TypeAdapter<JsonArray> JSON_ARRAY = new TypeAdapter<JsonArray>() {
         @Override
         public void write(JsonWriter out, JsonArray value) throws IOException {
-            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
+            JSON_ELEMENT.write(out, value);
         }
 
         @Override
         public JsonArray read(JsonReader in) throws IOException {
-            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+            JsonElement jsonElement = JSON_ELEMENT.read(in);
             return jsonElement != null && jsonElement.isJsonArray() ? jsonElement.getAsJsonArray() : null;
         }
     }.nullSafe();
 
-    public static final TypeAdapter<JsonPrimitive> JSON_PRIMITIVE_TYPE_ADAPTER =
-            new TypeAdapter<JsonPrimitive>() {
+    public static final TypeAdapter<JsonPrimitive> JSON_PRIMITIVE = new TypeAdapter<JsonPrimitive>() {
 
-                @Override
-                public void write(JsonWriter out, JsonPrimitive value) throws IOException {
-                    JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
-                }
+        @Override
+        public void write(JsonWriter out, JsonPrimitive value) throws IOException {
+            JSON_ELEMENT.write(out, value);
+        }
 
-                @Override
-                public JsonPrimitive read(JsonReader in) throws IOException {
-                    JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
-                    return jsonElement != null &&
-                           jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
-                }
-            }.nullSafe();
+        @Override
+        public JsonPrimitive read(JsonReader in) throws IOException {
+            JsonElement jsonElement = JSON_ELEMENT.read(in);
+            return jsonElement != null &&
+                    jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
+        }
+    }.nullSafe();
 
-    public static final TypeAdapter<JsonNull> JSON_NULL_TYPE_ADAPTER = new TypeAdapter<JsonNull>() {
+    public static final TypeAdapter<JsonNull> JSON_NULL = new TypeAdapter<JsonNull>() {
 
         @Override
         public void write(JsonWriter out, JsonNull value) throws IOException {
-            JSON_ELEMENT_TYPE_ADAPTER.write(out, value);
+            JSON_ELEMENT.write(out, value);
         }
 
         @Override
         public JsonNull read(JsonReader in) throws IOException {
-            JsonElement jsonElement = JSON_ELEMENT_TYPE_ADAPTER.read(in);
+            JsonElement jsonElement = JSON_ELEMENT.read(in);
             return jsonElement != null && jsonElement.isJsonNull() ? jsonElement.getAsJsonNull() : null;
         }
     }.nullSafe();
