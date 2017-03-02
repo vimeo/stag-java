@@ -94,6 +94,8 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveByteTypeAdapter {
 
+        private PrimitiveByteTypeAdapter() {}
+
         public static byte read(JsonReader in, byte defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
                 in.nextNull();
@@ -136,6 +138,8 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveShortTypeAdapter {
 
+        private PrimitiveShortTypeAdapter() {}
+
         public static short read(JsonReader in, short defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
                 in.nextNull();
@@ -176,6 +180,8 @@ public final class KnownTypeAdapters {
      * Helper class for {@link int}.
      */
     public static final class PrimitiveIntTypeAdapter {
+
+        private PrimitiveIntTypeAdapter() {}
 
         public static int read(JsonReader in, int defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -220,6 +226,8 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveLongTypeAdapter {
 
+        private PrimitiveLongTypeAdapter() {}
+
         public static long read(JsonReader in, long defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
                 in.nextNull();
@@ -259,6 +267,8 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveFloatTypeAdapter {
 
+        private PrimitiveFloatTypeAdapter() {}
+
         public static float read(JsonReader in, float defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
                 in.nextNull();
@@ -297,6 +307,8 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveDoubleTypeAdapter {
 
+        private PrimitiveDoubleTypeAdapter() {}
+
         public static double read(JsonReader in, double defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
                 in.nextNull();
@@ -318,6 +330,8 @@ public final class KnownTypeAdapters {
      * Helper class for {@link char}.
      */
     public static final class PrimitiveCharTypeAdapter {
+
+        private PrimitiveCharTypeAdapter() {}
 
         public static char read(JsonReader in, char defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -342,6 +356,8 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveBooleanTypeAdapter {
 
+        private PrimitiveBooleanTypeAdapter() {}
+
         public static boolean read(JsonReader in, boolean defaultValue) throws IOException {
             JsonToken peek = in.peek();
             if (peek == JsonToken.NULL) {
@@ -359,23 +375,29 @@ public final class KnownTypeAdapters {
         }
     }
 
-    public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER =
-            new ListTypeAdapter<>(INTEGER, new ArrayListInstantiator<Integer>());
-    public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER =
-            new ListTypeAdapter<>(LONG, new ArrayListInstantiator<Long>());
-    public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER =
-            new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiator<Double>());
-    public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER =
-            new ListTypeAdapter<>(SHORT, new ArrayListInstantiator<Short>());
-    public static final TypeAdapter<ArrayList<Float>> FLOAT_ARRAY_LIST_ADAPTER =
-            new ListTypeAdapter<>(FLOAT, new ArrayListInstantiator<Float>());
-    public static final TypeAdapter<ArrayList<Boolean>> BOOLEAN_ARRAY_LIST_ADAPTER =
-            new ListTypeAdapter<>(TypeAdapters.BOOLEAN, new ArrayListInstantiator<Boolean>());
-    public static final TypeAdapter<ArrayList<Byte>> BYTE_ARRAY_LIST_ADAPTER =
-            new ListTypeAdapter<>(BYTE, new ArrayListInstantiator<Byte>());
+    public static final TypeAdapter<ArrayList<Integer>> INTEGER_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(INTEGER, new ArrayListInstantiator<Integer>());
+    public static final TypeAdapter<ArrayList<Long>> LONG_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(LONG, new ArrayListInstantiator<Long>());
+    public static final TypeAdapter<ArrayList<Double>> DOUBLE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(DOUBLE, new ArrayListInstantiator<Double>());
+    public static final TypeAdapter<ArrayList<Short>> SHORT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(SHORT, new ArrayListInstantiator<Short>());
+    public static final TypeAdapter<ArrayList<Float>> FLOAT_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(FLOAT, new ArrayListInstantiator<Float>());
+    public static final TypeAdapter<ArrayList<Boolean>> BOOLEAN_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(TypeAdapters.BOOLEAN, new ArrayListInstantiator<Boolean>());
+    public static final TypeAdapter<ArrayList<Byte>> BYTE_ARRAY_LIST_ADAPTER = new ListTypeAdapter<>(BYTE, new ArrayListInstantiator<Byte>());
 
+    /**
+     * An interface that defines the construction spec
+     * of a primitive array.
+     *
+     * @param <T> The type of the primitive array.
+     */
     public interface PrimitiveArrayConstructor<T> {
 
+        /**
+         * Constructs a primitive array with a certain size.
+         *
+         * @param size The size of the array.
+         * @return A non null array of the specified type.
+         */
+        @NotNull
         T[] construct(int size);
     }
 
@@ -1037,7 +1059,7 @@ public final class KnownTypeAdapters {
         public JsonPrimitive read(JsonReader in) throws IOException {
             JsonElement jsonElement = JSON_ELEMENT.read(in);
             return jsonElement != null &&
-                    jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
+                   jsonElement.isJsonPrimitive() ? jsonElement.getAsJsonPrimitive() : null;
         }
     }.nullSafe();
 
