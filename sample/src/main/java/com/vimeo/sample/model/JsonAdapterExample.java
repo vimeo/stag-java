@@ -18,9 +18,9 @@ public class JsonAdapterExample {
     public Date mAccessedTime;
 
 
-//    @SerializedName("alternate_model")
-//    @JsonAdapter(value = com.vimeo.sample.sample_model.stag.generated.Stag.Factory.class)
-//    public com.vimeo.sample_model.AlternateNameModel mRunTimeExample;
+    @SerializedName("alternate_model")
+    @JsonAdapter(value = com.vimeo.sample_model.stag.generated.Stag.Factory.class, nullSafe = false)
+    public com.vimeo.sample_model.AlternateNameModel mRunTimeExample;
 
 
     @SerializedName("alternate_model1")

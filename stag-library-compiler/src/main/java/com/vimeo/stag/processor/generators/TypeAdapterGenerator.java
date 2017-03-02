@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.AnnotationSpec;
@@ -333,7 +334,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private String getAdapterAccessorForKnownJsonAdapterType(@NotNull ExecutableElement adapterType, @NotNull TypeSpec.Builder adapterBuilder,
                                                              @NotNull MethodSpec.Builder constructorBuilder,
                                                              @NotNull TypeMirror fieldType,
-                                                             @NotNull AdapterFieldInfo adapterFieldInfo, boolean isNullSafe) {
+                                                             @NotNull TypeUtils.JsonAdapterType jsonAdapterType, @NotNull AdapterFieldInfo adapterFieldInfo, boolean isNullSafe) {
         ArrayList<String> constructorParameters = new ArrayList<>();
         if (adapterType.getParameters().size() > 0) {
             for (VariableElement parameter : adapterType.getParameters()) {
@@ -348,6 +349,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         }
 
 
+
         String constructorParameterStr = "(";
         for (int i = 0; i < constructorParameters.size(); i++) {
             constructorParameterStr += constructorParameters.get(i);
@@ -358,13 +360,18 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         constructorParameterStr += ")";
         String constructor = FileGenUtils.escapeStringForCodeBlock(adapterType.getEnclosingElement().toString());
         String fieldAdapterAccessor = "new " + constructor + constructorParameterStr;
+
+        if(jsonAdapterType == TypeUtils.JsonAdapterType.TYPE_ADAPTER_FACTORY){
+            TypeName typeTokenField = ParameterizedTypeName.get(ClassName.get(TypeToken.class), TypeVariableName.get(fieldType));
+            fieldAdapterAccessor += ".create(gson, new "+typeTokenField+"(){})";
+        }
         //Add this to a member variable
         String fieldName = TYPE_ADAPTER_FIELD_PREFIX + adapterFieldInfo.size();
         String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
         TypeName typeName = getAdapterFieldTypeName(fieldType);
         adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
         String statement = fieldName + " = " + getCleanedFieldInitializer(fieldAdapterAccessor);
-        if(isNullSafe){
+        if(isNullSafe && jsonAdapterType == TypeUtils.JsonAdapterType.TYPE_ADAPTER){
             statement += ".nullSafe()";
         }
         constructorBuilder.addStatement(statement);
@@ -691,7 +698,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
             if(jsonAdapterType1 != TypeUtils.JsonAdapterType.NONE && adapterConstructor != null) {
                 String fieldAdapterAccessor = getAdapterAccessorForKnownJsonAdapterType(adapterConstructor, adapterBuilder, constructorBuilder, fieldType,
-                        result, annotation.nullSafe());
+                        jsonAdapterType1, result, annotation.nullSafe());
                 result.addFieldToAccessor(getJsonName(entry.getKey()), fieldAdapterAccessor);
             }else if (hasUnknownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
                 adapterAccessor = getAdapterForUnknownType(fieldType, adapterBuilder, constructorBuilder,
