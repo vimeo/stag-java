@@ -70,8 +70,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private static final String TYPE_ADAPTER_FIELD_PREFIX = "mTypeAdapter";
     private static boolean sGsonVariableUsed;
     private static boolean sStagFactoryUsed;
-    @NotNull
-    private final ClassInfo mInfo;
+
+    @NotNull private final ClassInfo mInfo;
 
     public TypeAdapterGenerator(@NotNull ClassInfo info) {
         mInfo = info;
@@ -267,13 +267,13 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             String variableType = element.getValue().toString();
             boolean isPrimitive = TypeUtils.isSupportedPrimitive(variableType);
 
-            if(isPrimitive) {
+            if (isPrimitive) {
                 builder.addCode("\t\t\t\tobject." + variableName + " = " +
-                        adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader, object." + variableName +  ");");
+                                adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader, object." + variableName + ");");
 
             } else {
                 builder.addCode("\t\t\t\tobject." + variableName + " = " +
-                        adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);");
+                                adapterFieldInfo.getAdapterAccessor(elementValue) + ".read(reader);");
             }
 
 
@@ -613,7 +613,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             if (hasUnknownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
                 adapterAccessor = getAdapterForUnknownType(fieldType, adapterBuilder, constructorBuilder,
                                                            typeTokenConstantsGenerator, typeVarsMap, result);
-            } else if(KnownTypeAdapterUtils.hasNativePrimitiveTypeAdapter(fieldType)) {
+            } else if (KnownTypeAdapterUtils.hasNativePrimitiveTypeAdapter(fieldType)) {
                 adapterAccessor = KnownTypeAdapterUtils.getNativePrimitiveTypeAdapter(fieldType);
             } else {
                 adapterAccessor = getAdapterAccessor(fieldType, adapterBuilder, constructorBuilder,

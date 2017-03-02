@@ -35,8 +35,7 @@ import javax.lang.model.util.Elements;
 
 public final class ElementUtils {
 
-    @Nullable
-    private static Elements sElementUtils;
+    @Nullable private static Elements sElementUtils;
 
     private ElementUtils() {
         throw new UnsupportedOperationException("This class is not instantiable");

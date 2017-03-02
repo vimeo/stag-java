@@ -47,14 +47,9 @@ public class AnnotatedClass {
 
     private static final String TAG = AnnotatedClass.class.getSimpleName();
 
-    @NotNull
-    private final TypeMirror mType;
-
-    @NotNull
-    private final Element mElement;
-
-    @NotNull
-    private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
+    @NotNull private final TypeMirror mType;
+    @NotNull private final Element mElement;
+    @NotNull private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
 
     AnnotatedClass(@NotNull Element element) {
         mType = element.asType();

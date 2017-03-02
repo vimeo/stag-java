@@ -47,10 +47,8 @@ public class TypeTokenConstantsGenerator {
 
     private static final String FIELD_PREFIX = "TYPE_TOKEN_";
 
-    @NotNull
-    private final HashMap<String, TypeTokenInfo> mTypesToBeGenerated = new HashMap<>();
-    @NotNull
-    private final String mGeneratedPackageName;
+    @NotNull private final HashMap<String, TypeTokenInfo> mTypesToBeGenerated = new HashMap<>();
+    @NotNull private final String mGeneratedPackageName;
 
     public TypeTokenConstantsGenerator(@NotNull String generatedPackageName) {
         mGeneratedPackageName = generatedPackageName;
