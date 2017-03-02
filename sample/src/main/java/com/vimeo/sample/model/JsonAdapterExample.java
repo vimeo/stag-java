@@ -30,4 +30,8 @@ public class JsonAdapterExample {
     @SerializedName("user")
     @JsonAdapter(value =  TestSerializer.class)
     public User user;
+
+    @SerializedName("user1")
+    @JsonAdapter(value =  TestSerializer.class)
+    public User user1;
 }

@@ -335,7 +335,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private String getAdapterAccessorForKnownJsonAdapterType(@NotNull ExecutableElement adapterType, @NotNull TypeSpec.Builder adapterBuilder,
                                                              @NotNull MethodSpec.Builder constructorBuilder,
                                                              @NotNull TypeMirror fieldType,
-                                                             @NotNull TypeUtils.JsonAdapterType jsonAdapterType, @NotNull AdapterFieldInfo adapterFieldInfo, boolean isNullSafe) {
+                                                             @NotNull TypeUtils.JsonAdapterType jsonAdapterType, @NotNull AdapterFieldInfo adapterFieldInfo, boolean isNullSafe,
+                                                             @NotNull String keyFieldName) {
         String fieldAdapterAccessor = "new " + FileGenUtils.escapeStringForCodeBlock(adapterType.getEnclosingElement().toString());
         if (jsonAdapterType == TypeUtils.JsonAdapterType.TYPE_ADAPTER) {
             ArrayList<String> constructorParameters = new ArrayList<>();
@@ -370,8 +371,11 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             String serializer = null, deserializer = null;
 
             if(jsonAdapterType == TypeUtils.JsonAdapterType.JSON_SERIALIZER_DESERIALIZER){
-                serializer = "new "+ adapterType;
-                deserializer = serializer;
+                String varName = keyFieldName + "SerializerDeserializer";
+                String initializer = adapterType.getEnclosingElement().toString() + " " + varName + " = " +
+                        "new " + adapterType;
+                constructorBuilder.addStatement(initializer);
+                serializer = deserializer = varName;
             }else if(jsonAdapterType == TypeUtils.JsonAdapterType.JSON_SERIALIZER){
                 serializer = "new "+ adapterType;
             }else if(jsonAdapterType == TypeUtils.JsonAdapterType.JSON_DESERIALIZER){
@@ -717,7 +721,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
             if(adapterConstructor != null) {
                 String fieldAdapterAccessor = getAdapterAccessorForKnownJsonAdapterType(adapterConstructor, adapterBuilder, constructorBuilder, fieldType,
-                        jsonAdapterType1, result, annotation.nullSafe());
+                        jsonAdapterType1, result, annotation.nullSafe(), getJsonName(entry.getKey()));
                 result.addFieldToAccessor(getJsonName(entry.getKey()), fieldAdapterAccessor);
             }else if (hasUnknownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
                 adapterAccessor = getAdapterForUnknownType(fieldType, adapterBuilder, constructorBuilder,
