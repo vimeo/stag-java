@@ -146,14 +146,14 @@ public final class StagProcessor extends AbstractProcessor {
 
         Filer filer = processingEnv.getFiler();
         try {
-            Set<TypeMirror> mSupportedTypes = SupportedTypesModel.getInstance().getSupportedTypesMirror();
+            Set<TypeMirror> supportedTypes = SupportedTypesModel.getInstance().getSupportedTypesMirror();
             try {
-                mSupportedTypes.addAll(
+                supportedTypes.addAll(
                         KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
             } catch (Exception ignored) {
             }
 
-            StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes,
+            StagGenerator adapterGenerator = new StagGenerator(packageName, filer, supportedTypes,
                     SupportedTypesModel.getInstance()
                             .getExternalSupportedAdapters());
             TypeTokenConstantsGenerator typeTokenConstantsGenerator =
@@ -178,7 +178,7 @@ public final class StagProcessor extends AbstractProcessor {
 
             adapterGenerator.generateTypeAdapterFactory(packageName);
             typeTokenConstantsGenerator.generateTypeTokenConstants();
-            KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, mSupportedTypes);
+            KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, supportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
