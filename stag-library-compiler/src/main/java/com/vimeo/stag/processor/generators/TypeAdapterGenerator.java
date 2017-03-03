@@ -924,10 +924,10 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         String getAdapterAccessor(@NotNull TypeMirror typeMirror, @NotNull String fieldName) {
             String adapterAccessor = mFieldAdapterAccessor.get(fieldName);
-            if (adapterAccessor != null) {
-                return adapterAccessor;
+            if (adapterAccessor == null) {
+                adapterAccessor = mAdapterAccessor.get(typeMirror.toString());
             }
-            return mAdapterAccessor.get(typeMirror.toString());
+            return adapterAccessor;
         }
 
         String getFieldName(@NotNull TypeMirror fieldType) {
