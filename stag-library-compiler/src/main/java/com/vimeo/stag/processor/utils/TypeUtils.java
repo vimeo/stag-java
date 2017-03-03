@@ -79,7 +79,7 @@ public final class TypeUtils {
     }
 
     @NotNull
-    public static Types getUtils() {
+    private static Types getUtils() {
         Preconditions.checkNotNull(sTypeUtils);
         return sTypeUtils;
     }
@@ -559,7 +559,7 @@ public final class TypeUtils {
     }
 
 
-    public static enum JsonAdapterType {
+    public enum JsonAdapterType {
         NONE,
         TYPE_ADAPTER,
         TYPE_ADAPTER_FACTORY,
@@ -594,5 +594,9 @@ public final class TypeUtils {
                 return JsonAdapterType.NONE;
             }
         }
+    }
+
+    public static boolean isAssignable(TypeMirror t1, TypeMirror t2){
+        return sTypeUtils.isAssignable(t1,t2);
     }
 }

@@ -344,7 +344,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 for (VariableElement parameter : adapterType.getParameters()) {
                     if (parameter.asType().toString().equals(TypeUtils.className(Gson.class))) {
                         constructorParameters.add("gson");
-                    } else if (TypeUtils.getUtils().isAssignable(parameter.asType(), ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
+                    } else if (TypeUtils.isAssignable(parameter.asType(), ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
                         constructorParameters.add("new " + parameter.asType() + "()");
                     } else {
                         throw new IllegalStateException("Not supported " + parameter.asType() + "parameter for @JsonAdapter value");
@@ -689,41 +689,33 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             TypeMirror fieldType = entry.getValue();
             JsonAdapter annotation = entry.getKey().getAnnotation(JsonAdapter.class);
             String adapterAccessor = null;
-            TypeUtils.JsonAdapterType jsonAdapterType1 = TypeUtils.JsonAdapterType.NONE;
-            ExecutableElement adapterConstructor = null;
             if(null != annotation) {
                 TypeMirror jsonAdapterType = null;
                 Element jsonAdapterTypeElement = null;
                 // Using this trick to get the class type
                 // https://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
-                try
-                {
+                try {
                     annotation.value();
                 }
-                catch( MirroredTypeException mte )
-                {
+                catch(MirroredTypeException mte) {
                     jsonAdapterType = mte.getTypeMirror();
                     jsonAdapterTypeElement = TypeUtils.getElementFromTypeMirror(jsonAdapterType);
-                    jsonAdapterType1 = TypeUtils.getJsonAdapterType(jsonAdapterType);
+                    TypeUtils.JsonAdapterType jsonAdapterType1 = TypeUtils.getJsonAdapterType(jsonAdapterType);
                     for(Element element : jsonAdapterTypeElement.getEnclosedElements()) {
                         if (element instanceof ExecutableElement) {
                             ExecutableElement executableElement =
                                     ((ExecutableElement) element);
                             Name name = executableElement.getSimpleName();
                             if (name.contentEquals("<init>")) {
-                                adapterConstructor = executableElement;
+                                String fieldAdapterAccessor = getAdapterAccessorForKnownJsonAdapterType(executableElement, adapterBuilder, constructorBuilder, fieldType,
+                                        jsonAdapterType1, result, annotation.nullSafe(), getJsonName(entry.getKey()));
+                                result.addFieldToAccessor(getJsonName(entry.getKey()), fieldAdapterAccessor);
                             }
                         }
                     }
                 }
 
-            }
-
-            if(adapterConstructor != null) {
-                String fieldAdapterAccessor = getAdapterAccessorForKnownJsonAdapterType(adapterConstructor, adapterBuilder, constructorBuilder, fieldType,
-                        jsonAdapterType1, result, annotation.nullSafe(), getJsonName(entry.getKey()));
-                result.addFieldToAccessor(getJsonName(entry.getKey()), fieldAdapterAccessor);
-            }else if (hasUnknownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
+            } else if (hasUnknownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
                 adapterAccessor = getAdapterForUnknownType(fieldType, adapterBuilder, constructorBuilder,
                                                            typeTokenConstantsGenerator, typeVarsMap, result);
             } else if(KnownTypeAdapterUtils.hasNativePrimitiveTypeAdapter(fieldType)) {
