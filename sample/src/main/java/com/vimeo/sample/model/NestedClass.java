@@ -19,8 +19,8 @@ public class NestedClass {
     public static class NestedWithAnnotation {
 
         /**
-         * This class should have a TypeAdapter created
-         * for it with FieldOption.SERIALIZED_NAME
+         * This class should not have a TypeAdapter created, even though it is nested within
+         * an annotated class.
          */
         public static class NestedWithoutAnnotation {
 

@@ -547,7 +547,30 @@ public final class TypeUtils {
         return classAndPackage;
     }
 
+    /**
+     * Convert the provided {@link TypeMirror} into an {@link Element} instance.  This method
+     * call assumes that the provided {@link TypeMirror} is constrained to only known supported
+     * types.  As a result it will guarantee non-null result values.
+     *
+     * @param typeMirror type mirror to convert
+     * @return element representation of the type mirror
+     */
     @NotNull
+    public static Element getElementFromSupportedTypeMirror(@NotNull TypeMirror typeMirror) {
+        Element element = getElementFromTypeMirror(typeMirror);
+        // asElement may return null but not in the scenarios we are specifically using it for
+        if (element == null)
+            throw new IllegalStateException("Supported type could not be converted into an Element");
+        return element;
+    }
+
+    /**
+     * Convert the provided {@link TypeMirror} into an {@link Element} instance.
+     *
+     * @param typeMirror type mirror to convert
+     * @return element representation of the type mirror
+     */
+    @Nullable
     public static Element getElementFromTypeMirror(@NotNull TypeMirror typeMirror) {
         return getUtils().asElement(typeMirror);
     }

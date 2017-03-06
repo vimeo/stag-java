@@ -26,9 +26,9 @@ public class NestedClassTest {
     }
 
     @Test
-    public void typeAdapterWasGenerated_NestedClass_NestedWithAnnotation_NestedWithoutAnnotation()
+    public void typeAdapterWasNotGenerated_NestedClass_NestedWithAnnotation_NestedWithoutAnnotation()
             throws Exception {
-        Utils.verifyTypeAdapterGeneration(NestedWithoutAnnotation.class);
+        Utils.verifyNoTypeAdapterGeneration(NestedWithoutAnnotation.class);
     }
 
 }
