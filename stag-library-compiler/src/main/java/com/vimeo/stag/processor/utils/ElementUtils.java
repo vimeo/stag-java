@@ -116,8 +116,8 @@ public final class ElementUtils {
             return false;
         }
         ElementKind elementKind = element.getKind();
-        return (elementKind == ElementKind.CLASS && findAnnotation(UseStag.class, element) != null)
-                || elementKind == ElementKind.ENUM;
+        return (elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM)
+                && findAnnotation(UseStag.class, element) != null;
     }
 
 }
