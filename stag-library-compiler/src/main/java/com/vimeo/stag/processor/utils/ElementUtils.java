@@ -104,6 +104,13 @@ public final class ElementUtils {
         return null;
     }
 
+    public static <T extends Annotation> boolean isAnnotatedWith(
+            @NotNull Class<T> annotationClass,
+            @Nullable Element element) {
+        T annotation = element == null ? null : element.getAnnotation(annotationClass);
+        return annotation != null;
+    }
+
     /**
      * Determines if an element is a supported type.
      *
@@ -117,7 +124,7 @@ public final class ElementUtils {
         }
         ElementKind elementKind = element.getKind();
         return (elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM)
-                && findAnnotation(UseStag.class, element) != null;
+                && isAnnotatedWith(UseStag.class, element);
     }
 
 }

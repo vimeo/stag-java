@@ -1,1 +1,1 @@
-include ':stag-library', ':stag-library-compiler', ':sample', ':sample-model'
+include ':stag-library', ':stag-library-compiler', ':sample', ':sample-model', ':sample-java-model'

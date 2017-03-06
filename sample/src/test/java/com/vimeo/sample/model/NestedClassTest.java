@@ -16,8 +16,13 @@ public class NestedClassTest {
     }
 
     @Test
-    public void typeAdapterWasGenerated_NestedClass_Nested() throws Exception {
-        Utils.verifyTypeAdapterGeneration(NestedClass.Nested.class);
+    public void typeAdapterWasNotGenerated_NestedClass_NestedExtension() throws Exception {
+        Utils.verifyNoTypeAdapterGeneration(NestedClass.NestedExtension.class);
+    }
+
+    @Test
+    public void typeAdapterWasNotGenerated_NestedClass_Nested() throws Exception {
+        Utils.verifyNoTypeAdapterGeneration(NestedClass.Nested.class);
     }
 
     @Test

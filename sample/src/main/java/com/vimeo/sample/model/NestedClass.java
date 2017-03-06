@@ -8,10 +8,19 @@ import com.vimeo.stag.UseStag.FieldOption;
 public class NestedClass {
 
     /**
-     * This class should have a TypeAdapter created
-     * for it with FieldOption.ALL
+     * This class is not directly annotated but the parent class is annotated.
+     * We have a choice here as to whether or not we automatically generate type adapters
+     * for such classes.  We're opting for the principle of least surprise and requiring all
+     * classes to explicitly specify the annotation in order to enable generation.
      */
-    public static class Nested extends NestedClass {
+    public static class NestedExtension extends NestedClass {
+        String field;
+    }
+
+    /**
+     * This class is unannotated and does not inherit from an annotated type.
+     */
+    public static class Nested {
 
     }
 
