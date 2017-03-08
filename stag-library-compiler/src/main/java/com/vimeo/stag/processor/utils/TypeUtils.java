@@ -574,21 +574,22 @@ public final class TypeUtils {
      * @param type :TypeMirror type
      * @return {@link JsonAdapterType}
      */
+    @NotNull
     public static JsonAdapterType getJsonAdapterType(@NotNull TypeMirror type) {
-        WildcardType WILDCARD_TYPE_NULL = sTypeUtils.getWildcardType(null, null);
-        TypeMirror[] typex = {WILDCARD_TYPE_NULL};
-        if(sTypeUtils.isSubtype(type, sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(TypeAdapter.class.getName()), typex))) {
+        WildcardType wildcardType = sTypeUtils.getWildcardType(null, null);
+        TypeMirror[] typex = {wildcardType};
+        if (sTypeUtils.isSubtype(type, sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(TypeAdapter.class.getName()), typex))) {
             return JsonAdapterType.TYPE_ADAPTER;
-        } else if(sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
+        } else if (sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
             return JsonAdapterType.TYPE_ADAPTER_FACTORY;
         } else {
             boolean isDeserializer = sTypeUtils.isSubtype(type, sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(JsonDeserializer.class.getName()), typex));
             boolean isSerializer = sTypeUtils.isSubtype(type, sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(JsonSerializer.class.getName()), typex));
-            if(isSerializer && isDeserializer) {
+            if (isSerializer && isDeserializer) {
                 return JsonAdapterType.JSON_SERIALIZER_DESERIALIZER;
-            } else if(isSerializer) {
+            } else if (isSerializer) {
                 return JsonAdapterType.JSON_SERIALIZER;
-            } else if(isDeserializer) {
+            } else if (isDeserializer) {
                 return JsonAdapterType.JSON_DESERIALIZER;
             } else {
                 return JsonAdapterType.NONE;

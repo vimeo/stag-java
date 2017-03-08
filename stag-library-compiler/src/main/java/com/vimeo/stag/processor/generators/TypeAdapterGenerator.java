@@ -332,11 +332,11 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         }
     }
 
-    private String getAdapterAccessorForKnownJsonAdapterType(@NotNull ExecutableElement adapterType, @NotNull TypeSpec.Builder adapterBuilder,
-                                                             @NotNull MethodSpec.Builder constructorBuilder,
-                                                             @NotNull TypeMirror fieldType,
-                                                             @NotNull TypeUtils.JsonAdapterType jsonAdapterType, @NotNull AdapterFieldInfo adapterFieldInfo, boolean isNullSafe,
-                                                             @NotNull String keyFieldName) {
+    private String getFieldAccessorForKnownJsonAdapterType(@NotNull ExecutableElement adapterType, @NotNull TypeSpec.Builder adapterBuilder,
+                                                           @NotNull MethodSpec.Builder constructorBuilder,
+                                                           @NotNull TypeMirror fieldType,
+                                                           @NotNull TypeUtils.JsonAdapterType jsonAdapterType, @NotNull AdapterFieldInfo adapterFieldInfo, boolean isNullSafe,
+                                                           @NotNull String keyFieldName) {
         String fieldAdapterAccessor = "new " + FileGenUtils.escapeStringForCodeBlock(adapterType.getEnclosingElement().toString());
         if (jsonAdapterType == TypeUtils.JsonAdapterType.TYPE_ADAPTER) {
             ArrayList<String> constructorParameters = new ArrayList<>();
@@ -398,9 +398,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             statement += ".nullSafe()";
         }
         constructorBuilder.addStatement(statement);
-        fieldAdapterAccessor = fieldName;
 
-        return fieldAdapterAccessor;
+        return fieldName;
     }
     /**
      * Returns the adapter code for the known types.
@@ -707,7 +706,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                                     ((ExecutableElement) element);
                             Name name = executableElement.getSimpleName();
                             if (name.contentEquals("<init>")) {
-                                String fieldAdapterAccessor = getAdapterAccessorForKnownJsonAdapterType(executableElement, adapterBuilder, constructorBuilder, fieldType,
+                                String fieldAdapterAccessor = getFieldAccessorForKnownJsonAdapterType(executableElement, adapterBuilder, constructorBuilder, fieldType,
                                         jsonAdapterType1, result, annotation.nullSafe(), getJsonName(entry.getKey()));
                                 result.addFieldToAccessor(getJsonName(entry.getKey()), fieldAdapterAccessor);
                             }
@@ -946,7 +945,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             mAdapterAccessor.put(typeMirror.toString(), accessorCode);
         }
 
-        void addFieldToAccessor(@NotNull String  fieldName, String accessorCode){
+        void addFieldToAccessor(@NotNull String  fieldName, @NotNull String accessorCode){
             mFieldAdapterAccessor.put(fieldName, accessorCode);
         }
     }
