@@ -576,15 +576,13 @@ public final class TypeUtils {
      */
     @NotNull
     public static JsonAdapterType getJsonAdapterType(@NotNull TypeMirror type) {
-        WildcardType wildcardType = sTypeUtils.getWildcardType(null, null);
-        TypeMirror[] typex = {wildcardType};
-        if (sTypeUtils.isSubtype(type, sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(TypeAdapter.class.getName()), typex))) {
+        if (sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(TypeAdapter.class.getName()))) {
             return JsonAdapterType.TYPE_ADAPTER;
         } else if (sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
             return JsonAdapterType.TYPE_ADAPTER_FACTORY;
         } else {
-            boolean isDeserializer = sTypeUtils.isSubtype(type, sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(JsonDeserializer.class.getName()), typex));
-            boolean isSerializer = sTypeUtils.isSubtype(type, sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(JsonSerializer.class.getName()), typex));
+            boolean isDeserializer = sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(JsonDeserializer.class.getName()));
+            boolean isSerializer = sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(JsonSerializer.class.getName()));
             if (isSerializer && isDeserializer) {
                 return JsonAdapterType.JSON_SERIALIZER_DESERIALIZER;
             } else if (isSerializer) {
@@ -597,7 +595,14 @@ public final class TypeUtils {
         }
     }
 
-    public static boolean isAssignable(TypeMirror t1, TypeMirror t2){
-        return sTypeUtils.isAssignable(t1,t2);
+    public static boolean isAssignable(TypeMirror t1, TypeMirror t2) {
+        return sTypeUtils.isAssignable(t1, t2);
+    }
+
+    @NotNull
+    public static DeclaredType getDeclaredTypeForParameterizedClass(@NotNull String className) {
+        WildcardType wildcardType = sTypeUtils.getWildcardType(null, null);
+        TypeMirror[] typex = {wildcardType};
+        return sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(className), typex);
     }
 }
