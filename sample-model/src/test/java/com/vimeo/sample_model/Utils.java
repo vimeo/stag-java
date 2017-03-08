@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.reflect.TypeToken;
-import com.vimeo.sample.sample_model.stag.generated.Stag;
+import com.vimeo.sample_model.stag.generated.Stag;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

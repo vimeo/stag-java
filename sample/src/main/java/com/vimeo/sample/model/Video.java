@@ -23,7 +23,9 @@
  */
 package com.vimeo.sample.model;
 
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.internal.bind.DateTypeAdapter;
 import com.vimeo.stag.UseStag;
 
 import java.util.Date;

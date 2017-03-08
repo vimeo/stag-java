@@ -43,7 +43,7 @@ dependencies {
 
 apt {
     arguments {
-        stagGeneratedPackageName "com.vimeo.sample.sample_model.stag.generated"
+        stagGeneratedPackageName "com.vimeo.sample_model.stag.generated"
         stagDebug true
     }
 }
