@@ -64,7 +64,6 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
@@ -688,29 +687,21 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             TypeMirror fieldType = entry.getValue();
             JsonAdapter annotation = entry.getKey().getAnnotation(JsonAdapter.class);
             String adapterAccessor = null;
-            if(null != annotation) {
-                TypeMirror jsonAdapterType = null;
-                Element jsonAdapterTypeElement = null;
+            if (null != annotation) {
                 // Using this trick to get the class type
                 // https://blog.retep.org/2009/02/13/getting-class-values-from-annotations-in-an-annotationprocessor/
                 try {
                     annotation.value();
-                }
-                catch(MirroredTypeException mte) {
-                    jsonAdapterType = mte.getTypeMirror();
-                    jsonAdapterTypeElement = TypeUtils.getElementFromTypeMirror(jsonAdapterType);
-                    TypeUtils.JsonAdapterType jsonAdapterType1 = TypeUtils.getJsonAdapterType(jsonAdapterType);
-                    for(Element element : jsonAdapterTypeElement.getEnclosedElements()) {
-                        if (element instanceof ExecutableElement) {
-                            ExecutableElement executableElement =
-                                    ((ExecutableElement) element);
-                            Name name = executableElement.getSimpleName();
-                            if (name.contentEquals("<init>")) {
-                                String fieldAdapterAccessor = getFieldAccessorForKnownJsonAdapterType(executableElement, adapterBuilder, constructorBuilder, fieldType,
-                                        jsonAdapterType1, result, annotation.nullSafe(), getJsonName(entry.getKey()));
-                                result.addFieldToAccessor(getJsonName(entry.getKey()), fieldAdapterAccessor);
-                            }
-                        }
+                } catch (MirroredTypeException mte) {
+                    TypeMirror typeMirror = mte.getTypeMirror();
+                    ExecutableElement constructor = ElementUtils.getFirstConstructor(typeMirror);
+                    TypeUtils.JsonAdapterType jsonAdapterType1 = TypeUtils.getJsonAdapterType(typeMirror);
+                    if (constructor != null) {
+                        String fieldAdapterAccessor = getFieldAccessorForKnownJsonAdapterType(constructor, adapterBuilder, constructorBuilder, fieldType,
+                                jsonAdapterType1, result, annotation.nullSafe(), getJsonName(entry.getKey()));
+                        result.addFieldToAccessor(getJsonName(entry.getKey()), fieldAdapterAccessor);
+                    } else {
+                        throw new IllegalStateException("Not supported @JsonAdapter value");
                     }
                 }
 
