@@ -39,6 +39,7 @@ import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
+import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -109,6 +110,7 @@ public final class StagProcessor extends AbstractProcessor {
 
         TypeUtils.initialize(processingEnv.getTypeUtils());
         ElementUtils.initialize(processingEnv.getElementUtils());
+        MessagerUtils.initialize(processingEnv.getMessager());
 
         String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
         SupportedTypesModel.getInstance().initialize(stagFactoryGeneratedName);

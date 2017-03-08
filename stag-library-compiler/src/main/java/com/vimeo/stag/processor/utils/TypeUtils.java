@@ -23,6 +23,11 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +47,7 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Types;
 
 public final class TypeUtils {
@@ -554,4 +560,51 @@ public final class TypeUtils {
         return getUtils().asElement(typeMirror);
     }
 
+
+    public enum JsonAdapterType {
+        NONE,
+        TYPE_ADAPTER,
+        TYPE_ADAPTER_FACTORY,
+        JSON_SERIALIZER,
+        JSON_DESERIALIZER,
+        JSON_SERIALIZER_DESERIALIZER
+
+    }
+    /**
+     * Return the type of JsonAdapter {@link TypeMirror}
+     *
+     * @param type :TypeMirror type
+     * @return {@link JsonAdapterType}
+     */
+    @NotNull
+    public static JsonAdapterType getJsonAdapterType(@NotNull TypeMirror type) {
+        if (sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(TypeAdapter.class.getName()))) {
+            return JsonAdapterType.TYPE_ADAPTER;
+        } else if (sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
+            return JsonAdapterType.TYPE_ADAPTER_FACTORY;
+        } else {
+            boolean isDeserializer = sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(JsonDeserializer.class.getName()));
+            boolean isSerializer = sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(JsonSerializer.class.getName()));
+            if (isSerializer && isDeserializer) {
+                return JsonAdapterType.JSON_SERIALIZER_DESERIALIZER;
+            } else if (isSerializer) {
+                return JsonAdapterType.JSON_SERIALIZER;
+            } else if (isDeserializer) {
+                return JsonAdapterType.JSON_DESERIALIZER;
+            } else {
+                return JsonAdapterType.NONE;
+            }
+        }
+    }
+
+    public static boolean isAssignable(TypeMirror t1, TypeMirror t2) {
+        return sTypeUtils.isAssignable(t1, t2);
+    }
+
+    @NotNull
+    public static DeclaredType getDeclaredTypeForParameterizedClass(@NotNull String className) {
+        WildcardType wildcardType = sTypeUtils.getWildcardType(null, null);
+        TypeMirror[] typex = {wildcardType};
+        return sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(className), typex);
+    }
 }

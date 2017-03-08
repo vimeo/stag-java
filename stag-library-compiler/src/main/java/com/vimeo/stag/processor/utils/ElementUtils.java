@@ -28,6 +28,8 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -85,4 +87,20 @@ public final class ElementUtils {
         return elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM;
     }
 
+    @Nullable
+    public static ExecutableElement getFirstConstructor(@Nullable TypeMirror typeMirror) {
+        if(typeMirror != null) {
+            Element typeElement = TypeUtils.getElementFromTypeMirror(typeMirror);
+            for (Element element : typeElement.getEnclosedElements()) {
+                if (element instanceof ExecutableElement) {
+                    ExecutableElement executableElement = ((ExecutableElement) element);
+                    Name name = executableElement.getSimpleName();
+                    if (name.contentEquals("<init>")) {
+                        return executableElement;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 }

@@ -21,42 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.sample.model;
+package com.vimeo.stag.processor.utils;
 
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.bind.DateTypeAdapter;
-import com.vimeo.stag.UseStag;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Date;
+import javax.annotation.processing.Messager;
+import javax.lang.model.element.Element;
+import javax.tools.Diagnostic;
 
-/**
- * Simple video model used by the sample app.
- */
-@UseStag
-public class Video {
+public final class MessagerUtils {
 
-    @SerializedName("user")
-    public User mUser;
+    @Nullable
+    private static Messager sMessager;
 
-    @SerializedName("link")
-    public String mLink;
-
-    public com.vimeo.sample.model1.Video video;
-
-    @SerializedName("name")
-    public String mName;
-
-    @SerializedName("created_time")
-    public Date mCreatedTime;
-
-    @SerializedName("stats")
-    public Stats mStats;
-
-    @Override
-    public String toString() {
-        return "user: { " + (mUser != null ? mUser.toString() : null) + " }\nlink: " + mLink + "\nname: " +
-               mName + "\ncreated_time: " + mCreatedTime + "\nstats: { " +
-               (mStats != null ? mStats.toString() : null) + " }";
+    private MessagerUtils() {
+        throw new UnsupportedOperationException("This class is not instantiable");
     }
+
+    public static void initialize(@NotNull Messager messager) {
+        sMessager = messager;
+    }
+
+    @NotNull
+    private static Messager getMessager() {
+        Preconditions.checkNotNull(sMessager);
+        return sMessager;
+    }
+
+    public static void reportError(@NotNull String message, @NotNull Element element) {
+        getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
+    }
+
 }
