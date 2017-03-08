@@ -49,6 +49,9 @@ import static org.junit.Assert.assertTrue;
  * A base test class for {@link Processor annotation processor} testing that
  * attempts to compile source test cases that can be found on the classpath.
  *
+ * Original source from:
+ *   https://github.com/ngs-doo/dsl-json/blob/master/processor/src/test/java/com/dslplatform/json/AbstractAnnotationProcessorTest.java
+ *
  * @author aphillips
  * @since 5 Jun 2009
  */
