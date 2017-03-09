@@ -26,7 +26,6 @@ package com.vimeo.stag.processor;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import com.vimeo.stag.GsonAdapterKey;
-import com.vimeo.stag.KnownTypeAdapters;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
@@ -39,7 +38,7 @@ import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
-import com.vimeo.stag.processor.utils.KnownTypeAdapterUtils;
+import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -117,6 +116,7 @@ public final class StagProcessor extends AbstractProcessor {
 
         TypeUtils.initialize(processingEnv.getTypeUtils());
         ElementUtils.initialize(processingEnv.getElementUtils());
+        MessagerUtils.initialize(processingEnv.getMessager());
 
         String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
         SupportedTypesModel.getInstance().initialize(stagFactoryGeneratedName);

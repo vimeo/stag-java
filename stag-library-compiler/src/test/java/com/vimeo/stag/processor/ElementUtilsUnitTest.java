@@ -23,9 +23,8 @@
  */
 package com.vimeo.stag.processor;
 
-import com.vimeo.stag.processor.dummy.DummyAbstractClass;
+import com.vimeo.stag.processor.dummy.DummyClassWithConstructor;
 import com.vimeo.stag.processor.dummy.DummyConcreteClass;
-import com.vimeo.stag.processor.dummy.DummyEnumClass;
 import com.vimeo.stag.processor.dummy.DummyGenericClass;
 import com.vimeo.stag.processor.dummy.DummyInheritedClass;
 import com.vimeo.stag.processor.utils.ElementUtils;
@@ -38,7 +37,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
 
 public class ElementUtilsUnitTest extends BaseUnitTest {
 
@@ -101,6 +100,23 @@ public class ElementUtilsUnitTest extends BaseUnitTest {
                 ElementUtils.getPackage(Utils.getTypeMirrorFromClass(String.class)));
         Assert.assertNotEquals(DummyInheritedClass.class.getPackage().getName(),
                 ElementUtils.getPackage(Utils.getTypeMirrorFromClass(Object.class)));
+    }
+
+    @Test
+    public void testGetConstructor() throws Exception {
+        ExecutableElement executableElement = ElementUtils.getFirstConstructor(Utils.getTypeMirrorFromClass(String.class));
+        Assert.assertEquals(executableElement.getEnclosingElement().toString(),Utils.getElementFromClass(String.class).toString());
+        Assert.assertEquals(executableElement.getParameters().size(), 0);
+
+        executableElement = ElementUtils.getFirstConstructor(Utils.getTypeMirrorFromClass(DummyClassWithConstructor.class));
+        Assert.assertEquals(executableElement.getEnclosingElement().toString(),Utils.getElementFromClass(DummyClassWithConstructor.class).toString());
+        Assert.assertEquals(executableElement.getParameters().size(), 1);
+        Assert.assertEquals(executableElement.getParameters().get(0).asType().toString(), Utils.getElementFromClass(String.class).toString());
+
+        executableElement = ElementUtils.getFirstConstructor(Utils.getTypeMirrorFromClass(DummyGenericClass.class));
+        Assert.assertEquals(executableElement.getEnclosingElement().toString(), Utils.getElementFromClass(DummyGenericClass.class).toString());
+        Assert.assertEquals(executableElement.getParameters().size(), 0);
+
     }
 
 }
