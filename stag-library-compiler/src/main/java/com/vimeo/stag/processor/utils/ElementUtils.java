@@ -104,11 +104,19 @@ public final class ElementUtils {
         return null;
     }
 
+    /**
+     * Determines whether or not the element provided is annotated with the annotation type
+     * specified.
+     *
+     * @param annotationClass annotation class to search for
+     * @param element element to query
+     * @param <T> annotation type
+     * @return {@code true} if the element is annotated, {@code false} otherwise
+     */
     public static <T extends Annotation> boolean isAnnotatedWith(
             @NotNull Class<T> annotationClass,
             @Nullable Element element) {
-        T annotation = element == null ? null : element.getAnnotation(annotationClass);
-        return annotation != null;
+        return element != null && element.getAnnotation(annotationClass) != null;
     }
 
     /**
