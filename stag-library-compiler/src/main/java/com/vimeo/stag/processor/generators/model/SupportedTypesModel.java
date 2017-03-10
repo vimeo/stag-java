@@ -23,6 +23,7 @@
  */
 package com.vimeo.stag.processor.generators.model;
 
+import com.vimeo.stag.UseStag.FieldOption;
 import com.vimeo.stag.processor.generators.ExternalAdapterInfo;
 import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.TypeUtils;
@@ -117,13 +118,13 @@ public final class SupportedTypesModel {
      * with the class type.
      */
     @NotNull
-    public AnnotatedClass addToKnownInheritedType(@NotNull TypeMirror type) {
+    public AnnotatedClass addToKnownInheritedType(@NotNull TypeMirror type, @Nullable FieldOption childFieldOption) {
         String outerClassType = TypeUtils.getOuterClassType(type);
         AnnotatedClass model = getSupportedType(outerClassType);
         if (null == model) {
             model = mKnownInheritedTypesMap.get(outerClassType);
             if (null == model) {
-                model = new AnnotatedClass(TypeUtils.getElementFromSupportedTypeMirror(type));
+                model = new AnnotatedClass(TypeUtils.getElementFromSupportedTypeMirror(type), childFieldOption);
                 mKnownInheritedTypesMap.put(outerClassType, model);
             }
         }

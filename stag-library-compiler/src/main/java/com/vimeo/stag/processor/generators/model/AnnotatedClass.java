@@ -27,12 +27,13 @@ import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
 import com.vimeo.stag.processor.utils.DebugLog;
-import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.MessagerUtils;
+import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -52,7 +53,11 @@ public class AnnotatedClass {
     @NotNull private final Element mElement;
     @NotNull private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
 
-    AnnotatedClass(@NotNull Element element) {
+    AnnotatedClass(@NotNull Element element){
+        this(element, null);
+    }
+
+    AnnotatedClass(@NotNull Element element, @Nullable FieldOption childFieldOption) {
         mType = element.asType();
         mElement = element;
         Map<String, Element> variableNames = new HashMap<>(element.getEnclosedElements().size());
@@ -63,23 +68,23 @@ public class AnnotatedClass {
         FieldOption fieldOption = useStag != null ? useStag.value() : null;
         if (fieldOption == null) {
             useStag = ElementUtils.findAnnotation(UseStag.class, element);
-            fieldOption = useStag != null ? useStag.value() : null;
 
-            // The field option should never be null
-            Preconditions.checkNotNull(fieldOption);
+            // The field option can be null if the inherited class was not annotated
+            fieldOption = useStag != null ? useStag.value() : childFieldOption;
         }
+
+        Preconditions.checkNotNull(fieldOption);
 
         mMemberVariables = new LinkedHashMap<>();
 
         if (inheritedType != null) {
             DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
 
-            AnnotatedClass genericInheritedType =
-                    SupportedTypesModel.getInstance().addToKnownInheritedType(inheritedType);
+            AnnotatedClass genericInheritedType = SupportedTypesModel.getInstance().addToKnownInheritedType(inheritedType, fieldOption);
 
-            LinkedHashMap<Element, TypeMirror> inheritedMemberVariables =
-                    TypeUtils.getConcreteMembers(inheritedType, genericInheritedType.getElement(),
-                                                 genericInheritedType.getMemberVariables());
+            LinkedHashMap<Element, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
+                                                                                                       genericInheritedType.getElement(),
+                                                                                                       genericInheritedType.getMemberVariables());
 
             for (Map.Entry<Element, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
                 addMemberVariable(entry.getKey(), entry.getValue(), variableNames);

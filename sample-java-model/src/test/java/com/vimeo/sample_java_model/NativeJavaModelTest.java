@@ -29,4 +29,9 @@ public class NativeJavaModelTest {
         Utils.verifyNoTypeAdapterGeneration(NativeJavaModel.NestedExtensionWithoutAnnotation.class);
     }
 
+    @Test
+    public void typeAdapterWasGenerated_NativeJavaModel_NestedExtensionFromNoAnnotation() throws Exception {
+        Utils.verifyTypeAdapterGeneration(NativeJavaModel.NestedExtensionFromNoAnnotation.class);
+    }
+
 }

@@ -25,4 +25,9 @@ public class NativeJavaModel {
         String nestedExtensionWithoutAnnotation;
     }
 
+    @UseStag
+    public static class NestedExtensionFromNoAnnotation extends NestedWithoutAnnotation {
+        String nestedExtensionFromNoAnnotation;
+    }
+
 }
