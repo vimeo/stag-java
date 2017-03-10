@@ -23,8 +23,12 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import com.vimeo.stag.UseStag;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.lang.annotation.Annotation;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -74,6 +78,50 @@ public final class ElementUtils {
     }
 
     /**
+     * Get the annotation applied of the specified type if it has been applied to the provided
+     * element.  This method will check the supplied element and work up the type hierarchy,
+     * returning the first annotation instance found.
+     *
+     * @param annotationType annotation type to search for
+     * @param element element to analyze
+     * @param <T> annotation type
+     * @return annotation instance or {@code null} if not found
+     */
+    @Nullable
+    public static <T extends Annotation> T findAnnotation(
+            @NotNull Class<T> annotationType, @NotNull Element element) {
+        T annotatedElement = element.getAnnotation(annotationType);
+        if (annotatedElement != null)
+            return annotatedElement;
+
+        if (element instanceof TypeElement) {
+            TypeElement typeElement = (TypeElement) element;
+            TypeMirror superTypeMirror = typeElement.getSuperclass();
+            if (superTypeMirror != null) {
+                Element superTypeElement = TypeUtils.getElementFromTypeMirror(superTypeMirror);
+                return superTypeElement == null ? null : findAnnotation(annotationType, superTypeElement);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Determines whether or not the element provided is annotated with the annotation type
+     * specified.
+     *
+     * @param annotationClass annotation class to search for
+     * @param element element to query
+     * @param <T> annotation type
+     * @return {@code true} if the element is annotated, {@code false} otherwise
+     */
+    public static <T extends Annotation> boolean isAnnotatedWith(
+            @NotNull Class<T> annotationClass,
+            @Nullable Element element) {
+        return element != null && element.getAnnotation(annotationClass) != null;
+    }
+
+    /**
      * Determines if an element is a supported type.
      *
      * @param element the element to check.
@@ -85,7 +133,8 @@ public final class ElementUtils {
             return false;
         }
         ElementKind elementKind = element.getKind();
-        return elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM;
+        return (elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM)
+                && isAnnotatedWith(UseStag.class, element);
     }
 
     @Nullable

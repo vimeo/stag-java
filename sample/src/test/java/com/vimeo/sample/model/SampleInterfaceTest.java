@@ -15,8 +15,8 @@ public class SampleInterfaceTest {
     }
 
     @Test
-    public void typeAdapterWasGenerated_NestedClass() throws Exception {
-        Utils.verifyTypeAdapterGeneration(SampleInterface.NestedClass.class);
+    public void typeAdapterWasNotGenerated_NestedClass() throws Exception {
+        Utils.verifyNoTypeAdapterGeneration(SampleInterface.NestedClass.class);
     }
 
     @Test

@@ -18,9 +18,9 @@ public class ModelWithNestedInterfaceTest {
     }
 
     @Test
-    public void typeAdapterWasGenerated_ModelWithNestedInterface_NestedInterface_NestedModel()
+    public void typeAdapterWasNotGenerated_ModelWithNestedInterface_NestedInterface_NestedModel()
             throws Exception {
-        Utils.verifyTypeAdapterGeneration(ModelWithNestedInterface.NestedInterface.NestedModel.class);
+        Utils.verifyNoTypeAdapterGeneration(ModelWithNestedInterface.NestedInterface.NestedModel.class);
     }
 
 }
