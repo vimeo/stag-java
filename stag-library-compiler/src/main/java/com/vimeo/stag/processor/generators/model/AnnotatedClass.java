@@ -27,7 +27,6 @@ import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
 import com.vimeo.stag.processor.utils.DebugLog;
-import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.TypeUtils;
@@ -67,7 +66,7 @@ public class AnnotatedClass {
 
         FieldOption fieldOption = useStag != null ? useStag.value() : null;
         if (fieldOption == null) {
-            useStag = ElementUtils.findAnnotation(UseStag.class, element);
+            useStag = element.getAnnotation(UseStag.class);
 
             // The field option can be null if the inherited class was not annotated
             fieldOption = useStag != null ? useStag.value() : childFieldOption;
