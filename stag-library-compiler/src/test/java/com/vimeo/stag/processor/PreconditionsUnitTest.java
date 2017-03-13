@@ -27,6 +27,9 @@ import com.vimeo.stag.processor.utils.Preconditions;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class PreconditionsUnitTest {
 
     @Test
@@ -45,6 +48,37 @@ public class PreconditionsUnitTest {
     public void checkNotNull_NotNull() throws Exception {
         Object o = new Object();
         Preconditions.checkNotNull(o);
+    }
+
+    @Test
+    public void checkNotEmpty_NotEmpty() throws Exception {
+        List<Object> list = new ArrayList<Object>() {{
+            add(new Object());
+        }};
+
+        Preconditions.checkNotEmpty(list);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkNotEmpty_Empty_throwsException() {
+        List list = new ArrayList();
+        Preconditions.checkNotEmpty(list);
+    }
+
+    @Test
+    public void checkTrue_True() throws Exception {
+        Preconditions.checkTrue(true);
+        Preconditions.checkTrue(Boolean.TRUE);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkTrue_FalsePrimitive_throwsException() {
+        Preconditions.checkTrue(false);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkTrue_FalseObject_throwsException() {
+        Preconditions.checkTrue(Boolean.FALSE);
     }
 
 }
