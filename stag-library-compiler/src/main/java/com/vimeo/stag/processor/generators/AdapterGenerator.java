@@ -72,11 +72,9 @@ public abstract class AdapterGenerator {
     /**
      * Creates a {@link TypeSpec} for the the type adapter.
      *
-     * @param typeTokenConstantsGenerator the generator for the TypeTokenConstants class.
      * @param stagGenerator               the generator for the Stag class.
      * @return A non null {@link TypeSpec} describing the adapter class.
      */
     @NotNull
-    public abstract TypeSpec createTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                                   @NotNull StagGenerator stagGenerator);
+    public abstract TypeSpec createTypeAdapterSpec(@NotNull StagGenerator stagGenerator);
 }

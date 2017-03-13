@@ -32,7 +32,6 @@ import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.ExternalAdapterInfo;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
-import com.vimeo.stag.processor.generators.TypeTokenConstantsGenerator;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.utils.DebugLog;
@@ -132,18 +131,16 @@ public final class StagProcessor extends AbstractProcessor {
             Set<ExternalAdapterInfo> externalAdapterInfoSet = SupportedTypesModel.getInstance().getExternalSupportedAdapters();
 
             StagGenerator stagFactoryGenerator = new StagGenerator(packageName, supportedTypes, externalAdapterInfoSet);
-            TypeTokenConstantsGenerator typeTokenConstantsGenerator = new TypeTokenConstantsGenerator(packageName);
 
             Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
             for (Element element : list) {
                 if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) &&
                     !TypeUtils.isAbstract(element)) {
-                    generateTypeAdapter(element, typeTokenConstantsGenerator, stagFactoryGenerator);
+                    generateTypeAdapter(element, stagFactoryGenerator);
                 }
             }
 
             generateStagFactory(stagFactoryGenerator, packageName);
-            generateTypeTokenConstants(typeTokenConstantsGenerator, packageName);
             KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, supportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -164,7 +161,6 @@ public final class StagProcessor extends AbstractProcessor {
     }
 
     private void generateTypeAdapter(@NotNull Element element,
-                                     @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
                                      @NotNull StagGenerator stagGenerator) throws IOException {
 
         ClassInfo classInfo = new ClassInfo(element.asType());
@@ -174,19 +170,10 @@ public final class StagProcessor extends AbstractProcessor {
                 new TypeAdapterGenerator(classInfo);
 
         // Create the type spec
-        TypeSpec typeAdapterSpec = independentAdapter.createTypeAdapterSpec(typeTokenConstantsGenerator, stagGenerator);
+        TypeSpec typeAdapterSpec = independentAdapter.createTypeAdapterSpec(stagGenerator);
 
         // Write the type spec to a file
         writeTypeSpecToFile(typeAdapterSpec, classInfo.getPackageName());
-    }
-
-    private void generateTypeTokenConstants(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                            @NotNull String packageName) throws IOException {
-        // Create the type spec
-        TypeSpec typeTokenConstantsSpec = typeTokenConstantsGenerator.createTypeTokenConstantsSpec();
-
-        // Write the type spec to a file
-        writeTypeSpecToFile(typeTokenConstantsSpec, packageName);
     }
 
     private void writeTypeSpecToFile(@NotNull TypeSpec typeSpec, @NotNull String packageName) throws IOException {
