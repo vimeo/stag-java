@@ -1,27 +1,27 @@
 package com.vimeo.sample.model;
 
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
 
 /**
- * Model class to demonstrate the usage of FIELD_OPTION_SERIALIZED_NAME with GsonAdapterKey
+ * Model class to demonstrate the usage of FIELD_OPTION_SERIALIZED_NAME
  */
 @UseStag(FieldOption.SERIALIZED_NAME)
 public class FieldOptionsSerializedName3 {
 
     public int simpleInt;
 
-    @GsonAdapterKey("simpleFloat")
+    @SerializedName("simpleFloat")
     public float simpleFloat;
 
-    @GsonAdapterKey("simpleShort")
+    @SerializedName("simpleShort")
     public short simpleShort;
 
-    @GsonAdapterKey("simpleLong")
+    @SerializedName("simpleLong")
     public long simpleLong;
 
-    @GsonAdapterKey("simpleDouble")
+    @SerializedName("simpleDouble")
     public double simpleDouble;
 }

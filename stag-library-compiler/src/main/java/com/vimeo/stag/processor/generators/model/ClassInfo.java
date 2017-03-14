@@ -36,17 +36,10 @@ import javax.lang.model.type.TypeMirror;
 
 public final class ClassInfo {
 
-    @NotNull
-    private final String mClassName;
-
-    @NotNull
-    private final String mPackageName;
-
-    @NotNull
-    private final String mTypeName;
-
-    @NotNull
-    private final TypeMirror mType;
+    @NotNull private final String mClassName;
+    @NotNull private final String mPackageName;
+    @NotNull private final String mTypeName;
+    @NotNull private final TypeMirror mType;
 
     public ClassInfo(@NotNull TypeMirror typeMirror) {
         mType = typeMirror;
@@ -131,7 +124,7 @@ public final class ClassInfo {
         ClassInfo classInfo = (ClassInfo) o;
 
         return mClassName.equals(classInfo.mClassName) && mPackageName.equals(classInfo.mPackageName) &&
-                mTypeName.equals(classInfo.mTypeName) && mType.equals(classInfo.mType);
+               mTypeName.equals(classInfo.mTypeName) && mType.equals(classInfo.mType);
 
     }
 

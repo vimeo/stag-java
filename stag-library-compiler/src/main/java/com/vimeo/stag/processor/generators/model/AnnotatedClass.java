@@ -24,15 +24,15 @@
 package com.vimeo.stag.processor.generators.model;
 
 import com.google.gson.annotations.SerializedName;
-import com.vimeo.stag.GsonAdapterKey;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
 import com.vimeo.stag.processor.utils.DebugLog;
-import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.MessagerUtils;
+import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -48,16 +48,15 @@ public class AnnotatedClass {
 
     private static final String TAG = AnnotatedClass.class.getSimpleName();
 
-    @NotNull
-    private final TypeMirror mType;
+    @NotNull private final TypeMirror mType;
+    @NotNull private final Element mElement;
+    @NotNull private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
 
-    @NotNull
-    private final Element mElement;
+    AnnotatedClass(@NotNull Element element){
+        this(element, null);
+    }
 
-    @NotNull
-    private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
-
-    AnnotatedClass(@NotNull Element element) {
+    AnnotatedClass(@NotNull Element element, @Nullable FieldOption childFieldOption) {
         mType = element.asType();
         mElement = element;
         Map<String, Element> variableNames = new HashMap<>(element.getEnclosedElements().size());
@@ -67,22 +66,24 @@ public class AnnotatedClass {
 
         FieldOption fieldOption = useStag != null ? useStag.value() : null;
         if (fieldOption == null) {
-            useStag = ElementUtils.findAnnotation(UseStag.class, element);
-            // TODO: Do not default to FieldOption.SERIALIZED_NAME, instead set to null and fail after removing @GsonAdapterKey 1/30/17 [AR]
-            fieldOption = useStag != null ? useStag.value() : FieldOption.SERIALIZED_NAME;
+            useStag = element.getAnnotation(UseStag.class);
+
+            // The field option can be null if the inherited class was not annotated
+            fieldOption = useStag != null ? useStag.value() : childFieldOption;
         }
+
+        Preconditions.checkNotNull(fieldOption);
 
         mMemberVariables = new LinkedHashMap<>();
 
         if (inheritedType != null) {
             DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
 
-            AnnotatedClass genericInheritedType =
-                    SupportedTypesModel.getInstance().addToKnownInheritedType(inheritedType);
+            AnnotatedClass genericInheritedType = SupportedTypesModel.getInstance().addToKnownInheritedType(inheritedType, fieldOption);
 
-            LinkedHashMap<Element, TypeMirror> inheritedMemberVariables =
-                    TypeUtils.getConcreteMembers(inheritedType, genericInheritedType.getElement(),
-                                                 genericInheritedType.getMemberVariables());
+            LinkedHashMap<Element, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
+                                                                                                       genericInheritedType.getElement(),
+                                                                                                       genericInheritedType.getMemberVariables());
 
             for (Map.Entry<Element, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
                 addMemberVariable(entry.getKey(), entry.getValue(), variableNames);
@@ -110,19 +111,19 @@ public class AnnotatedClass {
         if (!modifiers.contains(Modifier.STATIC)) {
             if (modifiers.contains(Modifier.FINAL)) {
                 MessagerUtils.reportError("Unable to access field \"" +
-                                           variableElement.getSimpleName().toString() + "\" in class " +
-                                           variableElement.getEnclosingElement().asType() +
-                                           ", field must not be final.", variableElement);
+                                          variableElement.getSimpleName().toString() + "\" in class " +
+                                          variableElement.getEnclosingElement().asType() +
+                                          ", field must not be final.", variableElement);
             } else if (modifiers.contains(Modifier.PRIVATE)) {
                 MessagerUtils.reportError("Unable to access field \"" +
-                                           variableElement.getSimpleName().toString() + "\" in class " +
-                                           variableElement.getEnclosingElement().asType() +
-                                           ", field must not be private.", variableElement);
+                                          variableElement.getSimpleName().toString() + "\" in class " +
+                                          variableElement.getEnclosingElement().asType() +
+                                          ", field must not be private.", variableElement);
             }
         }
     }
 
-    private void addToSupportedTypes(@NotNull Element element, FieldOption fieldOption,
+    private void addToSupportedTypes(@NotNull Element element, @NotNull FieldOption fieldOption,
                                      @NotNull Map<String, Element> variableNames) {
         if (element instanceof VariableElement) {
             if (shouldIncludeField(element, fieldOption)) {
@@ -141,13 +142,12 @@ public class AnnotatedClass {
         }
     }
 
-    private boolean shouldIncludeField(@NotNull Element element, FieldOption fieldOption) {
+    private boolean shouldIncludeField(@NotNull Element element, @NotNull FieldOption fieldOption) {
         switch (fieldOption) {
             case NONE:
                 return false;
             case SERIALIZED_NAME:
-                return element.getAnnotation(SerializedName.class) != null ||
-                       element.getAnnotation(GsonAdapterKey.class) != null;
+                return element.getAnnotation(SerializedName.class) != null;
             case ALL:
                 return true;
             default:

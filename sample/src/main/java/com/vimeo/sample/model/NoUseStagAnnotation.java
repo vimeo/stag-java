@@ -1,16 +1,16 @@
 package com.vimeo.sample.model;
 
-import com.vimeo.stag.GsonAdapterKey;
+import com.google.gson.annotations.SerializedName;
 
 /**
- * This class should have a TypeAdapter created for it
- * for backwards compatibility.
+ * This class should not have a TypeAdapter created
+ * for it since it is missing a UseStag annotation.
  * <p>
  * Created by restainoa on 1/30/17.
  */
 public class NoUseStagAnnotation {
 
-    @GsonAdapterKey
+    @SerializedName("field")
     protected String field;
 
 }

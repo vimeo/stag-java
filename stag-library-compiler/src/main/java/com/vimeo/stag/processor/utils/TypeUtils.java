@@ -52,12 +52,11 @@ import javax.lang.model.util.Types;
 
 public final class TypeUtils {
 
-    @NotNull
-    private static final HashMap<String, String> PRIMITIVE_TO_OBJECT_MAP = new HashMap<>();
-
     private static final String TAG = TypeUtils.class.getSimpleName();
-    @Nullable
-    private static Types sTypeUtils;
+
+    @NotNull private static final HashMap<String, String> PRIMITIVE_TO_OBJECT_MAP = new HashMap<>();
+
+    @Nullable private static Types sTypeUtils;
 
 
     static {
@@ -70,6 +69,7 @@ public final class TypeUtils {
         PRIMITIVE_TO_OBJECT_MAP.put(char.class.getName(), Character.class.getName());
         PRIMITIVE_TO_OBJECT_MAP.put(byte.class.getName(), Byte.class.getName());
     }
+
     private TypeUtils() {
         throw new UnsupportedOperationException("This class is not instantiable");
     }
@@ -266,18 +266,20 @@ public final class TypeUtils {
 
     /**
      * Gets the inherited type from the element. If
-     * the inherited type is Object, then this method
-     * will return null.
+     * the inherited type is {@link Object} or {@link Enum},
+     * then this method will return null.
      *
      * @param element the element to get the inherited type.
      * @return the inherited type, or null if the element
-     * inherits from Object.
+     * inherits from Object or Enum.
      */
     @Nullable
     public static TypeMirror getInheritedType(@Nullable Element element) {
         TypeElement typeElement = (TypeElement) element;
-        if (typeElement != null && !typeElement.getSuperclass().toString().equals(Object.class.getName())) {
-            return typeElement.getSuperclass();
+        TypeMirror typeMirror = typeElement != null ? typeElement.getSuperclass() : null;
+        String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
+        if (!Object.class.getName().equals(className) && !Enum.class.getName().equals(className)) {
+            return typeMirror;
         }
         return null;
     }
@@ -372,7 +374,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), declaredType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                            " resolved to - " + declaredType.toString());
+                                      " resolved to - " + declaredType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -380,7 +382,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                            " resolved to - " + concreteType.toString());
+                                      " resolved to - " + concreteType.toString());
                 }
             }
         }
@@ -480,8 +482,8 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-                outerClassType.equals(List.class.getName()) ||
-                outerClassType.equals(Collection.class.getName());
+               outerClassType.equals(List.class.getName()) ||
+               outerClassType.equals(Collection.class.getName());
     }
 
     /**
@@ -510,11 +512,11 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(Map.class.getName()) ||
-                outerClassType.equals(HashMap.class.getName()) ||
-                outerClassType.equals(ConcurrentHashMap.class.getName()) ||
-                outerClassType.equals("android.util.ArrayMap") ||
-                outerClassType.equals("android.support.v4.util.ArrayMap") ||
-                outerClassType.equals(LinkedHashMap.class.getName());
+               outerClassType.equals(HashMap.class.getName()) ||
+               outerClassType.equals(ConcurrentHashMap.class.getName()) ||
+               outerClassType.equals("android.util.ArrayMap") ||
+               outerClassType.equals("android.support.v4.util.ArrayMap") ||
+               outerClassType.equals(LinkedHashMap.class.getName());
     }
 
     /**
@@ -525,9 +527,9 @@ public final class TypeUtils {
      */
     public static boolean isSupportedNative(@NotNull String type) {
         return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
-                type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
-                type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
-                type.equals(Float.class.getName()) || type.equals(Number.class.getName());
+               type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
+               type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
+               type.equals(Float.class.getName()) || type.equals(Number.class.getName());
     }
 
     /**

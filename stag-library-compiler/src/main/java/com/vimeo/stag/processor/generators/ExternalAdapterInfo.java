@@ -20,16 +20,13 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
-public class ExternalAdapterInfo {
+public final class ExternalAdapterInfo {
 
-    @NotNull
-    private final static Set<String> sCheckedClasses = new HashSet<>();
-    @NotNull
-    final Element mExternalClassType;
-    @NotNull
-    private final TypeElement mAdapterType;
-    @NotNull
-    private final ExecutableElement mAdapterConstructor;
+    @NotNull private static final Set<String> sCheckedClasses = new HashSet<>();
+
+    @NotNull final Element mExternalClassType;
+    @NotNull private final TypeElement mAdapterType;
+    @NotNull private final ExecutableElement mAdapterConstructor;
 
     private ExternalAdapterInfo(@NotNull Element typeElement, @NotNull TypeElement adapterTypeElement,
                                 @NotNull ExecutableElement adapterConstructor) {
@@ -70,12 +67,12 @@ public class ExternalAdapterInfo {
                                         ((ExecutableElement) adapterEnclosedElement);
                                 Name name = executableElement.getSimpleName();
                                 if (name.contentEquals("<init>") &&
-                                        executableElement.getParameters().size() >= 2 &&
-                                        !stagFactoryGeneratedName.equals(
-                                                executableElement.getParameters().get(1).asType().toString())) {
+                                    executableElement.getParameters().size() >= 2 &&
+                                    !stagFactoryGeneratedName.equals(
+                                            executableElement.getParameters().get(1).asType().toString())) {
                                     ExternalAdapterInfo result =
                                             new ExternalAdapterInfo(typeElement, adapterTypeElement,
-                                                    executableElement);
+                                                                    executableElement);
                                     sCheckedClasses.add(classAdapterName);
                                     externalAdapterInfoSet.add(result);
                                 }
@@ -98,10 +95,10 @@ public class ExternalAdapterInfo {
         int paramsSize = mAdapterConstructor.getParameters().size();
         if (paramsSize == 2) {
             return "new " + FileGenUtils.escapeStringForCodeBlock(mAdapterType.toString()) + "(" +
-                    gsonVariableName + ", " + getFactoryInitializer() + ")";
+                   gsonVariableName + ", " + getFactoryInitializer() + ")";
         } else {
             return "new " + FileGenUtils.escapeStringForCodeBlock(mAdapterType.toString()) + "(" +
-                    gsonVariableName + ", " + getFactoryInitializer() + concatenatedTypeAdapters + ")";
+                   gsonVariableName + ", " + getFactoryInitializer() + concatenatedTypeAdapters + ")";
         }
     }
 

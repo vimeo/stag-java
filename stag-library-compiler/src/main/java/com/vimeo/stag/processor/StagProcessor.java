@@ -25,13 +25,13 @@ package com.vimeo.stag.processor;
 
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
-import com.vimeo.stag.GsonAdapterKey;
+import com.squareup.javapoet.TypeSpec;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
+import com.vimeo.stag.processor.generators.ExternalAdapterInfo;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
-import com.vimeo.stag.processor.generators.TypeTokenConstantsGenerator;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.utils.DebugLog;
@@ -44,7 +44,6 @@ import com.vimeo.stag.processor.utils.TypeUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -60,11 +59,10 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 @AutoService(Processor.class)
-@SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag", "com.vimeo.stag.GsonAdapterKey"})
+@SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag"})
 @SupportedOptions(value = {StagProcessor.OPTION_PACKAGE_NAME, StagProcessor.OPTION_DEBUG})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
@@ -74,13 +72,6 @@ public final class StagProcessor extends AbstractProcessor {
     static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
     private boolean mHasBeenProcessed;
-
-    @Override
-    public Set<String> getSupportedAnnotationTypes() {
-        Set<String> set = new HashSet<>();
-        set.add(UseStag.class.getCanonicalName());
-        return set;
-    }
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
@@ -110,6 +101,8 @@ public final class StagProcessor extends AbstractProcessor {
             return true;
         }
 
+        mHasBeenProcessed = true;
+
         DEBUG = getDebugBoolean(processingEnv);
 
         String packageName = getOptionalPackageName(processingEnv);
@@ -123,62 +116,32 @@ public final class StagProcessor extends AbstractProcessor {
 
         DebugLog.log("\nBeginning @UseStag annotation processing\n");
 
-        mHasBeenProcessed = true;
-
         // Pick up the classes annotated with @UseStag
         Set<? extends Element> useStagElements = roundEnv.getElementsAnnotatedWith(UseStag.class);
         for (Element useStagElement : useStagElements) {
             processSupportedElements(useStagElement);
         }
 
-        // Pick up classes that contain @GsonAdapterKey annotations for backwards compatibility
-        // TODO: Remove this code when we remove @GsonAdapterKey support 1/30/17 [AR]
-        Set<? extends Element> gsonAdapterKeyElements =
-                roundEnv.getElementsAnnotatedWith(GsonAdapterKey.class);
-        for (Element gsonAdapterKeyElement : gsonAdapterKeyElements) {
-            final VariableElement variableElement = (VariableElement) gsonAdapterKeyElement;
-
-            Element enclosingClassElement = variableElement.getEnclosingElement();
-            TypeMirror enclosingClass = enclosingClassElement.asType();
-            DebugLog.log("Annotated type: " + enclosingClass + "\n");
-            SupportedTypesModel.getInstance().addSupportedType(enclosingClass);
-        }
-
-        Filer filer = processingEnv.getFiler();
         try {
-            Set<TypeMirror> mSupportedTypes = SupportedTypesModel.getInstance().getSupportedTypesMirror();
+            Set<TypeMirror> supportedTypes = SupportedTypesModel.getInstance().getSupportedTypesMirror();
             try {
-                mSupportedTypes.addAll(
-                        KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
-            } catch (Exception ignored) {
-            }
+                supportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
+            } catch (Exception ignored) {}
 
-            StagGenerator adapterGenerator = new StagGenerator(packageName, filer, mSupportedTypes,
-                    SupportedTypesModel.getInstance()
-                            .getExternalSupportedAdapters());
-            TypeTokenConstantsGenerator typeTokenConstantsGenerator =
-                    new TypeTokenConstantsGenerator(filer, packageName);
+            Set<ExternalAdapterInfo> externalAdapterInfoSet = SupportedTypesModel.getInstance().getExternalSupportedAdapters();
+
+            StagGenerator stagFactoryGenerator = new StagGenerator(packageName, supportedTypes, externalAdapterInfoSet);
 
             Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
             for (Element element : list) {
                 if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) &&
-                        !TypeUtils.isAbstract(element)) {
-                    ClassInfo classInfo = new ClassInfo(element.asType());
-                    AdapterGenerator independentAdapter =
-                            element.getKind() == ElementKind.ENUM ? new EnumTypeAdapterGenerator(classInfo,
-                                    element) : new TypeAdapterGenerator(
-                                    classInfo);
-                    JavaFile javaFile = JavaFile.builder(classInfo.getPackageName(),
-                            independentAdapter.getTypeAdapterSpec(
-                                    typeTokenConstantsGenerator,
-                                    adapterGenerator)).build();
-                    FileGenUtils.writeToFile(javaFile, filer);
+                    !TypeUtils.isAbstract(element)) {
+                    generateTypeAdapter(element, stagFactoryGenerator);
                 }
             }
 
-            adapterGenerator.generateTypeAdapterFactory(packageName);
-            typeTokenConstantsGenerator.generateTypeTokenConstants();
-            KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, mSupportedTypes);
+            generateStagFactory(stagFactoryGenerator, packageName);
+            KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, supportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -186,6 +149,42 @@ public final class StagProcessor extends AbstractProcessor {
         DebugLog.log("\nSuccessfully processed @UseStag annotations\n");
 
         return true;
+    }
+
+    private void generateStagFactory(@NotNull StagGenerator stagGenerator,
+                                     @NotNull String packageName) throws IOException {
+        // Create the type spec
+        TypeSpec typeSpec = stagGenerator.createStagSpec();
+
+        // Write the type spec to a file
+        writeTypeSpecToFile(typeSpec, packageName);
+    }
+
+    private void generateTypeAdapter(@NotNull Element element,
+                                     @NotNull StagGenerator stagGenerator) throws IOException {
+
+        ClassInfo classInfo = new ClassInfo(element.asType());
+
+        AdapterGenerator independentAdapter = element.getKind() == ElementKind.ENUM ?
+                new EnumTypeAdapterGenerator(classInfo, element) :
+                new TypeAdapterGenerator(classInfo);
+
+        // Create the type spec
+        TypeSpec typeAdapterSpec = independentAdapter.createTypeAdapterSpec(stagGenerator);
+
+        // Write the type spec to a file
+        writeTypeSpecToFile(typeAdapterSpec, classInfo.getPackageName());
+    }
+
+    private void writeTypeSpecToFile(@NotNull TypeSpec typeSpec, @NotNull String packageName) throws IOException {
+
+        // Create the Java file
+        JavaFile javaFile = JavaFile.builder(packageName, typeSpec).build();
+
+        Filer filer = processingEnv.getFiler();
+
+        // Write the Java file to disk
+        FileGenUtils.writeToFile(javaFile, filer);
     }
 
     /**

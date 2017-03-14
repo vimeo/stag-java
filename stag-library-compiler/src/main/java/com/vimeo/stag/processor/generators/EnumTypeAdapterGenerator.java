@@ -101,8 +101,7 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
      */
     @Override
     @NotNull
-    public TypeSpec getTypeAdapterSpec(@NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-                                       @NotNull StagGenerator stagGenerator) {
+    public TypeSpec createTypeAdapterSpec(@NotNull StagGenerator stagGenerator) {
         TypeMirror typeMirror = mInfo.getType();
         TypeName typeVariableName = TypeVariableName.get(typeMirror);
 
