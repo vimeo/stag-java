@@ -16,8 +16,13 @@ public class NestedClassTest {
     }
 
     @Test
-    public void typeAdapterWasGenerated_NestedClass_Nested() throws Exception {
-        Utils.verifyTypeAdapterGeneration(NestedClass.Nested.class);
+    public void typeAdapterWasNotGenerated_NestedClass_NestedExtension() throws Exception {
+        Utils.verifyNoTypeAdapterGeneration(NestedClass.NestedExtension.class);
+    }
+
+    @Test
+    public void typeAdapterWasNotGenerated_NestedClass_Nested() throws Exception {
+        Utils.verifyNoTypeAdapterGeneration(NestedClass.Nested.class);
     }
 
     @Test
@@ -26,9 +31,9 @@ public class NestedClassTest {
     }
 
     @Test
-    public void typeAdapterWasGenerated_NestedClass_NestedWithAnnotation_NestedWithoutAnnotation()
+    public void typeAdapterWasNotGenerated_NestedClass_NestedWithAnnotation_NestedWithoutAnnotation()
             throws Exception {
-        Utils.verifyTypeAdapterGeneration(NestedWithoutAnnotation.class);
+        Utils.verifyNoTypeAdapterGeneration(NestedWithoutAnnotation.class);
     }
 
 }

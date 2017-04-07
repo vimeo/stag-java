@@ -37,10 +37,11 @@ android {
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.1.1'
+    compile 'com.android.support:appcompat-v7:25.3.1'
 
     compile project(':stag-library')
     compile project(':sample-model')
+    compile project(':sample-java-model')
     apt project(':stag-library-compiler')
     compile 'com.google.code.gson:gson:2.8.0'
 }

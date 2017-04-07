@@ -21,31 +21,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag;
+package com.vimeo.stag.processor.utils;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * An annotation that indicates this member should be serialized to JSON with
- * the provided name value as its field name.
- * <p>
- * We will be removing this with v2.1. Please use Class level annotation UserStag
- * or SerializedName as required
- */
-@Target({ElementType.FIELD})
-@Deprecated
-public @interface GsonAdapterKey {
+import javax.annotation.processing.Messager;
+import javax.lang.model.element.Element;
+import javax.tools.Diagnostic;
 
-    /**
-     * The optional value for the JSON key
-     * to which the member variable will be
-     * mapped. If none is supplied, then the
-     * name of the member variable will be
-     * used as the key.
-     *
-     * @return the value for the JSON key
-     * or empty if there is none.
-     */
-    String value() default "";
+public final class MessagerUtils {
+
+    @Nullable
+    private static Messager sMessager;
+
+    private MessagerUtils() {
+        throw new UnsupportedOperationException("This class is not instantiable");
+    }
+
+    public static void initialize(@NotNull Messager messager) {
+        sMessager = messager;
+    }
+
+    @NotNull
+    private static Messager getMessager() {
+        Preconditions.checkNotNull(sMessager);
+        return sMessager;
+    }
+
+    public static void reportError(@NotNull String message, @NotNull Element element) {
+        getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
+    }
+
 }

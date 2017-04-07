@@ -35,16 +35,20 @@ platform :android do
   sh 'touch ../local.properties'
 
   # run the tests, but dont puke everywhere until the report is printed.
-  junit_report_path = "stag-library*/build/test-results/*.xml"
-  junit_report_path1 = "sample*/build/test-results/debug/*.xml"
+  junit_report_path_array = [
+    "stag-library/build/test-results/test/*.xml",
+    "stag-library-compiler/build/test-results/test/*.xml",
+    "sample-java-model/build/test-results/test/*.xml",
+    "sample/build/test-results/testDebugUnitTest/*.xml",
+    "sample-model/build/test-results/testDebugUnitTest/*.xml"
+  ]
   begin
     gradle(
-      task: "stag-library:test stag-library-compiler:test sample:test sample-model:test sample:build"
+      task: "stag-library:test stag-library-compiler:test sample:test sample-model:test sample-java-model:test sample:build"
     )
   rescue => error
   begin
-    pretty_junit(file_pattern: junit_report_path)
-    pretty_junit(file_pattern: junit_report_path1)
+    junit_report_path_array.each { |path| pretty_junit(file_pattern: path) }
   rescue => error
   end
 
@@ -56,8 +60,7 @@ platform :android do
   end
 
   begin
-    pretty_junit(file_pattern: junit_report_path)
-    pretty_junit(file_pattern: junit_report_path1)
+    junit_report_path_array.each { |path| pretty_junit(file_pattern: path) }
   rescue => error
   end
 

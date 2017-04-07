@@ -1,7 +1,6 @@
 package com.vimeo.sample.model;
 
 import com.vimeo.sample.Utils;
-import com.vimeo.sample.model.NoUseStagAnnotation;
 
 import org.junit.Test;
 
@@ -11,8 +10,8 @@ import org.junit.Test;
 public class NoUseStagAnnotationTest {
 
     @Test
-    public void typeAdapterWasGenerated() throws Exception {
-        Utils.verifyTypeAdapterGeneration(NoUseStagAnnotation.class);
+    public void typeAdapterWasNotGenerated() throws Exception {
+        Utils.verifyNoTypeAdapterGeneration(NoUseStagAnnotation.class);
     }
 
 }

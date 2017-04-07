@@ -23,7 +23,10 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
 
 public final class Preconditions {
 
@@ -41,6 +44,32 @@ public final class Preconditions {
     public static void checkNotNull(@Nullable Object o) {
         if (o == null) {
             throw new NullPointerException("Object must not be null");
+        }
+    }
+
+    /**
+     * Asserts that a collection is not empty.
+     * Throws an illegal state exception if it
+     * is empty.
+     *
+     * @param collection the collection to check.
+     */
+    public static void checkNotEmpty(@NotNull Collection collection) {
+        if (collection.isEmpty()) {
+            throw new IllegalStateException("Collection must not be empty");
+        }
+    }
+
+    /**
+     * Asserts that a boolean is true.
+     * Throws an illegal state exception
+     * if the boolean is false.
+     *
+     * @param bool the boolean to check.
+     */
+    public static void checkTrue(boolean bool) {
+        if (!bool) {
+            throw new IllegalStateException("Boolean must be true");
         }
     }
 

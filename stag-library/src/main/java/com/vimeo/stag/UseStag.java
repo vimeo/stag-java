@@ -55,8 +55,7 @@ public @interface UseStag {
         NONE,
         /**
          * Will Serialize or Deserialize Fields only which are
-         * annotated with {@link SerializedName} or
-         * {@link GsonAdapterKey} (deprecated).
+         * annotated with {@link SerializedName}.
          */
         SERIALIZED_NAME
     }

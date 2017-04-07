@@ -26,7 +26,6 @@ package com.vimeo.stag.processor.generators;
 
 import com.google.gson.annotations.SerializedName;
 import com.squareup.javapoet.TypeSpec;
-import com.vimeo.stag.GsonAdapterKey;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,20 +35,20 @@ import javax.lang.model.element.Element;
 public abstract class AdapterGenerator {
 
     /**
-     * If the element is not annotated with {@link SerializedName} or {@link GsonAdapterKey}, the variable name is used.
-     * If both of them are used we will give preference to GsonAdapterKey
+     * Gets the JSON name for the element the name passed to
+     * {@link SerializedName} will be used. If the element is
+     * not annotated with {@link SerializedName}, the variable
+     * name is used.
+     *
+     * @param element the element to get the name for.
+     * @return a non null string to use as the JSON key.
      */
     @NotNull
     static String getJsonName(@NotNull Element element) {
 
-        String name = (null != element.getAnnotation(GsonAdapterKey.class)) ? element.getAnnotation(
-                GsonAdapterKey.class).value() : null;
-
-
-        if (null == name || name.isEmpty()) {
-            name = (null != element.getAnnotation(SerializedName.class)) ? element.getAnnotation(
-                    SerializedName.class).value() : null;
-        }
+        String name = null != element.getAnnotation(SerializedName.class) ?
+                element.getAnnotation(SerializedName.class).value() :
+                null;
 
         if (null == name || name.isEmpty()) {
             name = element.getSimpleName().toString();
@@ -58,16 +57,24 @@ public abstract class AdapterGenerator {
     }
 
     /**
-     * Returns the alternate name for the {@link Element}
+     * Returns the alternate names for the {@link Element}.
+     *
+     * @param element the element to check for alternate names.
+     * @return an array of alternate names, or null if there are none.
      */
     @Nullable
     static String[] getAlternateJsonNames(@NotNull Element element) {
-        return (null != element.getAnnotation(SerializedName.class)) ? element.getAnnotation(
-                SerializedName.class).alternate() : null;
+        return null != element.getAnnotation(SerializedName.class) ?
+                element.getAnnotation(SerializedName.class).alternate() :
+                null;
     }
 
+    /**
+     * Creates a {@link TypeSpec} for the the type adapter.
+     *
+     * @param stagGenerator               the generator for the Stag class.
+     * @return A non null {@link TypeSpec} describing the adapter class.
+     */
     @NotNull
-    public abstract TypeSpec getTypeAdapterSpec(
-            @NotNull TypeTokenConstantsGenerator typeTokenConstantsGenerator,
-            @NotNull StagGenerator stagGenerator);
+    public abstract TypeSpec createTypeAdapterSpec(@NotNull StagGenerator stagGenerator);
 }

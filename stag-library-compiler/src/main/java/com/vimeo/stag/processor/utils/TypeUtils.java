@@ -23,6 +23,11 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,16 +47,16 @@ import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.type.WildcardType;
 import javax.lang.model.util.Types;
 
 public final class TypeUtils {
 
-    @NotNull
-    private static final HashMap<String, String> PRIMITIVE_TO_OBJECT_MAP = new HashMap<>();
-
     private static final String TAG = TypeUtils.class.getSimpleName();
-    @Nullable
-    private static Types sTypeUtils;
+
+    @NotNull private static final HashMap<String, String> PRIMITIVE_TO_OBJECT_MAP = new HashMap<>();
+
+    @Nullable private static Types sTypeUtils;
 
 
     static {
@@ -64,6 +69,7 @@ public final class TypeUtils {
         PRIMITIVE_TO_OBJECT_MAP.put(char.class.getName(), Character.class.getName());
         PRIMITIVE_TO_OBJECT_MAP.put(byte.class.getName(), Byte.class.getName());
     }
+
     private TypeUtils() {
         throw new UnsupportedOperationException("This class is not instantiable");
     }
@@ -260,18 +266,20 @@ public final class TypeUtils {
 
     /**
      * Gets the inherited type from the element. If
-     * the inherited type is Object, then this method
-     * will return null.
+     * the inherited type is {@link Object} or {@link Enum},
+     * then this method will return null.
      *
      * @param element the element to get the inherited type.
      * @return the inherited type, or null if the element
-     * inherits from Object.
+     * inherits from Object or Enum.
      */
     @Nullable
     public static TypeMirror getInheritedType(@Nullable Element element) {
         TypeElement typeElement = (TypeElement) element;
-        if (typeElement != null && !typeElement.getSuperclass().toString().equals(Object.class.getName())) {
-            return typeElement.getSuperclass();
+        TypeMirror typeMirror = typeElement != null ? typeElement.getSuperclass() : null;
+        String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
+        if (!Object.class.getName().equals(className) && !Enum.class.getName().equals(className)) {
+            return typeMirror;
         }
         return null;
     }
@@ -366,7 +374,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), declaredType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                            " resolved to - " + declaredType.toString());
+                                      " resolved to - " + declaredType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -374,7 +382,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                            " resolved to - " + concreteType.toString());
+                                      " resolved to - " + concreteType.toString());
                 }
             }
         }
@@ -474,8 +482,8 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-                outerClassType.equals(List.class.getName()) ||
-                outerClassType.equals(Collection.class.getName());
+               outerClassType.equals(List.class.getName()) ||
+               outerClassType.equals(Collection.class.getName());
     }
 
     /**
@@ -504,11 +512,11 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(Map.class.getName()) ||
-                outerClassType.equals(HashMap.class.getName()) ||
-                outerClassType.equals(ConcurrentHashMap.class.getName()) ||
-                outerClassType.equals("android.util.ArrayMap") ||
-                outerClassType.equals("android.support.v4.util.ArrayMap") ||
-                outerClassType.equals(LinkedHashMap.class.getName());
+               outerClassType.equals(HashMap.class.getName()) ||
+               outerClassType.equals(ConcurrentHashMap.class.getName()) ||
+               outerClassType.equals("android.util.ArrayMap") ||
+               outerClassType.equals("android.support.v4.util.ArrayMap") ||
+               outerClassType.equals(LinkedHashMap.class.getName());
     }
 
     /**
@@ -519,9 +527,9 @@ public final class TypeUtils {
      */
     public static boolean isSupportedNative(@NotNull String type) {
         return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
-                type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
-                type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
-                type.equals(Float.class.getName()) || type.equals(Number.class.getName());
+               type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
+               type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
+               type.equals(Float.class.getName()) || type.equals(Number.class.getName());
     }
 
     /**
@@ -547,9 +555,79 @@ public final class TypeUtils {
         return classAndPackage;
     }
 
+    /**
+     * Convert the provided {@link TypeMirror} into an {@link Element} instance.  This method
+     * call assumes that the provided {@link TypeMirror} is constrained to only known supported
+     * types.  As a result it will guarantee non-null result values.
+     *
+     * @param typeMirror type mirror to convert
+     * @return element representation of the type mirror
+     */
     @NotNull
+    public static Element getElementFromSupportedTypeMirror(@NotNull TypeMirror typeMirror) {
+        Element element = getElementFromTypeMirror(typeMirror);
+        // asElement may return null but not in the scenarios we are specifically using it for
+        if (element == null)
+            throw new IllegalStateException("Supported type could not be converted into an Element");
+        return element;
+    }
+
+    /**
+     * Convert the provided {@link TypeMirror} into an {@link Element} instance.
+     *
+     * @param typeMirror type mirror to convert
+     * @return element representation of the type mirror
+     */
+    @Nullable
     public static Element getElementFromTypeMirror(@NotNull TypeMirror typeMirror) {
         return getUtils().asElement(typeMirror);
     }
 
+
+    public enum JsonAdapterType {
+        NONE,
+        TYPE_ADAPTER,
+        TYPE_ADAPTER_FACTORY,
+        JSON_SERIALIZER,
+        JSON_DESERIALIZER,
+        JSON_SERIALIZER_DESERIALIZER
+
+    }
+    /**
+     * Return the type of JsonAdapter {@link TypeMirror}
+     *
+     * @param type :TypeMirror type
+     * @return {@link JsonAdapterType}
+     */
+    @NotNull
+    public static JsonAdapterType getJsonAdapterType(@NotNull TypeMirror type) {
+        if (sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(TypeAdapter.class.getName()))) {
+            return JsonAdapterType.TYPE_ADAPTER;
+        } else if (sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
+            return JsonAdapterType.TYPE_ADAPTER_FACTORY;
+        } else {
+            boolean isDeserializer = sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(JsonDeserializer.class.getName()));
+            boolean isSerializer = sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(JsonSerializer.class.getName()));
+            if (isSerializer && isDeserializer) {
+                return JsonAdapterType.JSON_SERIALIZER_DESERIALIZER;
+            } else if (isSerializer) {
+                return JsonAdapterType.JSON_SERIALIZER;
+            } else if (isDeserializer) {
+                return JsonAdapterType.JSON_DESERIALIZER;
+            } else {
+                return JsonAdapterType.NONE;
+            }
+        }
+    }
+
+    public static boolean isAssignable(TypeMirror t1, TypeMirror t2) {
+        return sTypeUtils.isAssignable(t1, t2);
+    }
+
+    @NotNull
+    public static DeclaredType getDeclaredTypeForParameterizedClass(@NotNull String className) {
+        WildcardType wildcardType = sTypeUtils.getWildcardType(null, null);
+        TypeMirror[] typex = {wildcardType};
+        return sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(className), typex);
+    }
 }

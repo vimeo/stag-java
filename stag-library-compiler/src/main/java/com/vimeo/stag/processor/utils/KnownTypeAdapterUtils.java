@@ -38,20 +38,11 @@ import static com.vimeo.stag.processor.utils.TypeUtils.className;
  */
 public final class KnownTypeAdapterUtils {
 
-    @NotNull
-    private static final HashMap<String, String> KNOWN_TYPE_ADAPTERS = new HashMap<>();
-
-    @NotNull
-    private static final HashMap<String, String> SUPPORTED_COLLECTION_INSTANTIATORS = new HashMap<>();
-
-    @NotNull
-    private static final HashMap<String, String> SUPPORTED_MAP_INSTANTIATORS = new HashMap<>();
-
-    @NotNull
-    private static final HashMap<String, String> KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS = new HashMap<>();
-
-    @NotNull
-    private static final HashMap<String, String> KNOWN_PRIMITIVE_TYPE_ADAPTERS = new HashMap<>();
+    @NotNull private static final HashMap<String, String> KNOWN_TYPE_ADAPTERS = new HashMap<>();
+    @NotNull private static final HashMap<String, String> SUPPORTED_COLLECTION_INSTANTIATORS = new HashMap<>();
+    @NotNull private static final HashMap<String, String> SUPPORTED_MAP_INSTANTIATORS = new HashMap<>();
+    @NotNull private static final HashMap<String, String> KNOWN_PRIMITIVE_ARRAY_TYPE_ADAPTERS = new HashMap<>();
+    @NotNull private static final HashMap<String, String> KNOWN_PRIMITIVE_TYPE_ADAPTERS = new HashMap<>();
 
     static {
         KNOWN_TYPE_ADAPTERS.put(BitSet.class.getName(), typeAdapters(TypeAdapters.BIT_SET));
@@ -246,7 +237,6 @@ public final class KnownTypeAdapterUtils {
      * @param typeMirror TypeMirror typeMirror
      * @return true if this has a primitive type Adapater
      */
-    @Nullable
     public static boolean hasNativePrimitiveTypeAdapter(@NotNull TypeMirror typeMirror) {
         return KNOWN_PRIMITIVE_TYPE_ADAPTERS.containsKey(typeMirror.toString());
     }

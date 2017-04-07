@@ -23,11 +23,17 @@
  */
 package com.vimeo.stag.processor.utils;
 
+import com.vimeo.stag.UseStag;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
+
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -35,8 +41,7 @@ import javax.lang.model.util.Elements;
 
 public final class ElementUtils {
 
-    @Nullable
-    private static Elements sElementUtils;
+    @Nullable private static Elements sElementUtils;
 
     private ElementUtils() {
         throw new UnsupportedOperationException("This class is not instantiable");
@@ -72,6 +77,21 @@ public final class ElementUtils {
     }
 
     /**
+     * Determines whether or not the element provided is annotated with the annotation type
+     * specified.
+     *
+     * @param annotationClass annotation class to search for
+     * @param element         element to query
+     * @param <T>             annotation type
+     * @return {@code true} if the element is annotated, {@code false} otherwise
+     */
+    public static <T extends Annotation> boolean isAnnotatedWith(
+            @NotNull Class<T> annotationClass,
+            @Nullable Element element) {
+        return element != null && element.getAnnotation(annotationClass) != null;
+    }
+
+    /**
      * Determines if an element is a supported type.
      *
      * @param element the element to check.
@@ -83,7 +103,24 @@ public final class ElementUtils {
             return false;
         }
         ElementKind elementKind = element.getKind();
-        return elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM;
+        return (elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM)
+               && isAnnotatedWith(UseStag.class, element);
     }
 
+    @Nullable
+    public static ExecutableElement getFirstConstructor(@Nullable TypeMirror typeMirror) {
+        if (typeMirror != null) {
+            Element typeElement = TypeUtils.getElementFromTypeMirror(typeMirror);
+            for (Element element : typeElement.getEnclosedElements()) {
+                if (element instanceof ExecutableElement) {
+                    ExecutableElement executableElement = ((ExecutableElement) element);
+                    Name name = executableElement.getSimpleName();
+                    if (name.contentEquals("<init>")) {
+                        return executableElement;
+                    }
+                }
+            }
+        }
+        return null;
+    }
 }

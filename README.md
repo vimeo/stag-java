@@ -25,8 +25,8 @@ The Stag library solves this problem. It leverages annotations to automatically 
 from jCenter
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.0.2'
-    apt 'com.vimeo.stag:stag-library-compiler:2.0.2'
+    compile 'com.vimeo.stag:stag-library:2.1.0'
+    apt 'com.vimeo.stag:stag-library-compiler:2.1.0'
 }
 ```
 
@@ -98,7 +98,7 @@ Stag supports class level annotation `@UseStag` which processes all the fields f
 
  - `@UseStag(FieldOption.ALL)`: Will serialize/de-serialize all member variables which are not static or transient
  - `@UseStag(FieldOption.NONE)`: Will skip serialization and deserialization for all member variables. Only member variables inherited from annotated classes will be included.
- - `@UseStag(FieldOption.SERIALIZED_NAME)`: Will Serialize or Deserialize Fields only which are annotated with `SerializedName` or `GsonAdapterKey` (deprecated).
+ - `@UseStag(FieldOption.SERIALIZED_NAME)`: Will Serialize or Deserialize Fields only which are annotated with `SerializedName`.
 
 #### 2. `@SerializedName("key")` Support
 
@@ -122,10 +122,6 @@ Last but not the least, Stag is almost in parity with GSON.
 5. Use your favorite `@NonNull` annotation to tell Stag to throw an exception if the field is null while deserializing or while serializing the object.
 6. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
 7. You're done!
-
-<b>NOTE</b>: `@GsonAdapterKey` has been deprecated and will be removed in a future release. It is advisable to migrate to `@SerializedName` and `@UseStag` annotations.
-As of 2.0.0, `@GsonAdapterKey` is no longer supported at the class level, please use `@UseStag` with the appropriate `FieldOption` if you were using it at the class level.
-Other usage of `@GsonAdapterKey` is currently supported for backwards compatibility.
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 

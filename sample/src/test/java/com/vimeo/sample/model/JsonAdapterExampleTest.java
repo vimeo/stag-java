@@ -5,13 +5,11 @@ import com.vimeo.sample.Utils;
 import org.junit.Test;
 
 /**
- * Created by restainoa on 2/2/17.
+ * Created by anshul.garg on 03/03/17.
  */
-public class MultipleAnnotationSupportTest {
-
+public class JsonAdapterExampleTest {
     @Test
     public void typeAdapterWasGenerated() throws Exception {
-        Utils.verifyTypeAdapterGeneration(MultipleAnnotationSupport.class);
+        Utils.verifyTypeAdapterGeneration(JsonAdapterExample.class);
     }
-
 }
