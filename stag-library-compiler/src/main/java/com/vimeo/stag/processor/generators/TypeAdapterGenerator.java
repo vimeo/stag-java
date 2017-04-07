@@ -332,11 +332,11 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         }
     }
 
-    private String getFieldAccessorForKnownJsonAdapterType(@NotNull ExecutableElement adapterType, @NotNull TypeSpec.Builder adapterBuilder,
-                                                           @NotNull MethodSpec.Builder constructorBuilder,
-                                                           @NotNull TypeMirror fieldType,
-                                                           @NotNull TypeUtils.JsonAdapterType jsonAdapterType, @NotNull AdapterFieldInfo adapterFieldInfo, boolean isNullSafe,
-                                                           @NotNull String keyFieldName) {
+    private static String getFieldAccessorForKnownJsonAdapterType(@NotNull ExecutableElement adapterType, @NotNull TypeSpec.Builder adapterBuilder,
+                                                                  @NotNull MethodSpec.Builder constructorBuilder,
+                                                                  @NotNull TypeMirror fieldType,
+                                                                  @NotNull TypeUtils.JsonAdapterType jsonAdapterType, @NotNull AdapterFieldInfo adapterFieldInfo, boolean isNullSafe,
+                                                                  @NotNull String keyFieldName) {
         String fieldAdapterAccessor = "new " + FileGenUtils.escapeStringForCodeBlock(adapterType.getEnclosingElement().toString());
         if (jsonAdapterType == TypeUtils.JsonAdapterType.TYPE_ADAPTER) {
             ArrayList<String> constructorParameters = new ArrayList<>();

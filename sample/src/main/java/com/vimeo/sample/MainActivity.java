@@ -40,8 +40,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final List<Video> mVideoList = new ArrayList<>();
-    private ArrayAdapter<?> mAdapter;
+    final List<Video> mVideoList = new ArrayList<>();
+    ArrayAdapter<?> mAdapter;
     private NetworkRequest mRequest;
 
     @Override

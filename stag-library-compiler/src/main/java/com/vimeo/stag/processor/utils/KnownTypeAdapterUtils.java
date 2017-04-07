@@ -237,7 +237,6 @@ public final class KnownTypeAdapterUtils {
      * @param typeMirror TypeMirror typeMirror
      * @return true if this has a primitive type Adapater
      */
-    @Nullable
     public static boolean hasNativePrimitiveTypeAdapter(@NotNull TypeMirror typeMirror) {
         return KNOWN_PRIMITIVE_TYPE_ADAPTERS.containsKey(typeMirror.toString());
     }

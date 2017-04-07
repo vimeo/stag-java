@@ -2,10 +2,7 @@ package com.vimeo.sample.model1;
 
 import android.support.annotation.NonNull;
 
-import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.internal.bind.DateTypeAdapter;
-import com.google.gson.internal.bind.ReflectiveTypeAdapterFactory;
 import com.vimeo.sample.model.User;
 import com.vimeo.stag.UseStag;
 
