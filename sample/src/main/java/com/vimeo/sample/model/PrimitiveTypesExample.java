@@ -14,6 +14,7 @@ public class PrimitiveTypesExample {
     /**
      * Test that non null check ignores primitive types
      */
+    @SuppressWarnings("NullableProblems")
     @NonNull
     public int simpleInt;
 

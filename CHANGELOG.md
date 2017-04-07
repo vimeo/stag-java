@@ -1,6 +1,13 @@
 Change Log
 ==========
 
+Version 2.1.0 *(2017-04-07)*
+----------------------------
+- WARNING: Removed deprecated `@GsonAdapterKey` annotation.
+- Added support for the `@JsonAdapter` Gson annotation.
+- Fixed bad behavior where unannotated classes could be picked up by Stag if they were nested within annotated classes. All classes that need to use Stag should now explicitly specify the option.
+- Added unit tests for a variety of use cases.
+
 Version 2.0.2 *(2017-03-02)*
 ----------------------------
 - Interfaces are now ignored by stag instead of throwing an error if they are annotated.

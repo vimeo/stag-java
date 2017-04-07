@@ -8,16 +8,17 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Utils {
 
     public static <K, V> void assertMapsEqual(Map<K, V> map1, Map<K, V> map2) throws Exception {
-        for (K key : map1.keySet()) {
-            Assert.assertEquals(map1.get(key), map2.get(key));
+        for (Entry<K, V> kvEntry : map1.entrySet()) {
+            Assert.assertEquals(kvEntry.getValue(), map2.get(kvEntry.getKey()));
         }
 
-        for (K key : map2.keySet()) {
-            Assert.assertEquals(map2.get(key), map1.get(key));
+        for (Entry<K, V> kvEntry : map2.entrySet()) {
+            Assert.assertEquals(kvEntry.getValue(), map1.get(kvEntry.getKey()));
         }
     }
 
