@@ -25,8 +25,8 @@ The Stag library solves this problem. It leverages annotations to automatically 
 from jCenter
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.1.0'
-    apt 'com.vimeo.stag:stag-library-compiler:2.1.0'
+    compile 'com.vimeo.stag:stag-library:2.1.1'
+    apt 'com.vimeo.stag:stag-library-compiler:2.1.1'
 }
 ```
 
