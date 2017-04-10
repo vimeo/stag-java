@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+Version 2.1.1 *(2017-04-10)*
+----------------------------
+- Fixed bug where enums could not have private and/or final fields.
+
 Version 2.1.0 *(2017-04-07)*
 ----------------------------
 - WARNING: Removed deprecated `@GsonAdapterKey` annotation.

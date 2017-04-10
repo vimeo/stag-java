@@ -90,8 +90,10 @@ public class AnnotatedClass {
             }
         }
 
-        for (Element enclosedElement : element.getEnclosedElements()) {
-            addToSupportedTypes(enclosedElement, fieldOption, variableNames);
+        if (!TypeUtils.isEnum(element)) {
+            for (Element enclosedElement : element.getEnclosedElements()) {
+                addToSupportedTypes(enclosedElement, fieldOption, variableNames);
+            }
         }
 
     }
