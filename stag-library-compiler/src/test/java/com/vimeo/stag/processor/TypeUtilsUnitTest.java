@@ -24,6 +24,7 @@
 package com.vimeo.stag.processor;
 
 import com.vimeo.stag.processor.dummy.DummyAbstractClass;
+import com.vimeo.stag.processor.dummy.DummyClassWithConstructor;
 import com.vimeo.stag.processor.dummy.DummyConcreteClass;
 import com.vimeo.stag.processor.dummy.DummyEnumClass;
 import com.vimeo.stag.processor.dummy.DummyGenericClass;
@@ -159,6 +160,20 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
                                                    .toString()));
             }
         }
+    }
+
+    @Test
+    public void isEnum_isCorrect() throws Exception {
+        assertTrue(TypeUtils.isEnum(Utils.getElementFromClass(DummyEnumClass.class)));
+
+        assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(DummyAbstractClass.class)));
+        assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(DummyClassWithConstructor.class)));
+        assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(DummyConcreteClass.class)));
+        assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(DummyGenericClass.class)));
+        assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(DummyInheritedClass.class)));
+        assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(DummyMapClass.class)));
+        assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(Object.class)));
+        assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(String.class)));
     }
 
     @Test
