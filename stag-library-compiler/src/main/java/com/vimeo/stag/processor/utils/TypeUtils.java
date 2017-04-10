@@ -285,6 +285,20 @@ public final class TypeUtils {
     }
 
     /**
+     * Determines whether the element is of the enum type or not.
+     *
+     * @param element the element to check.
+     * @return true if the element inherits from an enum, false otherwise.
+     */
+    public static boolean isEnum(@Nullable Element element) {
+        TypeElement typeElement = (TypeElement) element;
+        TypeMirror typeMirror = typeElement != null ? typeElement.getSuperclass() : null;
+        String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
+
+        return Enum.class.getName().equals(className);
+    }
+
+    /**
      * Retrieves a Map of the inherited concrete member variables of an Element. This takes all the
      * member variables that were inherited from the generic parent class and evaluates what their concrete
      * type will be based on the concrete inherited type. For instance, take the following code example:
