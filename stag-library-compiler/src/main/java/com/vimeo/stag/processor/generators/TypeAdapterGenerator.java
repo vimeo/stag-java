@@ -529,6 +529,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  * If the fieldType is Object, use ObjectTypeAdapter
                  */
                 sGsonVariableUsed = true;
+                sStagFactoryUsed = true;
                 String adapterCode = "new " + TypeUtils.className(ObjectTypeAdapter.class) + "(mGson)";
                 String getterName = stagGenerator.addFieldForKnownType(fieldType,
                                                                        adapterCode.replaceAll("mStagFactory.",
