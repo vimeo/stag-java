@@ -28,4 +28,7 @@ public class Video {
     @NonNull
     @SerializedName("mData")
     public Data mData;
+
+    @SerializedName("mParameterizedData")
+    public ParameterizedData<String> mParameterizedData;
 }
