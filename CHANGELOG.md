@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+Version 2.1.2 *(2017-04-12)*
+----------------------------
+- Fixed a bug where `Object` fields caused type adapter generation to fail.
+
 Version 2.1.1 *(2017-04-10)*
 ----------------------------
 - Fixed bug where enums could not have private and/or final fields.
