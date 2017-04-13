@@ -457,6 +457,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     }
                 }
             } else if (TypeUtils.isSupportedList(fieldType)) {
+                System.out.println("~~"+fieldType);
                 DeclaredType declaredType = (DeclaredType) fieldType;
                 /*
                  * If the fieldType is of type List
