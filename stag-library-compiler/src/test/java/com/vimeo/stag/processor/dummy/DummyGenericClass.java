@@ -28,6 +28,8 @@ import com.vimeo.stag.processor.TypeUtilsUnitTest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Do not change this class without sure the
@@ -52,5 +54,9 @@ public class DummyGenericClass<T> {
     HashMap<String, T> testMap;
 
     HashSet<T> testSet;
+
+    HashMap<String, List<T>> testArrayMap;
+
+    ArrayList<Map<String, T>> testListMap;
 
 }
