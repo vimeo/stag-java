@@ -5,7 +5,8 @@ import android.support.annotation.Nullable;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * This model does not use stag
+ * This model does not use stag.
+ * As it is not of paramtereized type, this will use TypeToken.get()
  */
 public class Data {
 
