@@ -364,31 +364,11 @@ public final class TypeUtils {
                 if (isParameterizedType(member.getValue())) {
 
                     // HashMap<String, T> ...
-
-                    List<TypeMirror> genericTypes = getMemberTypes(member.getValue());
-
-
-                    List<TypeMirror> concreteGenericTypes = new ArrayList<>();
-
-                    for (TypeMirror genericType : genericTypes) {
-                        if (isConcreteType(genericType)) {
-                            concreteGenericTypes.add(genericType);
-                        } else {
-                            int index = inheritedTypes.indexOf(genericType);
-                            concreteGenericTypes.add(concreteTypes.get(index));
-                        }
-                    }
-
-                    TypeElement typeElement = (TypeElement) getUtils().asElement(member.getValue());
-                    TypeMirror[] concreteTypeArray =
-                            concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
-
-                    DeclaredType declaredType = getUtils().getDeclaredType(typeElement, concreteTypeArray);
-
-                    map.put(member.getKey(), declaredType);
+                    TypeMirror resolvedType = resolveTypeVars(member.getValue(), inheritedTypes, concreteTypes);
+                    map.put(member.getKey(), resolvedType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                                      " resolved to - " + declaredType.toString());
+                                      " resolved to - " + resolvedType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -413,25 +393,25 @@ public final class TypeUtils {
     }
 
     @NotNull
-    private static List<TypeMirror> getMemberTypes(@NotNull TypeMirror element) {
-        List<TypeMirror> genericTypes = new ArrayList<>();
-        if (element.getKind() != TypeKind.TYPEVAR) {
-            List<? extends TypeMirror> typeMirrors = ((DeclaredType) element).getTypeArguments();
-            if (typeMirrors.isEmpty()) {
-                genericTypes.add(element);
-            } else {
-                for (TypeMirror type : typeMirrors) {
-                    if (type.getKind() == TypeKind.TYPEVAR) {
-                        genericTypes.add(type);
-                    } else {
-                        genericTypes.addAll(getMemberTypes(type));
-                    }
-                }
-            }
+    private static TypeMirror resolveTypeVars(@NotNull TypeMirror element, final List<? extends TypeMirror> inheritedTypes, final List<? extends TypeMirror> concreteTypes) {
+        if(isConcreteType(element)) {
+            return element;
         }
 
-        // if the type is not parameterized, we will return an empty list
-        return genericTypes;
+        if (element.getKind() == TypeKind.TYPEVAR) {
+            int index = inheritedTypes.indexOf(element);
+            return concreteTypes.get(index);
+        }
+
+        List<? extends TypeMirror> typeMirrors = ((DeclaredType) element).getTypeArguments();
+        TypeElement typeElement = (TypeElement) getUtils().asElement(element);
+        List<TypeMirror> concreteGenericTypes = new ArrayList<>(typeMirrors.size());
+        for (TypeMirror type : typeMirrors) {
+            concreteGenericTypes.add(resolveTypeVars(type, inheritedTypes, concreteTypes));
+        }
+        TypeMirror[] concreteTypeArray =
+                concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
+        return getUtils().getDeclaredType(typeElement, concreteTypeArray);
     }
 
     @NotNull

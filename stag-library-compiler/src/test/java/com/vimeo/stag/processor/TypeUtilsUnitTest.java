@@ -36,6 +36,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -158,6 +159,21 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
                                    .equals(types.getDeclaredType(
                                            (TypeElement) Utils.getElementFromClass(HashSet.class), stringType)
                                                    .toString()));
+            } else if (entry.getKey().getSimpleName().contentEquals("testArrayMap")) {
+                TypeMirror listString = types.getDeclaredType((TypeElement) Utils.getElementFromClass(List.class), stringType);
+
+                assertTrue(entry.getValue()
+                        .toString()
+                        .equals(types.getDeclaredType(
+                                (TypeElement) Utils.getElementFromClass(HashMap.class), stringType, listString)
+                                .toString()));
+            } else if (entry.getKey().getSimpleName().contentEquals("testListMap")) {
+                TypeMirror mapStringString = types.getDeclaredType((TypeElement) Utils.getElementFromClass(Map.class), stringType, stringType);
+                assertTrue(entry.getValue()
+                        .toString()
+                        .equals(types.getDeclaredType(
+                                (TypeElement) Utils.getElementFromClass(ArrayList.class), mapStringString)
+                                .toString()));
             }
         }
     }
