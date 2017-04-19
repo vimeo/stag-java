@@ -26,25 +26,8 @@ The Stag library solves this problem. It leverages annotations to automatically 
 
 #### 1. Add the Stag dependencies
 
-from jCenter
-```groovy
-dependencies {
-    compile 'com.vimeo.stag:stag-library:2.1.2'
-    apt 'com.vimeo.stag:stag-library-compiler:2.1.2'
-}
-```
+### Java Gradle
 
-or as a submodule
-```groovy
-dependencies {
-    compile project(':stag-library')
-    apt project(':stag-library-compiler')
-}
-```
-
-#### 2. Add the Annotation Processor Plugin
-
-In a Java project (see below for Android), apply the 'apt' plugin in your module-level `build.gradle`:
 ```groovy
 buildscript {
     repositories {
@@ -58,39 +41,54 @@ buildscript {
 }
 
 apply plugin: 'net.ltgt.apt'
-```
 
-In an Android project, apply the 'android-apt' plugin in your module-level `build.gradle`:
-```groovy
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-    }
+dependencies {
+    compile 'com.vimeo.stag:stag-library:2.1.2'
+    apt 'com.vimeo.stag:stag-library-compiler:2.1.2'
 }
 
-apply plugin: 'com.neenbedankt.android-apt'
+// Optional annotation processor arguments (see below)
+apt {
+    arguments {
+        stagGeneratedPackageName "com.vimeo.sample.stag.generated"
+        stagDebug true
+    }
+}
 ```
 
-#### 3. Provide optional compiler arguments to Stag
+### Android Gradle
+
+from jCenter
+```groovy
+dependencies {
+    compile 'com.vimeo.stag:stag-library:2.1.2'
+    annotationProcessor 'com.vimeo.stag:stag-library-compiler:2.1.2'
+}
+
+android {
+    ...
+    defaultConfig {
+        ...
+        // Optional annotation processor arguments (see below)
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                    stagGeneratedPackageName: 'com.vimeo.sample.stag.generated',
+                    stagDebug               : 'true'
+                ]
+            }
+        }
+    }
+}
+```
+
+#### 2. Provide optional compiler arguments to Stag
  - `stagGeneratedPackageName`: Pass package name as an argument for the generated files. By default, the files will be in generated
  in `com.vimeo.sample.stag.generated` package. But, you can specify your own package for the generated files
  by passing it as an argument to the apt compiler.
  - `stagDebug`: Turn on debugging in Stag. This will cause Stag to spit out a lot of output into the gradle console.
  This can aid you in figuring out what class is giving you trouble, if the exception gradle prints out
  isn't sufficient.
-
-```groovy
-apt {
-    arguments {
-        stagGeneratedPackageName "com.vimeo.sample.stag.generated"
-
-        stagDebug true
-    }
-}
-```
 
 ## Features
 
