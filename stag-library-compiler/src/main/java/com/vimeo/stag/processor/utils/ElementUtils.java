@@ -109,8 +109,8 @@ public final class ElementUtils {
 
     @Nullable
     public static ExecutableElement getFirstConstructor(@Nullable TypeMirror typeMirror) {
-        if (typeMirror != null) {
-            Element typeElement = TypeUtils.getElementFromTypeMirror(typeMirror);
+        Element typeElement = typeMirror != null ? TypeUtils.getElementFromTypeMirror(typeMirror) : null;
+        if (typeElement != null) {
             for (Element element : typeElement.getEnclosedElements()) {
                 if (element instanceof ExecutableElement) {
                     ExecutableElement executableElement = ((ExecutableElement) element);
@@ -121,6 +121,7 @@ public final class ElementUtils {
                 }
             }
         }
+
         return null;
     }
 }
