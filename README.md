@@ -26,6 +26,8 @@ The Stag library solves this problem. It leverages annotations to automatically 
 
 #### 1. Add the Stag dependencies
 
+All jar dependencies are available on jcenter.
+
 ### Java Gradle
 
 ```groovy
@@ -58,7 +60,6 @@ apt {
 
 ### Android Gradle
 
-from jCenter
 ```groovy
 dependencies {
     compile 'com.vimeo.stag:stag-library:2.1.2'
@@ -153,7 +154,7 @@ public class Herd {
 
     @NonNull                     // add NonNull annotation to throw an exception if the field is null
     @SerializedName("data_list")
-    ArrayList<Deer> data;        // data_list = json value with key "data_list"
+    ArrayList<Deer> data;        // data = json value with key "data_list"
     
     List<Deer> data_list_copy;   // data_list_copy = json value with key "data_list_copy"
     
