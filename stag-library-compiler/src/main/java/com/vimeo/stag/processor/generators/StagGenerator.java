@@ -423,9 +423,21 @@ public class StagGenerator {
             if (null != knownTypeAdapterForType) {
                 fieldName += knownTypeAdapterForType;
             } else {
-                getAdapterMethodBuilder.addStatement(
-                        fieldName + " = gson.getAdapter(new TypeToken<" + classInfo.getType().toString() +
-                        ">(){})");
+                String typeTokenCode;
+                if (!TypeUtils.isParameterizedType(classInfo.getType())) {
+                    /*
+                     * If the type is not of parameterized type, use TypeToken.get() call for creating a typetoken
+                     * object. This method call avoids calling the getSuperClass calls which uses reflection
+                     */
+                    typeTokenCode = "TypeToken.get(" + classInfo.getType().toString() + ".class)";
+                } else {
+                    /*
+                     * If the type is of parameterized type, use the normal way of creating typetokens
+                     */
+                    typeTokenCode = "new TypeToken<" + classInfo.getType().toString() +
+                            ">(){}";
+                }
+                getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(" + typeTokenCode + ")");
             }
             getAdapterMethodBuilder.endControlFlow();
             getAdapterMethodBuilder.addStatement("return " + fieldName);

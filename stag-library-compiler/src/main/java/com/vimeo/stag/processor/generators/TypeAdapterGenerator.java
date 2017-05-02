@@ -99,7 +99,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         String result = null;
         if (fieldType.getKind() == TypeKind.TYPEVAR) {
-            result = " com.google.gson.reflect.TypeToken.get(" + typeVarsMap.get(fieldType) + ")";
+            result = "com.google.gson.reflect.TypeToken.get(" + typeVarsMap.get(fieldType) + ")";
         } else if (fieldType instanceof DeclaredType) {
                 /*
                  * If it is of ParameterizedType, {@link com.vimeo.stag.utils.ParameterizedTypeUtil} is used to get the
@@ -332,15 +332,18 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         }
     }
 
-    private static String getFieldAccessorForKnownJsonAdapterType(@NotNull ExecutableElement adapterType, @NotNull TypeSpec.Builder adapterBuilder,
+    private static String getFieldAccessorForKnownJsonAdapterType(@NotNull ExecutableElement adapterType,
+                                                                  @NotNull TypeSpec.Builder adapterBuilder,
                                                                   @NotNull MethodSpec.Builder constructorBuilder,
                                                                   @NotNull TypeMirror fieldType,
-                                                                  @NotNull TypeUtils.JsonAdapterType jsonAdapterType, @NotNull AdapterFieldInfo adapterFieldInfo, boolean isNullSafe,
+                                                                  @NotNull TypeUtils.JsonAdapterType jsonAdapterType,
+                                                                  @NotNull AdapterFieldInfo adapterFieldInfo,
+                                                                  boolean isNullSafe,
                                                                   @NotNull String keyFieldName) {
         String fieldAdapterAccessor = "new " + FileGenUtils.escapeStringForCodeBlock(adapterType.getEnclosingElement().toString());
         if (jsonAdapterType == TypeUtils.JsonAdapterType.TYPE_ADAPTER) {
             ArrayList<String> constructorParameters = new ArrayList<>();
-            if (adapterType.getParameters().size() > 0) {
+            if (!adapterType.getParameters().isEmpty()) {
                 for (VariableElement parameter : adapterType.getParameters()) {
                     if (parameter.asType().toString().equals(TypeUtils.className(Gson.class))) {
                         constructorParameters.add("gson");

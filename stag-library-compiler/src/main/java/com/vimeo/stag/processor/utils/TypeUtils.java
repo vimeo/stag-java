@@ -340,8 +340,7 @@ public final class TypeUtils {
     @NotNull
     public static LinkedHashMap<Element, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
                                                                         @NotNull Element genericInherited,
-                                                                        @NotNull
-                                                                                Map<Element, TypeMirror> members) {
+                                                                        @NotNull Map<Element, TypeMirror> members) {
 
         DebugLog.log(TAG, "Inherited concrete type: " + concreteInherited.toString());
         DebugLog.log(TAG, "Inherited generic type: " + genericInherited.asType().toString());
@@ -364,31 +363,11 @@ public final class TypeUtils {
                 if (isParameterizedType(member.getValue())) {
 
                     // HashMap<String, T> ...
-
-                    List<TypeMirror> genericTypes = getMemberTypes(member.getValue());
-
-
-                    List<TypeMirror> concreteGenericTypes = new ArrayList<>();
-
-                    for (TypeMirror genericType : genericTypes) {
-                        if (isConcreteType(genericType)) {
-                            concreteGenericTypes.add(genericType);
-                        } else {
-                            int index = inheritedTypes.indexOf(genericType);
-                            concreteGenericTypes.add(concreteTypes.get(index));
-                        }
-                    }
-
-                    TypeElement typeElement = (TypeElement) getUtils().asElement(member.getValue());
-                    TypeMirror[] concreteTypeArray =
-                            concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
-
-                    DeclaredType declaredType = getUtils().getDeclaredType(typeElement, concreteTypeArray);
-
-                    map.put(member.getKey(), declaredType);
+                    TypeMirror resolvedType = resolveTypeVars(member.getValue(), inheritedTypes, concreteTypes);
+                    map.put(member.getKey(), resolvedType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                                      " resolved to - " + declaredType.toString());
+                                      " resolved to - " + resolvedType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -413,25 +392,28 @@ public final class TypeUtils {
     }
 
     @NotNull
-    private static List<TypeMirror> getMemberTypes(@NotNull TypeMirror element) {
-        List<TypeMirror> genericTypes = new ArrayList<>();
-        if (element.getKind() != TypeKind.TYPEVAR) {
-            List<? extends TypeMirror> typeMirrors = ((DeclaredType) element).getTypeArguments();
-            if (typeMirrors.isEmpty()) {
-                genericTypes.add(element);
-            } else {
-                for (TypeMirror type : typeMirrors) {
-                    if (type.getKind() == TypeKind.TYPEVAR) {
-                        genericTypes.add(type);
-                    } else {
-                        genericTypes.addAll(getMemberTypes(type));
-                    }
-                }
-            }
+    private static TypeMirror resolveTypeVars(@NotNull TypeMirror element,
+                                              @NotNull final List<? extends TypeMirror> inheritedTypes,
+                                              @NotNull final List<? extends TypeMirror> concreteTypes) {
+        if (isConcreteType(element)) {
+            return element;
         }
 
-        // if the type is not parameterized, we will return an empty list
-        return genericTypes;
+        if (element.getKind() == TypeKind.TYPEVAR) {
+            int index = inheritedTypes.indexOf(element);
+            return concreteTypes.get(index);
+        }
+
+        Types types = getUtils();
+        List<? extends TypeMirror> typeMirrors = ((DeclaredType) element).getTypeArguments();
+        TypeElement typeElement = (TypeElement) types.asElement(element);
+        List<TypeMirror> concreteGenericTypes = new ArrayList<>(typeMirrors.size());
+        for (TypeMirror type : typeMirrors) {
+            concreteGenericTypes.add(resolveTypeVars(type, inheritedTypes, concreteTypes));
+        }
+        TypeMirror[] concreteTypeArray =
+                concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
+        return types.getDeclaredType(typeElement, concreteTypeArray);
     }
 
     @NotNull
@@ -581,8 +563,9 @@ public final class TypeUtils {
     public static Element getElementFromSupportedTypeMirror(@NotNull TypeMirror typeMirror) {
         Element element = getElementFromTypeMirror(typeMirror);
         // asElement may return null but not in the scenarios we are specifically using it for
-        if (element == null)
+        if (element == null) {
             throw new IllegalStateException("Supported type could not be converted into an Element");
+        }
         return element;
     }
 
@@ -607,6 +590,7 @@ public final class TypeUtils {
         JSON_SERIALIZER_DESERIALIZER
 
     }
+
     /**
      * Return the type of JsonAdapter {@link TypeMirror}
      *
@@ -615,13 +599,14 @@ public final class TypeUtils {
      */
     @NotNull
     public static JsonAdapterType getJsonAdapterType(@NotNull TypeMirror type) {
-        if (sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(TypeAdapter.class.getName()))) {
+        Types types = getUtils();
+        if (types.isSubtype(type, getDeclaredTypeForParameterizedClass(TypeAdapter.class.getName()))) {
             return JsonAdapterType.TYPE_ADAPTER;
-        } else if (sTypeUtils.isAssignable(type, ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
+        } else if (types.isAssignable(type, ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
             return JsonAdapterType.TYPE_ADAPTER_FACTORY;
         } else {
-            boolean isDeserializer = sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(JsonDeserializer.class.getName()));
-            boolean isSerializer = sTypeUtils.isSubtype(type, getDeclaredTypeForParameterizedClass(JsonSerializer.class.getName()));
+            boolean isDeserializer = types.isSubtype(type, getDeclaredTypeForParameterizedClass(JsonDeserializer.class.getName()));
+            boolean isSerializer = types.isSubtype(type, getDeclaredTypeForParameterizedClass(JsonSerializer.class.getName()));
             if (isSerializer && isDeserializer) {
                 return JsonAdapterType.JSON_SERIALIZER_DESERIALIZER;
             } else if (isSerializer) {
@@ -635,13 +620,14 @@ public final class TypeUtils {
     }
 
     public static boolean isAssignable(TypeMirror t1, TypeMirror t2) {
-        return sTypeUtils.isAssignable(t1, t2);
+        return getUtils().isAssignable(t1, t2);
     }
 
     @NotNull
     public static DeclaredType getDeclaredTypeForParameterizedClass(@NotNull String className) {
-        WildcardType wildcardType = sTypeUtils.getWildcardType(null, null);
+        Types types = getUtils();
+        WildcardType wildcardType = types.getWildcardType(null, null);
         TypeMirror[] typex = {wildcardType};
-        return sTypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(className), typex);
+        return types.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(className), typex);
     }
 }
