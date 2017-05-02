@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 2.1.3 *(2017-05-01)*
+----------------------------
+- Improved performance of generic type adapter instantiation.
+- Fixed bug where the type adapter for a parameterized type containing a parameterized type (e.g. `Map<T, List<T>>`) wasn't being generated.
+
 Version 2.1.2 *(2017-04-12)*
 ----------------------------
 - Fixed a bug where `Object` fields caused type adapter generation to fail.

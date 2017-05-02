@@ -99,7 +99,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         String result = null;
         if (fieldType.getKind() == TypeKind.TYPEVAR) {
-            result = " com.google.gson.reflect.TypeToken.get(" + typeVarsMap.get(fieldType) + ")";
+            result = "com.google.gson.reflect.TypeToken.get(" + typeVarsMap.get(fieldType) + ")";
         } else if (fieldType instanceof DeclaredType) {
                 /*
                  * If it is of ParameterizedType, {@link com.vimeo.stag.utils.ParameterizedTypeUtil} is used to get the
