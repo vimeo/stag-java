@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
-import javax.tools.Diagnostic;
+import javax.tools.Diagnostic.Kind;
 
 public final class MessagerUtils {
 
@@ -50,7 +50,11 @@ public final class MessagerUtils {
     }
 
     public static void reportError(@NotNull String message, @NotNull Element element) {
-        getMessager().printMessage(Diagnostic.Kind.ERROR, message, element);
+        getMessager().printMessage(Kind.ERROR, message, element);
+    }
+
+    public static void reportWarning(@NotNull String message) {
+        getMessager().printMessage(Kind.MANDATORY_WARNING, message);
     }
 
 }

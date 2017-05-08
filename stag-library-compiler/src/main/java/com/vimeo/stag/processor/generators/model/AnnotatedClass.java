@@ -52,7 +52,7 @@ public class AnnotatedClass {
     @NotNull private final Element mElement;
     @NotNull private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
 
-    AnnotatedClass(@NotNull Element element){
+    AnnotatedClass(@NotNull Element element) {
         this(element, null);
     }
 
@@ -103,8 +103,8 @@ public class AnnotatedClass {
         Element previousElement = variableNames.put(element.getSimpleName().toString(), element);
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
-            DebugLog.log(TAG, "\t\tIgnoring inherited Member variable with the same variable name - " +
-                              previousElement.asType().toString());
+            MessagerUtils.reportWarning("Ignoring inherited Member variable with the same variable name in class" +
+                                        element.toString() + ", with variable name " + previousElement.asType().toString());
         }
         mMemberVariables.put(element, typeMirror);
     }
