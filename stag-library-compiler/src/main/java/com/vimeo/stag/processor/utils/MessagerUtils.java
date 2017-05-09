@@ -57,4 +57,8 @@ public final class MessagerUtils {
         getMessager().printMessage(Kind.MANDATORY_WARNING, message);
     }
 
+    public static void logInfo(@NotNull String message) {
+        getMessager().printMessage(Kind.NOTE, message);
+    }
+
 }
