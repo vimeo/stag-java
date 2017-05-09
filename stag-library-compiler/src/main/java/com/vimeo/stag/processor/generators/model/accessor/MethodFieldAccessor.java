@@ -49,7 +49,7 @@ public class MethodFieldAccessor extends FieldAccessor {
         List<ExecutableElement> methodElements = new ArrayList<>();
         List<? extends Element> otherElements = variableElement.getEnclosingElement().getEnclosedElements();
 
-        MessagerUtils.reportWarning("Looking for setter and getter");
+        MessagerUtils.logInfo("Looking for setter and getter");
 
         for (Element element : otherElements) {
             if (element.getKind() == ElementKind.METHOD && element instanceof ExecutableElement) {
@@ -62,7 +62,7 @@ public class MethodFieldAccessor extends FieldAccessor {
 
     @NotNull
     private static String findSetterMethodName(@NotNull VariableElement variableElement) throws UnsupportedOperationException {
-        MessagerUtils.reportWarning("Looking for setter and getter");
+        MessagerUtils.logInfo("Looking for setter and getter");
 
         for (ExecutableElement method : getSiblingMethods(variableElement)) {
 
@@ -72,7 +72,7 @@ public class MethodFieldAccessor extends FieldAccessor {
                 parameters.size() == 1 &&
                 parameters.get(0).asType().equals(variableElement.asType()) &&
                 method.getSimpleName().toString().equals("set" + getVariableNameAsMethodName(variableElement))) {
-                MessagerUtils.reportWarning("Found setter");
+                MessagerUtils.logInfo("Found setter");
 
                 return method.getSimpleName().toString();
             }
@@ -84,7 +84,7 @@ public class MethodFieldAccessor extends FieldAccessor {
 
     @NotNull
     private static String findGetterMethodName(@NotNull VariableElement variableElement) throws UnsupportedOperationException {
-        MessagerUtils.reportWarning("Looking for setter and getter");
+        MessagerUtils.logInfo("Looking for setter and getter");
 
         for (ExecutableElement method : getSiblingMethods(variableElement)) {
 
@@ -92,7 +92,7 @@ public class MethodFieldAccessor extends FieldAccessor {
                 method.getParameters().isEmpty() &&
                 method.getSimpleName().toString().equals("get" + getVariableNameAsMethodName(variableElement))) {
 
-                MessagerUtils.reportWarning("Found getter");
+                MessagerUtils.logInfo("Found getter");
 
                 return method.getSimpleName().toString();
             }

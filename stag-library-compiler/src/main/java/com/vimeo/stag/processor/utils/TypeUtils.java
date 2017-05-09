@@ -274,9 +274,8 @@ public final class TypeUtils {
      * inherits from Object or Enum.
      */
     @Nullable
-    public static TypeMirror getInheritedType(@Nullable Element element) {
-        TypeElement typeElement = (TypeElement) element;
-        TypeMirror typeMirror = typeElement != null ? typeElement.getSuperclass() : null;
+    public static TypeMirror getInheritedType(@Nullable TypeElement element) {
+        TypeMirror typeMirror = element != null ? element.getSuperclass() : null;
         String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
         if (!Object.class.getName().equals(className) && !Enum.class.getName().equals(className)) {
             return typeMirror;
@@ -557,12 +556,12 @@ public final class TypeUtils {
      * types.  As a result it will guarantee non-null result values.
      *
      * @param typeMirror type mirror to convert
-     * @return element representation of the type mirror
+     * @return TypeElement representation of the type mirror
      */
     @NotNull
-    public static Element getElementFromSupportedTypeMirror(@NotNull TypeMirror typeMirror) {
-        Element element = getElementFromTypeMirror(typeMirror);
-        // asElement may return null but not in the scenarios we are specifically using it for
+    public static TypeElement safeTypeMirrorToTypeElement(@NotNull TypeMirror typeMirror) {
+        TypeElement element = unsafeTypeMirrorToTypeElement(typeMirror);
+        // unsafeTypeMirrorToTypeElement may return null but not in the scenarios we are specifically using it for
         if (element == null) {
             throw new IllegalStateException("Supported type could not be converted into an Element");
         }
@@ -572,12 +571,12 @@ public final class TypeUtils {
     /**
      * Convert the provided {@link TypeMirror} into an {@link Element} instance.
      *
-     * @param typeMirror type mirror to convert
-     * @return element representation of the type mirror
+     * @param typeMirror TypeMirror to convert
+     * @return TypeElement representation of the TypeMirror
      */
     @Nullable
-    public static Element getElementFromTypeMirror(@NotNull TypeMirror typeMirror) {
-        return getUtils().asElement(typeMirror);
+    public static TypeElement unsafeTypeMirrorToTypeElement(@NotNull TypeMirror typeMirror) {
+        return (TypeElement) getUtils().asElement(typeMirror);
     }
 
 

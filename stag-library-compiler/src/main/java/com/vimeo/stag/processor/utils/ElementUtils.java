@@ -71,7 +71,7 @@ public final class ElementUtils {
 
     @NotNull
     public static String getPackage(@NotNull TypeMirror type) {
-        Element element = TypeUtils.getElementFromTypeMirror(type);
+        Element element = TypeUtils.unsafeTypeMirrorToTypeElement(type);
         PackageElement packageElement = getUtils().getPackageOf(element);
         return packageElement.getQualifiedName().toString();
     }
@@ -109,7 +109,7 @@ public final class ElementUtils {
 
     @Nullable
     public static ExecutableElement getFirstConstructor(@Nullable TypeMirror typeMirror) {
-        Element typeElement = typeMirror != null ? TypeUtils.getElementFromTypeMirror(typeMirror) : null;
+        Element typeElement = typeMirror != null ? TypeUtils.unsafeTypeMirrorToTypeElement(typeMirror) : null;
         if (typeElement != null) {
             for (Element element : typeElement.getEnclosedElements()) {
                 if (element instanceof ExecutableElement) {

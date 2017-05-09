@@ -124,7 +124,7 @@ public final class SupportedTypesModel {
         if (null == model) {
             model = mKnownInheritedTypesMap.get(outerClassType);
             if (null == model) {
-                model = new AnnotatedClass(TypeUtils.getElementFromSupportedTypeMirror(type), childFieldOption);
+                model = new AnnotatedClass(TypeUtils.safeTypeMirrorToTypeElement(type), childFieldOption);
                 mKnownInheritedTypesMap.put(outerClassType, model);
             }
         }
@@ -148,7 +148,7 @@ public final class SupportedTypesModel {
         if (model == null) {
             model = mKnownInheritedTypesMap.get(outerClassType);
             if (null == model) {
-                model = new AnnotatedClass(TypeUtils.getElementFromSupportedTypeMirror(type));
+                model = new AnnotatedClass(TypeUtils.safeTypeMirrorToTypeElement(type));
             }
             addSupportedType(model);
         }

@@ -41,6 +41,7 @@ import java.util.Set;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -52,11 +53,11 @@ public class AnnotatedClass {
     @NotNull private final Element mElement;
     @NotNull private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
 
-    AnnotatedClass(@NotNull Element element) {
+    AnnotatedClass(@NotNull TypeElement element) {
         this(element, null);
     }
 
-    AnnotatedClass(@NotNull Element element, @Nullable FieldOption childFieldOption) {
+    AnnotatedClass(@NotNull TypeElement element, @Nullable FieldOption childFieldOption) {
         mType = element.asType();
         mElement = element;
         Map<String, Element> variableNames = new HashMap<>(element.getEnclosedElements().size());
@@ -103,7 +104,7 @@ public class AnnotatedClass {
         Element previousElement = variableNames.put(element.getSimpleName().toString(), element);
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
-            MessagerUtils.reportWarning("Ignoring inherited Member variable with the same variable name in class" +
+            MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
                                         element.toString() + ", with variable name " + previousElement.asType().toString());
         }
         mMemberVariables.put(element, typeMirror);

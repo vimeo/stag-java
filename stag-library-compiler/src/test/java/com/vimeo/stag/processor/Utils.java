@@ -34,6 +34,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -72,7 +73,7 @@ public final class Utils {
     }
 
     @Nullable
-    public static Element getElementFromClass(@NotNull Class clazz) {
+    public static TypeElement getElementFromClass(@NotNull Class clazz) {
         return elements.getTypeElement(clazz.getName());
     }
 
