@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+Version 2.1.4 *(2017-05-10)*
+----------------------------
+- Added compiler support for all Java language versions
+
 Version 2.1.3 *(2017-05-01)*
 ----------------------------
 - Improved performance of generic type adapter instantiation.
