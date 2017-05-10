@@ -75,7 +75,8 @@ public final class StagProcessor extends AbstractProcessor {
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_7;
+        // Always try to support the latest Java version
+        return SourceVersion.latestSupported();
     }
 
     private static boolean getDebugBoolean(@NotNull ProcessingEnvironment processingEnvironment) {
