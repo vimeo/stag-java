@@ -114,31 +114,32 @@ public final class StagProcessor extends AbstractProcessor {
         MessagerUtils.initialize(processingEnv.getMessager());
 
         String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
-        SupportedTypesModel.getInstance().initialize(stagFactoryGeneratedName);
+
+        SupportedTypesModel supportedTypesModel = new SupportedTypesModel(stagFactoryGeneratedName);
 
         DebugLog.log("\nBeginning @UseStag annotation processing\n");
 
         // Pick up the classes annotated with @UseStag
         Set<? extends Element> useStagElements = roundEnv.getElementsAnnotatedWith(UseStag.class);
         for (Element useStagElement : useStagElements) {
-            processSupportedElements(useStagElement);
+            processSupportedElements(supportedTypesModel, useStagElement);
         }
 
         try {
-            Set<TypeMirror> supportedTypes = AnnotatedClass.annotatedClassToTypeMirror(SupportedTypesModel.getInstance().getSupportedTypes());
+            Set<TypeMirror> supportedTypes = AnnotatedClass.annotatedClassToTypeMirror(supportedTypesModel.getSupportedTypes());
             try {
                 supportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
             } catch (Exception ignored) {}
 
-            Set<ExternalAdapterInfo> externalAdapterInfoSet = SupportedTypesModel.getInstance().getExternalSupportedAdapters();
+            Set<ExternalAdapterInfo> externalAdapterInfoSet = supportedTypesModel.getExternalSupportedAdapters();
 
-            StagGenerator stagFactoryGenerator = new StagGenerator(packageName, supportedTypes, externalAdapterInfoSet);
+            StagGenerator stagFactoryGenerator = new StagGenerator(packageName, supportedTypes, externalAdapterInfoSet, supportedTypesModel);
 
-            for (AnnotatedClass annotatedClass : SupportedTypesModel.getInstance().getSupportedTypes()) {
+            for (AnnotatedClass annotatedClass : supportedTypesModel.getSupportedTypes()) {
                 Element element = annotatedClass.getElement();
                 if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) &&
                     !TypeUtils.isAbstract(element)) {
-                    generateTypeAdapter(element, stagFactoryGenerator);
+                    generateTypeAdapter(supportedTypesModel, element, stagFactoryGenerator);
                 }
             }
 
@@ -162,14 +163,15 @@ public final class StagProcessor extends AbstractProcessor {
         writeTypeSpecToFile(typeSpec, packageName);
     }
 
-    private void generateTypeAdapter(@NotNull Element element,
+    private void generateTypeAdapter(@NotNull SupportedTypesModel supportedTypesModel,
+                                     @NotNull Element element,
                                      @NotNull StagGenerator stagGenerator) throws IOException {
 
         ClassInfo classInfo = new ClassInfo(element.asType());
 
         AdapterGenerator independentAdapter = element.getKind() == ElementKind.ENUM ?
                 new EnumTypeAdapterGenerator(classInfo, element) :
-                new TypeAdapterGenerator(classInfo);
+                new TypeAdapterGenerator(supportedTypesModel, classInfo);
 
         // Create the type spec
         TypeSpec typeAdapterSpec = independentAdapter.createTypeAdapterSpec(stagGenerator);
@@ -197,19 +199,21 @@ public final class StagProcessor extends AbstractProcessor {
      * could be annotated are @interface and interface. Enums
      * and classes are supported.
      *
-     * @param useStagElement the element to add to the
-     *                       supported type model.
+     * @param supportedTypesModel the supported types model
+     * @param useStagElement      the element to add to the
+     *                            supported type model.
      */
-    private static void processSupportedElements(@NotNull Element useStagElement) {
+    private static void processSupportedElements(@NotNull SupportedTypesModel supportedTypesModel,
+                                                 @NotNull Element useStagElement) {
         if (ElementUtils.isSupportedElementKind(useStagElement)) {
             TypeMirror rootType = useStagElement.asType();
             DebugLog.log("Annotated type: " + rootType + "\n");
-            SupportedTypesModel.getInstance().addSupportedType(rootType);
+            supportedTypesModel.addSupportedType(rootType);
         }
 
         List<? extends Element> enclosedElements = useStagElement.getEnclosedElements();
         for (Element element : enclosedElements) {
-            processSupportedElements(element);
+            processSupportedElements(supportedTypesModel, element);
         }
     }
 }

@@ -75,6 +75,8 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 
+import static java.awt.SystemColor.info;
+
 public class TypeAdapterGenerator extends AdapterGenerator {
 
     private static final String TYPE_ADAPTER_FIELD_PREFIX = "mTypeAdapter";
@@ -82,8 +84,10 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private static boolean sStagFactoryUsed;
 
     @NotNull private final ClassInfo mInfo;
+    @NotNull private final SupportedTypesModel mSupportedTypesModel;
 
-    public TypeAdapterGenerator(@NotNull ClassInfo info) {
+    public TypeAdapterGenerator(@NotNull SupportedTypesModel supportedTypesModel, @NotNull ClassInfo info) {
+        mSupportedTypesModel = supportedTypesModel;
         mInfo = info;
     }
 
@@ -862,7 +866,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             }
         }
 
-        AnnotatedClass annotatedClass = SupportedTypesModel.getInstance().getSupportedType(typeMirror);
+        AnnotatedClass annotatedClass = mSupportedTypesModel.getSupportedType(typeMirror);
         if (null == annotatedClass) {
             throw new IllegalStateException("The AnnotatedClass class can't be null in TypeAdapterGenerator : " + typeMirror.toString());
         }

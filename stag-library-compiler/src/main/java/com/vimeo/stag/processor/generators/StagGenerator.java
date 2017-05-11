@@ -67,8 +67,8 @@ public class StagGenerator {
     @NotNull private static final String CLASS_STAG = "Stag";
     @NotNull private static final String CLASS_TYPE_ADAPTER_FACTORY = "Factory";
     @NotNull private static final String TYPE_ADAPTER_SUFFIX = "TypeAdapter";
-    @NotNull private final static Map<String, GenericClassInfo> KNOWN_MAP_GENERIC_CLASSES = new HashMap<>();
-    @NotNull private final static Map<String, GenericClassInfo> KNOWN_COLLECTION_GENERIC_CLASSES = new HashMap<>();
+    @NotNull private static final Map<String, GenericClassInfo> KNOWN_MAP_GENERIC_CLASSES = new HashMap<>();
+    @NotNull private static final Map<String, GenericClassInfo> KNOWN_COLLECTION_GENERIC_CLASSES = new HashMap<>();
 
     static {
         KNOWN_MAP_GENERIC_CLASSES.put(Map.class.getName(), new GenericClassInfo(false));
@@ -90,14 +90,18 @@ public class StagGenerator {
     @NotNull private final Map<String, ExternalAdapterInfo> mExternalSupportedAdapters;
     @NotNull private final HashMap<String, String> mKnownAdapterFieldMap = new HashMap<>();
     @NotNull private final HashMap<String, String> mKnownFieldToMethodNameMap = new HashMap<>();
+    @NotNull private final SupportedTypesModel mSupportedTypesModel;
 
     public StagGenerator(@NotNull String generatedPackageName,
                          @NotNull Set<TypeMirror> knownTypes,
-                         @NotNull Set<ExternalAdapterInfo> externalSupportedAdapters) {
+                         @NotNull Set<ExternalAdapterInfo> externalSupportedAdapters,
+                         @NotNull SupportedTypesModel supportedTypesModel) {
         mKnownTypes = knownTypes;
         mGeneratedPackageName = generatedPackageName;
         mKnownClasses = new ArrayList<>(knownTypes.size());
         mExternalSupportedAdapters = new HashMap<>(externalSupportedAdapters.size());
+        mSupportedTypesModel = supportedTypesModel;
+        ;
 
         Map<String, ClassInfo> knownFieldNames = new HashMap<>(knownTypes.size());
         Map<String, List<ClassInfo>> clashingClassNames = new HashMap<>(knownTypes.size());
@@ -152,8 +156,7 @@ public class StagGenerator {
 
         for (ClassInfo knownGenericType : genericClasses) {
             List<? extends TypeMirror> typeArguments = knownGenericType.getTypeArguments();
-            AnnotatedClass annotatedClass =
-                    SupportedTypesModel.getInstance().getSupportedType(knownGenericType.getType());
+            AnnotatedClass annotatedClass = mSupportedTypesModel.getSupportedType(knownGenericType.getType());
             if (null == annotatedClass) {
                 throw new IllegalStateException("The AnnotatedClass class can't be null in StagGenerator : " + knownGenericType.toString());
             }
@@ -435,7 +438,7 @@ public class StagGenerator {
                      * If the type is of parameterized type, use the normal way of creating typetokens
                      */
                     typeTokenCode = "new TypeToken<" + classInfo.getType().toString() +
-                            ">(){}";
+                                    ">(){}";
                 }
                 getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(" + typeTokenCode + ")");
             }

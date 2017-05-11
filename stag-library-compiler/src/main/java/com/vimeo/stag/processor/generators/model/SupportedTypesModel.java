@@ -42,26 +42,12 @@ import javax.lang.model.type.TypeMirror;
 
 public final class SupportedTypesModel {
 
-    @Nullable private static SupportedTypesModel sInstance;
-
     @NotNull private final Map<String, AnnotatedClass> mSupportedTypesMap = new HashMap<>();
     @NotNull private final Map<String, AnnotatedClass> mKnownInheritedTypesMap = new HashMap<>();
     @NotNull private final Set<ExternalAdapterInfo> mExternalSupportedAdapters = new HashSet<>();
-    @Nullable private String mGeneratedStagFactoryName;
+    @NotNull private final String mGeneratedStagFactoryName;
 
-    private SupportedTypesModel() {
-    }
-
-    @NotNull
-    public static synchronized SupportedTypesModel getInstance() {
-        if (sInstance == null) {
-            sInstance = new SupportedTypesModel();
-        }
-
-        return sInstance;
-    }
-
-    public void initialize(@NotNull String generatedStagFactoryName) {
+    public SupportedTypesModel(@NotNull String generatedStagFactoryName) {
         mGeneratedStagFactoryName = generatedStagFactoryName;
     }
 
@@ -120,7 +106,7 @@ public final class SupportedTypesModel {
         if (null == model) {
             model = mKnownInheritedTypesMap.get(outerClassType);
             if (null == model) {
-                model = new AnnotatedClass(TypeUtils.safeTypeMirrorToTypeElement(type), childFieldOption);
+                model = new AnnotatedClass(this, TypeUtils.safeTypeMirrorToTypeElement(type), childFieldOption);
                 mKnownInheritedTypesMap.put(outerClassType, model);
             }
         }
@@ -144,7 +130,7 @@ public final class SupportedTypesModel {
         if (model == null) {
             model = mKnownInheritedTypesMap.get(outerClassType);
             if (null == model) {
-                model = new AnnotatedClass(TypeUtils.safeTypeMirrorToTypeElement(type));
+                model = new AnnotatedClass(this, TypeUtils.safeTypeMirrorToTypeElement(type));
             }
             addSupportedType(model);
         }

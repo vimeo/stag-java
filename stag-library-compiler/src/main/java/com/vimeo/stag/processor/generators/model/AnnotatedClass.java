@@ -64,12 +64,14 @@ public class AnnotatedClass {
     @NotNull private final TypeMirror mType;
     @NotNull private final Element mElement;
     @NotNull private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
+    @NotNull private final SupportedTypesModel mSupportedTypesModel;
 
-    AnnotatedClass(@NotNull TypeElement element) {
-        this(element, null);
+    AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel, @NotNull TypeElement element) {
+        this(supportedTypesModel, element, null);
     }
 
-    AnnotatedClass(@NotNull TypeElement element, @Nullable FieldOption childFieldOption) {
+    AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel, @NotNull TypeElement element, @Nullable FieldOption childFieldOption) {
+        mSupportedTypesModel = supportedTypesModel;
         mType = element.asType();
         mElement = element;
         Map<String, Element> variableNames = new HashMap<>(element.getEnclosedElements().size());
@@ -92,7 +94,7 @@ public class AnnotatedClass {
         if (inheritedType != null) {
             DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
 
-            AnnotatedClass genericInheritedType = SupportedTypesModel.getInstance().addToKnownInheritedType(inheritedType, fieldOption);
+            AnnotatedClass genericInheritedType = mSupportedTypesModel.addToKnownInheritedType(inheritedType, fieldOption);
 
             LinkedHashMap<Element, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
                                                                                                        genericInheritedType.getElement(),
@@ -147,7 +149,7 @@ public class AnnotatedClass {
                 if (!modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
                     checkModifiers(variableElement, modifiers);
                     if (!TypeUtils.isAbstract(element)) {
-                        SupportedTypesModel.getInstance().checkAndAddExternalAdapter(variableElement);
+                        mSupportedTypesModel.checkAndAddExternalAdapter(variableElement);
                     }
                     DebugLog.log(TAG, "\t\tMember variables - " + variableElement.asType().toString());
 
