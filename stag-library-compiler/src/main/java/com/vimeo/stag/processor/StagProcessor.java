@@ -32,6 +32,7 @@ import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.ExternalAdapterInfo;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
+import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.utils.DebugLog;
@@ -124,7 +125,7 @@ public final class StagProcessor extends AbstractProcessor {
         }
 
         try {
-            Set<TypeMirror> supportedTypes = SupportedTypesModel.getInstance().getSupportedTypesMirror();
+            Set<TypeMirror> supportedTypes = AnnotatedClass.annotatedClassToTypeMirror(SupportedTypesModel.getInstance().getSupportedTypes());
             try {
                 supportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
             } catch (Exception ignored) {}
@@ -133,8 +134,8 @@ public final class StagProcessor extends AbstractProcessor {
 
             StagGenerator stagFactoryGenerator = new StagGenerator(packageName, supportedTypes, externalAdapterInfoSet);
 
-            Set<Element> list = SupportedTypesModel.getInstance().getSupportedElements();
-            for (Element element : list) {
+            for (AnnotatedClass annotatedClass : SupportedTypesModel.getInstance().getSupportedTypes()) {
+                Element element = annotatedClass.getElement();
                 if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) &&
                     !TypeUtils.isAbstract(element)) {
                     generateTypeAdapter(element, stagFactoryGenerator);

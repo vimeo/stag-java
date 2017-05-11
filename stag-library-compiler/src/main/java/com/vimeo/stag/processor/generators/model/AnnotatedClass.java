@@ -34,7 +34,9 @@ import com.vimeo.stag.processor.utils.TypeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -46,6 +48,16 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 public class AnnotatedClass {
+
+    @NotNull
+    public static Set<TypeMirror> annotatedClassToTypeMirror(@NotNull Collection<AnnotatedClass> annotatedClasses) {
+        Set<TypeMirror> typeMirrors = new HashSet<>();
+        for (AnnotatedClass annotatedClass : annotatedClasses) {
+            typeMirrors.add(annotatedClass.getType());
+        }
+
+        return typeMirrors;
+    }
 
     private static final String TAG = AnnotatedClass.class.getSimpleName();
 
@@ -105,7 +117,7 @@ public class AnnotatedClass {
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
             MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
-                                        element.toString() + ", with variable name " + previousElement.asType().toString());
+                                  element.toString() + ", with variable name " + previousElement.asType().toString());
         }
         mMemberVariables.put(element, typeMirror);
     }

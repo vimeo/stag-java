@@ -85,9 +85,8 @@ public final class ElementUtils {
      * @param <T>             annotation type
      * @return {@code true} if the element is annotated, {@code false} otherwise
      */
-    public static <T extends Annotation> boolean isAnnotatedWith(
-            @NotNull Class<T> annotationClass,
-            @Nullable Element element) {
+    public static <T extends Annotation> boolean isAnnotatedWith(@NotNull Class<T> annotationClass,
+                                                                 @Nullable Element element) {
         return element != null && element.getAnnotation(annotationClass) != null;
     }
 

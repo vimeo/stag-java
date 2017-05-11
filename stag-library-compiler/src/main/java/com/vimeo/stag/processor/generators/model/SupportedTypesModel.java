@@ -31,12 +31,12 @@ import com.vimeo.stag.processor.utils.TypeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.lang.model.element.Element;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -46,8 +46,6 @@ public final class SupportedTypesModel {
 
     @NotNull private final Map<String, AnnotatedClass> mSupportedTypesMap = new HashMap<>();
     @NotNull private final Map<String, AnnotatedClass> mKnownInheritedTypesMap = new HashMap<>();
-    @NotNull private final Set<Element> mSupportedTypes = new HashSet<>();
-    @NotNull private final Set<TypeMirror> mSupportedTypesMirror = new HashSet<>();
     @NotNull private final Set<ExternalAdapterInfo> mExternalSupportedAdapters = new HashSet<>();
     @Nullable private String mGeneratedStagFactoryName;
 
@@ -75,8 +73,6 @@ public final class SupportedTypesModel {
      */
     private void addSupportedType(@NotNull AnnotatedClass object) {
         mSupportedTypesMap.put(TypeUtils.getOuterClassType(object.getType()), object);
-        mSupportedTypes.add(object.getElement());
-        mSupportedTypesMirror.add(object.getType());
     }
 
     /**
@@ -163,13 +159,8 @@ public final class SupportedTypesModel {
      * @return the set of supported types.
      */
     @NotNull
-    public Set<Element> getSupportedElements() {
-        return new HashSet<>(mSupportedTypes);
-    }
-
-    @NotNull
-    public Set<TypeMirror> getSupportedTypesMirror() {
-        return new HashSet<>(mSupportedTypesMirror);
+    public Collection<AnnotatedClass> getSupportedTypes() {
+        return mSupportedTypesMap.values();
     }
 
     public void checkAndAddExternalAdapter(@NotNull VariableElement variableElement) {
