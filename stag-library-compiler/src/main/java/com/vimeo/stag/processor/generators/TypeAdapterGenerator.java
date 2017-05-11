@@ -75,8 +75,6 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 
-import static java.awt.SystemColor.info;
-
 public class TypeAdapterGenerator extends AdapterGenerator {
 
     private static final String TYPE_ADAPTER_FIELD_PREFIX = "mTypeAdapter";
@@ -96,7 +94,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
      */
     @Nullable
     private static String getTypeTokenCodeForGenericType(@NotNull TypeMirror fieldType,
-                                                         @NotNull Map<TypeVariable, String> typeVarsMap) {
+                                                         @NotNull Map<TypeMirror, String> typeVarsMap) {
 
         // This method should only be called if the type is a generic type
         Preconditions.checkTrue(!TypeUtils.isConcreteType(fieldType) && TypeUtils.containsTypeVarParams(fieldType));
@@ -137,7 +135,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     @Nullable
     private String getTypeAdapterCodeForGenericTypes(@NotNull TypeMirror fieldType, @NotNull Builder adapterBuilder,
                                                      @NotNull MethodSpec.Builder constructorBuilder,
-                                                     @NotNull Map<TypeVariable, String> typeVarsMap,
+                                                     @NotNull Map<TypeMirror, String> typeVarsMap,
                                                      @NotNull StagGenerator stagGenerator,
                                                      @NotNull AdapterFieldInfo adapterFieldInfo) {
 
@@ -414,7 +412,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
      */
     private String getAdapterAccessor(@NotNull TypeMirror fieldType, @NotNull Builder adapterBuilder,
                                       @NotNull MethodSpec.Builder constructorBuilder,
-                                      @NotNull Map<TypeVariable, String> typeVarsMap,
+                                      @NotNull Map<TypeMirror, String> typeVarsMap,
                                       @NotNull StagGenerator stagGenerator,
                                       @NotNull AdapterFieldInfo adapterFieldInfo) {
 
@@ -660,7 +658,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private static String getAdapterForUnknownGenericType(@NotNull TypeMirror fieldType,
                                                           @NotNull Builder adapterBuilder,
                                                           @NotNull MethodSpec.Builder constructorBuilder,
-                                                          @NotNull Map<TypeVariable, String> typeVarsMap,
+                                                          @NotNull Map<TypeMirror, String> typeVarsMap,
                                                           @NotNull AdapterFieldInfo adapterFieldInfo) {
 
         String fieldName = adapterFieldInfo.getFieldName(fieldType);
@@ -682,7 +680,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                                               @NotNull Builder adapterBuilder,
                                               @NotNull MethodSpec.Builder constructorBuilder,
                                               @NotNull Map<Element, TypeMirror> memberVariables,
-                                              @NotNull Map<TypeVariable, String> typeVarsMap,
+                                              @NotNull Map<TypeMirror, String> typeVarsMap,
                                               @NotNull StagGenerator stagGenerator) {
 
         AdapterFieldInfo result = new AdapterFieldInfo(memberVariables.size());
@@ -831,7 +829,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
 
-        Map<TypeVariable, String> typeVarsMap = new HashMap<>();
+        Map<TypeMirror, String> typeVarsMap = new HashMap<>();
 
         int idx = 0;
         StagGenerator.GenericClassInfo genericClassInfo = null;
@@ -841,8 +839,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 if (innerTypeMirror.getKind() == TypeKind.TYPEVAR) {
                     TypeVariable typeVariable = (TypeVariable) innerTypeMirror;
                     String simpleName = typeVariable.asElement().getSimpleName().toString();
-                    adapterBuilder.addTypeVariable(TypeVariableName.get(simpleName, TypeVariableName.get(
-                            typeVariable.getUpperBound())));
+                    adapterBuilder.addTypeVariable(TypeVariableName.get(simpleName, TypeVariableName.get(typeVariable.getUpperBound())));
                     String paramName;
                     if (genericClassInfo != null && genericClassInfo.mHasUnknownVarTypeFields) {
                         //If the classInfo has unknown types, pass type... as param in constructor.

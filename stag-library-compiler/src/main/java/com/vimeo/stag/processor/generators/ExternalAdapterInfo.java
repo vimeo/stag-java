@@ -52,7 +52,7 @@ public final class ExternalAdapterInfo {
             /*
              * Make sure the external model is annotated with @UseStag
              */
-            if (null != useStag) {
+            if (useStag != null) {
                 ClassInfo classInfo = new ClassInfo(typeElement.asType());
                 String classAdapterName =
                         FileGenUtils.unescapeEscapedString(classInfo.getTypeAdapterQualifiedClassName());

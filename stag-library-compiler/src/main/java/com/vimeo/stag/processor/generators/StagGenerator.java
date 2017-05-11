@@ -90,7 +90,6 @@ public class StagGenerator {
     @NotNull private final Map<String, ExternalAdapterInfo> mExternalSupportedAdapters;
     @NotNull private final HashMap<String, String> mKnownAdapterFieldMap = new HashMap<>();
     @NotNull private final HashMap<String, String> mKnownFieldToMethodNameMap = new HashMap<>();
-    @NotNull private final SupportedTypesModel mSupportedTypesModel;
 
     public StagGenerator(@NotNull String generatedPackageName,
                          @NotNull Set<TypeMirror> knownTypes,
@@ -100,8 +99,6 @@ public class StagGenerator {
         mGeneratedPackageName = generatedPackageName;
         mKnownClasses = new ArrayList<>(knownTypes.size());
         mExternalSupportedAdapters = new HashMap<>(externalSupportedAdapters.size());
-        mSupportedTypesModel = supportedTypesModel;
-        ;
 
         Map<String, ClassInfo> knownFieldNames = new HashMap<>(knownTypes.size());
         Map<String, List<ClassInfo>> clashingClassNames = new HashMap<>(knownTypes.size());
@@ -156,7 +153,7 @@ public class StagGenerator {
 
         for (ClassInfo knownGenericType : genericClasses) {
             List<? extends TypeMirror> typeArguments = knownGenericType.getTypeArguments();
-            AnnotatedClass annotatedClass = mSupportedTypesModel.getSupportedType(knownGenericType.getType());
+            AnnotatedClass annotatedClass = supportedTypesModel.getSupportedType(knownGenericType.getType());
             if (null == annotatedClass) {
                 throw new IllegalStateException("The AnnotatedClass class can't be null in StagGenerator : " + knownGenericType.toString());
             }
