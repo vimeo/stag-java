@@ -81,15 +81,15 @@ public class StagGenerator {
     }
 
     @NotNull private final List<ClassInfo> mKnownClasses;
-    @NotNull private final HashMap<String, String> mFieldNameMap = new HashMap<>();
-    @NotNull private final HashMap<String, String> mUnknownAdapterFieldMap = new HashMap<>();
+    @NotNull private final Map<String, String> mFieldNameMap = new HashMap<>();
+    @NotNull private final Map<String, String> mUnknownAdapterFieldMap = new HashMap<>();
     @NotNull private final List<ClassInfo> mUnknownClasses = new ArrayList<>();
-    @NotNull private final HashMap<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
+    @NotNull private final Map<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
     @NotNull private final String mGeneratedPackageName;
     @NotNull private final Set<TypeMirror> mKnownTypes;
     @NotNull private final Map<String, ExternalAdapterInfo> mExternalSupportedAdapters;
-    @NotNull private final HashMap<String, String> mKnownAdapterFieldMap = new HashMap<>();
-    @NotNull private final HashMap<String, String> mKnownFieldToMethodNameMap = new HashMap<>();
+    @NotNull private final Map<String, String> mKnownAdapterFieldMap = new HashMap<>();
+    @NotNull private final Map<String, String> mKnownFieldToMethodNameMap = new HashMap<>();
 
     public StagGenerator(@NotNull String generatedPackageName,
                          @NotNull Set<TypeMirror> knownTypes,
