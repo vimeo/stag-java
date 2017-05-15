@@ -24,15 +24,21 @@ public final class ExternalAdapterInfo {
 
     @NotNull private static final Set<String> sCheckedClasses = new HashSet<>();
 
-    @NotNull final Element mExternalClassType;
+    @NotNull private final TypeElement mExternalClassType;
     @NotNull private final TypeElement mAdapterType;
     @NotNull private final ExecutableElement mAdapterConstructor;
 
-    private ExternalAdapterInfo(@NotNull Element typeElement, @NotNull TypeElement adapterTypeElement,
+    private ExternalAdapterInfo(@NotNull TypeElement typeElement,
+                                @NotNull TypeElement adapterTypeElement,
                                 @NotNull ExecutableElement adapterConstructor) {
         mExternalClassType = typeElement;
         mAdapterType = adapterTypeElement;
         mAdapterConstructor = adapterConstructor;
+    }
+
+    @NotNull
+    public Element getExternalClass() {
+        return mExternalClassType;
     }
 
     /**
@@ -47,7 +53,7 @@ public final class ExternalAdapterInfo {
                                            @NotNull Set<ExternalAdapterInfo> externalAdapterInfoSet) {
         if (!TypeUtils.isSupportedPrimitive(typeMirror.toString()) && typeMirror instanceof DeclaredType) {
             DeclaredType declaredType = (DeclaredType) typeMirror;
-            Element typeElement = declaredType.asElement();
+            TypeElement typeElement = (TypeElement) declaredType.asElement();
             UseStag useStag = null != typeElement ? typeElement.getAnnotation(UseStag.class) : null;
             /*
              * Make sure the external model is annotated with @UseStag

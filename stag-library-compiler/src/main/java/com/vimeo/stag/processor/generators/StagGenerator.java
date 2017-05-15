@@ -147,7 +147,7 @@ public class StagGenerator {
         }
 
         for (ExternalAdapterInfo entry : externalSupportedAdapters) {
-            TypeMirror externalType = entry.mExternalClassType.asType();
+            TypeMirror externalType = entry.getExternalClass().asType();
             mExternalSupportedAdapters.put(externalType.toString(), entry);
         }
 
