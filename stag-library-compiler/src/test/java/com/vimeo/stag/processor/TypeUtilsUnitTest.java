@@ -82,7 +82,7 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
         assertNotNull(concreteType);
 
         TypeMirror realConcreteType =
-                types.getDeclaredType((TypeElement) Utils.getElementFromClass(DummyGenericClass.class),
+                types.getDeclaredType(Utils.getElementFromClass(DummyGenericClass.class),
                                       Utils.getTypeMirrorFromClass(String.class));
 
         assertTrue(realConcreteType.toString().equals(concreteType.toString()));
@@ -124,7 +124,7 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
         assertNotNull(genericType);
 
         LinkedHashMap<Element, TypeMirror> members =
-                TypeUtils.getConcreteMembers(concreteType, types.asElement(genericType), genericMembers);
+                TypeUtils.getConcreteMembers(concreteType, (TypeElement) types.asElement(genericType), genericMembers);
 
 
         TypeMirror stringType = Utils.getTypeMirrorFromClass(String.class);
@@ -139,39 +139,34 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
 
                 assertTrue(entry.getValue()
                                    .toString()
-                                   .equals(types.getDeclaredType(
-                                           (TypeElement) Utils.getElementFromClass(ArrayList.class),
+                                   .equals(types.getDeclaredType(Utils.getElementFromClass(ArrayList.class),
                                            stringType).toString()));
 
             } else if (entry.getKey().getSimpleName().contentEquals("testMap")) {
 
                 assertTrue(entry.getValue()
                                    .toString()
-                                   .equals(types.getDeclaredType(
-                                           (TypeElement) Utils.getElementFromClass(HashMap.class), stringType,
-                                           stringType).toString()));
+                                   .equals(types.getDeclaredType(Utils.getElementFromClass(HashMap.class), stringType,
+                                                                 stringType).toString()));
 
             } else if (entry.getKey().getSimpleName().contentEquals("testSet")) {
 
                 assertTrue(entry.getValue()
                                    .toString()
-                                   .equals(types.getDeclaredType(
-                                           (TypeElement) Utils.getElementFromClass(HashSet.class), stringType)
+                                   .equals(types.getDeclaredType(Utils.getElementFromClass(HashSet.class), stringType)
                                                    .toString()));
             } else if (entry.getKey().getSimpleName().contentEquals("testArrayMap")) {
-                TypeMirror listString = types.getDeclaredType((TypeElement) Utils.getElementFromClass(List.class), stringType);
+                TypeMirror listString = types.getDeclaredType(Utils.getElementFromClass(List.class), stringType);
 
                 assertTrue(entry.getValue()
                         .toString()
-                        .equals(types.getDeclaredType(
-                                (TypeElement) Utils.getElementFromClass(HashMap.class), stringType, listString)
+                        .equals(types.getDeclaredType(Utils.getElementFromClass(HashMap.class), stringType, listString)
                                 .toString()));
             } else if (entry.getKey().getSimpleName().contentEquals("testListMap")) {
-                TypeMirror mapStringString = types.getDeclaredType((TypeElement) Utils.getElementFromClass(Map.class), stringType, stringType);
+                TypeMirror mapStringString = types.getDeclaredType(Utils.getElementFromClass(Map.class), stringType, stringType);
                 assertTrue(entry.getValue()
                         .toString()
-                        .equals(types.getDeclaredType(
-                                (TypeElement) Utils.getElementFromClass(ArrayList.class), mapStringString)
+                        .equals(types.getDeclaredType(Utils.getElementFromClass(ArrayList.class), mapStringString)
                                 .toString()));
             }
         }

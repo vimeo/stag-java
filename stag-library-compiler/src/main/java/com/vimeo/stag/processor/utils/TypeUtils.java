@@ -43,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -172,7 +173,7 @@ public final class TypeUtils {
      * @return true if the element is not generic and
      * contains no generic type arguments, false otherwise.
      */
-    public static boolean isConcreteType(@NotNull Element element) {
+    public static boolean isConcreteType(@NotNull TypeElement element) {
         return isConcreteType(element.asType());
     }
 
@@ -207,7 +208,7 @@ public final class TypeUtils {
      * @return true if the element is not generic and
      * contains no generic type arguments, false otherwise.
      */
-    public static boolean isParameterizedType(@Nullable Element element) {
+    public static boolean isParameterizedType(@Nullable TypeElement element) {
         return element != null && isParameterizedType(element.asType());
     }
 
@@ -289,9 +290,8 @@ public final class TypeUtils {
      * @param element the element to check.
      * @return true if the element inherits from an enum, false otherwise.
      */
-    public static boolean isEnum(@Nullable Element element) {
-        TypeElement typeElement = (TypeElement) element;
-        TypeMirror typeMirror = typeElement != null ? typeElement.getSuperclass() : null;
+    public static boolean isEnum(@Nullable TypeElement element) {
+        TypeMirror typeMirror = element != null ? element.getSuperclass() : null;
         String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
 
         return Enum.class.getName().equals(className);
@@ -337,18 +337,18 @@ public final class TypeUtils {
      * inherited class. (to maintain the ordering)
      */
     @NotNull
-    public static LinkedHashMap<Element, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
-                                                                        @NotNull Element genericInherited,
-                                                                        @NotNull Map<Element, TypeMirror> members) {
+    public static LinkedHashMap<VariableElement, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
+                                                                        @NotNull TypeElement genericInherited,
+                                                                        @NotNull Map<VariableElement, TypeMirror> members) {
 
         DebugLog.log(TAG, "Inherited concrete type: " + concreteInherited.toString());
         DebugLog.log(TAG, "Inherited generic type: " + genericInherited.asType().toString());
         List<? extends TypeMirror> concreteTypes = getParameterizedTypes(concreteInherited);
         List<? extends TypeMirror> inheritedTypes = getParameterizedTypes(genericInherited);
 
-        LinkedHashMap<Element, TypeMirror> map = new LinkedHashMap<>();
+        LinkedHashMap<VariableElement, TypeMirror> map = new LinkedHashMap<>();
 
-        for (Entry<Element, TypeMirror> member : members.entrySet()) {
+        for (Entry<VariableElement, TypeMirror> member : members.entrySet()) {
 
             DebugLog.log(TAG, "\t\tEvaluating member - " + member.getValue().toString());
 
@@ -416,7 +416,7 @@ public final class TypeUtils {
     }
 
     @NotNull
-    private static List<? extends TypeMirror> getParameterizedTypes(@NotNull Element element) {
+    private static List<? extends TypeMirror> getParameterizedTypes(@NotNull TypeElement element) {
         return ((DeclaredType) element.asType()).getTypeArguments();
     }
 

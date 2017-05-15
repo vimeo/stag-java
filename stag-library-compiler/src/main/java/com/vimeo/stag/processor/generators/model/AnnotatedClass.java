@@ -62,8 +62,8 @@ public class AnnotatedClass {
     private static final String TAG = AnnotatedClass.class.getSimpleName();
 
     @NotNull private final TypeMirror mType;
-    @NotNull private final Element mElement;
-    @NotNull private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
+    @NotNull private final TypeElement mElement;
+    @NotNull private final LinkedHashMap<VariableElement, TypeMirror> mMemberVariables;
     @NotNull private final SupportedTypesModel mSupportedTypesModel;
 
     AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel, @NotNull TypeElement element) {
@@ -74,7 +74,7 @@ public class AnnotatedClass {
         mSupportedTypesModel = supportedTypesModel;
         mType = element.asType();
         mElement = element;
-        Map<String, Element> variableNames = new HashMap<>(element.getEnclosedElements().size());
+        Map<String, VariableElement> variableNames = new HashMap<>(element.getEnclosedElements().size());
         TypeMirror inheritedType = TypeUtils.getInheritedType(element);
 
         UseStag useStag = element.getAnnotation(UseStag.class);
@@ -96,26 +96,28 @@ public class AnnotatedClass {
 
             AnnotatedClass genericInheritedType = mSupportedTypesModel.addToKnownInheritedType(inheritedType, fieldOption);
 
-            LinkedHashMap<Element, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
+            LinkedHashMap<VariableElement, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
                                                                                                        genericInheritedType.getElement(),
                                                                                                        genericInheritedType.getMemberVariables());
 
-            for (Map.Entry<Element, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
+            for (Map.Entry<VariableElement, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
                 addMemberVariable(entry.getKey(), entry.getValue(), variableNames);
             }
         }
 
         if (!TypeUtils.isEnum(element)) {
             for (Element enclosedElement : element.getEnclosedElements()) {
-                addToSupportedTypes(enclosedElement, fieldOption, variableNames);
+                if (enclosedElement instanceof VariableElement) {
+                    addToSupportedTypes((VariableElement) enclosedElement, fieldOption, variableNames);
+                }
             }
         }
 
     }
 
-    private void addMemberVariable(@NotNull Element element, @NotNull TypeMirror typeMirror,
-                                   @NotNull Map<String, Element> variableNames) {
-        Element previousElement = variableNames.put(element.getSimpleName().toString(), element);
+    private void addMemberVariable(@NotNull VariableElement element, @NotNull TypeMirror typeMirror,
+                                   @NotNull Map<String, VariableElement> variableNames) {
+        VariableElement previousElement = variableNames.put(element.getSimpleName().toString(), element);
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
             MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
@@ -140,21 +142,18 @@ public class AnnotatedClass {
         }
     }
 
-    private void addToSupportedTypes(@NotNull Element element, @NotNull FieldOption fieldOption,
-                                     @NotNull Map<String, Element> variableNames) {
-        if (element instanceof VariableElement) {
-            if (shouldIncludeField(element, fieldOption)) {
-                final VariableElement variableElement = (VariableElement) element;
-                Set<Modifier> modifiers = variableElement.getModifiers();
-                if (!modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
-                    checkModifiers(variableElement, modifiers);
-                    if (!TypeUtils.isAbstract(element)) {
-                        mSupportedTypesModel.checkAndAddExternalAdapter(variableElement);
-                    }
-                    DebugLog.log(TAG, "\t\tMember variables - " + variableElement.asType().toString());
-
-                    addMemberVariable(variableElement, variableElement.asType(), variableNames);
+    private void addToSupportedTypes(@NotNull VariableElement element, @NotNull FieldOption fieldOption,
+                                     @NotNull Map<String, VariableElement> variableNames) {
+        if (shouldIncludeField(element, fieldOption)) {
+            Set<Modifier> modifiers = element.getModifiers();
+            if (!modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
+                checkModifiers(element, modifiers);
+                if (!TypeUtils.isAbstract(element)) {
+                    mSupportedTypesModel.checkAndAddExternalAdapter(element);
                 }
+                DebugLog.log(TAG, "\t\tMember variables - " + element.asType().toString());
+
+                addMemberVariable(element, element.asType(), variableNames);
             }
         }
     }
@@ -178,7 +177,7 @@ public class AnnotatedClass {
     }
 
     @NotNull
-    public Element getElement() {
+    public TypeElement getElement() {
         return mElement;
     }
 
@@ -195,7 +194,7 @@ public class AnnotatedClass {
      * types.
      */
     @NotNull
-    public LinkedHashMap<Element, TypeMirror> getMemberVariables() {
+    public LinkedHashMap<VariableElement, TypeMirror> getMemberVariables() {
         return new LinkedHashMap<>(mMemberVariables);
     }
 }

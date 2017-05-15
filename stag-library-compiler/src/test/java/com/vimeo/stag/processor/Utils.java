@@ -79,18 +79,18 @@ public final class Utils {
 
     @Nullable
     public static TypeMirror getTypeMirrorFromClass(@NotNull Class clazz) {
-        Element element = getElementFromClass(clazz);
+        TypeElement element = getElementFromClass(clazz);
         return element != null ? element.asType() : null;
     }
 
     @Nullable
-    public static Element getElementFromObject(@NotNull Object object) {
+    public static TypeElement getElementFromObject(@NotNull Object object) {
         return elements.getTypeElement(object.getClass().getName());
     }
 
     @Nullable
     public static TypeMirror getTypeMirrorFromObject(@NotNull Object object) {
-        Element element = getElementFromObject(object);
+        TypeElement element = getElementFromObject(object);
         return element != null ? element.asType() : null;
     }
 
