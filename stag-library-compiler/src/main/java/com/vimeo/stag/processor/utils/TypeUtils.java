@@ -173,7 +173,7 @@ public final class TypeUtils {
      * @return true if the element is not generic and
      * contains no generic type arguments, false otherwise.
      */
-    public static boolean isConcreteType(@NotNull TypeElement element) {
+    public static boolean isConcreteType(@NotNull Element element) {
         return isConcreteType(element.asType());
     }
 

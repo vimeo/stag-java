@@ -107,10 +107,10 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
     public void getConcreteMembers_isCorrect() throws Exception {
         Element genericElement = Utils.getElementFromClass(DummyGenericClass.class);
         assertNotNull(genericElement);
-        Map<Element, TypeMirror> genericMembers = new HashMap<>();
+        Map<VariableElement, TypeMirror> genericMembers = new HashMap<>();
         for (Element element : genericElement.getEnclosedElements()) {
             if (element instanceof VariableElement) {
-                genericMembers.put(element, element.asType());
+                genericMembers.put((VariableElement) element, element.asType());
             }
         }
 
@@ -123,14 +123,14 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
 
         assertNotNull(genericType);
 
-        LinkedHashMap<Element, TypeMirror> members =
+        LinkedHashMap<VariableElement, TypeMirror> members =
                 TypeUtils.getConcreteMembers(concreteType, (TypeElement) types.asElement(genericType), genericMembers);
 
 
         TypeMirror stringType = Utils.getTypeMirrorFromClass(String.class);
         assertNotNull(stringType);
 
-        for (Entry<Element, TypeMirror> entry : members.entrySet()) {
+        for (Entry<VariableElement, TypeMirror> entry : members.entrySet()) {
             if (entry.getKey().getSimpleName().contentEquals("testObject")) {
 
                 assertTrue(entry.getValue().toString().equals(stringType.toString()));
