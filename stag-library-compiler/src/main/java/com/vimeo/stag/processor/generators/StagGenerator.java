@@ -58,6 +58,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -157,7 +158,7 @@ public class StagGenerator {
             if (null == annotatedClass) {
                 throw new IllegalStateException("The AnnotatedClass class can't be null in StagGenerator : " + knownGenericType.toString());
             }
-            Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
+            Map<VariableElement, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
             boolean hasUnknownTypeFields = false;
             for (TypeMirror type : memberVariables.values()) {
                 if (!checkKnownAdapters(type)) {

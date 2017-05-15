@@ -232,7 +232,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
     @NotNull
     private static MethodSpec getReadMethodSpec(@NotNull TypeName typeName,
-                                                @NotNull Map<Element, TypeMirror> elements,
+                                                @NotNull Map<VariableElement, TypeMirror> elements,
                                                 @NotNull AdapterFieldInfo adapterFieldInfo) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("read")
                 .addParameter(JsonReader.class, "reader")
@@ -260,7 +260,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         final List<String> nonNullFields = new ArrayList<>();
 
-        for (Map.Entry<Element, TypeMirror> element : elements.entrySet()) {
+        for (Map.Entry<VariableElement, TypeMirror> element : elements.entrySet()) {
             String name = getJsonName(element.getKey());
             final String variableName = element.getKey().getSimpleName().toString();
             final TypeMirror elementValue = element.getValue();
@@ -679,14 +679,14 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     private AdapterFieldInfo addAdapterFields(@Nullable GenericClassInfo genericClassInfo,
                                               @NotNull Builder adapterBuilder,
                                               @NotNull MethodSpec.Builder constructorBuilder,
-                                              @NotNull Map<Element, TypeMirror> memberVariables,
+                                              @NotNull Map<VariableElement, TypeMirror> memberVariables,
                                               @NotNull Map<TypeMirror, String> typeVarsMap,
                                               @NotNull StagGenerator stagGenerator) {
 
         AdapterFieldInfo result = new AdapterFieldInfo(memberVariables.size());
         boolean hasUnknownGenericField =
                 genericClassInfo != null && genericClassInfo.mHasUnknownVarTypeFields;
-        for (Map.Entry<Element, TypeMirror> entry : memberVariables.entrySet()) {
+        for (Map.Entry<VariableElement, TypeMirror> entry : memberVariables.entrySet()) {
             TypeMirror fieldType = entry.getValue();
             JsonAdapter annotation = entry.getKey().getAnnotation(JsonAdapter.class);
             String adapterAccessor = null;
@@ -740,7 +740,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
     @NotNull
     private static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName,
-                                                 @NotNull Map<Element, TypeMirror> memberVariables,
+                                                 @NotNull Map<VariableElement, TypeMirror> memberVariables,
                                                  @NotNull AdapterFieldInfo adapterFieldInfo) {
         final MethodSpec.Builder builder = MethodSpec.methodBuilder("write")
                 .addParameter(JsonWriter.class, "writer")
@@ -756,7 +756,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         builder.addStatement("return");
         builder.endControlFlow();
 
-        for (Map.Entry<Element, TypeMirror> element : memberVariables.entrySet()) {
+        for (Map.Entry<VariableElement, TypeMirror> element : memberVariables.entrySet()) {
             String name = getJsonName(element.getKey());
             final String variableName = element.getKey().getSimpleName().toString();
             String variableType = element.getValue().toString();
@@ -867,7 +867,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         if (null == annotatedClass) {
             throw new IllegalStateException("The AnnotatedClass class can't be null in TypeAdapterGenerator : " + typeMirror.toString());
         }
-        Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
+        Map<VariableElement, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
 
         AdapterFieldInfo adapterFieldInfo =
                 addAdapterFields(genericClassInfo, adapterBuilder, constructorBuilder, memberVariables,
