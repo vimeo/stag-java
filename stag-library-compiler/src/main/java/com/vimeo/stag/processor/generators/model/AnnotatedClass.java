@@ -28,6 +28,7 @@ import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
 import com.vimeo.stag.processor.generators.model.accessor.DirectFieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
+import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.Preconditions;
@@ -128,20 +129,9 @@ public class AnnotatedClass {
         mMemberVariables.put(element, typeMirror);
     }
 
-    private static void checkModifiers(VariableElement variableElement, Set<Modifier> modifiers) {
-        if (!modifiers.contains(Modifier.STATIC)) {
-            if (modifiers.contains(Modifier.FINAL)) {
-                MessagerUtils.reportError("Unable to access field \"" +
-                                          variableElement.getSimpleName().toString() + "\" in class " +
-                                          variableElement.getEnclosingElement().asType() +
-                                          ", field must not be final.", variableElement);
-            } else if (modifiers.contains(Modifier.PRIVATE)) {
-                MessagerUtils.reportError("Unable to access field \"" +
-                                          variableElement.getSimpleName().toString() + "\" in class " +
-                                          variableElement.getEnclosingElement().asType() +
-                                          ", field must not be private.", variableElement);
-            }
-        }
+    private static boolean checkPrivateFinalModifiers(@NotNull Set<Modifier> modifiers) {
+        Preconditions.checkTrue(!modifiers.contains(Modifier.STATIC));
+        return modifiers.contains(Modifier.FINAL) || modifiers.contains(Modifier.PRIVATE);
     }
 
     private void addToSupportedTypes(@NotNull VariableElement element, @NotNull FieldOption fieldOption,
@@ -149,13 +139,21 @@ public class AnnotatedClass {
         if (shouldIncludeField(element, fieldOption)) {
             Set<Modifier> modifiers = element.getModifiers();
             if (!modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
-                checkModifiers(element, modifiers);
+
                 if (!TypeUtils.isAbstract(element)) {
                     mSupportedTypesModel.checkAndAddExternalAdapter(element);
                 }
                 DebugLog.log(TAG, "\t\tMember variables - " + element.asType().toString());
 
-                addMemberVariable(new DirectFieldAccessor(element), element.asType(), variableNames);
+                if (checkPrivateFinalModifiers(modifiers)) {
+                    try {
+                        addMemberVariable(new MethodFieldAccessor(element), element.asType(), variableNames);
+                    } catch (UnsupportedOperationException exception) {
+                        MessagerUtils.reportError("Unable to find getter/setter for private/final field", element);
+                    }
+                } else {
+                    addMemberVariable(new DirectFieldAccessor(element), element.asType(), variableNames);
+                }
             }
         }
     }
