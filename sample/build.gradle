@@ -45,7 +45,7 @@ dependencies {
 
     compile project(':sample-model')
     compile project(':sample-java-model')
-//    compile project(':sample-kotlin-model')
+    compile project(':sample-kotlin-model')
 
     compile project(':stag-library')
     annotationProcessor project(':stag-library-compiler')
