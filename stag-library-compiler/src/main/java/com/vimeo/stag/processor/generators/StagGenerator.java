@@ -38,6 +38,7 @@ import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
+import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterUtils;
 import com.vimeo.stag.processor.utils.Preconditions;
@@ -58,7 +59,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -158,7 +158,8 @@ public class StagGenerator {
             if (null == annotatedClass) {
                 throw new IllegalStateException("The AnnotatedClass class can't be null in StagGenerator : " + knownGenericType.toString());
             }
-            Map<VariableElement, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
+
+            Map<FieldAccessor, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
             boolean hasUnknownTypeFields = false;
             for (TypeMirror type : memberVariables.values()) {
                 if (!checkKnownAdapters(type)) {
@@ -180,10 +181,10 @@ public class StagGenerator {
     @NotNull
     private static String removeSpecialCharacters(TypeMirror typeMirror) {
         String typeString = typeMirror.toString();
-        /**
+        /*
          * This is done to avoid generating duplicate method names, where the inner class type
-         *has same name (in different packages). In that case we are using the complete package name
-         *of the class to avoid class. We'll come up with a better solution for this case.
+         * has same name (in different packages). In that case we are using the complete package name
+         * of the class to avoid class. We'll come up with a better solution for this case.
          */
         if (TypeUtils.isSupportedNative(typeMirror.toString())) {
             typeString = typeString.substring(typeString.lastIndexOf(".") + 1);

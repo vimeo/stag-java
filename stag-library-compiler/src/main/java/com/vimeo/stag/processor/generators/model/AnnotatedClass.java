@@ -26,6 +26,8 @@ package com.vimeo.stag.processor.generators.model;
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
+import com.vimeo.stag.processor.generators.model.accessor.DirectFieldAccessor;
+import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.Preconditions;
@@ -63,7 +65,7 @@ public class AnnotatedClass {
 
     @NotNull private final TypeMirror mType;
     @NotNull private final TypeElement mElement;
-    @NotNull private final LinkedHashMap<VariableElement, TypeMirror> mMemberVariables;
+    @NotNull private final LinkedHashMap<FieldAccessor, TypeMirror> mMemberVariables;
     @NotNull private final SupportedTypesModel mSupportedTypesModel;
 
     AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel, @NotNull TypeElement element) {
@@ -74,7 +76,7 @@ public class AnnotatedClass {
         mSupportedTypesModel = supportedTypesModel;
         mType = element.asType();
         mElement = element;
-        Map<String, VariableElement> variableNames = new HashMap<>(element.getEnclosedElements().size());
+        Map<String, FieldAccessor> variableNames = new HashMap<>(element.getEnclosedElements().size());
         TypeMirror inheritedType = TypeUtils.getInheritedType(element);
 
         UseStag useStag = element.getAnnotation(UseStag.class);
@@ -96,11 +98,11 @@ public class AnnotatedClass {
 
             AnnotatedClass genericInheritedType = mSupportedTypesModel.addToKnownInheritedType(inheritedType, fieldOption);
 
-            LinkedHashMap<VariableElement, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
+            LinkedHashMap<FieldAccessor, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
                                                                                                        genericInheritedType.getElement(),
                                                                                                        genericInheritedType.getMemberVariables());
 
-            for (Map.Entry<VariableElement, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
+            for (Map.Entry<FieldAccessor, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
                 addMemberVariable(entry.getKey(), entry.getValue(), variableNames);
             }
         }
@@ -115,9 +117,9 @@ public class AnnotatedClass {
 
     }
 
-    private void addMemberVariable(@NotNull VariableElement element, @NotNull TypeMirror typeMirror,
-                                   @NotNull Map<String, VariableElement> variableNames) {
-        VariableElement previousElement = variableNames.put(element.getSimpleName().toString(), element);
+    private void addMemberVariable(@NotNull FieldAccessor element, @NotNull TypeMirror typeMirror,
+                                   @NotNull Map<String, FieldAccessor> variableNames) {
+        FieldAccessor previousElement = variableNames.put(element.createGetterCode(), element);
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
             MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
@@ -143,7 +145,7 @@ public class AnnotatedClass {
     }
 
     private void addToSupportedTypes(@NotNull VariableElement element, @NotNull FieldOption fieldOption,
-                                     @NotNull Map<String, VariableElement> variableNames) {
+                                     @NotNull Map<String, FieldAccessor> variableNames) {
         if (shouldIncludeField(element, fieldOption)) {
             Set<Modifier> modifiers = element.getModifiers();
             if (!modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
@@ -153,7 +155,7 @@ public class AnnotatedClass {
                 }
                 DebugLog.log(TAG, "\t\tMember variables - " + element.asType().toString());
 
-                addMemberVariable(element, element.asType(), variableNames);
+                addMemberVariable(new DirectFieldAccessor(element), element.asType(), variableNames);
             }
         }
     }
@@ -194,7 +196,7 @@ public class AnnotatedClass {
      * types.
      */
     @NotNull
-    public LinkedHashMap<VariableElement, TypeMirror> getMemberVariables() {
+    public LinkedHashMap<FieldAccessor, TypeMirror> getMemberVariables() {
         return new LinkedHashMap<>(mMemberVariables);
     }
 }

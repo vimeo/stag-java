@@ -27,6 +27,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +44,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
@@ -337,18 +337,18 @@ public final class TypeUtils {
      * inherited class. (to maintain the ordering)
      */
     @NotNull
-    public static LinkedHashMap<VariableElement, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
-                                                                        @NotNull TypeElement genericInherited,
-                                                                        @NotNull Map<VariableElement, TypeMirror> members) {
+    public static LinkedHashMap<FieldAccessor, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
+                                                                              @NotNull TypeElement genericInherited,
+                                                                              @NotNull Map<FieldAccessor, TypeMirror> members) {
 
         DebugLog.log(TAG, "Inherited concrete type: " + concreteInherited.toString());
         DebugLog.log(TAG, "Inherited generic type: " + genericInherited.asType().toString());
         List<? extends TypeMirror> concreteTypes = getParameterizedTypes(concreteInherited);
         List<? extends TypeMirror> inheritedTypes = getParameterizedTypes(genericInherited);
 
-        LinkedHashMap<VariableElement, TypeMirror> map = new LinkedHashMap<>();
+        LinkedHashMap<FieldAccessor, TypeMirror> map = new LinkedHashMap<>();
 
-        for (Entry<VariableElement, TypeMirror> member : members.entrySet()) {
+        for (Entry<FieldAccessor, TypeMirror> member : members.entrySet()) {
 
             DebugLog.log(TAG, "\t\tEvaluating member - " + member.getValue().toString());
 

@@ -25,7 +25,7 @@ public class MethodFieldAccessor extends FieldAccessor {
     @NotNull private final String mSetterName;
     @NotNull private final String mGetterName;
 
-    public MethodFieldAccessor(@NotNull VariableElement element) {
+    public MethodFieldAccessor(@NotNull VariableElement element) throws UnsupportedOperationException {
         super(element);
 
         mSetterName = findSetterMethodName(element);
