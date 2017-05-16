@@ -129,8 +129,16 @@ public class AnnotatedClass {
         mMemberVariables.put(element, typeMirror);
     }
 
-    private static boolean checkPrivateFinalModifiers(@NotNull Set<Modifier> modifiers) {
+    private static boolean checkPrivateFinalModifiers(@NotNull VariableElement variableElement, @NotNull Set<Modifier> modifiers) {
         Preconditions.checkTrue(!modifiers.contains(Modifier.STATIC));
+
+        if (modifiers.contains(Modifier.FINAL)) {
+            MessagerUtils.reportError("Unable to access field \"" +
+                    variableElement.getSimpleName().toString() + "\" in class " +
+                    variableElement.getEnclosingElement().asType() +
+                    ", field must not be final.", variableElement);
+        }
+
         return modifiers.contains(Modifier.FINAL) || modifiers.contains(Modifier.PRIVATE);
     }
 
@@ -145,7 +153,7 @@ public class AnnotatedClass {
                 }
                 DebugLog.log(TAG, "\t\tMember variables - " + element.asType().toString());
 
-                if (checkPrivateFinalModifiers(modifiers)) {
+                if (checkPrivateFinalModifiers(element, modifiers)) {
                     try {
                         addMemberVariable(new MethodFieldAccessor(element), element.asType(), variableNames);
                     } catch (UnsupportedOperationException exception) {

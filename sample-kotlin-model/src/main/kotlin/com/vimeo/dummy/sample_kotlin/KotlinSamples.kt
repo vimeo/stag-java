@@ -3,6 +3,8 @@ package com.vimeo.dummy.sample_kotlin
 import com.vimeo.stag.UseStag
 
 /**
+ * Test kotlin model
+ *
  * Created by restainoa on 5/8/17.
  */
 @UseStag

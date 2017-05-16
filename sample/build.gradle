@@ -45,7 +45,9 @@ dependencies {
 
     compile project(':sample-model')
     compile project(':sample-java-model')
-    compile project(':sample-kotlin-model')
+
+    // TODO add kotlin sample model as dependency when build issues are resolved
+    // compile project(':sample-kotlin-model')
 
     compile project(':stag-library')
     annotationProcessor project(':stag-library-compiler')
