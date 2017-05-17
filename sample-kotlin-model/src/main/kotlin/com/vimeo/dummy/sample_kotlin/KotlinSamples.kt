@@ -1,5 +1,6 @@
 package com.vimeo.dummy.sample_kotlin
 
+import com.google.gson.annotations.SerializedName
 import com.vimeo.stag.UseStag
 
 /**
@@ -10,6 +11,15 @@ import com.vimeo.stag.UseStag
 @UseStag
 class KotlinSamples {
     var stringField: String? = null
+
+    var nonNullStringField: String = "default"
+
+    var intField: Int? = null
+
+    var longField: Long = 1
+
+    @SerializedName("boolean_field")
+    var booleanField: Boolean? = null
 
     var testField: Any? = null
 }
