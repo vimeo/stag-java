@@ -29,6 +29,7 @@ import com.vimeo.stag.UseStag.FieldOption;
 import com.vimeo.stag.processor.generators.model.accessor.DirectFieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor;
+import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor.Notation;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.Preconditions;
@@ -68,12 +69,19 @@ public class AnnotatedClass {
     @NotNull private final TypeElement mElement;
     @NotNull private final LinkedHashMap<FieldAccessor, TypeMirror> mMemberVariables;
     @NotNull private final SupportedTypesModel mSupportedTypesModel;
+    @NotNull private final Notation mNamingNotation;
 
-    AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel, @NotNull TypeElement element) {
-        this(supportedTypesModel, element, null);
+    AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel,
+                   @NotNull TypeElement element,
+                   @NotNull Notation namingNotation) {
+        this(supportedTypesModel, element, namingNotation, null);
     }
 
-    AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel, @NotNull TypeElement element, @Nullable FieldOption childFieldOption) {
+    AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel,
+                   @NotNull TypeElement element,
+                   @NotNull Notation namingNotation,
+                   @Nullable FieldOption childFieldOption) {
+        mNamingNotation = namingNotation;
         mSupportedTypesModel = supportedTypesModel;
         mType = element.asType();
         mElement = element;
@@ -100,8 +108,8 @@ public class AnnotatedClass {
             AnnotatedClass genericInheritedType = mSupportedTypesModel.addToKnownInheritedType(inheritedType, fieldOption);
 
             LinkedHashMap<FieldAccessor, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
-                                                                                                       genericInheritedType.getElement(),
-                                                                                                       genericInheritedType.getMemberVariables());
+                genericInheritedType.getElement(),
+                genericInheritedType.getMemberVariables());
 
             for (Map.Entry<FieldAccessor, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
                 addMemberVariable(entry.getKey(), entry.getValue(), variableNames);
@@ -124,7 +132,7 @@ public class AnnotatedClass {
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
             MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
-                                  element.toString() + ", with variable name " + previousElement.asType().toString());
+                element.toString() + ", with variable name " + previousElement.asType().toString());
         }
         mMemberVariables.put(element, typeMirror);
     }
@@ -134,9 +142,9 @@ public class AnnotatedClass {
 
         if (modifiers.contains(Modifier.FINAL)) {
             MessagerUtils.reportError("Unable to access field \"" +
-                    variableElement.getSimpleName().toString() + "\" in class " +
-                    variableElement.getEnclosingElement().asType() +
-                    ", field must not be final.", variableElement);
+                variableElement.getSimpleName().toString() + "\" in class " +
+                variableElement.getEnclosingElement().asType() +
+                ", field must not be final.", variableElement);
         }
 
         return modifiers.contains(Modifier.FINAL) || modifiers.contains(Modifier.PRIVATE);
@@ -155,7 +163,7 @@ public class AnnotatedClass {
 
                 if (checkPrivateFinalModifiers(element, modifiers)) {
                     try {
-                        addMemberVariable(new MethodFieldAccessor(element), element.asType(), variableNames);
+                        addMemberVariable(new MethodFieldAccessor(element, mNamingNotation), element.asType(), variableNames);
                     } catch (UnsupportedOperationException exception) {
                         MessagerUtils.reportError("Unable to find getter/setter for private/final field", element);
                     }

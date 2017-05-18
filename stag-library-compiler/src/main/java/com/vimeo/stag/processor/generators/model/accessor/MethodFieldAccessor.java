@@ -22,14 +22,24 @@ import javax.lang.model.type.TypeKind;
  */
 public class MethodFieldAccessor extends FieldAccessor {
 
+    /**
+     * Field naming notation,
+     * used to determine the
+     * names of the accessor methods.
+     */
+    public enum Notation {
+        STANDARD,
+        HUNGARIAN
+    }
+
     @NotNull private final String mSetterName;
     @NotNull private final String mGetterName;
 
-    public MethodFieldAccessor(@NotNull VariableElement element) throws UnsupportedOperationException {
+    public MethodFieldAccessor(@NotNull VariableElement element, @NotNull Notation notation) throws UnsupportedOperationException {
         super(element);
 
-        mSetterName = findSetterMethodName(element);
-        mGetterName = findGetterMethodName(element);
+        mSetterName = findSetterMethodName(element, notation);
+        mGetterName = findGetterMethodName(element, notation);
     }
 
     @NotNull
@@ -61,7 +71,8 @@ public class MethodFieldAccessor extends FieldAccessor {
     }
 
     @NotNull
-    private static String findSetterMethodName(@NotNull VariableElement variableElement) throws UnsupportedOperationException {
+    private static String findSetterMethodName(@NotNull VariableElement variableElement,
+                                               @NotNull Notation namingNotation) throws UnsupportedOperationException {
         MessagerUtils.logInfo("Looking for setter and getter");
 
         for (ExecutableElement method : getSiblingMethods(variableElement)) {
@@ -71,7 +82,7 @@ public class MethodFieldAccessor extends FieldAccessor {
             if (method.getReturnType().getKind() == TypeKind.VOID &&
                 parameters.size() == 1 &&
                 parameters.get(0).asType().equals(variableElement.asType()) &&
-                method.getSimpleName().toString().equals("set" + getVariableNameAsMethodName(variableElement))) {
+                method.getSimpleName().toString().equals("set" + getVariableNameAsMethodName(variableElement, namingNotation))) {
                 MessagerUtils.logInfo("Found setter");
 
                 return method.getSimpleName().toString();
@@ -83,14 +94,15 @@ public class MethodFieldAccessor extends FieldAccessor {
     }
 
     @NotNull
-    private static String findGetterMethodName(@NotNull VariableElement variableElement) throws UnsupportedOperationException {
+    private static String findGetterMethodName(@NotNull VariableElement variableElement,
+                                               @NotNull Notation namingNotation) throws UnsupportedOperationException {
         MessagerUtils.logInfo("Looking for setter and getter");
 
         for (ExecutableElement method : getSiblingMethods(variableElement)) {
 
             if (method.getReturnType().equals(variableElement.asType()) &&
                 method.getParameters().isEmpty() &&
-                method.getSimpleName().toString().equals("get" + getVariableNameAsMethodName(variableElement))) {
+                method.getSimpleName().toString().equals("get" + getVariableNameAsMethodName(variableElement, namingNotation))) {
 
                 MessagerUtils.logInfo("Found getter");
 
@@ -103,11 +115,19 @@ public class MethodFieldAccessor extends FieldAccessor {
     }
 
     @NotNull
-    private static String getVariableNameAsMethodName(@NotNull VariableElement variableElement) {
-        // if hungarian notation, need different logic
+    private static String getVariableNameAsMethodName(@NotNull VariableElement variableElement,
+                                                      @NotNull Notation notation) {
         String variableName = variableElement.getSimpleName().toString();
 
-        return Character.toUpperCase(variableName.charAt(0)) + variableName.substring(1, variableName.length());
+        switch (notation) {
+            case STANDARD:
+                return Character.toUpperCase(variableName.charAt(0)) + variableName.substring(1, variableName.length());
+            case HUNGARIAN:
+                return variableName.substring(1, variableName.length());
+            default:
+                throw new UnsupportedOperationException("Unknown notation type");
+        }
+
     }
 
 }

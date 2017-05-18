@@ -35,6 +35,7 @@ import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
+import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor.Notation;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
@@ -64,13 +65,14 @@ import javax.lang.model.type.TypeMirror;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag"})
-@SupportedOptions(value = {StagProcessor.OPTION_PACKAGE_NAME, StagProcessor.OPTION_DEBUG})
+@SupportedOptions(value = {StagProcessor.OPTION_PACKAGE_NAME, StagProcessor.OPTION_DEBUG, StagProcessor.OPTION_HUNGARIAN_NOTATION})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
 
     public static volatile boolean DEBUG;
     static final String OPTION_DEBUG = "stagDebug";
     static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
+    static final String OPTION_HUNGARIAN_NOTATION = "stagAssumeHungarianNotation";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
     private boolean mHasBeenProcessed;
 
@@ -82,6 +84,14 @@ public final class StagProcessor extends AbstractProcessor {
 
     private static boolean getDebugBoolean(@NotNull ProcessingEnvironment processingEnvironment) {
         String debugString = processingEnvironment.getOptions().get(OPTION_DEBUG);
+        if (debugString != null) {
+            return Boolean.valueOf(debugString);
+        }
+        return false;
+    }
+
+    private static boolean getAssumeHungarianNotation(@NotNull ProcessingEnvironment processingEnvironment) {
+        String debugString = processingEnvironment.getOptions().get(OPTION_HUNGARIAN_NOTATION);
         if (debugString != null) {
             return Boolean.valueOf(debugString);
         }
@@ -109,13 +119,17 @@ public final class StagProcessor extends AbstractProcessor {
 
         String packageName = getOptionalPackageName(processingEnv);
 
+        boolean assumeHungarianNotation = getAssumeHungarianNotation(processingEnv);
+
         TypeUtils.initialize(processingEnv.getTypeUtils());
         ElementUtils.initialize(processingEnv.getElementUtils());
         MessagerUtils.initialize(processingEnv.getMessager());
 
         String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
 
-        SupportedTypesModel supportedTypesModel = new SupportedTypesModel(stagFactoryGeneratedName);
+        Notation notation = assumeHungarianNotation ? Notation.HUNGARIAN : Notation.STANDARD;
+
+        SupportedTypesModel supportedTypesModel = new SupportedTypesModel(stagFactoryGeneratedName, notation);
 
         DebugLog.log("\nBeginning @UseStag annotation processing\n");
 
@@ -129,7 +143,8 @@ public final class StagProcessor extends AbstractProcessor {
             Set<TypeMirror> supportedTypes = AnnotatedClass.annotatedClassToTypeMirror(supportedTypesModel.getSupportedTypes());
             try {
                 supportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
 
             Set<ExternalAdapterInfo> externalAdapterInfoSet = supportedTypesModel.getExternalSupportedAdapters();
 
@@ -170,8 +185,8 @@ public final class StagProcessor extends AbstractProcessor {
         ClassInfo classInfo = new ClassInfo(element.asType());
 
         AdapterGenerator independentAdapter = element.getKind() == ElementKind.ENUM ?
-                new EnumTypeAdapterGenerator(classInfo, element) :
-                new TypeAdapterGenerator(supportedTypesModel, classInfo);
+            new EnumTypeAdapterGenerator(classInfo, element) :
+            new TypeAdapterGenerator(supportedTypesModel, classInfo);
 
         // Create the type spec
         TypeSpec typeAdapterSpec = independentAdapter.createTypeAdapterSpec(stagGenerator);

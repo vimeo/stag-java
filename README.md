@@ -52,6 +52,7 @@ dependencies {
 // Optional annotation processor arguments (see below)
 apt {
     arguments {
+        stagAssumeHungarianNotation true
         stagGeneratedPackageName "com.vimeo.sample.stag.generated"
         stagDebug true
     }
@@ -74,8 +75,9 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                    stagGeneratedPackageName: 'com.vimeo.sample.stag.generated',
-                    stagDebug               : 'true'
+                    stagAssumeHungarianNotation: 'true'
+                    stagGeneratedPackageName   : 'com.vimeo.sample.stag.generated',
+                    stagDebug                  : 'true'
                 ]
             }
         }
@@ -89,7 +91,11 @@ android {
  by passing it as an argument to the apt compiler.
  - `stagDebug`: Turn on debugging in Stag. This will cause Stag to spit out a lot of output into the gradle console.
  This can aid you in figuring out what class is giving you trouble, if the exception gradle prints out
- isn't sufficient.
+ isn't sufficient. Default is false.
+ - `stagAssumeHungarianNotation`: If your Java member variables are private and Stag needs to use setters and getters to access the field,
+ Stag will look for members named `set[variable_name]` and `get[variable_name]`. If your member variables are named using Hungarian notation,
+ then you will need to pass true to this parameter so that for a field named `mField`, Stag will look for `setField` and `getField` instead
+ of `setMField` and `getMField`. Default is false.
 
 ## Features
 

@@ -15,35 +15,35 @@ import org.jetbrains.annotations.NotNull;
 public class PrivateMembers {
 
     @NotNull
-    private String testString;
+    private String mTestString;
 
     @SerializedName("testString2")
-    private String anotherTestString;
+    private String mAnotherTestString;
 
-    private Object testObject;
+    private Object mTestObject;
 
     @NotNull
     public String getTestString() {
-        return testString;
+        return mTestString;
     }
 
     public void setTestString(@NotNull String testString) {
-        this.testString = testString;
+        this.mTestString = testString;
     }
 
     public String getAnotherTestString() {
-        return anotherTestString;
+        return mAnotherTestString;
     }
 
     public void setAnotherTestString(String anotherTestString) {
-        this.anotherTestString = anotherTestString;
+        this.mAnotherTestString = anotherTestString;
     }
 
     public Object getTestObject() {
-        return testObject;
+        return mTestObject;
     }
 
     public void setTestObject(Object testObject) {
-        this.testObject = testObject;
+        this.mTestObject = testObject;
     }
 }
