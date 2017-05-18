@@ -118,7 +118,14 @@ Last but not the least, Stag is almost in parity with GSON.
 
 ## Stag Rules
 
-1. Make sure the member variables of your model class are not private (should be public, protected, or package-local visibility)
+1. Make sure that any private member variables have setters/getters following these naming rules:
+```java
+private String myString;
+
+public String getMyString() { ... }
+
+public void setMyString(String parameter) { ... }
+```
 2. Make sure your model class is not private and has a zero argument non-private constructor
 3. Annotate the classes with `@UseStag` annotation. This will process all the member variables of the class, which makes it easy to use.
 4. Use the `@SerializedName("key")` annotation to give the variables a different JSON name. (same as GSON)
@@ -130,23 +137,30 @@ See the [example below](#example) or the [sample app](sample) to get more info o
 
 ## Example
 
+#### Java
 ```java
 @UseStag
 public class Deer {
+
+    // Private fields require getters and setters
     @SerializedName("name")
-    String mName;    // mName = json value with key "name"
+    private String name;    // name = json value with key "name"
     
     @SerializedName("species")
-    String mSpecies; // mSpecies = json value with key "species"
+    String species; // species = json value with key "species"
     
     @SerializedName("age")
-    int mAge;        // mAge = json value with key "age"
+    int age;        // age = json value with key "age"
     
     @SerializedName("points")
-    int mPoints;     // mPoints = json value with key "points"
+    int points;     // points = json value with key "points"
     
     @SerializedName("weight")
-    float mWeight;   // mWeight = json value with key "weight"
+    float weight;   // weight = json value with key "weight"
+    
+    public String getName() { return name; }
+    
+    public void setName(String name) { this.name = name; }
 }
 
 @UseStag
@@ -160,7 +174,44 @@ public class Herd {
     
     Map<String, Deer> data_map;  // data_map = json value with key "data_map"
 }
+```
 
+#### Kotlin
+```kotlin
+@UseStag
+class Deer {
+
+    @SerializedName("name")
+    var name: String? = null    // name = json value with key "name"
+
+    @SerializedName("species")
+    var species: String? = null // species = json value with key "species"
+
+    @SerializedName("age")
+    var age: Int = 0        // age = json value with key "age"
+
+    @SerializedName("points")
+    var points: Int = 0     // points = json value with key "points"
+
+    @SerializedName("weight")
+    var weight: Float = 0.toFloat()   // weight = json value with key "weight"
+}
+
+@UseStag
+class Herd {
+
+    // non null fields will be honored buy throwing an exception if the field is null
+    @SerializedName("data_list")
+    var data: ArrayList<Deer> = ArrayList()     // data = json value with key "data_list"
+
+    var data_list_copy: List<Deer>? = null   // data_list_copy = json value with key "data_list_copy"
+
+    var data_map: Map<String, Deer>? = null  // data_map = json value with key "data_map"
+}
+```
+
+#### Consuming Model in Java
+```java
 /**
  * The class where you receive JSON 
  * containing a list of Deer objects.
@@ -176,7 +227,6 @@ MyParsingClass {
         return gson.fromJson(json, Herd.class);
     }
 }
-
 ```
 
 ## Future Enhancements
