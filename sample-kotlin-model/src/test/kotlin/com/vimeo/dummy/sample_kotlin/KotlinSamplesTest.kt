@@ -3,7 +3,7 @@ package com.vimeo.dummy.sample_kotlin
 import org.junit.Test
 
 /**
- * Unit test for KotlinSamples
+ * Unit tests for [KotlinSamples].
  *
  * Created by restainoa on 5/8/17.
  */
