@@ -76,7 +76,7 @@ public abstract class FieldAccessor {
      * @return true if the field was marked not null,
      * false otherwise.
      */
-    public final boolean requireNotNull() {
+    public final boolean doesRequireNotNull() {
         for (AnnotationMirror annotationMirror : mVariableElement.getAnnotationMirrors()) {
             switch (annotationMirror.toString()) {
                 case "@javax.validation.constraints.NotNull":

@@ -121,7 +121,7 @@ public class MethodFieldAccessor extends FieldAccessor {
 
         switch (notation) {
             case STANDARD:
-                return Character.toUpperCase(variableName.charAt(0)) + variableName.substring(1, variableName.length());
+                return Character.toUpperCase(variableName.charAt(0)) + variableName.substring(1);
             case HUNGARIAN:
                 return variableName.substring(1, variableName.length());
             default:

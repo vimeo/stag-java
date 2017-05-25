@@ -287,7 +287,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
 
             builder.addCode("\n\t\t\t\tbreak;\n");
-            if (fieldAccessor.requireNotNull()) {
+            if (fieldAccessor.doesRequireNotNull()) {
                 if (!TypeUtils.isSupportedPrimitive(elementValue.toString())) {
                     nonNullFields.add(fieldAccessor);
                 }
@@ -752,7 +752,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 /*
                 * If the element is annotated with NonNull annotation, throw {@link IOException} if it is null.
                 */
-                if (fieldAccessor.requireNotNull()) {
+                if (fieldAccessor.doesRequireNotNull()) {
                     builder.endControlFlow();
                     builder.beginControlFlow("else if (object." + getterCode + " == null)");
                     builder.addStatement("throw new java.io.IOException(\"" + getterCode +

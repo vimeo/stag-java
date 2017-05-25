@@ -55,6 +55,7 @@ final class Utils {
         return elements;
     }
 
+    @NotNull
     private static Types safeTypes() {
         Preconditions.checkNotNull(types);
         return types;
@@ -107,13 +108,13 @@ final class Utils {
     @NotNull
     public static TypeMirror getGenericVersionOfClass(@NotNull Class clazz) {
         List<? extends TypeParameterElement> params =
-                safeElements().getTypeElement(clazz.getName()).getTypeParameters();
+            safeElements().getTypeElement(clazz.getName()).getTypeParameters();
         TypeMirror[] genericTypes = new TypeMirror[params.size()];
         for (int n = 0; n < genericTypes.length; n++) {
             genericTypes[n] = params.get(n).asType();
         }
         return safeTypes().getDeclaredType(safeElements().getTypeElement(DummyGenericClass.class.getName()),
-                                     genericTypes);
+            genericTypes);
     }
 
 }
