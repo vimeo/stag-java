@@ -17,7 +17,7 @@ public class NativeJavaModel {
 
     @UseStag
     public static class Nested {
-        String mNested;
+        private String mNested;
 
         public String getNested() {
             return mNested;
@@ -29,7 +29,7 @@ public class NativeJavaModel {
     }
 
     public static class NestedWithoutAnnotation {
-        String mNestedWithoutAnnotation;
+        private String mNestedWithoutAnnotation;
 
         public String getNestedWithoutAnnotation() {
             return mNestedWithoutAnnotation;
@@ -42,7 +42,7 @@ public class NativeJavaModel {
 
     @UseStag
     public static class NestedExtension extends NativeJavaModel {
-        String mNestedExtension;
+        private String mNestedExtension;
 
         public String getNestedExtension() {
             return mNestedExtension;
@@ -54,7 +54,7 @@ public class NativeJavaModel {
     }
 
     public static class NestedExtensionWithoutAnnotation extends NativeJavaModel {
-        String mNestedExtensionWithoutAnnotation;
+        private String mNestedExtensionWithoutAnnotation;
 
         public String getNestedExtensionWithoutAnnotation() {
             return mNestedExtensionWithoutAnnotation;
@@ -67,7 +67,7 @@ public class NativeJavaModel {
 
     @UseStag
     public static class NestedExtensionFromNoAnnotation extends NestedWithoutAnnotation {
-        String mNestedExtensionFromNoAnnotation;
+        private String mNestedExtensionFromNoAnnotation;
 
         public String getNestedExtensionFromNoAnnotation() {
             return mNestedExtensionFromNoAnnotation;
