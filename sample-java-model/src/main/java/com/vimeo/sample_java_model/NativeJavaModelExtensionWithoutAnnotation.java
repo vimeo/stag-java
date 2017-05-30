@@ -6,6 +6,13 @@ package com.vimeo.sample_java_model;
  */
 public class NativeJavaModelExtensionWithoutAnnotation extends NativeJavaModel {
 
-    String additionalField2;
+    private String mAdditionalField2;
 
+    public String getAdditionalField2() {
+        return mAdditionalField2;
+    }
+
+    public void setAdditionalField2(String mAdditionalField2) {
+        this.mAdditionalField2 = mAdditionalField2;
+    }
 }

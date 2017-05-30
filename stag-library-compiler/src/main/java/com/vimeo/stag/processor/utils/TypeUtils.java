@@ -27,6 +27,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
+import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -207,7 +208,7 @@ public final class TypeUtils {
      * @return true if the element is not generic and
      * contains no generic type arguments, false otherwise.
      */
-    public static boolean isParameterizedType(@Nullable Element element) {
+    public static boolean isParameterizedType(@Nullable TypeElement element) {
         return element != null && isParameterizedType(element.asType());
     }
 
@@ -274,9 +275,8 @@ public final class TypeUtils {
      * inherits from Object or Enum.
      */
     @Nullable
-    public static TypeMirror getInheritedType(@Nullable Element element) {
-        TypeElement typeElement = (TypeElement) element;
-        TypeMirror typeMirror = typeElement != null ? typeElement.getSuperclass() : null;
+    public static TypeMirror getInheritedType(@Nullable TypeElement element) {
+        TypeMirror typeMirror = element != null ? element.getSuperclass() : null;
         String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
         if (!Object.class.getName().equals(className) && !Enum.class.getName().equals(className)) {
             return typeMirror;
@@ -290,9 +290,8 @@ public final class TypeUtils {
      * @param element the element to check.
      * @return true if the element inherits from an enum, false otherwise.
      */
-    public static boolean isEnum(@Nullable Element element) {
-        TypeElement typeElement = (TypeElement) element;
-        TypeMirror typeMirror = typeElement != null ? typeElement.getSuperclass() : null;
+    public static boolean isEnum(@Nullable TypeElement element) {
+        TypeMirror typeMirror = element != null ? element.getSuperclass() : null;
         String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
 
         return Enum.class.getName().equals(className);
@@ -338,18 +337,18 @@ public final class TypeUtils {
      * inherited class. (to maintain the ordering)
      */
     @NotNull
-    public static LinkedHashMap<Element, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
-                                                                        @NotNull Element genericInherited,
-                                                                        @NotNull Map<Element, TypeMirror> members) {
+    public static LinkedHashMap<FieldAccessor, TypeMirror> getConcreteMembers(@NotNull TypeMirror concreteInherited,
+                                                                              @NotNull TypeElement genericInherited,
+                                                                              @NotNull Map<FieldAccessor, TypeMirror> members) {
 
         DebugLog.log(TAG, "Inherited concrete type: " + concreteInherited.toString());
         DebugLog.log(TAG, "Inherited generic type: " + genericInherited.asType().toString());
         List<? extends TypeMirror> concreteTypes = getParameterizedTypes(concreteInherited);
         List<? extends TypeMirror> inheritedTypes = getParameterizedTypes(genericInherited);
 
-        LinkedHashMap<Element, TypeMirror> map = new LinkedHashMap<>();
+        LinkedHashMap<FieldAccessor, TypeMirror> map = new LinkedHashMap<>();
 
-        for (Entry<Element, TypeMirror> member : members.entrySet()) {
+        for (Entry<FieldAccessor, TypeMirror> member : members.entrySet()) {
 
             DebugLog.log(TAG, "\t\tEvaluating member - " + member.getValue().toString());
 
@@ -417,7 +416,7 @@ public final class TypeUtils {
     }
 
     @NotNull
-    private static List<? extends TypeMirror> getParameterizedTypes(@NotNull Element element) {
+    private static List<? extends TypeMirror> getParameterizedTypes(@NotNull TypeElement element) {
         return ((DeclaredType) element.asType()).getTypeArguments();
     }
 
@@ -557,12 +556,12 @@ public final class TypeUtils {
      * types.  As a result it will guarantee non-null result values.
      *
      * @param typeMirror type mirror to convert
-     * @return element representation of the type mirror
+     * @return TypeElement representation of the type mirror
      */
     @NotNull
-    public static Element getElementFromSupportedTypeMirror(@NotNull TypeMirror typeMirror) {
-        Element element = getElementFromTypeMirror(typeMirror);
-        // asElement may return null but not in the scenarios we are specifically using it for
+    public static TypeElement safeTypeMirrorToTypeElement(@NotNull TypeMirror typeMirror) {
+        TypeElement element = unsafeTypeMirrorToTypeElement(typeMirror);
+        // unsafeTypeMirrorToTypeElement may return null but not in the scenarios we are specifically using it for
         if (element == null) {
             throw new IllegalStateException("Supported type could not be converted into an Element");
         }
@@ -572,12 +571,12 @@ public final class TypeUtils {
     /**
      * Convert the provided {@link TypeMirror} into an {@link Element} instance.
      *
-     * @param typeMirror type mirror to convert
-     * @return element representation of the type mirror
+     * @param typeMirror TypeMirror to convert
+     * @return TypeElement representation of the TypeMirror
      */
     @Nullable
-    public static Element getElementFromTypeMirror(@NotNull TypeMirror typeMirror) {
-        return getUtils().asElement(typeMirror);
+    public static TypeElement unsafeTypeMirrorToTypeElement(@NotNull TypeMirror typeMirror) {
+        return (TypeElement) getUtils().asElement(typeMirror);
     }
 
 

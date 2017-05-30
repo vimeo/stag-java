@@ -53,7 +53,7 @@ public class StagProcessorFunctionalTest extends AbstractAnnotationProcessorTest
      * from generated type adapters.
      */
     @Test
-    public void privateFieldsInAnnotatedClassReportsAsAnError() throws Exception {
+    public void privateFieldsNoSettersOrGettersInAnnotatedClassReportsAsAnError() throws Exception {
         assertCompilationReturned(Diagnostic.Kind.ERROR, 8, compileTestCase("bad/PrivateFields"));
     }
 
