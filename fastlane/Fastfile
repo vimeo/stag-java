@@ -39,12 +39,13 @@ platform :android do
     "stag-library/build/test-results/test/*.xml",
     "stag-library-compiler/build/test-results/test/*.xml",
     "sample-java-model/build/test-results/test/*.xml",
+    "sample-kotlin-model/build/test-results/testDebugUnitTest/*.xml",
     "sample/build/test-results/testDebugUnitTest/*.xml",
     "sample-model/build/test-results/testDebugUnitTest/*.xml"
   ]
   begin
     gradle(
-      task: "stag-library:test stag-library-compiler:test sample:test sample-model:test sample-java-model:test sample:build"
+      task: "sample:build stag-library:test stag-library-compiler:test sample:test sample-model:test sample-java-model:test sample-kotlin-model:test"
     )
   rescue => error
   begin

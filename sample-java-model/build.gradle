@@ -1,9 +1,11 @@
 apply plugin: 'java'
 
 dependencies {
-    compile project(':stag-library')
     compile 'com.google.code.gson:gson:2.8.0'
+
+    compile project(':stag-library')
     compileOnly project(':stag-library-compiler')
+
     testCompile 'junit:junit:4.12'
 }
 
@@ -12,8 +14,9 @@ gradle.projectsEvaluated {
         sourceCompatibility = '1.7'
         targetCompatibility = '1.7'
         options.compilerArgs << "-Xlint:all,-deprecation,-serial,-processing,-options" << "-Werror" \
-                << "-AstagGeneratedPackageName=com.vimeo.sample_java_model.stag.generated" \
-                << "-AstagDebug=true"
+                 << "-AstagGeneratedPackageName=com.vimeo.sample_java_model.stag.generated" \
+                 << "-AstagDebug=true" \
+                 << "-AstagAssumeHungarianNotation=true"
         options.setIncremental true
     }
 }

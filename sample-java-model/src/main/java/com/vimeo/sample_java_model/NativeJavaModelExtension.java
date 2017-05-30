@@ -9,6 +9,13 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public class NativeJavaModelExtension extends NativeJavaModel {
 
-    String additionalField;
+    private String mAdditionalField;
 
+    public String getAdditionalField() {
+        return mAdditionalField;
+    }
+
+    public void setAdditionalField(String additionalField) {
+        this.mAdditionalField = additionalField;
+    }
 }

@@ -33,7 +33,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
@@ -41,12 +41,24 @@ import javax.lang.model.util.Types;
 
 import static org.junit.Assert.assertTrue;
 
-public final class Utils {
+final class Utils {
 
-    private static Elements elements;
-    private static Types types;
+    @Nullable private static Elements elements;
+    @Nullable private static Types types;
 
     private Utils() {
+    }
+
+    @NotNull
+    private static Elements safeElements() {
+        Preconditions.checkNotNull(elements);
+        return elements;
+    }
+
+    @NotNull
+    private static Types safeTypes() {
+        Preconditions.checkNotNull(types);
+        return types;
     }
 
     public static void setup(@NotNull Elements elements, @NotNull Types types) {
@@ -72,37 +84,37 @@ public final class Utils {
     }
 
     @Nullable
-    public static Element getElementFromClass(@NotNull Class clazz) {
-        return elements.getTypeElement(clazz.getName());
+    public static TypeElement getElementFromClass(@NotNull Class clazz) {
+        return safeElements().getTypeElement(clazz.getName());
     }
 
     @Nullable
     public static TypeMirror getTypeMirrorFromClass(@NotNull Class clazz) {
-        Element element = getElementFromClass(clazz);
+        TypeElement element = getElementFromClass(clazz);
         return element != null ? element.asType() : null;
     }
 
     @Nullable
-    public static Element getElementFromObject(@NotNull Object object) {
-        return elements.getTypeElement(object.getClass().getName());
+    public static TypeElement getElementFromObject(@NotNull Object object) {
+        return safeElements().getTypeElement(object.getClass().getName());
     }
 
     @Nullable
     public static TypeMirror getTypeMirrorFromObject(@NotNull Object object) {
-        Element element = getElementFromObject(object);
+        TypeElement element = getElementFromObject(object);
         return element != null ? element.asType() : null;
     }
 
     @NotNull
     public static TypeMirror getGenericVersionOfClass(@NotNull Class clazz) {
         List<? extends TypeParameterElement> params =
-                elements.getTypeElement(clazz.getName()).getTypeParameters();
+            safeElements().getTypeElement(clazz.getName()).getTypeParameters();
         TypeMirror[] genericTypes = new TypeMirror[params.size()];
         for (int n = 0; n < genericTypes.length; n++) {
             genericTypes[n] = params.get(n).asType();
         }
-        return types.getDeclaredType(elements.getTypeElement(DummyGenericClass.class.getName()),
-                genericTypes);
+        return safeTypes().getDeclaredType(safeElements().getTypeElement(DummyGenericClass.class.getName()),
+            genericTypes);
     }
 
 }

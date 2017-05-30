@@ -26,6 +26,10 @@ package com.vimeo.stag.processor.generators.model;
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.UseStag.FieldOption;
+import com.vimeo.stag.processor.generators.model.accessor.DirectFieldAccessor;
+import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
+import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor;
+import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor.Notation;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.Preconditions;
@@ -34,32 +38,54 @@ import com.vimeo.stag.processor.utils.TypeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 
 public class AnnotatedClass {
 
+    @NotNull
+    public static Set<TypeMirror> annotatedClassToTypeMirror(@NotNull Collection<AnnotatedClass> annotatedClasses) {
+        Set<TypeMirror> typeMirrors = new HashSet<>();
+        for (AnnotatedClass annotatedClass : annotatedClasses) {
+            typeMirrors.add(annotatedClass.getType());
+        }
+
+        return typeMirrors;
+    }
+
     private static final String TAG = AnnotatedClass.class.getSimpleName();
 
     @NotNull private final TypeMirror mType;
-    @NotNull private final Element mElement;
-    @NotNull private final LinkedHashMap<Element, TypeMirror> mMemberVariables;
+    @NotNull private final TypeElement mElement;
+    @NotNull private final LinkedHashMap<FieldAccessor, TypeMirror> mMemberVariables;
+    @NotNull private final SupportedTypesModel mSupportedTypesModel;
+    @NotNull private final Notation mNamingNotation;
 
-    AnnotatedClass(@NotNull Element element){
-        this(element, null);
+    AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel,
+                   @NotNull TypeElement element,
+                   @NotNull Notation namingNotation) {
+        this(supportedTypesModel, element, namingNotation, null);
     }
 
-    AnnotatedClass(@NotNull Element element, @Nullable FieldOption childFieldOption) {
+    AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel,
+                   @NotNull TypeElement element,
+                   @NotNull Notation namingNotation,
+                   @Nullable FieldOption childFieldOption) {
+        mNamingNotation = namingNotation;
+        mSupportedTypesModel = supportedTypesModel;
         mType = element.asType();
         mElement = element;
-        Map<String, Element> variableNames = new HashMap<>(element.getEnclosedElements().size());
+        Map<String, FieldAccessor> variableNames = new HashMap<>(element.getEnclosedElements().size());
         TypeMirror inheritedType = TypeUtils.getInheritedType(element);
 
         UseStag useStag = element.getAnnotation(UseStag.class);
@@ -79,66 +105,70 @@ public class AnnotatedClass {
         if (inheritedType != null) {
             DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
 
-            AnnotatedClass genericInheritedType = SupportedTypesModel.getInstance().addToKnownInheritedType(inheritedType, fieldOption);
+            AnnotatedClass genericInheritedType = mSupportedTypesModel.addToKnownInheritedType(inheritedType, fieldOption);
 
-            LinkedHashMap<Element, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
-                                                                                                       genericInheritedType.getElement(),
-                                                                                                       genericInheritedType.getMemberVariables());
+            LinkedHashMap<FieldAccessor, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
+                genericInheritedType.getElement(),
+                genericInheritedType.getMemberVariables());
 
-            for (Map.Entry<Element, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
+            for (Map.Entry<FieldAccessor, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
                 addMemberVariable(entry.getKey(), entry.getValue(), variableNames);
             }
         }
 
         if (!TypeUtils.isEnum(element)) {
             for (Element enclosedElement : element.getEnclosedElements()) {
-                addToSupportedTypes(enclosedElement, fieldOption, variableNames);
+                if (enclosedElement instanceof VariableElement) {
+                    addToSupportedTypes((VariableElement) enclosedElement, fieldOption, variableNames);
+                }
             }
         }
 
     }
 
-    private void addMemberVariable(@NotNull Element element, @NotNull TypeMirror typeMirror,
-                                   @NotNull Map<String, Element> variableNames) {
-        Element previousElement = variableNames.put(element.getSimpleName().toString(), element);
+    private void addMemberVariable(@NotNull FieldAccessor element, @NotNull TypeMirror typeMirror,
+                                   @NotNull Map<String, FieldAccessor> variableNames) {
+        FieldAccessor previousElement = variableNames.put(element.createGetterCode(), element);
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
-            DebugLog.log(TAG, "\t\tIgnoring inherited Member variable with the same variable name - " +
-                              previousElement.asType().toString());
+            MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
+                element.toString() + ", with variable name " + previousElement.asType().toString());
         }
         mMemberVariables.put(element, typeMirror);
     }
 
-    private static void checkModifiers(VariableElement variableElement, Set<Modifier> modifiers) {
-        if (!modifiers.contains(Modifier.STATIC)) {
-            if (modifiers.contains(Modifier.FINAL)) {
-                MessagerUtils.reportError("Unable to access field \"" +
-                                          variableElement.getSimpleName().toString() + "\" in class " +
-                                          variableElement.getEnclosingElement().asType() +
-                                          ", field must not be final.", variableElement);
-            } else if (modifiers.contains(Modifier.PRIVATE)) {
-                MessagerUtils.reportError("Unable to access field \"" +
-                                          variableElement.getSimpleName().toString() + "\" in class " +
-                                          variableElement.getEnclosingElement().asType() +
-                                          ", field must not be private.", variableElement);
-            }
+    private static boolean checkPrivateFinalModifiers(@NotNull VariableElement variableElement, @NotNull Set<Modifier> modifiers) {
+        Preconditions.checkTrue(!modifiers.contains(Modifier.STATIC));
+
+        if (modifiers.contains(Modifier.FINAL)) {
+            MessagerUtils.reportError("Unable to access field \"" +
+                variableElement.getSimpleName().toString() + "\" in class " +
+                variableElement.getEnclosingElement().asType() +
+                ", field must not be final.", variableElement);
         }
+
+        return modifiers.contains(Modifier.FINAL) || modifiers.contains(Modifier.PRIVATE);
     }
 
-    private void addToSupportedTypes(@NotNull Element element, @NotNull FieldOption fieldOption,
-                                     @NotNull Map<String, Element> variableNames) {
-        if (element instanceof VariableElement) {
-            if (shouldIncludeField(element, fieldOption)) {
-                final VariableElement variableElement = (VariableElement) element;
-                Set<Modifier> modifiers = variableElement.getModifiers();
-                if (!modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
-                    checkModifiers(variableElement, modifiers);
-                    if (!TypeUtils.isAbstract(element)) {
-                        SupportedTypesModel.getInstance().checkAndAddExternalAdapter(variableElement);
-                    }
-                    DebugLog.log(TAG, "\t\tMember variables - " + variableElement.asType().toString());
+    private void addToSupportedTypes(@NotNull VariableElement element, @NotNull FieldOption fieldOption,
+                                     @NotNull Map<String, FieldAccessor> variableNames) {
+        if (shouldIncludeField(element, fieldOption)) {
+            Set<Modifier> modifiers = element.getModifiers();
+            if (!modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
 
-                    addMemberVariable(variableElement, variableElement.asType(), variableNames);
+                if (!TypeUtils.isAbstract(element)) {
+                    mSupportedTypesModel.checkAndAddExternalAdapter(element);
+                }
+                DebugLog.log(TAG, "\t\tMember variables - " + element.asType().toString());
+
+                if (checkPrivateFinalModifiers(element, modifiers)) {
+                    try {
+                        addMemberVariable(new MethodFieldAccessor(element, mNamingNotation), element.asType(), variableNames);
+                    } catch (UnsupportedOperationException exception) {
+                        MessagerUtils.reportError("Unable to find getter/setter for private/final field", element);
+                    }
+                } else {
+                    addMemberVariable(new DirectFieldAccessor(element), element.asType(), variableNames);
                 }
             }
         }
@@ -163,7 +193,7 @@ public class AnnotatedClass {
     }
 
     @NotNull
-    public Element getElement() {
+    public TypeElement getElement() {
         return mElement;
     }
 
@@ -180,7 +210,7 @@ public class AnnotatedClass {
      * types.
      */
     @NotNull
-    public LinkedHashMap<Element, TypeMirror> getMemberVariables() {
+    public LinkedHashMap<FieldAccessor, TypeMirror> getMemberVariables() {
         return new LinkedHashMap<>(mMemberVariables);
     }
 }

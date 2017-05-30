@@ -30,6 +30,8 @@ import com.vimeo.stag.processor.dummy.DummyEnumClass;
 import com.vimeo.stag.processor.dummy.DummyGenericClass;
 import com.vimeo.stag.processor.dummy.DummyInheritedClass;
 import com.vimeo.stag.processor.dummy.DummyMapClass;
+import com.vimeo.stag.processor.generators.model.accessor.DirectFieldAccessor;
+import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.junit.Assert;
@@ -82,7 +84,7 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
         assertNotNull(concreteType);
 
         TypeMirror realConcreteType =
-                types.getDeclaredType((TypeElement) Utils.getElementFromClass(DummyGenericClass.class),
+                types.getDeclaredType(Utils.getElementFromClass(DummyGenericClass.class),
                                       Utils.getTypeMirrorFromClass(String.class));
 
         assertTrue(realConcreteType.toString().equals(concreteType.toString()));
@@ -107,10 +109,11 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
     public void getConcreteMembers_isCorrect() throws Exception {
         Element genericElement = Utils.getElementFromClass(DummyGenericClass.class);
         assertNotNull(genericElement);
-        Map<Element, TypeMirror> genericMembers = new HashMap<>();
+
+        Map<FieldAccessor, TypeMirror> genericMembers = new HashMap<>();
         for (Element element : genericElement.getEnclosedElements()) {
             if (element instanceof VariableElement) {
-                genericMembers.put(element, element.asType());
+                genericMembers.put(new DirectFieldAccessor((VariableElement) element), element.asType());
             }
         }
 
@@ -123,55 +126,50 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
 
         assertNotNull(genericType);
 
-        LinkedHashMap<Element, TypeMirror> members =
-                TypeUtils.getConcreteMembers(concreteType, types.asElement(genericType), genericMembers);
+        LinkedHashMap<FieldAccessor, TypeMirror> members =
+                TypeUtils.getConcreteMembers(concreteType, (TypeElement) types.asElement(genericType), genericMembers);
 
 
         TypeMirror stringType = Utils.getTypeMirrorFromClass(String.class);
         assertNotNull(stringType);
 
-        for (Entry<Element, TypeMirror> entry : members.entrySet()) {
-            if (entry.getKey().getSimpleName().contentEquals("testObject")) {
+        for (Entry<FieldAccessor, TypeMirror> entry : members.entrySet()) {
+            if (entry.getKey().createGetterCode().contentEquals("testObject = ")) {
 
                 assertTrue(entry.getValue().toString().equals(stringType.toString()));
 
-            } else if (entry.getKey().getSimpleName().contentEquals("testList")) {
+            } else if (entry.getKey().createGetterCode().contentEquals("testList = ")) {
 
                 assertTrue(entry.getValue()
                                    .toString()
-                                   .equals(types.getDeclaredType(
-                                           (TypeElement) Utils.getElementFromClass(ArrayList.class),
+                                   .equals(types.getDeclaredType(Utils.getElementFromClass(ArrayList.class),
                                            stringType).toString()));
 
-            } else if (entry.getKey().getSimpleName().contentEquals("testMap")) {
+            } else if (entry.getKey().createGetterCode().contentEquals("testMap = ")) {
 
                 assertTrue(entry.getValue()
                                    .toString()
-                                   .equals(types.getDeclaredType(
-                                           (TypeElement) Utils.getElementFromClass(HashMap.class), stringType,
-                                           stringType).toString()));
+                                   .equals(types.getDeclaredType(Utils.getElementFromClass(HashMap.class), stringType,
+                                                                 stringType).toString()));
 
-            } else if (entry.getKey().getSimpleName().contentEquals("testSet")) {
+            } else if (entry.getKey().createGetterCode().contentEquals("testSet = ")) {
 
                 assertTrue(entry.getValue()
                                    .toString()
-                                   .equals(types.getDeclaredType(
-                                           (TypeElement) Utils.getElementFromClass(HashSet.class), stringType)
+                                   .equals(types.getDeclaredType(Utils.getElementFromClass(HashSet.class), stringType)
                                                    .toString()));
-            } else if (entry.getKey().getSimpleName().contentEquals("testArrayMap")) {
-                TypeMirror listString = types.getDeclaredType((TypeElement) Utils.getElementFromClass(List.class), stringType);
+            } else if (entry.getKey().createGetterCode().contentEquals("testArrayMap = ")) {
+                TypeMirror listString = types.getDeclaredType(Utils.getElementFromClass(List.class), stringType);
 
                 assertTrue(entry.getValue()
                         .toString()
-                        .equals(types.getDeclaredType(
-                                (TypeElement) Utils.getElementFromClass(HashMap.class), stringType, listString)
+                        .equals(types.getDeclaredType(Utils.getElementFromClass(HashMap.class), stringType, listString)
                                 .toString()));
-            } else if (entry.getKey().getSimpleName().contentEquals("testListMap")) {
-                TypeMirror mapStringString = types.getDeclaredType((TypeElement) Utils.getElementFromClass(Map.class), stringType, stringType);
+            } else if (entry.getKey().createGetterCode().contentEquals("testListMap = ")) {
+                TypeMirror mapStringString = types.getDeclaredType(Utils.getElementFromClass(Map.class), stringType, stringType);
                 assertTrue(entry.getValue()
                         .toString()
-                        .equals(types.getDeclaredType(
-                                (TypeElement) Utils.getElementFromClass(ArrayList.class), mapStringString)
+                        .equals(types.getDeclaredType(Utils.getElementFromClass(ArrayList.class), mapStringString)
                                 .toString()));
             }
         }

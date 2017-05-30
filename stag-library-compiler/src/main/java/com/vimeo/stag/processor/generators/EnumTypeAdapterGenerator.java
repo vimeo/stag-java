@@ -46,6 +46,7 @@ import java.util.Map;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
 public class EnumTypeAdapterGenerator extends AdapterGenerator {
@@ -54,9 +55,9 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
     private final ClassInfo mInfo;
 
     @NotNull
-    private final Element mElement;
+    private final TypeElement mElement;
 
-    public EnumTypeAdapterGenerator(@NotNull ClassInfo info, @NotNull Element element) {
+    public EnumTypeAdapterGenerator(@NotNull ClassInfo info, @NotNull TypeElement element) {
         mInfo = info;
         mElement = element;
     }

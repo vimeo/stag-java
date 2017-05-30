@@ -38,6 +38,7 @@ import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
+import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterUtils;
 import com.vimeo.stag.processor.utils.Preconditions;
@@ -67,8 +68,8 @@ public class StagGenerator {
     @NotNull private static final String CLASS_STAG = "Stag";
     @NotNull private static final String CLASS_TYPE_ADAPTER_FACTORY = "Factory";
     @NotNull private static final String TYPE_ADAPTER_SUFFIX = "TypeAdapter";
-    @NotNull private final static Map<String, GenericClassInfo> KNOWN_MAP_GENERIC_CLASSES = new HashMap<>();
-    @NotNull private final static Map<String, GenericClassInfo> KNOWN_COLLECTION_GENERIC_CLASSES = new HashMap<>();
+    @NotNull private static final Map<String, GenericClassInfo> KNOWN_MAP_GENERIC_CLASSES = new HashMap<>();
+    @NotNull private static final Map<String, GenericClassInfo> KNOWN_COLLECTION_GENERIC_CLASSES = new HashMap<>();
 
     static {
         KNOWN_MAP_GENERIC_CLASSES.put(Map.class.getName(), new GenericClassInfo(false));
@@ -81,19 +82,20 @@ public class StagGenerator {
     }
 
     @NotNull private final List<ClassInfo> mKnownClasses;
-    @NotNull private final HashMap<String, String> mFieldNameMap = new HashMap<>();
-    @NotNull private final HashMap<String, String> mUnknownAdapterFieldMap = new HashMap<>();
+    @NotNull private final Map<String, String> mFieldNameMap = new HashMap<>();
+    @NotNull private final Map<String, String> mUnknownAdapterFieldMap = new HashMap<>();
     @NotNull private final List<ClassInfo> mUnknownClasses = new ArrayList<>();
-    @NotNull private final HashMap<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
+    @NotNull private final Map<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
     @NotNull private final String mGeneratedPackageName;
     @NotNull private final Set<TypeMirror> mKnownTypes;
     @NotNull private final Map<String, ExternalAdapterInfo> mExternalSupportedAdapters;
-    @NotNull private final HashMap<String, String> mKnownAdapterFieldMap = new HashMap<>();
-    @NotNull private final HashMap<String, String> mKnownFieldToMethodNameMap = new HashMap<>();
+    @NotNull private final Map<String, String> mKnownAdapterFieldMap = new HashMap<>();
+    @NotNull private final Map<String, String> mKnownFieldToMethodNameMap = new HashMap<>();
 
     public StagGenerator(@NotNull String generatedPackageName,
                          @NotNull Set<TypeMirror> knownTypes,
-                         @NotNull Set<ExternalAdapterInfo> externalSupportedAdapters) {
+                         @NotNull Set<ExternalAdapterInfo> externalSupportedAdapters,
+                         @NotNull SupportedTypesModel supportedTypesModel) {
         mKnownTypes = knownTypes;
         mGeneratedPackageName = generatedPackageName;
         mKnownClasses = new ArrayList<>(knownTypes.size());
@@ -146,18 +148,18 @@ public class StagGenerator {
         }
 
         for (ExternalAdapterInfo entry : externalSupportedAdapters) {
-            TypeMirror externalType = entry.mExternalClassType.asType();
+            TypeMirror externalType = entry.getExternalClass().asType();
             mExternalSupportedAdapters.put(externalType.toString(), entry);
         }
 
         for (ClassInfo knownGenericType : genericClasses) {
             List<? extends TypeMirror> typeArguments = knownGenericType.getTypeArguments();
-            AnnotatedClass annotatedClass =
-                    SupportedTypesModel.getInstance().getSupportedType(knownGenericType.getType());
+            AnnotatedClass annotatedClass = supportedTypesModel.getSupportedType(knownGenericType.getType());
             if (null == annotatedClass) {
                 throw new IllegalStateException("The AnnotatedClass class can't be null in StagGenerator : " + knownGenericType.toString());
             }
-            Map<Element, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
+
+            Map<FieldAccessor, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
             boolean hasUnknownTypeFields = false;
             for (TypeMirror type : memberVariables.values()) {
                 if (!checkKnownAdapters(type)) {
@@ -179,10 +181,10 @@ public class StagGenerator {
     @NotNull
     private static String removeSpecialCharacters(TypeMirror typeMirror) {
         String typeString = typeMirror.toString();
-        /**
+        /*
          * This is done to avoid generating duplicate method names, where the inner class type
-         *has same name (in different packages). In that case we are using the complete package name
-         *of the class to avoid class. We'll come up with a better solution for this case.
+         * has same name (in different packages). In that case we are using the complete package name
+         * of the class to avoid class. We'll come up with a better solution for this case.
          */
         if (TypeUtils.isSupportedNative(typeMirror.toString())) {
             typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
@@ -435,7 +437,7 @@ public class StagGenerator {
                      * If the type is of parameterized type, use the normal way of creating typetokens
                      */
                     typeTokenCode = "new TypeToken<" + classInfo.getType().toString() +
-                            ">(){}";
+                                    ">(){}";
                 }
                 getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(" + typeTokenCode + ")");
             }
