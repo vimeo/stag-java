@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 2.2.0 *(2017-05-30)*
+----------------------------
+- Added support for private member variables in Java (leveraging getters/setters).
+- Added support for models written in Kotlin.
+
 Version 2.1.4 *(2017-05-10)*
 ----------------------------
 - Added compiler support for all Java language versions.

@@ -45,8 +45,8 @@ buildscript {
 apply plugin: 'net.ltgt.apt'
 
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.1.4'
-    apt 'com.vimeo.stag:stag-library-compiler:2.1.4'
+    compile 'com.vimeo.stag:stag-library:2.2.0'
+    apt 'com.vimeo.stag:stag-library-compiler:2.2.0'
 }
 
 // Optional annotation processor arguments (see below)
@@ -63,8 +63,8 @@ apt {
 
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.1.4'
-    annotationProcessor 'com.vimeo.stag:stag-library-compiler:2.1.4'
+    compile 'com.vimeo.stag:stag-library:2.2.0'
+    annotationProcessor 'com.vimeo.stag:stag-library-compiler:2.2.0'
 }
 
 android {
@@ -125,13 +125,15 @@ Last but not the least, Stag is almost in parity with GSON.
 ## Stag Rules
 
 1. Make sure that any private member variables have setters/getters following these naming rules:
-```java
-private String myString;
+    ```java
+    private String myString;
 
-public String getMyString() { ... }
+    public String getMyString() { ... }
 
-public void setMyString(String parameter) { ... }
-```
+    public void setMyString(String parameter) { ... }
+    ```
+    Java setters and getters must have `protected`, `public`, or package local visibility. If you don't want to use setters and getters, make sure your member variables have `protected`, `public`, or package local visibility.
+    If working with Kotlin, currently, you must make sure your getters all have `public` visibility. Because stag generates Java code, the only way it knows how to access the Kotlin fields is if the setters and getters are public. By default, the visibility set on a Kotlin member variable is also applied to its setters and getters.
 2. Make sure your model class is not private and has a zero argument non-private constructor
 3. Annotate the classes with `@UseStag` annotation. This will process all the member variables of the class, which makes it easy to use.
 4. Use the `@SerializedName("key")` annotation to give the variables a different JSON name. (same as GSON)
@@ -238,6 +240,8 @@ MyParsingClass {
 ## Future Enhancements
 
 - Add an option to absorb parsing errors rather than crashing and halting parsing (default gson behavior)
+- Support `internal` visibility in Kotlin code
+- Generate Kotlin code for Kotlin models
 
 ## Development
 ```sh
