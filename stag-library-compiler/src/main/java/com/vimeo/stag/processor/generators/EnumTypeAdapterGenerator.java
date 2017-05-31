@@ -120,20 +120,21 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
         Map<String, Element> nameToConstant = new HashMap<>();
         Map<Element, String> constantToName = new HashMap<>();
 
-        for (Element enclosingElement : mElement.getEnclosedElements()) {
-            if (enclosingElement.getKind() == ElementKind.ENUM_CONSTANT) {
-                String name = getJsonName(enclosingElement);
-                nameToConstant.put(name, enclosingElement);
-                constantToName.put(enclosingElement, name);
+        mElement.getEnclosedElements()
+                .stream()
+                .filter(enclosingElement -> enclosingElement.getKind() == ElementKind.ENUM_CONSTANT)
+                .forEach(enclosingElement -> {
+                    String name = getJsonName(enclosingElement);
+                    nameToConstant.put(name, enclosingElement);
+                    constantToName.put(enclosingElement, name);
 
-                String[] alternateJsonNames = getAlternateJsonNames(enclosingElement);
-                if (alternateJsonNames != null && alternateJsonNames.length > 0) {
-                    for (String alternate : alternateJsonNames) {
-                        nameToConstant.put(alternate, enclosingElement);
+                    String[] alternateJsonNames = getAlternateJsonNames(enclosingElement);
+                    if (alternateJsonNames != null && alternateJsonNames.length > 0) {
+                        for (String alternate : alternateJsonNames) {
+                            nameToConstant.put(alternate, enclosingElement);
+                        }
                     }
-                }
-            }
-        }
+                });
 
         MethodSpec writeMethod = getWriteMethodSpec(typeVariableName);
         MethodSpec readMethod = getReadMethodSpec(typeVariableName);

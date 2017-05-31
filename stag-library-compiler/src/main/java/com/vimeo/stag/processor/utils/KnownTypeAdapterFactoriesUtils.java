@@ -106,10 +106,7 @@ public final class KnownTypeAdapterFactoriesUtils {
         Enumeration<URL> resources = classLoader.getResources(resourcePath + "/" + KNOWN_FACTORIES_RESOURCE);
         while (resources.hasMoreElements()) {
             URL typeAdapterFactoryUrl = resources.nextElement();
-            InputStream inputStream = typeAdapterFactoryUrl.openStream();
-            BufferedReader bufferedReader = null;
-            try {
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(typeAdapterFactoryUrl.openStream()))) {
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     TypeElement element = elementUtils.getTypeElement(line.trim());
@@ -118,8 +115,6 @@ public final class KnownTypeAdapterFactoriesUtils {
                     }
 
                 }
-            } finally {
-                FileGenUtils.close(bufferedReader);
             }
         }
     }

@@ -49,9 +49,7 @@ class CleanableJavaFileManager implements JavaFileManager {
     void purge() throws IOException {
         ArrayList<FileObject> toDelete = new ArrayList<>();
         writtenFiles.drainTo(toDelete);
-        for (FileObject file : toDelete) {
-            file.delete();
-        }
+        toDelete.forEach(FileObject::delete);
     }
 
     @Override

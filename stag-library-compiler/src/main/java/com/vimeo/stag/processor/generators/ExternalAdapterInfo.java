@@ -67,23 +67,24 @@ public final class ExternalAdapterInfo {
                     TypeElement adapterTypeElement =
                             ElementUtils.getTypeElementFromQualifiedName(classAdapterName);
                     if (null != adapterTypeElement) {
-                        for (Element adapterEnclosedElement : adapterTypeElement.getEnclosedElements()) {
-                            if (adapterEnclosedElement instanceof ExecutableElement) {
-                                ExecutableElement executableElement =
-                                        ((ExecutableElement) adapterEnclosedElement);
-                                Name name = executableElement.getSimpleName();
-                                if (name.contentEquals("<init>") &&
-                                    executableElement.getParameters().size() >= 2 &&
-                                    !stagFactoryGeneratedName.equals(
-                                            executableElement.getParameters().get(1).asType().toString())) {
-                                    ExternalAdapterInfo result =
-                                            new ExternalAdapterInfo(typeElement, adapterTypeElement,
-                                                                    executableElement);
-                                    sCheckedClasses.add(classAdapterName);
-                                    externalAdapterInfoSet.add(result);
-                                }
-                            }
-                        }
+                        adapterTypeElement.getEnclosedElements()
+                                .stream()
+                                .filter(adapterEnclosedElement -> adapterEnclosedElement instanceof ExecutableElement)
+                                .forEach(adapterEnclosedElement -> {
+                                    ExecutableElement executableElement =
+                                            ((ExecutableElement) adapterEnclosedElement);
+                                    Name name = executableElement.getSimpleName();
+                                    if (name.contentEquals("<init>") &&
+                                        executableElement.getParameters().size() >= 2 &&
+                                        !stagFactoryGeneratedName.equals(
+                                                executableElement.getParameters().get(1).asType().toString())) {
+                                        ExternalAdapterInfo result =
+                                                new ExternalAdapterInfo(typeElement, adapterTypeElement,
+                                                                        executableElement);
+                                        sCheckedClasses.add(classAdapterName);
+                                        externalAdapterInfoSet.add(result);
+                                    }
+                                });
                     }
                 }
             }

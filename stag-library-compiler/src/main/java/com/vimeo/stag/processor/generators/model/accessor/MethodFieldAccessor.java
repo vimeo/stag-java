@@ -4,8 +4,8 @@ import com.vimeo.stag.processor.utils.MessagerUtils;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -56,18 +56,14 @@ public class MethodFieldAccessor extends FieldAccessor {
 
     @NotNull
     private static List<ExecutableElement> getSiblingMethods(@NotNull VariableElement variableElement) {
-        List<ExecutableElement> methodElements = new ArrayList<>();
         List<? extends Element> otherElements = variableElement.getEnclosingElement().getEnclosedElements();
 
         MessagerUtils.logInfo("Looking for setter and getter");
 
-        for (Element element : otherElements) {
-            if (element.getKind() == ElementKind.METHOD && element instanceof ExecutableElement) {
-                methodElements.add((ExecutableElement) element);
-            }
-        }
-
-        return methodElements;
+        return otherElements.stream()
+                .filter(element -> element.getKind() == ElementKind.METHOD && element instanceof ExecutableElement)
+                .map(element -> (ExecutableElement) element)
+                .collect(Collectors.toList());
     }
 
     @NotNull

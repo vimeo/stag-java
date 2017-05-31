@@ -111,11 +111,10 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
         assertNotNull(genericElement);
 
         Map<FieldAccessor, TypeMirror> genericMembers = new HashMap<>();
-        for (Element element : genericElement.getEnclosedElements()) {
-            if (element instanceof VariableElement) {
-                genericMembers.put(new DirectFieldAccessor((VariableElement) element), element.asType());
-            }
-        }
+        genericElement.getEnclosedElements()
+                .stream()
+                .filter(element -> element instanceof VariableElement)
+                .forEach(element -> genericMembers.put(new DirectFieldAccessor((VariableElement) element), element.asType()));
 
         TypeMirror concreteType =
                 TypeUtils.getInheritedType(Utils.getElementFromClass(DummyInheritedClass.class));
@@ -143,7 +142,7 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
                 assertTrue(entry.getValue()
                                    .toString()
                                    .equals(types.getDeclaredType(Utils.getElementFromClass(ArrayList.class),
-                                           stringType).toString()));
+                                                                 stringType).toString()));
 
             } else if (entry.getKey().createGetterCode().contentEquals("testMap = ")) {
 
@@ -162,15 +161,15 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
                 TypeMirror listString = types.getDeclaredType(Utils.getElementFromClass(List.class), stringType);
 
                 assertTrue(entry.getValue()
-                        .toString()
-                        .equals(types.getDeclaredType(Utils.getElementFromClass(HashMap.class), stringType, listString)
-                                .toString()));
+                                   .toString()
+                                   .equals(types.getDeclaredType(Utils.getElementFromClass(HashMap.class), stringType, listString)
+                                                   .toString()));
             } else if (entry.getKey().createGetterCode().contentEquals("testListMap = ")) {
                 TypeMirror mapStringString = types.getDeclaredType(Utils.getElementFromClass(Map.class), stringType, stringType);
                 assertTrue(entry.getValue()
-                        .toString()
-                        .equals(types.getDeclaredType(Utils.getElementFromClass(ArrayList.class), mapStringString)
-                                .toString()));
+                                   .toString()
+                                   .equals(types.getDeclaredType(Utils.getElementFromClass(ArrayList.class), mapStringString)
+                                                   .toString()));
             }
         }
     }
@@ -239,23 +238,23 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
 
         Element concreteElement = Utils.getElementFromClass(DummyConcreteClass.class);
         assertNotNull(concreteElement);
-        for (Element element : concreteElement.getEnclosedElements()) {
-            if (element instanceof VariableElement) {
-                assertTrue(TypeUtils.isConcreteType(element));
-            }
-        }
+        concreteElement.getEnclosedElements()
+                .stream()
+                .filter(element -> element instanceof VariableElement)
+                .forEach(element -> assertTrue(TypeUtils.isConcreteType(element)));
 
         Element genericElement = Utils.getElementFromClass(DummyGenericClass.class);
         assertNotNull(genericElement);
-        for (Element element : genericElement.getEnclosedElements()) {
-            if (element instanceof VariableElement) {
-                if ("testString".equals(element.getSimpleName().toString())) {
-                    assertTrue(TypeUtils.isConcreteType(element));
-                } else {
-                    assertFalse(TypeUtils.isConcreteType(element));
-                }
-            }
-        }
+        genericElement.getEnclosedElements()
+                .stream()
+                .filter(element -> element instanceof VariableElement)
+                .forEach(element -> {
+                    if ("testString".equals(element.getSimpleName().toString())) {
+                        assertTrue(TypeUtils.isConcreteType(element));
+                    } else {
+                        assertFalse(TypeUtils.isConcreteType(element));
+                    }
+                });
 
     }
 
@@ -264,23 +263,23 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
 
         Element concreteElement = Utils.getElementFromClass(DummyConcreteClass.class);
         assertNotNull(concreteElement);
-        for (Element element : concreteElement.getEnclosedElements()) {
-            if (element instanceof VariableElement) {
-                assertTrue(TypeUtils.isConcreteType(element.asType()));
-            }
-        }
+        concreteElement.getEnclosedElements()
+                .stream()
+                .filter(element -> element instanceof VariableElement)
+                .forEach(element -> assertTrue(TypeUtils.isConcreteType(element.asType())));
 
         Element genericElement = Utils.getElementFromClass(DummyGenericClass.class);
         assertNotNull(genericElement);
-        for (Element element : genericElement.getEnclosedElements()) {
-            if (element instanceof VariableElement) {
-                if ("testString".equals(element.getSimpleName().toString())) {
-                    assertTrue(TypeUtils.isConcreteType(element.asType()));
-                } else {
-                    assertFalse(TypeUtils.isConcreteType(element.asType()));
-                }
-            }
-        }
+        genericElement.getEnclosedElements()
+                .stream()
+                .filter(element -> element instanceof VariableElement)
+                .forEach(element -> {
+                    if ("testString".equals(element.getSimpleName().toString())) {
+                        assertTrue(TypeUtils.isConcreteType(element.asType()));
+                    } else {
+                        assertFalse(TypeUtils.isConcreteType(element.asType()));
+                    }
+                });
     }
 
     @Test

@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
@@ -406,12 +407,11 @@ public final class TypeUtils {
         Types types = getUtils();
         List<? extends TypeMirror> typeMirrors = ((DeclaredType) element).getTypeArguments();
         TypeElement typeElement = (TypeElement) types.asElement(element);
-        List<TypeMirror> concreteGenericTypes = new ArrayList<>(typeMirrors.size());
-        for (TypeMirror type : typeMirrors) {
-            concreteGenericTypes.add(resolveTypeVars(type, inheritedTypes, concreteTypes));
-        }
-        TypeMirror[] concreteTypeArray =
-                concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
+        List<TypeMirror> concreteGenericTypes = typeMirrors.stream()
+                .map(type -> resolveTypeVars(type, inheritedTypes, concreteTypes))
+                .collect(Collectors.toList());
+
+        TypeMirror[] concreteTypeArray = concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
         return types.getDeclaredType(typeElement, concreteTypeArray);
     }
 
