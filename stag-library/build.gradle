@@ -7,7 +7,7 @@ compileJava {
 }
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.google.code.gson:gson:2.8.1'
     compile 'com.intellij:annotations:12.0@jar'
     testCompile 'junit:junit:4.12'
 }
