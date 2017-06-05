@@ -53,10 +53,6 @@ public final class MessagerUtils {
         getMessager().printMessage(Kind.ERROR, message, element);
     }
 
-    public static void reportWarning(@NotNull String message) {
-        getMessager().printMessage(Kind.MANDATORY_WARNING, message);
-    }
-
     public static void logInfo(@NotNull String message) {
         getMessager().printMessage(Kind.NOTE, message);
     }

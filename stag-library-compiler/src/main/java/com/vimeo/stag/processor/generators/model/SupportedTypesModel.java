@@ -47,16 +47,6 @@ public final class SupportedTypesModel {
     }
 
     /**
-     * Tells the model that we support this type.
-     *
-     * @param object the annotated class that we
-     *               should track.
-     */
-    private void addSupportedType(@NotNull AnnotatedClass object) {
-        mSupportedTypesMap.put(TypeUtils.getOuterClassType(object.getType()), object);
-    }
-
-    /**
      * Retrieves the AnnotatedClass object for the
      * specific TypeMirror.
      *
@@ -124,10 +114,10 @@ public final class SupportedTypesModel {
 
         if (model == null) {
             model = mKnownInheritedTypesMap.get(outerClassType);
-            if (null == model) {
+            if (model == null) {
                 model = new AnnotatedClass(this, TypeUtils.safeTypeMirrorToTypeElement(type), mNamingNotation);
             }
-            addSupportedType(model);
+            mSupportedTypesMap.put(TypeUtils.getOuterClassType(model.getType()), model);
         }
         return model;
     }

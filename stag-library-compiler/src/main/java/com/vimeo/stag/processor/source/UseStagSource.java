@@ -16,9 +16,10 @@ import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 
 /**
+ * A reactive source for elements annotated with {@link UseStag}.
+ * <p>
  * Created by restainoa on 6/5/17.
  */
-
 public class UseStagSource {
 
     @NotNull
