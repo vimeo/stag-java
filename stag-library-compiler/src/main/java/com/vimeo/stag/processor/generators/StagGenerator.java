@@ -166,10 +166,6 @@ public class StagGenerator {
         }
     }
 
-    public static String getGeneratedFactoryClassAndPackage(String generatedPackageName) {
-        return generatedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY;
-    }
-
     @NotNull
     private static String removeSpecialCharacters(TypeMirror typeMirror) {
         String typeString = typeMirror.toString();

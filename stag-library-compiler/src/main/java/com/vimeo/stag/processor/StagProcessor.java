@@ -121,8 +121,6 @@ public final class StagProcessor extends AbstractProcessor {
         ElementUtils.initialize(processingEnv.getElementUtils());
         MessagerUtils.initialize(processingEnv.getMessager());
 
-        String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
-
         Notation notation = assumeHungarianNotation ? Notation.HUNGARIAN : Notation.STANDARD;
 
         SupportedTypesModel supportedTypesModel = new SupportedTypesModel(notation);
