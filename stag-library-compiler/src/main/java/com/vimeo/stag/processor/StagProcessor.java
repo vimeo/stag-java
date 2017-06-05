@@ -39,7 +39,6 @@ import com.vimeo.stag.processor.source.UseStagSource;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
-import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
@@ -137,10 +136,6 @@ public final class StagProcessor extends AbstractProcessor {
 
         try {
             Set<TypeMirror> supportedTypes = AnnotatedClass.annotatedClassToTypeMirror(supportedTypesModel.getSupportedTypes());
-            try {
-                supportedTypes.addAll(KnownTypeAdapterFactoriesUtils.loadKnownTypes(processingEnv, packageName));
-            } catch (Exception ignored) {
-            }
 
             Set<ExternalAdapterInfo> externalAdapterInfoSet = supportedTypesModel.getExternalSupportedAdapters();
 
@@ -155,7 +150,6 @@ public final class StagProcessor extends AbstractProcessor {
             }
 
             generateStagFactory(stagFactoryGenerator, packageName);
-            KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, supportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

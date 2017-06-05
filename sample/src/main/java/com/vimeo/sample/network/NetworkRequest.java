@@ -34,7 +34,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.TypeAdapter;
 import com.vimeo.sample.model.DateParser;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
@@ -117,17 +116,18 @@ public final class NetworkRequest {
                     builder.append(line);
                 }
 
-                Stag.Factory factory = new Stag.Factory();
                 Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateParser())
-                        .registerTypeAdapterFactory(factory)
+                        .registerTypeAdapterFactory(new com.vimeo.sample_kotlin.stag.generated.Stag.Factory())
+                        .registerTypeAdapterFactory(new com.vimeo.sample_java_model.stag.generated.Stag.Factory())
+                        .registerTypeAdapterFactory(new com.vimeo.sample_model.stag.generated.Stag.Factory())
+                        .registerTypeAdapterFactory(new Stag.Factory())
                         .create();
 
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
 
-                TypeAdapter<VideoList> videoListTypeAdapter = factory.getVideoList$TypeAdapter(gson);
                 long time = System.currentTimeMillis();
 
-                videos.addAll(videoListTypeAdapter.fromJsonTree(jsonObject).data);
+                videos.addAll(gson.fromJson(jsonObject, VideoList.class).data);
                 Log.d(TAG, "Time elapsed while parsing: " + (System.currentTimeMillis() - time) + " ms");
 
             } catch (IOException e) {
