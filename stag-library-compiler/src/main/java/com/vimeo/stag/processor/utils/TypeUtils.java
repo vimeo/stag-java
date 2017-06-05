@@ -436,16 +436,6 @@ public final class TypeUtils {
     }
 
     /**
-     * Method to check if the {@link TypeMirror} is of primitive type
-     *
-     * @param type :TypeMirror type
-     * @return String
-     */
-    public static String getObjectForPrimitive(@NotNull String type) {
-        return PRIMITIVE_TO_OBJECT_MAP.get(type);
-    }
-
-    /**
      * Method to check if the {@link TypeMirror} is of {@link ArrayType}
      *
      * @param type :TypeMirror type

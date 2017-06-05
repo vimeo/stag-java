@@ -88,18 +88,15 @@ public class StagGenerator {
     @NotNull private final Map<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
     @NotNull private final String mGeneratedPackageName;
     @NotNull private final Set<TypeMirror> mKnownTypes;
-    @NotNull private final Map<String, ExternalAdapterInfo> mExternalSupportedAdapters;
     @NotNull private final Map<String, String> mKnownAdapterFieldMap = new HashMap<>();
     @NotNull private final Map<String, String> mKnownFieldToMethodNameMap = new HashMap<>();
 
     public StagGenerator(@NotNull String generatedPackageName,
                          @NotNull Set<TypeMirror> knownTypes,
-                         @NotNull Set<ExternalAdapterInfo> externalSupportedAdapters,
                          @NotNull SupportedTypesModel supportedTypesModel) {
         mKnownTypes = knownTypes;
         mGeneratedPackageName = generatedPackageName;
         mKnownClasses = new ArrayList<>(knownTypes.size());
-        mExternalSupportedAdapters = new HashMap<>(externalSupportedAdapters.size());
 
         Map<String, ClassInfo> knownFieldNames = new HashMap<>(knownTypes.size());
         Map<String, List<ClassInfo>> clashingClassNames = new HashMap<>(knownTypes.size());
@@ -145,11 +142,6 @@ public class StagGenerator {
                 newAdapterName.append(adapterFactoryMethodName);
                 mFieldNameMap.put(classInfo.getType().toString(), newAdapterName.toString());
             }
-        }
-
-        for (ExternalAdapterInfo entry : externalSupportedAdapters) {
-            TypeMirror externalType = entry.getExternalClass().asType();
-            mExternalSupportedAdapters.put(externalType.toString(), entry);
         }
 
         for (ClassInfo knownGenericType : genericClasses) {
@@ -237,8 +229,7 @@ public class StagGenerator {
             Element outerClassType = declaredType.asElement();
             if (!mFieldNameMap.containsKey(outerClassType.asType().toString()) &&
                 !KNOWN_COLLECTION_GENERIC_CLASSES.containsKey(outerClassType.toString()) &&
-                !KNOWN_MAP_GENERIC_CLASSES.containsKey(outerClassType.toString()) &&
-                !mExternalSupportedAdapters.containsKey(typeMirror.toString())) {
+                !KNOWN_MAP_GENERIC_CLASSES.containsKey(outerClassType.toString())) {
                 return false;
             }
 
@@ -518,10 +509,6 @@ public class StagGenerator {
             mKnownFieldToMethodNameMap.put(fieldType.toString(), methodName);
         }
         return "get" + methodName;
-    }
-
-    ExternalAdapterInfo getExternalSupportedAdapter(@NotNull TypeMirror fieldType) {
-        return mExternalSupportedAdapters.get(fieldType.toString());
     }
 
     static class GenericClassInfo {

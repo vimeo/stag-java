@@ -151,9 +151,6 @@ public class AnnotatedClass {
             Set<Modifier> modifiers = element.getModifiers();
             if (!modifiers.contains(Modifier.STATIC) && !modifiers.contains(Modifier.TRANSIENT)) {
 
-                if (!TypeUtils.isAbstract(element)) {
-                    mSupportedTypesModel.checkAndAddExternalAdapter(element);
-                }
                 DebugLog.log(TAG, "\t\tMember variables - " + element.asType().toString());
 
                 if (checkPrivateFinalModifiers(element, modifiers)) {

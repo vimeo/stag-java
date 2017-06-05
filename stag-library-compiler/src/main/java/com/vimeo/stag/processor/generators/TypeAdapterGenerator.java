@@ -187,8 +187,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 TypeMirror outerClass = declaredFieldType.asElement().asType();
                 sGsonVariableUsed = true;
                 List<? extends TypeMirror> typeArguments = declaredFieldType.getTypeArguments();
-                ExternalAdapterInfo externalAdapterInfo =
-                        stagGenerator.getExternalSupportedAdapter(outerClass);
 
                 String typeAdapterCode = "";
                 for (TypeMirror typeMirror : typeArguments) {
@@ -199,20 +197,15 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 }
 
                 String adapterCode;
-                if (null != externalAdapterInfo) {
-                    // If the field type is an external model
-                    adapterCode = externalAdapterInfo.getInitializer("gson", typeAdapterCode);
+                ClassInfo classInfo = new ClassInfo(outerClass);
+                if (classInfo.equals(mInfo)) {
+                    // In this case the adapter will be the same as the one we are generating
+                    adapterCode = "this";
                 } else {
-                    ClassInfo classInfo = new ClassInfo(outerClass);
-                    if (classInfo.equals(mInfo)) {
-                        // In this case the adapter will be the same as the one we are generating
-                        adapterCode = "this";
-                    } else {
-                        int idx1 = fieldType.toString().indexOf("<");
-                        String argument = idx1 > 0 ? fieldType.toString().substring(idx1) : "";
-                        adapterCode = "new " + classInfo.getTypeAdapterQualifiedClassName() + argument +
-                                      "(gson, stagFactory" + typeAdapterCode + ")";
-                    }
+                    int idx1 = fieldType.toString().indexOf("<");
+                    String argument = idx1 > 0 ? fieldType.toString().substring(idx1) : "";
+                    adapterCode = "new " + classInfo.getTypeAdapterQualifiedClassName() + argument +
+                                  "(gson, stagFactory" + typeAdapterCode + ")";
                 }
                 return adapterCode;
             }
@@ -277,12 +270,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
             if (isPrimitive) {
                 builder.addCode("\t\t\t\tobject." +
-                        fieldAccessor.createSetterCode(adapterFieldInfo.getAdapterAccessor(elementValue, name) +
-                                ".read(reader, object." + fieldAccessor.createGetterCode() + ")") + ";");
+                                fieldAccessor.createSetterCode(adapterFieldInfo.getAdapterAccessor(elementValue, name) +
+                                                               ".read(reader, object." + fieldAccessor.createGetterCode() + ")") + ";");
 
             } else {
                 builder.addCode("\t\t\t\tobject." + fieldAccessor.createSetterCode(adapterFieldInfo.getAdapterAccessor(elementValue, name) +
-                        ".read(reader)") + ";");
+                                                                                   ".read(reader)") + ";");
             }
 
 
@@ -529,24 +522,17 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 int size =
                         declaredType.getTypeArguments() == null ? 0 : declaredType.getTypeArguments().size();
                 TypeMirror outerClass = declaredType.asElement().asType();
-                if (size != 0 && (stagGenerator.isKnownType(outerClass) ||
-                                  (null != stagGenerator.getExternalSupportedAdapter(outerClass)))) {
+                if (size != 0 && stagGenerator.isKnownType(outerClass)) {
                     sGsonVariableUsed = true;
                     sStagFactoryUsed = true;
                     ClassInfo outerClassInfo = new ClassInfo(outerClass);
                     int idx1 = fieldType.toString().indexOf("<");
                     String argument = idx1 > 0 ? fieldType.toString().substring(idx1) : "";
                     List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
-                    ExternalAdapterInfo externalAdapterInfo =
-                            stagGenerator.getExternalSupportedAdapter(outerClass);
                     String adapterCode =
                             "new " + outerClassInfo.getTypeAdapterQualifiedClassName() + argument + "(gson, ";
 
-                    if (null != externalAdapterInfo) {
-                        adapterCode += externalAdapterInfo.getFactoryInitializer();
-                    } else {
-                        adapterCode += "mStagFactory";
-                    }
+                    adapterCode += "mStagFactory";
 
                     adapterCode += ", ";
                     for (TypeMirror typeMirror : typeArguments) {
@@ -568,12 +554,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     }
 
                 } else {
-                    return addFieldForUnknownType(fieldType, adapterBuilder, constructorBuilder,
-                                                  stagGenerator, adapterFieldInfo);
+                    return addFieldForUnknownType(fieldType,
+                                                  stagGenerator);
                 }
             } else {
-                return addFieldForUnknownType(fieldType, adapterBuilder, constructorBuilder, stagGenerator,
-                                              adapterFieldInfo);
+                return addFieldForUnknownType(fieldType, stagGenerator
+                                             );
             }
         } else {
 
@@ -604,32 +590,11 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     private static String addFieldForUnknownType(@NotNull TypeMirror fieldType,
-                                                 @NotNull TypeSpec.Builder adapterBuilder,
-                                                 @NotNull MethodSpec.Builder constructorBuilder,
-                                                 @NotNull StagGenerator stagGenerator,
-                                                 @NotNull AdapterFieldInfo adapterFieldInfo) {
-        ExternalAdapterInfo externalAdapterInfo = stagGenerator.getExternalSupportedAdapter(fieldType);
-        if (null != externalAdapterInfo) {
-            //Generate the Type Adapter as a member variable
-            String fieldName = adapterFieldInfo.getFieldName(fieldType);
-            if (null == fieldName) {
-                fieldName = TYPE_ADAPTER_FIELD_PREFIX + adapterFieldInfo.size();
-                adapterFieldInfo.addField(fieldType, fieldName);
-                String originalFieldName = FileGenUtils.unescapeEscapedString(fieldName);
-                TypeName typeName = getAdapterFieldTypeName(fieldType);
-                adapterBuilder.addField(typeName, originalFieldName, Modifier.PRIVATE, Modifier.FINAL);
-                String statement = fieldName + " = " +
-                                   getCleanedFieldInitializer(externalAdapterInfo.getInitializer("gson", ""));
-                constructorBuilder.addStatement(statement);
-            }
-
-            return fieldName;
-        } else {
-            String getterField = stagGenerator.addFieldForUnknownType(fieldType);
-            sGsonVariableUsed = true;
-            sStagFactoryUsed = true;
-            return "mStagFactory." + "get" + getterField + "(mGson)";
-        }
+                                                 @NotNull StagGenerator stagGenerator) {
+        String getterField = stagGenerator.addFieldForUnknownType(fieldType);
+        sGsonVariableUsed = true;
+        sStagFactoryUsed = true;
+        return "mStagFactory." + "get" + getterField + "(mGson)";
     }
 
     /**
@@ -677,19 +642,19 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 TypeUtils.JsonAdapterType jsonAdapterType1 = TypeUtils.getJsonAdapterType(optionalJsonAdapter);
                 if (constructor != null) {
                     String fieldAdapterAccessor = getFieldAccessorForKnownJsonAdapterType(constructor, adapterBuilder, constructorBuilder, fieldType,
-                            jsonAdapterType1, result, fieldAccessor.isJsonAdapterNullSafe(), fieldAccessor.getJsonName());
+                                                                                          jsonAdapterType1, result, fieldAccessor.isJsonAdapterNullSafe(), fieldAccessor.getJsonName());
                     result.addFieldToAccessor(fieldAccessor.getJsonName(), fieldAdapterAccessor);
                 } else {
                     throw new IllegalStateException("Unsupported @JsonAdapter value: " + optionalJsonAdapter);
                 }
             } else if (hasUnknownGenericField && TypeUtils.containsTypeVarParams(fieldType)) {
                 adapterAccessor = getAdapterForUnknownGenericType(fieldType, adapterBuilder, constructorBuilder,
-                        typeVarsMap, result);
+                                                                  typeVarsMap, result);
             } else if (KnownTypeAdapterUtils.hasNativePrimitiveTypeAdapter(fieldType)) {
                 adapterAccessor = KnownTypeAdapterUtils.getNativePrimitiveTypeAdapter(fieldType);
             } else {
                 adapterAccessor = getAdapterAccessor(fieldType, adapterBuilder, constructorBuilder,
-                        typeVarsMap, stagGenerator,
+                                                     typeVarsMap, stagGenerator,
                                                      result);
 
                 if (null != adapterAccessor && adapterAccessor.startsWith("new ")) {
@@ -748,7 +713,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             if (!isPrimitive) {
                 builder.addStatement(
                         adapterFieldInfo.getAdapterAccessor(element.getValue(), name) + ".write(writer, object." +
-                                getterCode + ")");
+                        getterCode + ")");
                 /*
                 * If the element is annotated with NonNull annotation, throw {@link IOException} if it is null.
                 */
@@ -756,7 +721,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                     builder.endControlFlow();
                     builder.beginControlFlow("else if (object." + getterCode + " == null)");
                     builder.addStatement("throw new java.io.IOException(\"" + getterCode +
-                            " cannot be null\")");
+                                         " cannot be null\")");
                 }
 
                 builder.endControlFlow();

@@ -28,7 +28,6 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
-import com.vimeo.stag.processor.generators.ExternalAdapterInfo;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
@@ -126,7 +125,7 @@ public final class StagProcessor extends AbstractProcessor {
 
         Notation notation = assumeHungarianNotation ? Notation.HUNGARIAN : Notation.STANDARD;
 
-        SupportedTypesModel supportedTypesModel = new SupportedTypesModel(stagFactoryGeneratedName, notation);
+        SupportedTypesModel supportedTypesModel = new SupportedTypesModel(notation);
 
         DebugLog.log("\nBeginning @UseStag annotation processing\n");
 
@@ -137,9 +136,7 @@ public final class StagProcessor extends AbstractProcessor {
         try {
             Set<TypeMirror> supportedTypes = AnnotatedClass.annotatedClassToTypeMirror(supportedTypesModel.getSupportedTypes());
 
-            Set<ExternalAdapterInfo> externalAdapterInfoSet = supportedTypesModel.getExternalSupportedAdapters();
-
-            StagGenerator stagFactoryGenerator = new StagGenerator(packageName, supportedTypes, externalAdapterInfoSet, supportedTypesModel);
+            StagGenerator stagFactoryGenerator = new StagGenerator(packageName, supportedTypes, supportedTypesModel);
 
             for (AnnotatedClass annotatedClass : supportedTypesModel.getSupportedTypes()) {
                 TypeElement element = annotatedClass.getElement();
