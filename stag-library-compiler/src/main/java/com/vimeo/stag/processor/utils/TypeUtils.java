@@ -563,7 +563,7 @@ public final class TypeUtils {
         TypeElement element = unsafeTypeMirrorToTypeElement(typeMirror);
         // unsafeTypeMirrorToTypeElement may return null but not in the scenarios we are specifically using it for
         if (element == null) {
-            throw new IllegalStateException("Supported type could not be converted into an Element");
+            throw new IllegalStateException("Supported type could not be converted into an Element: " + typeMirror);
         }
         return element;
     }

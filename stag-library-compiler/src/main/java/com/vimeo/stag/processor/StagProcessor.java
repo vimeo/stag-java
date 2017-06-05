@@ -26,7 +26,6 @@ package com.vimeo.stag.processor;
 import com.google.auto.service.AutoService;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
-import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.ExternalAdapterInfo;
@@ -36,6 +35,7 @@ import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor.Notation;
+import com.vimeo.stag.processor.source.UseStagSource;
 import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
@@ -46,7 +46,6 @@ import com.vimeo.stag.processor.utils.TypeUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -58,7 +57,6 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
@@ -134,10 +132,8 @@ public final class StagProcessor extends AbstractProcessor {
         DebugLog.log("\nBeginning @UseStag annotation processing\n");
 
         // Pick up the classes annotated with @UseStag
-        Set<? extends Element> useStagElements = roundEnv.getElementsAnnotatedWith(UseStag.class);
-        for (Element useStagElement : useStagElements) {
-            processSupportedElements(supportedTypesModel, useStagElement);
-        }
+        UseStagSource useStagSource = new UseStagSource(roundEnv);
+        useStagSource.elements().subscribe(typeElement -> supportedTypesModel.addSupportedType(typeElement.asType()));
 
         try {
             Set<TypeMirror> supportedTypes = AnnotatedClass.annotatedClassToTypeMirror(supportedTypesModel.getSupportedTypes());
@@ -185,8 +181,8 @@ public final class StagProcessor extends AbstractProcessor {
         ClassInfo classInfo = new ClassInfo(element.asType());
 
         AdapterGenerator independentAdapter = element.getKind() == ElementKind.ENUM ?
-            new EnumTypeAdapterGenerator(classInfo, element) :
-            new TypeAdapterGenerator(supportedTypesModel, classInfo);
+                new EnumTypeAdapterGenerator(classInfo, element) :
+                new TypeAdapterGenerator(supportedTypesModel, classInfo);
 
         // Create the type spec
         TypeSpec typeAdapterSpec = independentAdapter.createTypeAdapterSpec(stagGenerator);
@@ -206,29 +202,4 @@ public final class StagProcessor extends AbstractProcessor {
         FileGenUtils.writeToFile(javaFile, filer);
     }
 
-    /**
-     * Adds all classes annotated with {@link UseStag}
-     * to the supported type model. It does this recursively
-     * for unsupported types. Supported types handle their
-     * own enclosed element adding. Unsupported types that
-     * could be annotated are @interface and interface. Enums
-     * and classes are supported.
-     *
-     * @param supportedTypesModel the supported types model
-     * @param useStagElement      the element to add to the
-     *                            supported type model.
-     */
-    private static void processSupportedElements(@NotNull SupportedTypesModel supportedTypesModel,
-                                                 @NotNull Element useStagElement) {
-        if (ElementUtils.isSupportedElementKind(useStagElement)) {
-            TypeMirror rootType = useStagElement.asType();
-            DebugLog.log("Annotated type: " + rootType + "\n");
-            supportedTypesModel.addSupportedType(rootType);
-        }
-
-        List<? extends Element> enclosedElements = useStagElement.getEnclosedElements();
-        for (Element element : enclosedElements) {
-            processSupportedElements(supportedTypesModel, element);
-        }
-    }
 }
