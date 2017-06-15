@@ -21,6 +21,8 @@ script:
 - rvm use 2.2
 - bundle install
 - FASTLANE_SKIP_UPDATE_CHECK=1 bundle exec fastlane test
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 # https://vimeo.slack.com/services/B3TG0UCR3
 # travis encrypt "<acct>:<token>#<channel>" --add notifications.slack.rooms
