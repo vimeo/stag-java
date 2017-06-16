@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'jacoco-android'
 
 buildscript {
     repositories {
@@ -31,11 +32,16 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testCoverageEnabled true
         }
     }
     lintOptions {
         abortOnError false
     }
+}
+
+jacoco {
+    toolVersion = jacoco_version
 }
 
 dependencies {
