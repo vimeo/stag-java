@@ -7,6 +7,10 @@ Stag improves Gson performance by automatically generating reflection-less TypeA
 | master | [![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=master)](https://travis-ci.org/vimeo/stag-java) |
 | dev    | [![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=dev)](https://travis-ci.org/vimeo/stag-java) |
 
+| Test Coverage |
+|---------------|
+| [![codecov](https://codecov.io/gh/vimeo/stag-java/branch/dev/graph/badge.svg)](https://codecov.io/gh/vimeo/stag-java) |
+
 | Artifact | Latest Version |
 |----------|----------------|
 | stag-library | [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library/images/download.svg)](https://bintray.com/vimeo/maven/stag-library/_latestVersion) |

@@ -9,13 +9,13 @@ buildscript {
 
 android {
     // Please update the ".travis.yml" file "android.components" section
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion targetSdk
+    buildToolsVersion buildTools
 
     defaultConfig {
         applicationId "com.vimeo.sample"
-        minSdkVersion 14
-        targetSdkVersion 25
+        minSdkVersion minSdk
+        targetSdkVersion targetSdk
         versionCode 1
         versionName "1.0"
 

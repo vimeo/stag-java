@@ -4,12 +4,12 @@ apply plugin: 'kotlin-kapt'
 apply plugin: 'jacoco-android'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion targetSdk
+    buildToolsVersion buildTools
 
     defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion 25
+        minSdkVersion minSdk
+        targetSdkVersion targetSdk
         versionCode 1
         versionName "1.0"
 
