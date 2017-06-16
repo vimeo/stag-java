@@ -11,6 +11,16 @@ jacoco {
     toolVersion = jacoco_version
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+
+check.dependsOn jacocoTestReport
+jacocoTestReport.dependsOn test
+
 dependencies {
     compile 'com.google.code.gson:gson:2.8.1'
     compile 'com.intellij:annotations:12.0@jar'

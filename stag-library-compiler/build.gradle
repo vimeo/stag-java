@@ -11,6 +11,16 @@ jacoco {
     toolVersion = jacoco_version
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+
+check.dependsOn jacocoTestReport
+jacocoTestReport.dependsOn test
+
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'com.google.testing.compile:compile-testing:0.8'
