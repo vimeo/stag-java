@@ -1,10 +1,25 @@
 apply plugin: 'java'
+apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
 
 compileJava {
     sourceCompatibility = 1.7
     targetCompatibility = 1.7
 }
+
+jacoco {
+    toolVersion = jacoco_version
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+
+check.dependsOn jacocoTestReport
+jacocoTestReport.dependsOn test
 
 dependencies {
     compile 'com.google.code.gson:gson:2.8.1'
