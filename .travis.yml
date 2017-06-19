@@ -4,8 +4,8 @@ jdk:
 android:
   components:
     - tools
-    - build-tools-25.0.2
-    - android-25
+    - build-tools-26.0.0
+    - android-26
     - extra-android-support
     - extra-android-m2repository
 before_cache:
@@ -21,6 +21,9 @@ script:
 - rvm use 2.2
 - bundle install
 - FASTLANE_SKIP_UPDATE_CHECK=1 bundle exec fastlane test
+- ./gradlew jacocoTestReport --stacktrace
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 # https://vimeo.slack.com/services/B3TG0UCR3
 # travis encrypt "<acct>:<token>#<channel>" --add notifications.slack.rooms
