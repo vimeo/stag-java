@@ -19,6 +19,9 @@ import java.io.IOException;
  */
 public class SwappableParserExampleModelTest {
 
+    /**
+     * A type adapter that reads and writes the string field in forward order.
+     */
     private static class TestObjectAdapter1 extends TypeAdapter<TestObject> {
 
         TestObjectAdapter1() {}
@@ -44,7 +47,10 @@ public class SwappableParserExampleModelTest {
         }
     }
 
-    static class TestObjectAdapter2 extends TypeAdapter<TestObject> {
+    /**
+     * A type adapter that reads and writes the string field in reverse order.
+     */
+    private static class TestObjectAdapter2 extends TypeAdapter<TestObject> {
 
         TestObjectAdapter2() {}
 
