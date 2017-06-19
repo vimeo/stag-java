@@ -143,7 +143,8 @@ Last but not the least, Stag is almost in parity with GSON.
 4. Use the `@SerializedName("key")` annotation to give the variables a different JSON name. (same as GSON)
 5. Use your favorite `@NonNull` annotation to tell Stag to throw an exception if the field is null while deserializing or while serializing the object.
 6. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
-7. You're done!
+7. Make sure that you are not reusing the `Stag.Factory` instance between Gson instances. The factory is stateful and must be recreated when creating a new Gson instance. If you try to reuse the instance, an `UnsupportedOperationException` will be thrown.
+8. You're done!
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 
