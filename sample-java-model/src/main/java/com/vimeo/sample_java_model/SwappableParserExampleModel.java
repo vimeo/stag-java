@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * A model to test the case where the consumer
- * should be able to use different parsers for
+ * might try to use different parsers for
  * an object across different gson instances.
  */
 @UseStag
