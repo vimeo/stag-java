@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+Version 2.3.0 *(2017-06-22)*
+----------------------------
+- Stag now throws an exception if you try to reuse a `Stag.Factory` instance between multiple gson instances.
+
 Version 2.2.0 *(2017-05-30)*
 ----------------------------
 - Added support for private member variables in Java (leveraging getters/setters).
