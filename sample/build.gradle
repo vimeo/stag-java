@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'jacoco-android'
 
 buildscript {
     repositories {
@@ -8,13 +9,13 @@ buildscript {
 
 android {
     // Please update the ".travis.yml" file "android.components" section
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion targetSdk
+    buildToolsVersion buildTools
 
     defaultConfig {
         applicationId "com.vimeo.sample"
-        minSdkVersion 14
-        targetSdkVersion 25
+        minSdkVersion minSdk
+        targetSdkVersion targetSdk
         versionCode 1
         versionName "1.0"
 
@@ -28,14 +29,22 @@ android {
         }
     }
     buildTypes {
+        debug {
+            testCoverageEnabled true
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            testCoverageEnabled false
         }
     }
     lintOptions {
         abortOnError false
     }
+}
+
+jacoco {
+    toolVersion = jacoco_version
 }
 
 dependencies {

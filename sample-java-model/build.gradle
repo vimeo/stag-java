@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'jacoco'
 
 dependencies {
     compile 'com.google.code.gson:gson:2.8.0'
@@ -8,6 +9,20 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
 }
+
+jacoco {
+    toolVersion = jacoco_version
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+
+check.dependsOn jacocoTestReport
+jacocoTestReport.dependsOn test
 
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {

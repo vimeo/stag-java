@@ -299,7 +299,13 @@ public class StagGenerator {
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
                               "type")
+                .addStatement("setOrThrow(gson)")
                 .addStatement("Class<? super T> clazz = type.getRawType()");
+
+        FieldSpec.Builder gsonFieldBuilder = FieldSpec.builder(Gson.class, "mGson", Modifier.PRIVATE);
+        adapterFactoryBuilder.addField(gsonFieldBuilder.build());
+
+        adapterFactoryBuilder.addMethod(getSetOrThrowMethodSpec());
 
         /*
          * Iterate through all the registered known classes, and map the classes to its corresponding type adapters.
@@ -317,8 +323,8 @@ public class StagGenerator {
                         ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
                 String fieldName = "m" + variableName;
                 FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName,
-                                                                       FileGenUtils.unescapeEscapedString(
-                                                                               fieldName), Modifier.PRIVATE);
+                                                                       FileGenUtils.unescapeEscapedString(fieldName),
+                                                                       Modifier.PRIVATE);
                 adapterFactoryBuilder.addField(fieldSpecBuilder.build());
                 String getAdapterFactoryMethodName = "get" + variableName;
                 //Build a getter method
@@ -326,6 +332,7 @@ public class StagGenerator {
                         FileGenUtils.unescapeEscapedString(getAdapterFactoryMethodName))
                         .addModifiers(Modifier.PUBLIC)
                         .addParameter(Gson.class, "gson")
+                        .addStatement("setOrThrow(gson)")
                         .returns(parameterizedTypeName);
 
                 getAdapterMethodBuilder.beginControlFlow("if (null == " + fieldName + ")");
@@ -476,6 +483,21 @@ public class StagGenerator {
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
 
         return adapterFactoryBuilder.build();
+    }
+
+    @NotNull
+    private MethodSpec getSetOrThrowMethodSpec() {
+        return MethodSpec.methodBuilder("setOrThrow")
+                .returns(TypeName.VOID)
+                .addParameter(Gson.class, "gson")
+                .addCode("if (mGson != gson) {\n" +
+                         "\tif (mGson != null) {\n" +
+                         "\t\tthrow new UnsupportedOperationException(\"This factory can only be used with a single Gson instance, please create a new instance\");\n" +
+                         "\t}\n" +
+                         "\t\n" +
+                         "\tmGson = gson;\n" +
+                         "}\n")
+                .build();
     }
 
     /**
