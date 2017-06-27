@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+Version 2.3.1 *(2017-06-27)*
+----------------------------
+- Stag is now being deployed to Maven Central.
+
 Version 2.3.0 *(2017-06-22)*
 ----------------------------
 - Stag now throws an exception if you try to reuse a `Stag.Factory` instance between multiple gson instances.

@@ -33,10 +33,10 @@ import java.lang.annotation.Target;
 /**
  * Use this annotation to tell Stag that all the member variables
  * of the class should be processed.
- * <p/>
+ * <p>
  * If the class is annotated, Stag will generate a TypeAdapter for
  * that class. Stag does not generate TypeAdapters for abstract classes.
- * <p/>
+ * </p>
  */
 @Target({ElementType.TYPE})
 public @interface UseStag {
