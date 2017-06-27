@@ -27,6 +27,8 @@ dependencies {
     testCompile 'junit:junit:4.12'
 }
 
+tasks.withType(Javadoc).all { enabled = true }
+
 // custom tasks for creating source/javadoc jars
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
@@ -42,35 +44,67 @@ artifacts {
     archives sourcesJar, javadocJar
 }
 
+// Create the pom configuration
+// All the fields below are required by Maven Central
+def pomConfig = {
+    licenses {
+        license {
+            name "MIT License"
+            url "http://www.opensource.org/licenses/mit-license.php"
+            distribution "repo"
+        }
+    }
+    developers {
+        developer {
+            id "vimeo"
+            name "Vimeo Mobile"
+            email "mobileops@vimeo.com"
+            organisation "Vimeo"
+            organisationUrl "https://github.com/vimeo"
+        }
+    }
+    
+    scm {
+        connection "scm:git:git://github.com/vimeo/stag-java.git"
+        developerConnection "scm:git:ssh://github.com:vimeo/stag-java.git"
+        url "https://github.com/vimeo/stag-java"
+    }
+}
+
+// Create the publication with the pom configuration:
 // Requires apply plugin: maven-publish
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            // We don't have any complex artifacts, so let's just
-            // reference the fact that we rely on the java plugin
+        MyPublication(MavenPublication) {
             from components.java
+            artifact sourcesJar
+            artifact javadocJar
             groupId project.group
             artifactId 'stag-library'
             version project.version
-
-            artifact sourcesJar
-            artifact javadocJar
+            pom.withXml {
+                def root = asNode()
+                root.appendNode('description', 'Stag improves Gson performance by automatically generating reflection-less TypeAdapters for your model objects.')
+                root.appendNode('name', 'stag-library')
+                root.appendNode('url', 'https://github.com/vimeo/stag-java')
+                root.children().last() + pomConfig
+            }
         }
     }
 }
 
-// Only execute the bintray task if this is the actual stag-library project (not an include)
+// Only execute the bintray task if this is the actual networking project (not an include)
 allprojects {
     afterEvaluate { project ->
         def bintrayProject = project.plugins.hasPlugin('com.jfrog.bintray')
         if (bintrayProject) {
             bintray {
-                Properties properties = new Properties()
-                properties.load(project.rootProject.file('local.properties').newDataInputStream())
-                user = properties.getProperty('bintray.user')
-                key = properties.getProperty('bintray.apikey')
-                publications = ['mavenJava']
+                user = System.getenv('BINTRAY_USER')
+                // api key
+                key = System.getenv('BINTRAY_API_KEY')
+                publications = ['MyPublication']
                 dryRun = false // Whether to run this as dry-run, without deploying
+                override = false
                 pkg {
                     repo = 'maven'
                     name = 'stag-library'
@@ -84,6 +118,16 @@ allprojects {
                     version {
                         name = project.version
                         vcsTag = project.version
+                        gpg {
+                            sign = true
+                            passphrase = System.getenv('BINTRAY_GPG_PASSWORD')
+                        }
+                        mavenCentralSync {
+                            sync = true //Optional (true by default). Determines whether to sync the version to Maven Central.
+                            user = System.getenv('SONATYPE_TOKEN_USER') //OSS user token
+                            password = System.getenv('SONATYPE_TOKEN_PASSWORD') //OSS user password
+                            close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                        }
                     }
                 }
             }

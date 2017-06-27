@@ -20,7 +20,7 @@ script:
 - rvm install 2.2
 - rvm use 2.2
 - bundle install
-- FASTLANE_SKIP_UPDATE_CHECK=1 bundle exec fastlane test
+- FASTLANE_SKIP_UPDATE_CHECK=1 bundle exec fastlane shipit
 - ./gradlew jacocoTestReport --stacktrace
 after_success:
   - bash <(curl -s https://codecov.io/bash)

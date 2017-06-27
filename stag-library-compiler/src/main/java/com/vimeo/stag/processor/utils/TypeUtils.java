@@ -301,22 +301,20 @@ public final class TypeUtils {
      * Retrieves a Map of the inherited concrete member variables of an Element. This takes all the
      * member variables that were inherited from the generic parent class and evaluates what their concrete
      * type will be based on the concrete inherited type. For instance, take the following code example:
-     * <pre>
-     * {@code
-     * Factory<T> {
+     * <pre><code>
+     * {@literal Factory<T>} {
      *
-     *  @literal @UseStag
+     *  {@literal @UseStag}
      *   public T data;
      *
      * }
      *
-     * VideoFactory extends Factory<Video> {
+     * VideoFactory extends {@literal Factory<Video>}{
      *
      *   // other variables in here
      *
      * }
-     * }
-     * </pre>
+     * </code></pre>
      * In this example, VideoFactory has a public member variable T that is of type Video.
      * Since the Factory class has the UseStag annotation, we cannot just generate
      * parsing code for the Factory class, since it is generic and we need concrete types.
