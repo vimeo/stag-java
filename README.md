@@ -2,19 +2,8 @@
 
 Stag improves Gson performance by automatically generating reflection-less TypeAdapters for your model objects.
 
-| Branch | Build Status |
-|--------|--------------|
-| master | [![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=master)](https://travis-ci.org/vimeo/stag-java) |
-| dev    | [![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=dev)](https://travis-ci.org/vimeo/stag-java) |
+[![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=master)](https://travis-ci.org/vimeo/stag-java) [![codecov](https://codecov.io/gh/vimeo/stag-java/branch/dev/graph/badge.svg)](https://codecov.io/gh/vimeo/stag-java) [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library/images/download.svg)](https://bintray.com/vimeo/maven/stag-library/_latestVersion) [![Javadocs](https://www.javadoc.io/badge/com.vimeo.stag/stag-library.svg)](https://www.javadoc.io/doc/com.vimeo.stag/stag-library)
 
-| Test Coverage |
-|---------------|
-| [![codecov](https://codecov.io/gh/vimeo/stag-java/branch/dev/graph/badge.svg)](https://codecov.io/gh/vimeo/stag-java) |
-
-| Artifact | Latest Version |
-|----------|----------------|
-| stag-library | [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library/images/download.svg)](https://bintray.com/vimeo/maven/stag-library/_latestVersion) |
-| stag-library-compiler | [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library-compiler/images/download.svg)](https://bintray.com/vimeo/maven/stag-library-compiler/_latestVersion) |
 
 ## Why Build Stag?
 
