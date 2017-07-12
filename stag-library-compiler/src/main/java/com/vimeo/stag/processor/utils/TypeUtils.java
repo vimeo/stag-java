@@ -172,7 +172,7 @@ public final class TypeUtils {
      * @param typeMirror2 the second type to compare.
      * @return true if they are equal, false otherwise.
      */
-    public static boolean areEqual(@Nullable TypeMirror typeMirror1, @Nullable TypeMirror typeMirror2) {
+    public static boolean areEqual(@NotNull TypeMirror typeMirror1, @NotNull TypeMirror typeMirror2) {
         return getUtils().isSameType(typeMirror1, typeMirror2);
     }
 

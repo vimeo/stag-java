@@ -35,6 +35,7 @@ import java.util.List;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -83,6 +84,25 @@ final class Utils {
         assertTrue(exceptionThrown);
     }
 
+    /**
+     * Gets the parameterized class with the given parameters.
+     *
+     * @param clazz      the class to parameterize.
+     * @param parameters the parameters to use.
+     * @return the declared type mirror with the correct type parameters.
+     */
+    @NotNull
+    public static DeclaredType getParameterizedClass(@NotNull Class clazz, @NotNull Class... parameters) {
+        TypeElement rootType = safeElements().getTypeElement(clazz.getName());
+        TypeMirror[] params = new TypeMirror[parameters.length];
+
+        for (int n = 0; n < parameters.length; n++) {
+            params[n] = safeElements().getTypeElement(parameters[n].getName()).asType();
+        }
+
+        return safeTypes().getDeclaredType(rootType, params);
+    }
+
     @Nullable
     public static TypeElement getElementFromClass(@NotNull Class clazz) {
         return safeElements().getTypeElement(clazz.getName());
@@ -108,13 +128,13 @@ final class Utils {
     @NotNull
     public static TypeMirror getGenericVersionOfClass(@NotNull Class clazz) {
         List<? extends TypeParameterElement> params =
-            safeElements().getTypeElement(clazz.getName()).getTypeParameters();
+                safeElements().getTypeElement(clazz.getName()).getTypeParameters();
         TypeMirror[] genericTypes = new TypeMirror[params.size()];
         for (int n = 0; n < genericTypes.length; n++) {
             genericTypes[n] = params.get(n).asType();
         }
         return safeTypes().getDeclaredType(safeElements().getTypeElement(DummyGenericClass.class.getName()),
-            genericTypes);
+                                           genericTypes);
     }
 
 }
