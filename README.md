@@ -134,6 +134,12 @@ Last but not the least, Stag is almost in parity with GSON.
 6. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
 7. Make sure that you are not reusing the `Stag.Factory` instance between Gson instances. The factory is stateful and must be recreated when creating a new Gson instance. If you try to reuse the instance, an `UnsupportedOperationException` will be thrown.
 8. You're done!
+9. [Optional] By default, stag will drop a file called `StagTypeAdapterFactory.list` into your build folder which contains the plaintext names of all your models. It is used by the compiler to generate the adapters. It's a very small file and will compress down to a few bytes in size, but if you don't want it in your compiled apk, you can exclude it using the following code (if you supply a custom package name as a compiler argument, use that in place of `com/vimeo/stag/generated/` below):
+```groovy
+packagingOptions {
+    exclude 'com/vimeo/stag/generated/StagTypeAdapterFactory.list'
+}
+```
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 
