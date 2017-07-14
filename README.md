@@ -38,8 +38,8 @@ buildscript {
 apply plugin: 'net.ltgt.apt'
 
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.3.1'
-    apt 'com.vimeo.stag:stag-library-compiler:2.3.1'
+    compile 'com.vimeo.stag:stag-library:2.3.2'
+    apt 'com.vimeo.stag:stag-library-compiler:2.3.2'
 }
 
 // Optional annotation processor arguments (see below)
@@ -56,8 +56,8 @@ apt {
 
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.3.1'
-    annotationProcessor 'com.vimeo.stag:stag-library-compiler:2.3.1'
+    compile 'com.vimeo.stag:stag-library:2.3.2'
+    annotationProcessor 'com.vimeo.stag:stag-library-compiler:2.3.2'
 }
 
 android {
