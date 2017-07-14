@@ -165,6 +165,18 @@ public final class TypeUtils {
     }
 
     /**
+     * TypeMirrors should not be compared directly, but should use
+     * {@link Types} in order to compare them.
+     *
+     * @param typeMirror1 the first type to compare.
+     * @param typeMirror2 the second type to compare.
+     * @return true if they are equal, false otherwise.
+     */
+    public static boolean areEqual(@NotNull TypeMirror typeMirror1, @NotNull TypeMirror typeMirror2) {
+        return getUtils().isSameType(typeMirror1, typeMirror2);
+    }
+
+    /**
      * Determines whether or not the Element is a concrete type.
      * If the element is a generic type or contains generic type
      * arguments, this method will return false.

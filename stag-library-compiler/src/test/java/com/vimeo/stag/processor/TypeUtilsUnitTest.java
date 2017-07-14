@@ -143,7 +143,7 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
                 assertTrue(entry.getValue()
                                    .toString()
                                    .equals(types.getDeclaredType(Utils.getElementFromClass(ArrayList.class),
-                                           stringType).toString()));
+                                                                 stringType).toString()));
 
             } else if (entry.getKey().createGetterCode().contentEquals("testMap = ")) {
 
@@ -162,15 +162,15 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
                 TypeMirror listString = types.getDeclaredType(Utils.getElementFromClass(List.class), stringType);
 
                 assertTrue(entry.getValue()
-                        .toString()
-                        .equals(types.getDeclaredType(Utils.getElementFromClass(HashMap.class), stringType, listString)
-                                .toString()));
+                                   .toString()
+                                   .equals(types.getDeclaredType(Utils.getElementFromClass(HashMap.class), stringType, listString)
+                                                   .toString()));
             } else if (entry.getKey().createGetterCode().contentEquals("testListMap = ")) {
                 TypeMirror mapStringString = types.getDeclaredType(Utils.getElementFromClass(Map.class), stringType, stringType);
                 assertTrue(entry.getValue()
-                        .toString()
-                        .equals(types.getDeclaredType(Utils.getElementFromClass(ArrayList.class), mapStringString)
-                                .toString()));
+                                   .toString()
+                                   .equals(types.getDeclaredType(Utils.getElementFromClass(ArrayList.class), mapStringString)
+                                                   .toString()));
             }
         }
     }
@@ -187,6 +187,20 @@ public class TypeUtilsUnitTest extends BaseUnitTest {
         assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(DummyMapClass.class)));
         assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(Object.class)));
         assertFalse(TypeUtils.isEnum(Utils.getElementFromClass(String.class)));
+    }
+
+    @Test
+    public void areEqual_isCorrect() {
+        assertTrue(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(Object.class), Utils.getTypeMirrorFromClass(Object.class)));
+        assertTrue(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(String.class), Utils.getTypeMirrorFromClass(String.class)));
+        assertTrue(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(List.class), Utils.getTypeMirrorFromClass(List.class)));
+
+        assertFalse(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(Object.class), Utils.getTypeMirrorFromClass(String.class)));
+        assertFalse(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(String.class), Utils.getTypeMirrorFromClass(List.class)));
+        assertFalse(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(List.class), Utils.getTypeMirrorFromClass(ArrayList.class)));
+
+        assertTrue(TypeUtils.areEqual(Utils.getParameterizedClass(List.class, String.class), Utils.getParameterizedClass(List.class, String.class)));
+        assertFalse(TypeUtils.areEqual(Utils.getParameterizedClass(List.class, String.class), Utils.getParameterizedClass(List.class, Integer.class)));
     }
 
     @Test
