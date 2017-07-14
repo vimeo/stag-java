@@ -1,6 +1,11 @@
 Change Log
 ==========
 
+Version 2.3.2 *(2017-07-14)*
+----------------------------
+- Fixed a bug where stag was unable to find setters/getters for parameterized private fields.
+- Found solution for model list file being included in build (refer to README).
+
 Version 2.3.1 *(2017-06-27)*
 ----------------------------
 - Stag is now being deployed to Maven Central.
