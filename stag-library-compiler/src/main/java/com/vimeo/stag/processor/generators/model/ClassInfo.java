@@ -124,7 +124,7 @@ public final class ClassInfo {
         ClassInfo classInfo = (ClassInfo) o;
 
         return mClassName.equals(classInfo.mClassName) && mPackageName.equals(classInfo.mPackageName) &&
-               mTypeName.equals(classInfo.mTypeName) && mType.equals(classInfo.mType);
+               mTypeName.equals(classInfo.mTypeName) && TypeUtils.areEqual(mType, classInfo.mType);
 
     }
 

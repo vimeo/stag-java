@@ -2,19 +2,8 @@
 
 Stag improves Gson performance by automatically generating reflection-less TypeAdapters for your model objects.
 
-| Branch | Build Status |
-|--------|--------------|
-| master | [![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=master)](https://travis-ci.org/vimeo/stag-java) |
-| dev    | [![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=dev)](https://travis-ci.org/vimeo/stag-java) |
+[![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=master)](https://travis-ci.org/vimeo/stag-java) [![codecov](https://codecov.io/gh/vimeo/stag-java/branch/dev/graph/badge.svg)](https://codecov.io/gh/vimeo/stag-java) [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library/images/download.svg)](https://bintray.com/vimeo/maven/stag-library/_latestVersion) [![Javadocs](https://www.javadoc.io/badge/com.vimeo.stag/stag-library.svg)](https://www.javadoc.io/doc/com.vimeo.stag/stag-library)
 
-| Test Coverage |
-|---------------|
-| [![codecov](https://codecov.io/gh/vimeo/stag-java/branch/dev/graph/badge.svg)](https://codecov.io/gh/vimeo/stag-java) |
-
-| Artifact | Latest Version |
-|----------|----------------|
-| stag-library | [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library/images/download.svg)](https://bintray.com/vimeo/maven/stag-library/_latestVersion) |
-| stag-library-compiler | [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library-compiler/images/download.svg)](https://bintray.com/vimeo/maven/stag-library-compiler/_latestVersion) |
 
 ## Why Build Stag?
 
@@ -49,8 +38,8 @@ buildscript {
 apply plugin: 'net.ltgt.apt'
 
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.3.1'
-    apt 'com.vimeo.stag:stag-library-compiler:2.3.1'
+    compile 'com.vimeo.stag:stag-library:2.3.2'
+    apt 'com.vimeo.stag:stag-library-compiler:2.3.2'
 }
 
 // Optional annotation processor arguments (see below)
@@ -67,8 +56,8 @@ apt {
 
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.3.1'
-    annotationProcessor 'com.vimeo.stag:stag-library-compiler:2.3.1'
+    compile 'com.vimeo.stag:stag-library:2.3.2'
+    annotationProcessor 'com.vimeo.stag:stag-library-compiler:2.3.2'
 }
 
 android {
@@ -145,6 +134,12 @@ Last but not the least, Stag is almost in parity with GSON.
 6. Register the `Stag.Factory` with Gson when you create your Gson instance: `Gson gson = new GsonBuilder().registerTypeAdapterFactory(new Stag.Factory()).create();`
 7. Make sure that you are not reusing the `Stag.Factory` instance between Gson instances. The factory is stateful and must be recreated when creating a new Gson instance. If you try to reuse the instance, an `UnsupportedOperationException` will be thrown.
 8. You're done!
+9. [Optional] By default, stag will drop a file called `StagTypeAdapterFactory.list` into your build folder which contains the plaintext names of all your models. It is used by the compiler to generate the adapters. It's a very small file and will compress down to a few bytes in size, but if you don't want it in your compiled apk, you can exclude it using the following code (if you supply a custom package name as a compiler argument, use that in place of `com/vimeo/stag/generated/` below):
+```groovy
+packagingOptions {
+    exclude 'com/vimeo/stag/generated/StagTypeAdapterFactory.list'
+}
+```
 
 See the [example below](#example) or the [sample app](sample) to get more info on how to use Stag.
 

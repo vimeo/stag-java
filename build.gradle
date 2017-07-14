@@ -38,5 +38,5 @@ allprojects {
 
 subprojects {
     group = 'com.vimeo.stag'
-    version = '2.3.1'
+    version = '2.3.2'
 }

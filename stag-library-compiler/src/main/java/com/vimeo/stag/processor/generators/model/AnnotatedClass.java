@@ -108,8 +108,8 @@ public class AnnotatedClass {
             AnnotatedClass genericInheritedType = mSupportedTypesModel.addToKnownInheritedType(inheritedType, fieldOption);
 
             LinkedHashMap<FieldAccessor, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
-                genericInheritedType.getElement(),
-                genericInheritedType.getMemberVariables());
+                                                                                                             genericInheritedType.getElement(),
+                                                                                                             genericInheritedType.getMemberVariables());
 
             for (Map.Entry<FieldAccessor, TypeMirror> entry : inheritedMemberVariables.entrySet()) {
                 addMemberVariable(entry.getKey(), entry.getValue(), variableNames);
@@ -132,7 +132,7 @@ public class AnnotatedClass {
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
             MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
-                element.toString() + ", with variable name " + previousElement.asType().toString());
+                                  element.toString() + ", with variable name " + previousElement.asType().toString());
         }
         mMemberVariables.put(element, typeMirror);
     }
@@ -142,9 +142,9 @@ public class AnnotatedClass {
 
         if (modifiers.contains(Modifier.FINAL)) {
             MessagerUtils.reportError("Unable to access field \"" +
-                variableElement.getSimpleName().toString() + "\" in class " +
-                variableElement.getEnclosingElement().asType() +
-                ", field must not be final.", variableElement);
+                                      variableElement.getSimpleName().toString() + "\" in class " +
+                                      variableElement.getEnclosingElement().asType() +
+                                      ", field must not be final.", variableElement);
         }
 
         return modifiers.contains(Modifier.FINAL) || modifiers.contains(Modifier.PRIVATE);
@@ -165,7 +165,7 @@ public class AnnotatedClass {
                     try {
                         addMemberVariable(new MethodFieldAccessor(element, mNamingNotation), element.asType(), variableNames);
                     } catch (UnsupportedOperationException exception) {
-                        MessagerUtils.reportError("Unable to find getter/setter for private/final field", element);
+                        MessagerUtils.reportError(exception.getMessage(), element);
                     }
                 } else {
                     addMemberVariable(new DirectFieldAccessor(element), element.asType(), variableNames);

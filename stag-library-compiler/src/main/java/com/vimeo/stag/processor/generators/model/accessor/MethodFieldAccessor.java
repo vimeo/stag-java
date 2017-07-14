@@ -1,6 +1,7 @@
 package com.vimeo.stag.processor.generators.model.accessor;
 
 import com.vimeo.stag.processor.utils.MessagerUtils;
+import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -59,8 +60,6 @@ public class MethodFieldAccessor extends FieldAccessor {
         List<ExecutableElement> methodElements = new ArrayList<>();
         List<? extends Element> otherElements = variableElement.getEnclosingElement().getEnclosedElements();
 
-        MessagerUtils.logInfo("Looking for setter and getter");
-
         for (Element element : otherElements) {
             if (element.getKind() == ElementKind.METHOD && element instanceof ExecutableElement) {
                 methodElements.add((ExecutableElement) element);
@@ -73,7 +72,7 @@ public class MethodFieldAccessor extends FieldAccessor {
     @NotNull
     private static String findSetterMethodName(@NotNull VariableElement variableElement,
                                                @NotNull Notation namingNotation) throws UnsupportedOperationException {
-        MessagerUtils.logInfo("Looking for setter and getter");
+        MessagerUtils.logInfo("Looking for setter");
 
         for (ExecutableElement method : getSiblingMethods(variableElement)) {
 
@@ -81,7 +80,7 @@ public class MethodFieldAccessor extends FieldAccessor {
 
             if (method.getReturnType().getKind() == TypeKind.VOID &&
                 parameters.size() == 1 &&
-                parameters.get(0).asType().equals(variableElement.asType()) &&
+                TypeUtils.areEqual(parameters.get(0).asType(), variableElement.asType()) &&
                 method.getSimpleName().toString().equals("set" + getVariableNameAsMethodName(variableElement, namingNotation))) {
                 MessagerUtils.logInfo("Found setter");
 
@@ -96,11 +95,11 @@ public class MethodFieldAccessor extends FieldAccessor {
     @NotNull
     private static String findGetterMethodName(@NotNull VariableElement variableElement,
                                                @NotNull Notation namingNotation) throws UnsupportedOperationException {
-        MessagerUtils.logInfo("Looking for setter and getter");
+        MessagerUtils.logInfo("Looking for getter");
 
         for (ExecutableElement method : getSiblingMethods(variableElement)) {
 
-            if (method.getReturnType().equals(variableElement.asType()) &&
+            if (TypeUtils.areEqual(method.getReturnType(), variableElement.asType()) &&
                 method.getParameters().isEmpty() &&
                 method.getSimpleName().toString().equals("get" + getVariableNameAsMethodName(variableElement, namingNotation))) {
 

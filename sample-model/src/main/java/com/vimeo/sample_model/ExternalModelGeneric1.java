@@ -9,11 +9,35 @@ import com.vimeo.stag.UseStag;
 public class ExternalModelGeneric1<T> {
 
     @SerializedName("field2")
-    public String mField2;
+    private String mField2;
 
     @SerializedName("genericField")
-    public T mGenericField;
+    private T mGenericField;
 
     @SerializedName("unknownType")
-    public ValueCallback<T> mUnknownType;
+    private ValueCallback<T> mUnknownType;
+
+    public String getField2() {
+        return mField2;
+    }
+
+    public void setField2(String field2) {
+        mField2 = field2;
+    }
+
+    public T getGenericField() {
+        return mGenericField;
+    }
+
+    public void setGenericField(T genericField) {
+        mGenericField = genericField;
+    }
+
+    public ValueCallback<T> getUnknownType() {
+        return mUnknownType;
+    }
+
+    public void setUnknownType(ValueCallback<T> unknownType) {
+        mUnknownType = unknownType;
+    }
 }
