@@ -45,9 +45,9 @@ dependencies {
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
         aptOptions.processorArgs = [
+                stagAssumeHungarianNotation: "true",
                 stagGeneratedPackageName   : "com.vimeo.sample_java_model.stag.generated",
-                stagDebug                  : "true",
-                stagAssumeHungarianNotation: "true"
+                stagDebug                  : "true"
         ]
     }
 }
