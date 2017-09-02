@@ -1,5 +1,6 @@
 package com.vimeo.stag.processor.generators.model.accessor;
 
+import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
@@ -13,6 +14,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
+import javax.lang.model.type.TypeMirror;
 
 /**
  * A variation of the {@link FieldAccessor}
@@ -92,6 +94,42 @@ public class MethodFieldAccessor extends FieldAccessor {
         throw new UnsupportedOperationException("Unable to find setter for variable");
     }
 
+    private static boolean isBoolean(@NotNull TypeMirror typeMirror) {
+        return TypeUtils.areEqual(TypeUtils.getPrimitive(typeMirror.getKind()), TypeUtils.getPrimitive(TypeKind.BOOLEAN))
+            || TypeUtils.areEqual(typeMirror, ElementUtils.getTypeFromClass(Boolean.class));
+    }
+
+    private static boolean isSupportedGetter(@NotNull ExecutableElement method,
+                                             @NotNull VariableElement variableElement,
+                                             @NotNull Notation namingNotation) {
+        final String methodName = method.getSimpleName().toString();
+        final TypeMirror returnType = method.getReturnType();
+        final String variableNameMethodComponent = getVariableNameAsMethodName(variableElement, namingNotation);
+
+        final boolean variableNameBeginsWithIs = variableNameBeginsWithIs(variableNameMethodComponent);
+
+        return (isBoolean(returnType)
+            && ((!variableNameBeginsWithIs && methodName.equals("is" + variableNameMethodComponent))
+            || (variableNameBeginsWithIs && methodName.equals(convertCharAtToLowerCase(variableNameMethodComponent, 0)))))
+            || methodName.equals("get" + variableNameMethodComponent);
+    }
+
+    private static boolean variableNameBeginsWithIs(@NotNull String variableName) {
+        return variableName.length() > 2
+            && (variableName.startsWith("is") || variableName.startsWith("Is"))
+            && Character.isUpperCase(variableName.charAt(2));
+    }
+
+    @NotNull
+    private static String convertCharAtToLowerCase(@NotNull String string, int index) {
+        final char[] chars = string.toCharArray();
+        final char c = chars[index];
+
+        chars[index] = Character.toLowerCase(c);
+
+        return String.valueOf(chars);
+    }
+
     @NotNull
     private static String findGetterMethodName(@NotNull VariableElement variableElement,
                                                @NotNull Notation namingNotation) throws UnsupportedOperationException {
@@ -99,9 +137,10 @@ public class MethodFieldAccessor extends FieldAccessor {
 
         for (ExecutableElement method : getSiblingMethods(variableElement)) {
 
-            if (TypeUtils.areEqual(method.getReturnType(), variableElement.asType()) &&
-                method.getParameters().isEmpty() &&
-                method.getSimpleName().toString().equals("get" + getVariableNameAsMethodName(variableElement, namingNotation))) {
+            final TypeMirror returnType = method.getReturnType();
+            if (TypeUtils.areEqual(returnType, variableElement.asType())
+                && method.getParameters().isEmpty()
+                && isSupportedGetter(method, variableElement, namingNotation)) {
 
                 MessagerUtils.logInfo("Found getter");
 
