@@ -79,7 +79,7 @@ public class BooleanFields {
         return mIsTest5;
     }
 
-    public void setIsTest5(boolean mIsTest5) {
+    public void setTest5(boolean mIsTest5) {
         this.mIsTest5 = mIsTest5;
     }
 
@@ -96,7 +96,7 @@ public class BooleanFields {
         return mIsTest7;
     }
 
-    public void setIsTest7(@NotNull Boolean mIsTest7) {
+    public void setTest7(@NotNull Boolean mIsTest7) {
         this.mIsTest7 = mIsTest7;
     }
 

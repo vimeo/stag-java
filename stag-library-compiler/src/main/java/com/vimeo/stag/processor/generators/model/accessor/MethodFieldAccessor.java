@@ -71,6 +71,18 @@ public class MethodFieldAccessor extends FieldAccessor {
         return methodElements;
     }
 
+    private static boolean isSupportedSetter(@NotNull ExecutableElement method,
+                                             @NotNull VariableElement variableElement,
+                                             @NotNull Notation namingNotation) {
+
+        final String variableNameMethodComponent = getVariableNameAsMethodName(variableElement, namingNotation);
+        final String methodName = method.getSimpleName().toString();
+
+        return (variableNameBeginsWithIs(variableNameMethodComponent)
+            && methodName.equals("set" + variableNameMethodComponent.substring(2)))
+            || methodName.equals("set" + variableNameMethodComponent);
+    }
+
     @NotNull
     private static String findSetterMethodName(@NotNull VariableElement variableElement,
                                                @NotNull Notation namingNotation) throws UnsupportedOperationException {
@@ -83,7 +95,7 @@ public class MethodFieldAccessor extends FieldAccessor {
             if (method.getReturnType().getKind() == TypeKind.VOID &&
                 parameters.size() == 1 &&
                 TypeUtils.areEqual(parameters.get(0).asType(), variableElement.asType()) &&
-                method.getSimpleName().toString().equals("set" + getVariableNameAsMethodName(variableElement, namingNotation))) {
+                isSupportedSetter(method, variableElement, namingNotation)) {
                 MessagerUtils.logInfo("Found setter");
 
                 return method.getSimpleName().toString();
