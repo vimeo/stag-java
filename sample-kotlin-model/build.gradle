@@ -60,7 +60,7 @@ dependencies {
     compile project(':stag-library')
     kapt project(':stag-library-compiler')
 
-    testCompile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
 }
 
