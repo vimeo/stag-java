@@ -21,10 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.stag.processor.dummy
 
-public abstract class DummyAbstractClass {
-
-    private DummyConcreteClass concreteClass;
-
+enum class DummyEnumClass {
+    A,
+    B,
+    C
 }

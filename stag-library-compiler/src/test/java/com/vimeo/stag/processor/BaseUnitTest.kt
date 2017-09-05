@@ -21,33 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor;
+package com.vimeo.stag.processor
 
-import com.google.testing.compile.CompilationRule;
+import com.google.testing.compile.CompilationRule
 
-import org.junit.Before;
-import org.junit.Rule;
+import org.junit.Before
+import org.junit.Rule
 
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
+import javax.lang.model.util.Elements
+import javax.lang.model.util.Types
 
 /**
  * Base unit test that sets up the utils class.
  */
-public class BaseUnitTest {
+open class BaseUnitTest {
 
     @Rule
-    public final CompilationRule rule = new CompilationRule();
-    protected Elements elements;
-    protected Types types;
+    val rule = CompilationRule()
+    protected lateinit var elements: Elements
+    protected lateinit var types: Types
 
 
     @Before
-    public void _setup() {
-        elements = rule.getElements();
-        types = rule.getTypes();
+    fun _setup() {
+        elements = rule.elements
+        types = rule.types
 
-        Utils.setup(elements, types);
+        Utils.elements = elements
+        Utils.types = types
     }
 
 }

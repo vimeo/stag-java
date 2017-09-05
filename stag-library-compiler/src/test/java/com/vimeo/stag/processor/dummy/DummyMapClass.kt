@@ -21,20 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.stag.processor.dummy
 
-import java.util.List;
-import java.util.Map;
 
-public class DummyConcreteClass {
+class DummyMapClass : MutableMap<Any, Any> {
+    override val size: Int
+        get() = 0
 
-    int testInt;
+    override fun containsKey(key: Any) = false
 
-    String testObject;
+    override fun containsValue(value: Any) = false
 
-    List<Object> testList;
+    override fun get(key: Any): Any? = null
 
-    Map<String, Object> testMap;
+    override fun isEmpty() = true
 
-    DummyGenericClass<DummyGenericClass<DummyInheritedClass>> dummyInheritedClass;
+    override val entries: MutableSet<MutableMap.MutableEntry<Any, Any>>
+        get() = mutableSetOf()
+    override val keys: MutableSet<Any>
+        get() = mutableSetOf()
+    override val values: MutableCollection<Any>
+        get() = mutableListOf()
+
+    override fun clear() {}
+
+    override fun put(key: Any, value: Any) = null
+
+    override fun putAll(from: Map<out Any, Any>) {}
+
+    override fun remove(key: Any) = null
+
 }

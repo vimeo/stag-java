@@ -21,31 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor;
+package com.vimeo.stag.processor
 
-import org.junit.Test;
+import org.junit.Test
+import javax.tools.Diagnostic
 
-import java.util.Collection;
-import java.util.Collections;
+class StagProcessorFunctionalTest : AbstractAnnotationProcessorTest() {
 
-import javax.annotation.processing.Processor;
-import javax.tools.Diagnostic;
-
-public class StagProcessorFunctionalTest extends AbstractAnnotationProcessorTest {
-
-    @Override
-    protected Collection<javax.annotation.processing.Processor> getProcessors() {
-        StagProcessor processor = new StagProcessor();
-        return Collections.<Processor>singletonList(processor);
-    }
+    override fun getProcessors() = listOf(StagProcessor())
 
     /**
      * Ensure that final fields result in compile-time errors to prevent silent omission of fields
      * from generated type adapters.
      */
     @Test
-    public void finalFieldsInAnnotatedClassReportsAsAnError() throws Exception {
-        assertCompilationReturned(Diagnostic.Kind.ERROR, 8, compileTestCase("bad/FinalFields"));
+    fun finalFieldsInAnnotatedClassReportsAsAnError() {
+        val output = compileTestCase(FinalFields::class.java)
+
+        assertCompilationReturned(arrayOf(Diagnostic.Kind.ERROR), longArrayOf(8), output)
     }
 
     /**
@@ -53,8 +46,10 @@ public class StagProcessorFunctionalTest extends AbstractAnnotationProcessorTest
      * from generated type adapters.
      */
     @Test
-    public void privateFieldsNoSettersOrGettersInAnnotatedClassReportsAsAnError() throws Exception {
-        assertCompilationReturned(Diagnostic.Kind.ERROR, 8, compileTestCase("bad/PrivateFields"));
+    fun privateFieldsNoSettersOrGettersInAnnotatedClassReportsAsAnError() {
+        val output = compileTestCase(PrivateFields::class.java)
+
+        assertCompilationReturned(arrayOf(Diagnostic.Kind.ERROR), longArrayOf(8), output)
     }
 
 }

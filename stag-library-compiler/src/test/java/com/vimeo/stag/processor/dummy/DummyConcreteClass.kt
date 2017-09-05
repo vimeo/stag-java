@@ -21,8 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.stag.processor.dummy
 
-public class DummyInheritedClass extends DummyGenericClass<String> {
+class DummyConcreteClass {
 
+    internal var testInt: Int = 0
+
+    internal var testObject: String? = null
+
+    internal var testList: List<Any>? = null
+
+    internal var testMap: Map<String, Any>? = null
+
+    internal var dummyInheritedClass: DummyGenericClass<DummyGenericClass<DummyInheritedClass>>? = null
 }
