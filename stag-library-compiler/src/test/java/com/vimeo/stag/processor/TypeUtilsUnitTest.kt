@@ -82,17 +82,14 @@ class TypeUtilsUnitTest : BaseUnitTest() {
      * @throws Exception thrown if the test fails.
      */
     @Test
-    @Throws(Exception::class)
     fun getConcreteMembers_isCorrect() {
         val genericElement = Utils.getElementFromClass(DummyGenericClass::class.java)
         assertNotNull(genericElement)
 
         val genericMembers = HashMap<FieldAccessor, TypeMirror>()
-        for (element in genericElement!!.enclosedElements) {
-            if (element is VariableElement) {
-                genericMembers.put(DirectFieldAccessor(element), element.asType())
-            }
-        }
+        genericElement.enclosedElements
+                .filterIsInstance<VariableElement>()
+                .forEach { genericMembers.put(DirectFieldAccessor(it), it.asType()) }
 
         val concreteType = TypeUtils.getInheritedType(Utils.getElementFromClass(DummyInheritedClass::class.java))
 
@@ -109,44 +106,31 @@ class TypeUtilsUnitTest : BaseUnitTest() {
         assertNotNull(stringType)
 
         for ((key, value) in members) {
-            if (key.createGetterCode().contentEquals("testObject = ")) {
+            val getterCode = key.createGetterCode()
+            when {
+                getterCode.contentEquals("testObject = ") ->
+                    assertTrue(value.toString() == stringType.toString())
+                getterCode.contentEquals("testList = ") ->
+                    assertTrue(value.toString() == types.getDeclaredType(Utils.getElementFromClass(ArrayList::class.java), stringType).toString())
+                getterCode.contentEquals("testMap = ") ->
+                    assertTrue(value.toString() == types.getDeclaredType(Utils.getElementFromClass(HashMap::class.java), stringType, stringType).toString())
+                getterCode.contentEquals("testSet = ") ->
+                    assertTrue(value.toString() == types.getDeclaredType(Utils.getElementFromClass(HashSet::class.java), stringType).toString())
+                getterCode.contentEquals("testArrayMap = ") -> {
+                    val listString = types.getDeclaredType(Utils.getElementFromClass(List::class.java), stringType)
 
-                assertTrue(value.toString() == stringType!!.toString())
+                    assertTrue(value.toString() == types.getDeclaredType(Utils.getElementFromClass(HashMap::class.java), stringType, listString).toString())
+                }
+                getterCode.contentEquals("testListMap = ") -> {
+                    val mapStringString = types.getDeclaredType(Utils.getElementFromClass(Map::class.java), stringType, stringType)
 
-            } else if (key.createGetterCode().contentEquals("testList = ")) {
-
-                assertTrue(value
-                        .toString() == types.getDeclaredType(Utils.getElementFromClass(ArrayList::class.java),
-                        stringType).toString())
-
-            } else if (key.createGetterCode().contentEquals("testMap = ")) {
-
-                assertTrue(value
-                        .toString() == types.getDeclaredType(Utils.getElementFromClass(HashMap::class.java), stringType,
-                        stringType).toString())
-
-            } else if (key.createGetterCode().contentEquals("testSet = ")) {
-
-                assertTrue(value
-                        .toString() == types.getDeclaredType(Utils.getElementFromClass(HashSet::class.java), stringType)
-                        .toString())
-            } else if (key.createGetterCode().contentEquals("testArrayMap = ")) {
-                val listString = types.getDeclaredType(Utils.getElementFromClass(List::class.java), stringType)
-
-                assertTrue(value
-                        .toString() == types.getDeclaredType(Utils.getElementFromClass(HashMap::class.java), stringType, listString)
-                        .toString())
-            } else if (key.createGetterCode().contentEquals("testListMap = ")) {
-                val mapStringString = types.getDeclaredType(Utils.getElementFromClass(Map::class.java), stringType, stringType)
-                assertTrue(value
-                        .toString() == types.getDeclaredType(Utils.getElementFromClass(ArrayList::class.java), mapStringString)
-                        .toString())
+                    assertTrue(value.toString() == types.getDeclaredType(Utils.getElementFromClass(ArrayList::class.java), mapStringString).toString())
+                }
             }
         }
     }
 
     @Test
-    @Throws(Exception::class)
     fun isEnum_isCorrect() {
         assertTrue(TypeUtils.isEnum(Utils.getElementFromClass(DummyEnumClass::class.java)))
 
@@ -162,20 +146,19 @@ class TypeUtilsUnitTest : BaseUnitTest() {
 
     @Test
     fun areEqual_isCorrect() {
-        assertTrue(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(Any::class.java)!!, Utils.getTypeMirrorFromClass(Any::class.java)!!))
-        assertTrue(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(String::class.java)!!, Utils.getTypeMirrorFromClass(String::class.java)!!))
-        assertTrue(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(List::class.java)!!, Utils.getTypeMirrorFromClass(List::class.java)!!))
+        assertTrue(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(Any::class.java), Utils.getTypeMirrorFromClass(Any::class.java)))
+        assertTrue(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(String::class.java), Utils.getTypeMirrorFromClass(String::class.java)))
+        assertTrue(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(List::class.java), Utils.getTypeMirrorFromClass(List::class.java)))
 
-        assertFalse(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(Any::class.java)!!, Utils.getTypeMirrorFromClass(String::class.java)!!))
-        assertFalse(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(String::class.java)!!, Utils.getTypeMirrorFromClass(List::class.java)!!))
-        assertFalse(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(List::class.java)!!, Utils.getTypeMirrorFromClass(ArrayList::class.java)!!))
+        assertFalse(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(Any::class.java), Utils.getTypeMirrorFromClass(String::class.java)))
+        assertFalse(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(String::class.java), Utils.getTypeMirrorFromClass(List::class.java)))
+        assertFalse(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(List::class.java), Utils.getTypeMirrorFromClass(ArrayList::class.java)))
 
         assertTrue(TypeUtils.areEqual(Utils.getParameterizedClass(List::class.java, String::class.java), Utils.getParameterizedClass(List::class.java, String::class.java)))
         assertFalse(TypeUtils.areEqual(Utils.getParameterizedClass(List::class.java, String::class.java), Utils.getParameterizedClass(List::class.java, Int::class.java)))
     }
 
     @Test
-    @Throws(Exception::class)
     fun isParameterizedType_isCorrect() {
 
         val testMap = HashMap<String, List<Any>>()
@@ -192,29 +175,28 @@ class TypeUtilsUnitTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun getOuterClassType_isCorrect() {
 
         // Test different objects
         val testMap = HashMap<String, List<Any>>()
         val mapMirror = Utils.getTypeMirrorFromObject(testMap)
         assertNotNull(mapMirror)
-        assertTrue(HashMap::class.java.name == TypeUtils.getOuterClassType(mapMirror!!))
+        assertTrue(HashMap::class.java.name == TypeUtils.getOuterClassType(mapMirror))
 
         val testList = ArrayList<Any>()
         val listMirror = Utils.getTypeMirrorFromObject(testList)
         assertNotNull(listMirror)
-        assertTrue(ArrayList::class.java.name == TypeUtils.getOuterClassType(listMirror!!))
+        assertTrue(ArrayList::class.java.name == TypeUtils.getOuterClassType(listMirror))
 
         val testString = "test"
         val stringMirror = Utils.getTypeMirrorFromObject(testString)
         assertNotNull(stringMirror)
-        assertTrue(String::class.java.name == TypeUtils.getOuterClassType(stringMirror!!))
+        assertTrue(String::class.java.name == TypeUtils.getOuterClassType(stringMirror))
 
         val testObject = Any()
         val objectMirror = Utils.getTypeMirrorFromObject(testObject)
         assertNotNull(objectMirror)
-        assertTrue(Any::class.java.name == TypeUtils.getOuterClassType(objectMirror!!))
+        assertTrue(Any::class.java.name == TypeUtils.getOuterClassType(objectMirror))
 
         // Test primitives
         assertTrue(Int::class.javaPrimitiveType!!.name == TypeUtils.getOuterClassType(types.getPrimitiveType(TypeKind.INT)))
@@ -226,23 +208,21 @@ class TypeUtilsUnitTest : BaseUnitTest() {
 
         val concreteElement = Utils.getElementFromClass(DummyConcreteClass::class.java)
         assertNotNull(concreteElement)
-        for (element in concreteElement!!.enclosedElements) {
-            if (element is VariableElement) {
-                assertTrue(TypeUtils.isConcreteType(element))
-            }
-        }
+        concreteElement.enclosedElements
+                .filterIsInstance<VariableElement>()
+                .forEach { assertTrue(TypeUtils.isConcreteType(it)) }
 
         val genericElement = Utils.getElementFromClass(DummyGenericClass::class.java)
         assertNotNull(genericElement)
-        for (element in genericElement!!.enclosedElements) {
-            if (element is VariableElement) {
-                if ("testString" == element.getSimpleName().toString()) {
-                    assertTrue(TypeUtils.isConcreteType(element))
-                } else {
-                    assertFalse(TypeUtils.isConcreteType(element))
+        genericElement.enclosedElements
+                .filterIsInstance<VariableElement>()
+                .forEach {
+                    if ("testString" == it.simpleName.toString()) {
+                        assertTrue(TypeUtils.isConcreteType(it))
+                    } else {
+                        assertFalse(TypeUtils.isConcreteType(it))
+                    }
                 }
-            }
-        }
 
     }
 
@@ -252,23 +232,21 @@ class TypeUtilsUnitTest : BaseUnitTest() {
 
         val concreteElement = Utils.getElementFromClass(DummyConcreteClass::class.java)
         assertNotNull(concreteElement)
-        for (element in concreteElement!!.enclosedElements) {
-            if (element is VariableElement) {
-                assertTrue(TypeUtils.isConcreteType(element.asType()))
-            }
-        }
+        concreteElement.enclosedElements
+                .filterIsInstance<VariableElement>()
+                .forEach { assertTrue(TypeUtils.isConcreteType(it.asType())) }
 
         val genericElement = Utils.getElementFromClass(DummyGenericClass::class.java)
         assertNotNull(genericElement)
-        for (element in genericElement!!.enclosedElements) {
-            if (element is VariableElement) {
-                if ("testString" == element.getSimpleName().toString()) {
-                    assertTrue(TypeUtils.isConcreteType(element.asType()))
-                } else {
-                    assertFalse(TypeUtils.isConcreteType(element.asType()))
+        genericElement.enclosedElements
+                .filterIsInstance<VariableElement>()
+                .forEach {
+                    if ("testString" == it.simpleName.toString()) {
+                        assertTrue(TypeUtils.isConcreteType(it.asType()))
+                    } else {
+                        assertFalse(TypeUtils.isConcreteType(it.asType()))
+                    }
                 }
-            }
-        }
     }
 
     @Test

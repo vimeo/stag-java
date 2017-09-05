@@ -30,7 +30,6 @@ import java.util.*
 class PreconditionsUnitTest {
 
     @Test
-    @Throws(Exception::class)
     fun testFinalClass_isNotInstantiable() {
         Utils.testZeroArgumentConstructorFinalClass(Preconditions::class.java)
     }
@@ -42,14 +41,12 @@ class PreconditionsUnitTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun checkNotNull_NotNull() {
         val o = Any()
         Preconditions.checkNotNull(o)
     }
 
     @Test
-    @Throws(Exception::class)
     fun checkNotEmpty_NotEmpty() {
         val list = listOf(Any())
 
@@ -63,7 +60,6 @@ class PreconditionsUnitTest {
     }
 
     @Test
-    @Throws(Exception::class)
     fun checkTrue_True() {
         Preconditions.checkTrue(true)
         Preconditions.checkTrue(java.lang.Boolean.TRUE)

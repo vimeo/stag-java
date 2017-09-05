@@ -39,7 +39,7 @@ internal class CleanableJavaFileManager(private val delegate: JavaFileManager) :
     private val writtenFiles = LinkedBlockingQueue<FileObject>()
 
     @Throws(IOException::class)
-    fun purge() {
+    private fun purge() {
         val toDelete = ArrayList<FileObject>()
         writtenFiles.drainTo(toDelete)
         for (file in toDelete) {

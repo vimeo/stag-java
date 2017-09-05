@@ -77,22 +77,18 @@ internal object Utils {
         return safeTypes().getDeclaredType(rootType, *params)
     }
 
-    fun getElementFromClass(clazz: Class<*>): TypeElement? {
-        return elements.getTypeElement(clazz.name)
-    }
+    fun getElementFromClass(clazz: Class<*>): TypeElement = elements.getTypeElement(clazz.name)
 
-    fun getTypeMirrorFromClass(clazz: Class<*>): TypeMirror? {
+    fun getTypeMirrorFromClass(clazz: Class<*>): TypeMirror {
         val element = getElementFromClass(clazz)
-        return element?.asType()
+        return element.asType()
     }
 
-    fun getElementFromObject(`object`: Any): TypeElement? {
-        return elements.getTypeElement(`object`.javaClass.name)
-    }
+    fun getElementFromObject(`object`: Any): TypeElement = elements.getTypeElement(`object`.javaClass.name)
 
-    fun getTypeMirrorFromObject(`object`: Any): TypeMirror? {
+    fun getTypeMirrorFromObject(`object`: Any): TypeMirror {
         val element = getElementFromObject(`object`)
-        return element?.asType()
+        return element.asType()
     }
 
     fun getGenericVersionOfClass(clazz: Class<*>): TypeMirror {
