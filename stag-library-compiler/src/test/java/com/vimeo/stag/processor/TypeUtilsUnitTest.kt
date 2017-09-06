@@ -155,7 +155,7 @@ class TypeUtilsUnitTest : BaseUnitTest() {
         assertFalse(TypeUtils.areEqual(Utils.getTypeMirrorFromClass(List::class.java), Utils.getTypeMirrorFromClass(ArrayList::class.java)))
 
         assertTrue(TypeUtils.areEqual(Utils.getParameterizedClass(List::class.java, String::class.java), Utils.getParameterizedClass(List::class.java, String::class.java)))
-        assertFalse(TypeUtils.areEqual(Utils.getParameterizedClass(List::class.java, String::class.java), Utils.getParameterizedClass(List::class.java, Int::class.java)))
+        assertFalse(TypeUtils.areEqual(Utils.getParameterizedClass(List::class.java, String::class.java), Utils.getParameterizedClass(List::class.java, Int::class.javaObjectType)))
     }
 
     @Test
