@@ -65,9 +65,8 @@ abstract class AbstractAnnotationProcessorTest {
     protected fun compileTestCase(vararg compilationUnits: Class<*>) =
             compileTestCase(Arrays.asList("-Adsljson.showdsl=true"), *compilationUnits)
 
-    protected fun compileTestCase(vararg compilationUnitResources: String): List<Diagnostic<out JavaFileObject>> {
-        return compileTestCase(classNamesToFiles(*compilationUnitResources), listOf())
-    }
+    protected fun compileTestCase(vararg compilationUnitResources: String): List<Diagnostic<out JavaFileObject>> =
+            compileTestCase(classNamesToFiles(*compilationUnitResources), listOf())
 
     /**
      * Attempts to compile the given compilation units using the Java Compiler
@@ -91,8 +90,8 @@ abstract class AbstractAnnotationProcessorTest {
 
     protected fun compileTestCase(compileArguments: List<String>,
                                   vararg compilationUnitPaths: String): List<Diagnostic<out JavaFileObject>> {
-        try {
-            return compileTestCase(findClasspathFiles(compilationUnitPaths), compileArguments)
+        return try {
+            compileTestCase(findClasspathFiles(compilationUnitPaths), compileArguments)
         } catch (exception: IOException) {
             throw IllegalArgumentException(
                     "Unable to resolve compilation units ${Arrays.toString(compilationUnitPaths)} due to: ${exception.message}",
@@ -153,30 +152,21 @@ abstract class AbstractAnnotationProcessorTest {
     }
 
     companion object {
-        private val SOURCE_FILE_SUFFIX = ".java"
+        private const val SOURCE_FILE_SUFFIX = ".java"
         private val COMPILER = ToolProvider.getSystemJavaCompiler()
 
         @JvmStatic
         private fun toResourcePath(clazz: Class<*>) = clazz.name.replace('.', '/') + SOURCE_FILE_SUFFIX
 
         @JvmStatic
-        private fun classNamesToFiles(vararg classNames: String): Collection<File> {
-            val files = ArrayList<File>(classNames.size)
-            for (className in classNames) {
-                files.add(resourceToFile(className + SOURCE_FILE_SUFFIX))
-            }
-
-//            return classNames.map { resourceToFile(it + SOURCE_FILE_SUFFIX) }
-
-            return files
-        }
+        private fun classNamesToFiles(vararg classNames: String): Collection<File> = classNames.map { resourceToFile(it + SOURCE_FILE_SUFFIX) }
 
         @JvmStatic
         private fun resourceToFile(resourceName: String): File {
             val resource = this::class.java.getResource(resourceName)
             assert(resource.protocol == "file")
-            try {
-                return File(resource.toURI())
+            return try {
+                File(resource.toURI())
             } catch (e: URISyntaxException) {
                 throw e
             }
@@ -214,9 +204,8 @@ abstract class AbstractAnnotationProcessorTest {
          * @see .assertCompilationReturned
          */
         @JvmStatic
-        protected fun assertCompilationSuccessful(diagnostics: List<Diagnostic<out JavaFileObject>>) {
-            diagnostics.forEach { assertFalse(it.getMessage(Locale.ENGLISH), it.kind == Kind.ERROR) }
-        }
+        protected fun assertCompilationSuccessful(diagnostics: List<Diagnostic<out JavaFileObject>>) =
+                diagnostics.forEach { assertFalse(it.getMessage(Locale.ENGLISH), it.kind == Kind.ERROR) }
 
         /**
          * Asserts that the compilation produced results of the following

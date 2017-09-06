@@ -44,9 +44,7 @@ class ElementUtilsUnitTest : BaseUnitTest() {
 
     @Test
     @Throws(Exception::class)
-    fun testConstructor() {
-        Utils.testZeroArgumentConstructorFinalClass(ElementUtils::class.java)
-    }
+    fun testConstructor() = Utils.testZeroArgumentConstructorFinalClass(ElementUtils::class.java)
 
     @Test
     @Throws(Exception::class)

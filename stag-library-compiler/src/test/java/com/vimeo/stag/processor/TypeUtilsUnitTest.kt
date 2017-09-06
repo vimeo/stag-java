@@ -44,15 +44,12 @@ import javax.lang.model.type.TypeMirror
 class TypeUtilsUnitTest : BaseUnitTest() {
 
     @Before
-    fun setup() {
-        TypeUtils.initialize(types)
-    }
+    fun setup() = TypeUtils.initialize(types)
 
     @Test
     @Throws(Exception::class)
-    fun testFinalClass_constructorFails() {
-        Utils.testZeroArgumentConstructorFinalClass(TypeUtils::class.java)
-    }
+    fun testFinalClass_constructorFails() =
+            Utils.testZeroArgumentConstructorFinalClass(TypeUtils::class.java)
 
     @Test
     @Throws(Exception::class)

@@ -47,14 +47,14 @@ internal class CleanableJavaFileManager(private val delegate: JavaFileManager) :
         }
     }
 
-    override fun getClassLoader(location: JavaFileManager.Location) =
+    override fun getClassLoader(location: JavaFileManager.Location): ClassLoader =
             delegate.getClassLoader(location)
 
     @Throws(IOException::class)
-    override fun list(location: JavaFileManager.Location, s: String, set: Set<JavaFileObject.Kind>, b: Boolean) =
+    override fun list(location: JavaFileManager.Location, s: String, set: Set<JavaFileObject.Kind>, b: Boolean): MutableIterable<JavaFileObject> =
             delegate.list(location, s, set, b)
 
-    override fun inferBinaryName(location: JavaFileManager.Location, javaFileObject: JavaFileObject) =
+    override fun inferBinaryName(location: JavaFileManager.Location, javaFileObject: JavaFileObject): String =
             delegate.inferBinaryName(location, javaFileObject)
 
     override fun isSameFile(fileObject: FileObject, fileObject1: FileObject) =
@@ -78,7 +78,7 @@ internal class CleanableJavaFileManager(private val delegate: JavaFileManager) :
     }
 
     @Throws(IOException::class)
-    override fun getFileForInput(location: JavaFileManager.Location, s: String, s1: String) =
+    override fun getFileForInput(location: JavaFileManager.Location, s: String, s1: String): FileObject =
             delegate.getFileForInput(location, s, s1)
 
     @Throws(IOException::class)
@@ -89,9 +89,7 @@ internal class CleanableJavaFileManager(private val delegate: JavaFileManager) :
     }
 
     @Throws(IOException::class)
-    override fun flush() {
-        delegate.flush()
-    }
+    override fun flush() = delegate.flush()
 
     @Throws(IOException::class)
     override fun close() {

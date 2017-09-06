@@ -30,9 +30,8 @@ import java.util.*
 class PreconditionsUnitTest {
 
     @Test
-    fun testFinalClass_isNotInstantiable() {
-        Utils.testZeroArgumentConstructorFinalClass(Preconditions::class.java)
-    }
+    fun testFinalClass_isNotInstantiable() =
+            Utils.testZeroArgumentConstructorFinalClass(Preconditions::class.java)
 
     @Test(expected = NullPointerException::class)
     fun checkNotNull_Null_throwsNullPointer() {
@@ -66,13 +65,9 @@ class PreconditionsUnitTest {
     }
 
     @Test(expected = IllegalStateException::class)
-    fun checkTrue_FalsePrimitive_throwsException() {
-        Preconditions.checkTrue(false)
-    }
+    fun checkTrue_FalsePrimitive_throwsException() = Preconditions.checkTrue(false)
 
     @Test(expected = IllegalStateException::class)
-    fun checkTrue_FalseObject_throwsException() {
-        Preconditions.checkTrue(java.lang.Boolean.FALSE)
-    }
+    fun checkTrue_FalseObject_throwsException() = Preconditions.checkTrue(java.lang.Boolean.FALSE)
 
 }
