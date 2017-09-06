@@ -2,6 +2,7 @@ package com.vimeo.stag.processor.generators.model.accessor;
 
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.MessagerUtils;
+import com.vimeo.stag.processor.utils.StringUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
@@ -121,8 +122,9 @@ public class MethodFieldAccessor extends FieldAccessor {
         final boolean variableNameBeginsWithIs = variableNameBeginsWithIs(variableNameMethodComponent);
 
         return (isBoolean(returnType)
-            && ((!variableNameBeginsWithIs && methodName.equals("is" + variableNameMethodComponent))
-            || (variableNameBeginsWithIs && methodName.equals(convertCharAtToLowerCase(variableNameMethodComponent, 0)))))
+            && (methodName.equals(variableNameBeginsWithIs
+                                          ? StringUtils.convertCharAtToLowerCase(variableNameMethodComponent, 0)
+                                          : "is" + variableNameMethodComponent)))
             || methodName.equals("get" + variableNameMethodComponent);
     }
 
@@ -130,16 +132,6 @@ public class MethodFieldAccessor extends FieldAccessor {
         return variableName.length() > 2
             && (variableName.startsWith("is") || variableName.startsWith("Is"))
             && Character.isUpperCase(variableName.charAt(2));
-    }
-
-    @NotNull
-    private static String convertCharAtToLowerCase(@NotNull String string, int index) {
-        final char[] chars = string.toCharArray();
-        final char c = chars[index];
-
-        chars[index] = Character.toLowerCase(c);
-
-        return String.valueOf(chars);
     }
 
     @NotNull
