@@ -24,10 +24,13 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import java.io.File
 import java.io.IOException
+import java.net.URISyntaxException
 import java.util.*
 import javax.annotation.processing.Processor
 import javax.tools.*
 import javax.tools.Diagnostic.Kind
+import kotlin.collections.ArrayList
+
 
 /**
  * Adapted from [https://raw.githubusercontent.com/ngs-doo/dsl-json/master/processor/src/test/java/com/dslplatform/json/AbstractAnnotationProcessorTest.java]
@@ -62,6 +65,10 @@ abstract class AbstractAnnotationProcessorTest {
     protected fun compileTestCase(vararg compilationUnits: Class<*>) =
             compileTestCase(Arrays.asList("-Adsljson.showdsl=true"), *compilationUnits)
 
+    protected fun compileTestCase(vararg compilationUnitResources: String): List<Diagnostic<out JavaFileObject>> {
+        return compileTestCase(classNamesToFiles(*compilationUnitResources), listOf())
+    }
+
     /**
      * Attempts to compile the given compilation units using the Java Compiler
      * API.
@@ -79,7 +86,19 @@ abstract class AbstractAnnotationProcessorTest {
                                   vararg compilationUnits: Class<*>): List<Diagnostic<out JavaFileObject>> {
         val compilationUnitPaths = compilationUnits.map { toResourcePath(it) }.toTypedArray()
 
-        return compileTestCase(compilationUnitPaths, compileArguments)
+        return compileTestCase(compileArguments, *compilationUnitPaths)
+    }
+
+    protected fun compileTestCase(compileArguments: List<String>,
+                                  vararg compilationUnitPaths: String): List<Diagnostic<out JavaFileObject>> {
+        try {
+            return compileTestCase(findClasspathFiles(compilationUnitPaths), compileArguments)
+        } catch (exception: IOException) {
+            throw IllegalArgumentException(
+                    "Unable to resolve compilation units ${Arrays.toString(compilationUnitPaths)} due to: ${exception.message}",
+                    exception
+            )
+        }
     }
 
     /**
@@ -93,21 +112,12 @@ abstract class AbstractAnnotationProcessorTest {
      * documentation for [JavaCompiler]
      * @see .compileTestCase
      */
-    protected fun compileTestCase(compilationUnitPaths: Array<String>,
-                                  arguments: List<String>): List<Diagnostic<out JavaFileObject>> {
-        val compilationUnits: Collection<File>
-
-        try {
-            compilationUnits = findClasspathFiles(compilationUnitPaths)
-        } catch (exception: IOException) {
-            throw IllegalArgumentException(
-                    "Unable to resolve compilation units ${Arrays.toString(compilationUnitPaths)} due to: ${exception.message}",
-                    exception
-            )
-        }
-
+    private fun compileTestCase(compilationUnits: Collection<File>,
+                                arguments: List<String>): List<Diagnostic<out JavaFileObject>> {
         val diagnosticCollector = DiagnosticCollector<JavaFileObject>()
-        val fileManager = COMPILER.getStandardFileManager(diagnosticCollector, null, null)
+
+        val javaFileManager = COMPILER.getStandardFileManager(diagnosticCollector, null, null)
+        val cleanableFileManager = CleanableJavaFileManager(javaFileManager)
 
         val compileArgs = ArrayList<String>()
         compileArgs.add("-proc:only")
@@ -122,14 +132,14 @@ abstract class AbstractAnnotationProcessorTest {
          * with) is *not* available via the RoundEnvironment. However, if these classes
          * are annotations, they certainly need to be validated.
          */
-        val task = COMPILER.getTask(null, fileManager, diagnosticCollector,
+        val task = COMPILER.getTask(null, cleanableFileManager, diagnosticCollector,
                 compileArgs, null,
-                fileManager.getJavaFileObjectsFromFiles(compilationUnits))
+                javaFileManager.getJavaFileObjectsFromFiles(compilationUnits))
         task.setProcessors(getProcessors())
         task.call()
 
         try {
-            fileManager.close()
+            cleanableFileManager.close()
         } catch (ignore: IOException) {
         }
 
@@ -146,11 +156,36 @@ abstract class AbstractAnnotationProcessorTest {
         private val SOURCE_FILE_SUFFIX = ".java"
         private val COMPILER = ToolProvider.getSystemJavaCompiler()
 
+        @JvmStatic
         private fun toResourcePath(clazz: Class<*>) = clazz.name.replace('.', '/') + SOURCE_FILE_SUFFIX
 
         @JvmStatic
+        private fun classNamesToFiles(vararg classNames: String): Collection<File> {
+            val files = ArrayList<File>(classNames.size)
+            for (className in classNames) {
+                files.add(resourceToFile(className + SOURCE_FILE_SUFFIX))
+            }
+
+//            return classNames.map { resourceToFile(it + SOURCE_FILE_SUFFIX) }
+
+            return files
+        }
+
+        @JvmStatic
+        private fun resourceToFile(resourceName: String): File {
+            val resource = this::class.java.getResource(resourceName)
+            assert(resource.protocol == "file")
+            try {
+                return File(resource.toURI())
+            } catch (e: URISyntaxException) {
+                throw e
+            }
+
+        }
+
+        @JvmStatic
         @Throws(IOException::class)
-        private fun findClasspathFiles(filenames: Array<String>): Collection<File> {
+        private fun findClasspathFiles(filenames: Array<out String>): Collection<File> {
             val classpathFiles = ArrayList<File>(filenames.size)
 
             val cl = Thread.currentThread().contextClassLoader

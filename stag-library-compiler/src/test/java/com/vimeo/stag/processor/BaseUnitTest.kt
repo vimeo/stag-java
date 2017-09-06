@@ -24,10 +24,8 @@
 package com.vimeo.stag.processor
 
 import com.google.testing.compile.CompilationRule
-
 import org.junit.Before
 import org.junit.Rule
-
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 
@@ -36,8 +34,10 @@ import javax.lang.model.util.Types
  */
 open class BaseUnitTest {
 
+    @JvmField
     @Rule
     val rule = CompilationRule()
+
     protected lateinit var elements: Elements
     protected lateinit var types: Types
 

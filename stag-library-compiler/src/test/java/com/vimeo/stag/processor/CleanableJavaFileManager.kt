@@ -67,11 +67,11 @@ internal class CleanableJavaFileManager(private val delegate: JavaFileManager) :
             delegate.hasLocation(location)
 
     @Throws(IOException::class)
-    override fun getJavaFileForInput(location: JavaFileManager.Location, s: String, kind: JavaFileObject.Kind) =
+    override fun getJavaFileForInput(location: JavaFileManager.Location, s: String, kind: JavaFileObject.Kind): JavaFileObject =
             delegate.getJavaFileForInput(location, s, kind)
 
     @Throws(IOException::class)
-    override fun getJavaFileForOutput(location: JavaFileManager.Location, s: String, kind: JavaFileObject.Kind, fileObject: FileObject): JavaFileObject {
+    override fun getJavaFileForOutput(location: JavaFileManager.Location, s: String, kind: JavaFileObject.Kind, fileObject: FileObject?): JavaFileObject {
         val javaFileForOutput = delegate.getJavaFileForOutput(location, s, kind, fileObject)
         writtenFiles.add(javaFileForOutput)
         return javaFileForOutput
@@ -82,7 +82,7 @@ internal class CleanableJavaFileManager(private val delegate: JavaFileManager) :
             delegate.getFileForInput(location, s, s1)
 
     @Throws(IOException::class)
-    override fun getFileForOutput(location: JavaFileManager.Location, s: String, s1: String, fileObject: FileObject): FileObject {
+    override fun getFileForOutput(location: JavaFileManager.Location, s: String, s1: String, fileObject: FileObject?): FileObject {
         val fileForOutput = delegate.getFileForOutput(location, s, s1, fileObject)
         writtenFiles.add(fileForOutput)
         return fileForOutput

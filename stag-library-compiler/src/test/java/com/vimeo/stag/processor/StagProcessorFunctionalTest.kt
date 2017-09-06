@@ -36,7 +36,7 @@ class StagProcessorFunctionalTest : AbstractAnnotationProcessorTest() {
      */
     @Test
     fun finalFieldsInAnnotatedClassReportsAsAnError() {
-        val output = compileTestCase(FinalFields::class.java)
+        val output = compileTestCase("bad/FinalFields")
 
         assertCompilationReturned(arrayOf(Diagnostic.Kind.ERROR), longArrayOf(8), output)
     }
@@ -47,7 +47,7 @@ class StagProcessorFunctionalTest : AbstractAnnotationProcessorTest() {
      */
     @Test
     fun privateFieldsNoSettersOrGettersInAnnotatedClassReportsAsAnError() {
-        val output = compileTestCase(PrivateFields::class.java)
+        val output = compileTestCase("bad/PrivateFields")
 
         assertCompilationReturned(arrayOf(Diagnostic.Kind.ERROR), longArrayOf(8), output)
     }

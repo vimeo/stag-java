@@ -68,11 +68,7 @@ internal object Utils {
      */
     fun getParameterizedClass(clazz: Class<*>, vararg parameters: Class<*>): DeclaredType {
         val rootType = elements.getTypeElement(clazz.name)
-        val params = arrayOfNulls<TypeMirror>(parameters.size)
-
-        for (n in parameters.indices) {
-            params[n] = elements.getTypeElement(parameters[n].name).asType()
-        }
+        val params = parameters.map { elements.getTypeElement(it.name).asType() }.toTypedArray()
 
         return safeTypes().getDeclaredType(rootType, *params)
     }
