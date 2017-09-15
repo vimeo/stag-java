@@ -1,7 +1,7 @@
 Change Log
 ==========
 
-Version 2.3.3 *(2017-09-07)*
+Version 2.3.3 *(2017-09-15)*
 ----------------------------
 - `isXYZ()` and `setXYZ()` are now accepted as getter and setter names for boolean fields named `isXYZ` or `mIsXYZ`.
 
