@@ -64,6 +64,11 @@ public final class ElementUtils {
     }
 
     @Nullable
+    public static TypeMirror getTypeFromClass(@NotNull Class clazz) {
+        return getTypeFromQualifiedName(clazz.getName());
+    }
+
+    @Nullable
     public static TypeElement getTypeElementFromQualifiedName(@NotNull String qualifiedName) {
         Elements elements = ElementUtils.getUtils();
         return elements.getTypeElement(qualifiedName);
@@ -103,7 +108,7 @@ public final class ElementUtils {
         }
         ElementKind elementKind = element.getKind();
         return (elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM)
-               && isAnnotatedWith(UseStag.class, element);
+            && isAnnotatedWith(UseStag.class, element);
     }
 
     @Nullable

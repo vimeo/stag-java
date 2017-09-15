@@ -26,28 +26,29 @@ All jar dependencies are available on jcenter.
 ```groovy
 buildscript {
     repositories {
-        maven {
-            url 'https://plugins.gradle.org/m2/'
-        }
+        maven { url 'https://plugins.gradle.org/m2/' }
     }
     dependencies {
-        classpath 'net.ltgt.gradle:gradle-apt-plugin:0.6'
+        classpath 'net.ltgt.gradle:gradle-apt-plugin:0.11'
     }
 }
 
 apply plugin: 'net.ltgt.apt'
 
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.3.2'
-    apt 'com.vimeo.stag:stag-library-compiler:2.3.2'
+    def stagVersion = '2.3.3'
+    compile "com.vimeo.stag:stag-library:$stagVersion"
+    apt "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }
 
 // Optional annotation processor arguments (see below)
-apt {
-    arguments {
-        stagAssumeHungarianNotation true
-        stagGeneratedPackageName "com.vimeo.sample.stag.generated"
-        stagDebug true
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        aptOptions.processorArgs = [
+                stagAssumeHungarianNotation: "true",
+                stagGeneratedPackageName   : "com.vimeo.sample.stag.generated",
+                stagDebug                  : "true"
+        ]
     }
 }
 ```
@@ -56,8 +57,9 @@ apt {
 
 ```groovy
 dependencies {
-    compile 'com.vimeo.stag:stag-library:2.3.2'
-    annotationProcessor 'com.vimeo.stag:stag-library-compiler:2.3.2'
+    def stagVersion = '2.3.3'
+    compile "com.vimeo.stag:stag-library:$stagVersion"
+    annotationProcessor "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }
 
 android {

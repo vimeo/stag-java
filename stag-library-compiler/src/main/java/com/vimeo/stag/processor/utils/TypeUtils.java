@@ -172,7 +172,14 @@ public final class TypeUtils {
      * @param typeMirror2 the second type to compare.
      * @return true if they are equal, false otherwise.
      */
-    public static boolean areEqual(@NotNull TypeMirror typeMirror1, @NotNull TypeMirror typeMirror2) {
+    public static boolean areEqual(@Nullable TypeMirror typeMirror1, @Nullable TypeMirror typeMirror2) {
+        if (typeMirror1 == null && typeMirror2 != null) {
+            return false;
+        } else if (typeMirror1 != null && typeMirror2 == null) {
+            return false;
+        } else if (typeMirror1 == typeMirror2) {
+            return true;
+        }
         return getUtils().isSameType(typeMirror1, typeMirror2);
     }
 
@@ -376,7 +383,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), resolvedType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                                      " resolved to - " + resolvedType.toString());
+                        " resolved to - " + resolvedType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -384,11 +391,26 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                                      " resolved to - " + concreteType.toString());
+                        " resolved to - " + concreteType.toString());
                 }
             }
         }
         return map;
+    }
+
+    /**
+     * Gets the primitive type mirror type.
+     *
+     * @param typeKind the type kind to get the primitive for.
+     * @return the primitive type, or null if the type is not primitive.
+     */
+    @Nullable
+    public static TypeMirror getPrimitive(@NotNull TypeKind typeKind) {
+        try {
+            return getUtils().getPrimitiveType(typeKind);
+        } catch (Exception ignored) {
+            return null;
+        }
     }
 
     private static boolean isPrimitive(@NotNull TypeMirror type, @NotNull Types utils) {
@@ -421,7 +443,7 @@ public final class TypeUtils {
             concreteGenericTypes.add(resolveTypeVars(type, inheritedTypes, concreteTypes));
         }
         TypeMirror[] concreteTypeArray =
-                concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
+            concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
         return types.getDeclaredType(typeElement, concreteTypeArray);
     }
 
@@ -487,8 +509,8 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-               outerClassType.equals(List.class.getName()) ||
-               outerClassType.equals(Collection.class.getName());
+            outerClassType.equals(List.class.getName()) ||
+            outerClassType.equals(Collection.class.getName());
     }
 
     /**
@@ -517,11 +539,11 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(Map.class.getName()) ||
-               outerClassType.equals(HashMap.class.getName()) ||
-               outerClassType.equals(ConcurrentHashMap.class.getName()) ||
-               outerClassType.equals("android.util.ArrayMap") ||
-               outerClassType.equals("android.support.v4.util.ArrayMap") ||
-               outerClassType.equals(LinkedHashMap.class.getName());
+            outerClassType.equals(HashMap.class.getName()) ||
+            outerClassType.equals(ConcurrentHashMap.class.getName()) ||
+            outerClassType.equals("android.util.ArrayMap") ||
+            outerClassType.equals("android.support.v4.util.ArrayMap") ||
+            outerClassType.equals(LinkedHashMap.class.getName());
     }
 
     /**
@@ -532,9 +554,9 @@ public final class TypeUtils {
      */
     public static boolean isSupportedNative(@NotNull String type) {
         return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
-               type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
-               type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
-               type.equals(Float.class.getName()) || type.equals(Number.class.getName());
+            type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
+            type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
+            type.equals(Float.class.getName()) || type.equals(Number.class.getName());
     }
 
     /**
@@ -543,7 +565,7 @@ public final class TypeUtils {
     @NotNull
     public static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
         return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments()
-                .get(0);
+            .get(0);
     }
 
     @NotNull
