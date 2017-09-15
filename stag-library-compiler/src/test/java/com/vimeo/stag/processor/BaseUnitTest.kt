@@ -41,7 +41,6 @@ open class BaseUnitTest {
     protected lateinit var elements: Elements
     protected lateinit var types: Types
 
-
     @Before
     fun _setup() {
         elements = rule.elements

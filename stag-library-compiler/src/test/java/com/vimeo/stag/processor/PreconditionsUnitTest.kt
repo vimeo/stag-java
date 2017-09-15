@@ -25,7 +25,6 @@ package com.vimeo.stag.processor
 
 import com.vimeo.stag.processor.utils.Preconditions
 import org.junit.Test
-import java.util.*
 
 class PreconditionsUnitTest {
 
@@ -34,29 +33,16 @@ class PreconditionsUnitTest {
             Utils.testZeroArgumentConstructorFinalClass(Preconditions::class.java)
 
     @Test(expected = NullPointerException::class)
-    fun checkNotNull_Null_throwsNullPointer() {
-        val o: Any? = null
-        Preconditions.checkNotNull(o)
-    }
+    fun checkNotNull_Null_throwsNullPointer() = Preconditions.checkNotNull(null)
 
     @Test
-    fun checkNotNull_NotNull() {
-        val o = Any()
-        Preconditions.checkNotNull(o)
-    }
+    fun checkNotNull_NotNull() = Preconditions.checkNotNull(Any())
 
     @Test
-    fun checkNotEmpty_NotEmpty() {
-        val list = listOf(Any())
-
-        Preconditions.checkNotEmpty(list)
-    }
+    fun checkNotEmpty_NotEmpty() = Preconditions.checkNotEmpty(listOf(Any()))
 
     @Test(expected = IllegalStateException::class)
-    fun checkNotEmpty_Empty_throwsException() {
-        val list = ArrayList<Any>()
-        Preconditions.checkNotEmpty(list)
-    }
+    fun checkNotEmpty_Empty_throwsException() = Preconditions.checkNotEmpty(listOf<Any>())
 
     @Test
     fun checkTrue_True() {

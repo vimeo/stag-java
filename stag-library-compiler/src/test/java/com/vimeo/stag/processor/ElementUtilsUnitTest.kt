@@ -29,7 +29,8 @@ import com.vimeo.stag.processor.dummy.DummyGenericClass
 import com.vimeo.stag.processor.dummy.DummyInheritedClass
 import com.vimeo.stag.processor.utils.ElementUtils
 import com.vimeo.stag.processor.utils.TypeUtils
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
 import java.util.*
@@ -43,76 +44,69 @@ class ElementUtilsUnitTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
     fun testConstructor() = Utils.testZeroArgumentConstructorFinalClass(ElementUtils::class.java)
 
     @Test
-    @Throws(Exception::class)
     fun testGetTypeFromQualifiedName() {
-        Assert.assertEquals(Utils.getTypeMirrorFromClass(String::class.java),
-                ElementUtils.getTypeFromQualifiedName(String::class.java.name))
-        Assert.assertEquals(Utils.getTypeMirrorFromClass(Any::class.java),
-                ElementUtils.getTypeFromQualifiedName(Any::class.java.name))
-        Assert.assertEquals(Utils.getTypeMirrorFromClass(ArrayList::class.java),
-                ElementUtils.getTypeFromQualifiedName(ArrayList::class.java.name))
-        Assert.assertEquals(Utils.getTypeMirrorFromClass(DummyConcreteClass::class.java),
-                ElementUtils.getTypeFromQualifiedName(DummyConcreteClass::class.java.name))
-        Assert.assertEquals(Utils.getTypeMirrorFromClass(DummyGenericClass::class.java),
-                ElementUtils.getTypeFromQualifiedName(DummyGenericClass::class.java.name))
-        Assert.assertEquals(Utils.getTypeMirrorFromClass(DummyInheritedClass::class.java),
-                ElementUtils.getTypeFromQualifiedName(DummyInheritedClass::class.java.name))
+        testTypeMirrorCreationAndEquality(String::class.java)
+        testTypeMirrorCreationAndEquality(Any::class.java)
+        testTypeMirrorCreationAndEquality(ArrayList::class.java)
+        testTypeMirrorCreationAndEquality(DummyConcreteClass::class.java)
+        testTypeMirrorCreationAndEquality(DummyGenericClass::class.java)
+        testTypeMirrorCreationAndEquality(DummyInheritedClass::class.java)
 
-        Assert.assertNotEquals(Utils.getTypeMirrorFromClass(DummyConcreteClass::class.java),
-                ElementUtils.getTypeFromQualifiedName(DummyInheritedClass::class.java.name))
-        Assert.assertNotEquals(Utils.getTypeMirrorFromClass(DummyGenericClass::class.java),
-                ElementUtils.getTypeFromQualifiedName(DummyConcreteClass::class.java.name))
-        Assert.assertNotEquals(Utils.getTypeMirrorFromClass(DummyInheritedClass::class.java),
-                ElementUtils.getTypeFromQualifiedName(DummyGenericClass::class.java.name))
+        testTypeMirrorCreationAndInequality(DummyConcreteClass::class.java, DummyInheritedClass::class.java)
+        testTypeMirrorCreationAndInequality(DummyGenericClass::class.java, DummyConcreteClass::class.java)
+        testTypeMirrorCreationAndInequality(DummyInheritedClass::class.java, DummyGenericClass::class.java)
+    }
+
+    private fun <T> testTypeMirrorCreationAndEquality(clazz: Class<T>) {
+        assertEquals(Utils.getTypeMirrorFromClass(clazz), ElementUtils.getTypeFromQualifiedName(clazz.name))
+    }
+
+    private fun <T, R> testTypeMirrorCreationAndInequality(clazz: Class<T>, otherClass: Class<R>) {
+        assertNotEquals(Utils.getTypeMirrorFromClass(clazz), ElementUtils.getTypeFromQualifiedName(otherClass.name))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testGetPackage() {
-        Assert.assertEquals(String::class.java.`package`.name,
-                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(String::class.java)))
-        Assert.assertEquals(ArrayList::class.java.`package`.name,
-                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(ArrayList::class.java)))
-        Assert.assertEquals(Any::class.java.`package`.name,
-                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(Any::class.java)))
-        Assert.assertEquals(DummyGenericClass::class.java.`package`.name,
-                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(DummyGenericClass::class.java)))
+        testPackageEquality(String::class.java)
+        testPackageEquality(ArrayList::class.java)
+        testPackageEquality(Any::class.java)
+        testPackageEquality(DummyGenericClass::class.java)
 
-        Assert.assertEquals(DummyGenericClass::class.java.`package`.name,
-                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(DummyConcreteClass::class.java)))
-        Assert.assertEquals(DummyConcreteClass::class.java.`package`.name,
-                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(DummyInheritedClass::class.java)))
-        Assert.assertEquals(DummyInheritedClass::class.java.`package`.name,
-                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(DummyGenericClass::class.java)))
+        testPackageEquality(DummyGenericClass::class.java, DummyConcreteClass::class.java)
+        testPackageEquality(DummyConcreteClass::class.java, DummyInheritedClass::class.java)
+        testPackageEquality(DummyInheritedClass::class.java, DummyGenericClass::class.java)
 
 
-        Assert.assertNotEquals(Any::class.java.`package`.name,
-                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(ArrayList::class.java)))
-        Assert.assertNotEquals(List::class.java.`package`.name,
-                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(String::class.java)))
-        Assert.assertNotEquals(DummyInheritedClass::class.java.`package`.name,
-                ElementUtils.getPackage(Utils.getTypeMirrorFromClass(Any::class.java)))
+        testPackageInequality(Any::class.java, ArrayList::class.java)
+        testPackageInequality(List::class.java, String::class.java)
+        testPackageInequality(DummyInheritedClass::class.java, Any::class.java)
+    }
+
+    private fun testPackageEquality(clazz: Class<out Any>, otherClass: Class<out Any> = clazz) {
+        assertEquals(clazz.`package`.name, ElementUtils.getPackage(Utils.getTypeMirrorFromClass(otherClass)))
+    }
+
+    private fun <T, R> testPackageInequality(clazz: Class<T>, otherClass: Class<R>) {
+        assertNotEquals(clazz.`package`.name, ElementUtils.getPackage(Utils.getTypeMirrorFromClass(otherClass)))
     }
 
     @Test
-    @Throws(Exception::class)
     fun testGetConstructor() {
         var executableElement = ElementUtils.getFirstConstructor(Utils.getTypeMirrorFromClass(String::class.java))!!
-        Assert.assertEquals(executableElement.enclosingElement.toString(), Utils.getElementFromClass(String::class.java).toString())
-        Assert.assertEquals(executableElement.parameters.size.toLong(), 0)
+        assertEquals(executableElement.enclosingElement.toString(), Utils.getElementFromClass(String::class.java).toString())
+        assertEquals(executableElement.parameters.size.toLong(), 0)
 
         executableElement = ElementUtils.getFirstConstructor(Utils.getTypeMirrorFromClass(DummyClassWithConstructor::class.java))!!
-        Assert.assertEquals(executableElement.enclosingElement.toString(), Utils.getElementFromClass(DummyClassWithConstructor::class.java).toString())
-        Assert.assertEquals(executableElement.parameters.size.toLong(), 1)
-        Assert.assertEquals(executableElement.parameters[0].asType().toString(), Utils.getElementFromClass(String::class.java).toString())
+        assertEquals(executableElement.enclosingElement.toString(), Utils.getElementFromClass(DummyClassWithConstructor::class.java).toString())
+        assertEquals(executableElement.parameters.size.toLong(), 1)
+        assertEquals(executableElement.parameters[0].asType().toString(), Utils.getElementFromClass(String::class.java).toString())
 
         executableElement = ElementUtils.getFirstConstructor(Utils.getTypeMirrorFromClass(DummyGenericClass::class.java))!!
-        Assert.assertEquals(executableElement.enclosingElement.toString(), Utils.getElementFromClass(DummyGenericClass::class.java).toString())
-        Assert.assertEquals(executableElement.parameters.size.toLong(), 0)
+        assertEquals(executableElement.enclosingElement.toString(), Utils.getElementFromClass(DummyGenericClass::class.java).toString())
+        assertEquals(executableElement.parameters.size.toLong(), 0)
 
     }
 

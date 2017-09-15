@@ -24,13 +24,13 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import java.io.File
 import java.io.IOException
+import java.lang.IllegalArgumentException
 import java.net.URISyntaxException
 import java.util.*
 import javax.annotation.processing.Processor
 import javax.tools.*
 import javax.tools.Diagnostic.Kind
 import kotlin.collections.ArrayList
-
 
 /**
  * Adapted from [https://raw.githubusercontent.com/ngs-doo/dsl-json/master/processor/src/test/java/com/dslplatform/json/AbstractAnnotationProcessorTest.java]
@@ -105,7 +105,7 @@ abstract class AbstractAnnotationProcessorTest {
      *
      * The compilation units and all their dependencies are expected to be on the classpath.
      *
-     * @param compilationUnitPaths the paths of the source files to compile, as would be expected
+     * @param compilationUnits the paths of the source files to compile, as would be expected
      * by [ClassLoader.getResource]
      * @return the [diagnostics][Diagnostic] returned by the compilation, as demonstrated in the
      * documentation for [JavaCompiler]
@@ -118,9 +118,7 @@ abstract class AbstractAnnotationProcessorTest {
         val javaFileManager = COMPILER.getStandardFileManager(diagnosticCollector, null, null)
         val cleanableFileManager = CleanableJavaFileManager(javaFileManager)
 
-        val compileArgs = ArrayList<String>()
-        compileArgs.add("-proc:only")
-        compileArgs.addAll(arguments)
+        val compileArgs = listOf("-proc:only") + arguments
         /*
          * Call the compiler with the "-proc:only" option. The "class names"
          * option (which could, in principle, be used instead of compilation
@@ -143,7 +141,7 @@ abstract class AbstractAnnotationProcessorTest {
         }
 
         val diagnostics = diagnosticCollector.diagnostics
-        if (diagnostics.size > 0 && diagnostics[0].kind == Kind.WARNING
+        if (diagnostics.isNotEmpty() && diagnostics[0].kind == Kind.WARNING
                 && diagnostics[0].getMessage(Locale.ENGLISH).startsWith("Supported source version 'RELEASE_6' from annotation processor 'com.dslplatform.json.CompiledJsonProcessor' less than -source")) {
             return diagnostics.subList(1, diagnostics.size)
         }
@@ -179,7 +177,7 @@ abstract class AbstractAnnotationProcessorTest {
             val classpathFiles = ArrayList<File>(filenames.size)
 
             val cl = Thread.currentThread().contextClassLoader
-            val classpathRoot = File(cl.getResource("")!!.path)
+            val classpathRoot = File(cl.getResource("").path)
             val projectRoot = classpathRoot.parentFile.parentFile.parentFile
             val javaRoot = File(File(File(projectRoot, "src"), "test"), "java")
 
