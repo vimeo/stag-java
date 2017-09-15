@@ -36,7 +36,7 @@ buildscript {
 apply plugin: 'net.ltgt.apt'
 
 dependencies {
-    def stagVersion = '2.3.2'
+    def stagVersion = '2.3.3'
     compile "com.vimeo.stag:stag-library:$stagVersion"
     apt "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }
@@ -57,7 +57,7 @@ gradle.projectsEvaluated {
 
 ```groovy
 dependencies {
-    def stagVersion = '2.3.2'
+    def stagVersion = '2.3.3'
     compile "com.vimeo.stag:stag-library:$stagVersion"
     annotationProcessor "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }

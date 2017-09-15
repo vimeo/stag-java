@@ -1,6 +1,10 @@
 Change Log
 ==========
 
+Version 2.3.3 *(2017-09-15)*
+----------------------------
+- `isXYZ()` and `setXYZ()` are now accepted as getter and setter names for boolean fields named `isXYZ` or `mIsXYZ`.
+
 Version 2.3.2 *(2017-07-14)*
 ----------------------------
 - Fixed a bug where stag was unable to find setters/getters for parameterized private fields.
