@@ -1,12 +1,9 @@
-#### Ticket
-**Required for Vimeans only**
-[TICKET_NUMBER](https://vimean.atlassian.net/browse/TICKET_NUMBER)
+#### Issue
+(If applicable)
+- https://github.com/vimeo/stag-java/issues/NUMBER
 
-#### Ticket Summary
-A brief but thorough description of the ticket.
-
-#### Implementation Summary
-A brief but thorough description of the changes put in place to address the ticket.
+#### Summary
+A brief but thorough description of the changes.
 
 #### How to Test
-Detailed *list* of what to test and how to test it. Including all edge cases.
+Detailed list of what to test and how to test it. Include all edge cases.
