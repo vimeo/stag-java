@@ -36,10 +36,10 @@ class ProcessorTester(private val processor: () -> Processor) {
      *
      * @param clazz the class(es) to compile, in the form of `package/ClassName.java`
      */
-    fun compile(vararg clazz: String): Compilation {
+    fun compileResource(vararg clazz: String): Compilation {
         return Compiler.javac()
                 .withProcessors(processor())
-                .compile(fileManager.getJavaFileObjects(*clazz.map { it.asClassPathFile() }.toTypedArray()))
+                .compile(fileManager.getJavaFileObjects(*clazz.map { javaClass.getResource(it).toURI() }.map { File(it) }.toTypedArray()))
     }
 
     /**

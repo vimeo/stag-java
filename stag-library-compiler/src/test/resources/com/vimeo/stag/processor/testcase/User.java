@@ -21,35 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor
+package com.vimeo.stag.processor.testcase;
 
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
-class StagProcessorFunctionalTest {
+/**
+ * Simple valid model.
+ */
+@UseStag
+public class User {
 
-    private val processorTester = ProcessorTester({ StagProcessor() })
+    @SerializedName("name")
+    public String mName;
 
-    /**
-     * Ensure that final fields result in compile-time errors to prevent silent omission of fields
-     * from generated type adapters.
-     */
-    @Test
-    fun finalFieldsInAnnotatedClassReportsAsAnError() {
-        assertThat(processorTester.compileResource("testcase/FinalFields.java").isSuccessful()).isFalse()
-    }
+    @SerializedName("location")
+    public String mLocation;
 
-    /**
-     * Ensure that private fields result in compile-time errors to prevent silent omission of fields
-     * from generated type adapters.
-     */
-    @Test
-    fun privateFieldsNoSettersOrGettersInAnnotatedClassReportsAsAnError() {
-        assertThat(processorTester.compileResource("testcase/FinalFields.java").isSuccessful()).isFalse()
-    }
-
-    @Test
-    fun `User compiles successfully`() {
-        assertThat(processorTester.compileResource("testcase/User.java").isSuccessful()).isTrue()
+    @Override
+    public String toString() {
+        return "name: " + mName + ", location: " + mLocation;
     }
 }

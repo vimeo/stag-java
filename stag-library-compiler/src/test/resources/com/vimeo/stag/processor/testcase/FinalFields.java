@@ -1,4 +1,4 @@
-package testcase;
+package com.vimeo.stag.processor.testcase;
 
 import com.vimeo.stag.UseStag;
 
