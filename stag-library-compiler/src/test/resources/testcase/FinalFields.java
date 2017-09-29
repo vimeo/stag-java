@@ -1,4 +1,4 @@
-package com.vimeo.stag.processor;
+package testcase;
 
 import com.vimeo.stag.UseStag;
 
@@ -7,13 +7,11 @@ public class FinalFields {
 
     final String finalString;
 
-    public FinalFields()
-    {
+    public FinalFields() {
         finalString = null;
     }
 
-    public FinalFields(String finalString)
-    {
+    public FinalFields(String finalString) {
         this.finalString = finalString;
     }
 

@@ -24,7 +24,8 @@ jacocoTestReport.dependsOn test
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    testCompile 'com.google.testing.compile:compile-testing:0.8'
+    testCompile 'org.assertj:assertj-core:3.8.0'
+    testCompile 'com.google.testing.compile:compile-testing:0.12'
 
     // Forcibly add test resources to test classpath: https://code.google.com/p/android/issues/detail?id=64887
     testRuntime files('build/resources/test')

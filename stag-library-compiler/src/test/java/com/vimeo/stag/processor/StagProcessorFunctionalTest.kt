@@ -23,12 +23,12 @@
  */
 package com.vimeo.stag.processor
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
-import javax.tools.Diagnostic
 
-class StagProcessorFunctionalTest : AbstractAnnotationProcessorTest() {
+class StagProcessorFunctionalTest {
 
-    override fun getProcessors() = listOf(StagProcessor())
+    private val processorTester = ProcessorTester({ StagProcessor() })
 
     /**
      * Ensure that final fields result in compile-time errors to prevent silent omission of fields
@@ -36,9 +36,7 @@ class StagProcessorFunctionalTest : AbstractAnnotationProcessorTest() {
      */
     @Test
     fun finalFieldsInAnnotatedClassReportsAsAnError() {
-        val output = compileTestCase("bad/FinalFields")
-
-        assertCompilationReturned(arrayOf(Diagnostic.Kind.ERROR), longArrayOf(8), output)
+        assertThat(processorTester.compile("testcase/FinalFields.java").isSuccessful()).isFalse()
     }
 
     /**
@@ -47,9 +45,7 @@ class StagProcessorFunctionalTest : AbstractAnnotationProcessorTest() {
      */
     @Test
     fun privateFieldsNoSettersOrGettersInAnnotatedClassReportsAsAnError() {
-        val output = compileTestCase("bad/PrivateFields")
-
-        assertCompilationReturned(arrayOf(Diagnostic.Kind.ERROR), longArrayOf(8), output)
+        assertThat(processorTester.compile("testcase/FinalFields.java").isSuccessful()).isFalse()
     }
 
 }
