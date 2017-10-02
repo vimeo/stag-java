@@ -21,10 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.stag.processor.testcase;
 
-public abstract class DummyAbstractClass {
+import com.google.gson.annotations.SerializedName;
+import com.vimeo.stag.UseStag;
 
-    private DummyConcreteClass concreteClass;
+/**
+ * Simple valid model.
+ */
+@UseStag
+public class User {
 
+    @SerializedName("name")
+    public String mName;
+
+    @SerializedName("location")
+    public String mLocation;
+
+    @Override
+    public String toString() {
+        return "name: " + mName + ", location: " + mLocation;
+    }
 }

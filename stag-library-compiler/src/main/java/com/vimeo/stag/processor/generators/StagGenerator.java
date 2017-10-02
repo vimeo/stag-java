@@ -486,7 +486,7 @@ public class StagGenerator {
     }
 
     @NotNull
-    private MethodSpec getSetOrThrowMethodSpec() {
+    private static MethodSpec getSetOrThrowMethodSpec() {
         return MethodSpec.methodBuilder("setOrThrow")
                 .returns(TypeName.VOID)
                 .addParameter(Gson.class, "gson")

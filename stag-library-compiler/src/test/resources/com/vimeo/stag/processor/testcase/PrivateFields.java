@@ -1,4 +1,4 @@
-package com.vimeo.stag.processor;
+package com.vimeo.stag.processor.testcase;
 
 import com.vimeo.stag.UseStag;
 
@@ -7,13 +7,11 @@ public class PrivateFields {
 
     private String privateString;
 
-    public PrivateFields()
-    {
+    public PrivateFields() {
         privateString = null;
     }
 
-    public PrivateFields(String privateString)
-    {
+    public PrivateFields(String privateString) {
         this.privateString = privateString;
     }
 

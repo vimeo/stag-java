@@ -21,33 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor;
-
-import com.google.testing.compile.CompilationRule;
-
-import org.junit.Before;
-import org.junit.Rule;
-
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
-
-/**
- * Base unit test that sets up the utils class.
- */
-public class BaseUnitTest {
-
-    @Rule
-    public final CompilationRule rule = new CompilationRule();
-    protected Elements elements;
-    protected Types types;
+package com.vimeo.stag.processor.dummy
 
 
-    @Before
-    public void _setup() {
-        elements = rule.getElements();
-        types = rule.getTypes();
+class DummyMapClass : MutableMap<Any, Any> {
+    override val size: Int
+        get() = 0
 
-        Utils.setup(elements, types);
-    }
+    override fun containsKey(key: Any) = false
+
+    override fun containsValue(value: Any) = false
+
+    override fun get(key: Any): Any? = null
+
+    override fun isEmpty() = true
+
+    override val entries: MutableSet<MutableMap.MutableEntry<Any, Any>>
+        get() = mutableSetOf()
+    override val keys: MutableSet<Any>
+        get() = mutableSetOf()
+    override val values: MutableCollection<Any>
+        get() = mutableListOf()
+
+    override fun clear() {}
+
+    override fun put(key: Any, value: Any) = null
+
+    override fun putAll(from: Map<out Any, Any>) {}
+
+    override fun remove(key: Any) = null
 
 }

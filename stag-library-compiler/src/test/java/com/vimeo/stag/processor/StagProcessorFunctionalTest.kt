@@ -21,31 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor;
+package com.vimeo.stag.processor
 
-import org.junit.Test;
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.Test
 
-import java.util.Collection;
-import java.util.Collections;
+class StagProcessorFunctionalTest {
 
-import javax.annotation.processing.Processor;
-import javax.tools.Diagnostic;
-
-public class StagProcessorFunctionalTest extends AbstractAnnotationProcessorTest {
-
-    @Override
-    protected Collection<javax.annotation.processing.Processor> getProcessors() {
-        StagProcessor processor = new StagProcessor();
-        return Collections.<Processor>singletonList(processor);
-    }
+    private val processorTester = ProcessorTester({ StagProcessor() })
 
     /**
      * Ensure that final fields result in compile-time errors to prevent silent omission of fields
      * from generated type adapters.
      */
     @Test
-    public void finalFieldsInAnnotatedClassReportsAsAnError() throws Exception {
-        assertCompilationReturned(Diagnostic.Kind.ERROR, 8, compileTestCase("bad/FinalFields"));
+    fun finalFieldsInAnnotatedClassReportsAsAnError() {
+        assertThat(processorTester.compileResource("testcase/FinalFields.java").isSuccessful()).isFalse()
     }
 
     /**
@@ -53,8 +44,12 @@ public class StagProcessorFunctionalTest extends AbstractAnnotationProcessorTest
      * from generated type adapters.
      */
     @Test
-    public void privateFieldsNoSettersOrGettersInAnnotatedClassReportsAsAnError() throws Exception {
-        assertCompilationReturned(Diagnostic.Kind.ERROR, 8, compileTestCase("bad/PrivateFields"));
+    fun privateFieldsNoSettersOrGettersInAnnotatedClassReportsAsAnError() {
+        assertThat(processorTester.compileResource("testcase/FinalFields.java").isSuccessful()).isFalse()
     }
 
+    @Test
+    fun `User compiles successfully`() {
+        assertThat(processorTester.compileResource("testcase/User.java").isSuccessful()).isTrue()
+    }
 }

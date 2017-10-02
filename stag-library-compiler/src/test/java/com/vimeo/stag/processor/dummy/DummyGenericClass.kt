@@ -21,76 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.stag.processor.dummy
 
-import org.jetbrains.annotations.NotNull;
+import com.vimeo.stag.processor.TypeUtilsUnitTest
+import java.util.*
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+/**
+ * Do not change this class without sure the
+ * [TypeUtilsUnitTest.getConcreteMembers_isCorrect]
+ * test still works correctly. All members of
+ * this class should be tested by that test,
+ * and any generic ones here should be explicitly
+ * checked in the test to make sure they are
+ * resolved correctly.
+ *
+ * @param <T> the type the the inheriting type
+ * should be of.
+</T> */
+open class DummyGenericClass<T> {
 
-public class DummyMapClass implements Map {
+    internal var testString: String? = null
 
-    @Override
-    public int size() {
-        return 0;
-    }
+    internal var testObject: T? = null
 
-    @Override
-    public boolean isEmpty() {
-        return false;
-    }
+    internal var testList: ArrayList<T>? = null
 
-    @Override
-    public boolean containsKey(Object o) {
-        return false;
-    }
+    internal var testMap: HashMap<String, T>? = null
 
-    @Override
-    public boolean containsValue(Object o) {
-        return false;
-    }
+    internal var testSet: HashSet<T>? = null
 
-    @Override
-    public Object get(Object o) {
-        return null;
-    }
+    internal var testArrayMap: HashMap<String, List<T>>? = null
 
-    @Override
-    public Object put(Object o, Object o2) {
-        return null;
-    }
+    internal var testListMap: ArrayList<Map<String, T>>? = null
 
-    @Override
-    public Object remove(Object o) {
-        return null;
-    }
-
-    @Override
-    public void putAll(@NotNull Map map) {
-
-    }
-
-    @Override
-    public void clear() {
-
-    }
-
-    @NotNull
-    @Override
-    public Set keySet() {
-        return null;
-    }
-
-    @NotNull
-    @Override
-    public Collection values() {
-        return null;
-    }
-
-    @NotNull
-    @Override
-    public Set<Entry> entrySet() {
-        return null;
-    }
 }
