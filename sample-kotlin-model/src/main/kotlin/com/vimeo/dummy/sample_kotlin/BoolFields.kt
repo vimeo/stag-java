@@ -9,12 +9,7 @@ import com.vimeo.stag.UseStag
  * Created by anthonycr on 9/2/17.
  */
 @UseStag
-class BoolFields {
-
-    @SerializedName("test1")
-    var test1: Boolean? = null
-
-    @SerializedName("test2")
-    var isTest2: Boolean? = null
-
-}
+data class BoolFields(
+        @SerializedName("test1") var test1: Boolean? = null,
+        @SerializedName("test2") var isTest2: Boolean? = null
+)

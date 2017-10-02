@@ -62,6 +62,7 @@ dependencies {
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    testCompile 'uk.co.jemos.podam:podam:7.1.0.RELEASE'
 }
 
 repositories {
