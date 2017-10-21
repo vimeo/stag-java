@@ -45,7 +45,7 @@ class StagProcessorFunctionalTest {
      */
     @Test
     fun privateFieldsNoSettersOrGettersInAnnotatedClassReportsAsAnError() {
-        assertThat(processorTester.compileResource("testcase/FinalFields.java").isSuccessful()).isFalse()
+        assertThat(processorTester.compileResource("testcase/PrivateFields.java").isSuccessful()).isFalse()
     }
 
     @Test

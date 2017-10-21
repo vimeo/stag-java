@@ -724,11 +724,11 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 .addAnnotation(Override.class)
                 .addException(IOException.class);
 
-        builder.addStatement("writer.beginObject()");
         builder.beginControlFlow("if (object == null)");
-        builder.addStatement("writer.endObject()");
+        builder.addStatement("writer.nullValue()");
         builder.addStatement("return");
         builder.endControlFlow();
+        builder.addStatement("writer.beginObject()");
 
         for (Map.Entry<FieldAccessor, TypeMirror> element : memberVariables.entrySet()) {
             FieldAccessor fieldAccessor = element.getKey();
