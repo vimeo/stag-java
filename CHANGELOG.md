@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 2.4.0 *(2017-10-24)*
+----------------------------
+- Fixed bug where generated type adapters would write out an empty JSON object for a `null` value.
+- Type adapters now write `null` to JSON instead of `{}` for `null` field values.
+- Rewrote compiler tests in Kotlin and improved their readability.
+
 Version 2.3.3 *(2017-09-15)*
 ----------------------------
 - `isXYZ()` and `setXYZ()` are now accepted as getter and setter names for boolean fields named `isXYZ` or `mIsXYZ`.
