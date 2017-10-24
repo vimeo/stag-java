@@ -21,20 +21,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.dummy;
+package com.vimeo.stag.processor
 
-import java.util.List;
-import java.util.Map;
+import com.vimeo.stag.processor.utils.Preconditions
+import org.junit.Test
 
-public class DummyConcreteClass {
+class PreconditionsUnitTest {
 
-    int testInt;
+    @Test
+    fun testFinalClass_isNotInstantiable() =
+            Utils.testZeroArgumentConstructorFinalClass(Preconditions::class.java)
 
-    String testObject;
+    @Test(expected = NullPointerException::class)
+    fun checkNotNull_Null_throwsNullPointer() = Preconditions.checkNotNull(null)
 
-    List<Object> testList;
+    @Test
+    fun checkNotNull_NotNull() = Preconditions.checkNotNull(Any())
 
-    Map<String, Object> testMap;
+    @Test
+    fun checkNotEmpty_NotEmpty() = Preconditions.checkNotEmpty(listOf(Any()))
 
-    DummyGenericClass<DummyGenericClass<DummyInheritedClass>> dummyInheritedClass;
+    @Test(expected = IllegalStateException::class)
+    fun checkNotEmpty_Empty_throwsException() = Preconditions.checkNotEmpty(listOf<Any>())
+
+    @Test
+    fun checkTrue_True() {
+        Preconditions.checkTrue(true)
+        Preconditions.checkTrue(java.lang.Boolean.TRUE)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun checkTrue_FalsePrimitive_throwsException() = Preconditions.checkTrue(false)
+
+    @Test(expected = IllegalStateException::class)
+    fun checkTrue_FalseObject_throwsException() = Preconditions.checkTrue(java.lang.Boolean.FALSE)
+
 }

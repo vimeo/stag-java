@@ -13,4 +13,8 @@ class KotlinSamplesTest {
         Utils.verifyTypeAdapterGeneration(KotlinSamples::class)
     }
 
+    @Test
+    fun verifyTypeAdapterCorrectness() {
+        Utils.verifyTypeAdapterCorrectness(KotlinSamples::class)
+    }
 }

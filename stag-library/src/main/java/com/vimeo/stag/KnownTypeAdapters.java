@@ -419,13 +419,15 @@ public final class KnownTypeAdapters {
 
         @Override
         public void write(JsonWriter writer, T[] value) throws IOException {
-            writer.beginArray();
-            if (null != value) {
+            if (value == null) {
+                writer.nullValue();
+            } else {
+                writer.beginArray();
                 for (T item : value) {
                     mValueTypeAdapter.write(writer, item);
                 }
+                writer.endArray();
             }
-            writer.endArray();
         }
 
         @Override
@@ -463,7 +465,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable int[] value) throws IOException {
-            if (null != value) {
+            if (value == null) {
+                writer.nullValue();
+            } else {
                 writer.beginArray();
                 for (int item : value) {
                     writer.value(item);
@@ -496,7 +500,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable long[] value) throws IOException {
-            if (null != value) {
+            if (value == null) {
+                writer.nullValue();
+            } else {
                 writer.beginArray();
                 for (long item : value) {
                     writer.value(item);
@@ -529,7 +535,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable double[] value) throws IOException {
-            if (null != value) {
+            if (value == null) {
+                writer.nullValue();
+            } else {
                 writer.beginArray();
                 for (double item : value) {
                     writer.value(item);
@@ -562,7 +570,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable short[] value) throws IOException {
-            if (null != value) {
+            if (value == null) {
+                writer.nullValue();
+            } else {
                 writer.beginArray();
                 for (short item : value) {
                     writer.value(item);
@@ -595,7 +605,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable float[] value) throws IOException {
-            if (null != value) {
+            if (value == null) {
+                writer.nullValue();
+            } else {
                 writer.beginArray();
                 for (float item : value) {
                     writer.value(item);
@@ -628,7 +640,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable boolean[] value) throws IOException {
-            if (null != value) {
+            if (value == null) {
+                writer.nullValue();
+            } else {
                 writer.beginArray();
                 for (boolean item : value) {
                     writer.value(item);
@@ -661,7 +675,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable byte[] value) throws IOException {
-            if (null != value) {
+            if (value == null) {
+                writer.nullValue();
+            } else {
                 writer.beginArray();
                 for (byte item : value) {
                     writer.value(item);
@@ -696,7 +712,9 @@ public final class KnownTypeAdapters {
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable char[] value) throws IOException {
-            if (value != null) {
+            if (value == null) {
+                writer.nullValue();
+            } else {
                 String string = String.valueOf(value);
                 STRING_NULL_SAFE_TYPE_ADAPTER.write(writer, string);
             }
@@ -804,13 +822,15 @@ public final class KnownTypeAdapters {
 
         @Override
         public void write(JsonWriter writer, T value) throws IOException {
-            writer.beginArray();
-            if (null != value) {
+            if (value == null) {
+                writer.nullValue();
+            } else {
+                writer.beginArray();
                 for (V item : value) {
                     valueTypeAdapter.write(writer, item);
                 }
+                writer.endArray();
             }
-            writer.endArray();
         }
 
         @Override
@@ -856,7 +876,7 @@ public final class KnownTypeAdapters {
 
         @Override
         public void write(JsonWriter writer, T value) throws IOException {
-            if (null == value) {
+            if (value == null) {
                 writer.nullValue();
                 return;
             }
