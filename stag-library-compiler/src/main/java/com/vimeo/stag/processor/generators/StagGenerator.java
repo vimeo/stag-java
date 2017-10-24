@@ -299,13 +299,7 @@ public class StagGenerator {
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
                               "type")
-                .addStatement("setOrThrow(gson)")
                 .addStatement("Class<? super T> clazz = type.getRawType()");
-
-        FieldSpec.Builder gsonFieldBuilder = FieldSpec.builder(Gson.class, "mGson", Modifier.PRIVATE);
-        adapterFactoryBuilder.addField(gsonFieldBuilder.build());
-
-        adapterFactoryBuilder.addMethod(getSetOrThrowMethodSpec());
 
         /*
          * Iterate through all the registered known classes, and map the classes to its corresponding type adapters.
@@ -321,31 +315,21 @@ public class StagGenerator {
                 TypeName typeName = TypeVariableName.get(classInfo.getType());
                 TypeName parameterizedTypeName =
                         ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
-                String fieldName = "m" + variableName;
-                FieldSpec.Builder fieldSpecBuilder = FieldSpec.builder(parameterizedTypeName,
-                                                                       FileGenUtils.unescapeEscapedString(fieldName),
-                                                                       Modifier.PRIVATE);
-                adapterFactoryBuilder.addField(fieldSpecBuilder.build());
                 String getAdapterFactoryMethodName = "get" + variableName;
                 //Build a getter method
                 MethodSpec.Builder getAdapterMethodBuilder = MethodSpec.methodBuilder(
                         FileGenUtils.unescapeEscapedString(getAdapterFactoryMethodName))
                         .addModifiers(Modifier.PUBLIC)
                         .addParameter(Gson.class, "gson")
-                        .addStatement("setOrThrow(gson)")
                         .returns(parameterizedTypeName);
 
-                getAdapterMethodBuilder.beginControlFlow("if (null == " + fieldName + ")");
-                getAdapterMethodBuilder.addStatement(
-                        fieldName + " = new " + qualifiedTypeAdapterName + "(gson, this)");
-                getAdapterMethodBuilder.endControlFlow();
-                getAdapterMethodBuilder.addStatement("return " + fieldName);
+                getAdapterMethodBuilder.addStatement("return new " + qualifiedTypeAdapterName + "(gson, this)");
                 adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
 
                 createMethodBuilder.beginControlFlow(
                         "if (clazz == " + classInfo.getClassAndPackage() + ".class)");
                 createMethodBuilder.addStatement(
-                        "return (TypeAdapter<T>) " + getAdapterFactoryMethodName + "(gson)");
+                        "return (TypeAdapter<T>)(new " + qualifiedTypeAdapterName + "(gson, this))");
                 createMethodBuilder.endControlFlow();
                 createMethodBuilder.addCode("\n");
             } else {
@@ -413,11 +397,6 @@ public class StagGenerator {
             TypeName typeName = TypeVariableName.get(classInfo.getType());
             TypeName parameterizedTypeName =
                     ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
-            String fieldName = "mAdapter" + variableName;
-            FieldSpec.Builder fieldSpecBuilder =
-                    FieldSpec.builder(parameterizedTypeName, FileGenUtils.unescapeEscapedString(fieldName),
-                                      Modifier.PRIVATE);
-            adapterFactoryBuilder.addField(fieldSpecBuilder.build());
             String getAdapterFactoryMethodName = "get" + variableName;
 
             MethodSpec.Builder getAdapterMethodBuilder =
@@ -425,12 +404,11 @@ public class StagGenerator {
                             .addModifiers(Modifier.PUBLIC)
                             .addParameter(Gson.class, "gson")
                             .returns(parameterizedTypeName);
-            getAdapterMethodBuilder.beginControlFlow("if (null == " + fieldName + ")");
 
             String knownTypeAdapterForType =
                     KnownTypeAdapterUtils.getKnownTypeAdapterForType(classInfo.getType());
             if (null != knownTypeAdapterForType) {
-                fieldName += knownTypeAdapterForType;
+                getAdapterMethodBuilder.addStatement("return " + knownTypeAdapterForType);
             } else {
                 String typeTokenCode;
                 if (!TypeUtils.isParameterizedType(classInfo.getType())) {
@@ -446,36 +424,27 @@ public class StagGenerator {
                     typeTokenCode = "new TypeToken<" + classInfo.getType().toString() +
                                     ">(){}";
                 }
-                getAdapterMethodBuilder.addStatement(fieldName + " = gson.getAdapter(" + typeTokenCode + ")");
+                getAdapterMethodBuilder.addStatement(" return gson.getAdapter(" + typeTokenCode + ")");
             }
-            getAdapterMethodBuilder.endControlFlow();
-            getAdapterMethodBuilder.addStatement("return " + fieldName);
             adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
         }
 
         /*
          * Iterate through all the registered concrete fields, and map the fields to its corresponding type adapters.
          */
+
         Set<Map.Entry<String, String>> concreteAdapterFieldEntries = mKnownAdapterFieldMap.entrySet();
         for (Map.Entry<String, String> entry : concreteAdapterFieldEntries) {
             String methodName = mKnownFieldToMethodNameMap.get(entry.getKey());
             TypeName typeName = TypeVariableName.get(entry.getKey());
             TypeName parameterizedTypeName =
                     ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeName);
-            String variableName = "m" + methodName;
-            FieldSpec.Builder fieldSpecBuilder =
-                    FieldSpec.builder(parameterizedTypeName, FileGenUtils.unescapeEscapedString(variableName),
-                                      Modifier.PRIVATE);
             MethodSpec.Builder getAdapterMethodBuilder =
                     MethodSpec.methodBuilder("get" + FileGenUtils.unescapeEscapedString(methodName))
                             .addModifiers(Modifier.PUBLIC)
                             .addParameter(Gson.class, "gson")
                             .returns(parameterizedTypeName);
-            getAdapterMethodBuilder.beginControlFlow("if (" + variableName + " == null)");
-            getAdapterMethodBuilder.addStatement(variableName + " = " + entry.getValue());
-            getAdapterMethodBuilder.endControlFlow();
-            getAdapterMethodBuilder.addStatement("return " + variableName);
-            adapterFactoryBuilder.addField(fieldSpecBuilder.build());
+            getAdapterMethodBuilder.addStatement("return " + entry.getValue());
             adapterFactoryBuilder.addMethod(getAdapterMethodBuilder.build());
         }
 
@@ -483,21 +452,6 @@ public class StagGenerator {
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
 
         return adapterFactoryBuilder.build();
-    }
-
-    @NotNull
-    private static MethodSpec getSetOrThrowMethodSpec() {
-        return MethodSpec.methodBuilder("setOrThrow")
-                .returns(TypeName.VOID)
-                .addParameter(Gson.class, "gson")
-                .addCode("if (mGson != gson) {\n" +
-                         "\tif (mGson != null) {\n" +
-                         "\t\tthrow new UnsupportedOperationException(\"This factory can only be used with a single Gson instance, please create a new instance\");\n" +
-                         "\t}\n" +
-                         "\t\n" +
-                         "\tmGson = gson;\n" +
-                         "}\n")
-                .build();
     }
 
     /**
