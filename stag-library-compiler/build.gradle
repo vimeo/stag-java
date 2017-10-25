@@ -23,22 +23,22 @@ check.dependsOn jacocoTestReport
 jacocoTestReport.dependsOn test
 
 dependencies {
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.assertj:assertj-core:3.8.0'
-    testCompile 'com.google.testing.compile:compile-testing:0.12'
-    testCompile project(path: ':sample-java-model')
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.assertj:assertj-core:3.8.0'
+    testImplementation 'com.google.testing.compile:compile-testing:0.12'
+    testImplementation project(path: ':sample-java-model')
 
     // Forcibly add test resources to test classpath: https://code.google.com/p/android/issues/detail?id=64887
     testRuntime files('build/resources/test')
 
-    compile project(':stag-library')
+    implementation project(':stag-library')
 
-    compile 'com.google.code.gson:gson:2.8.1'
-    compile 'com.squareup:javapoet:1.8.0'
-    compile 'com.intellij:annotations:12.0@jar'
-    compile 'com.google.auto.service:auto-service:1.0-rc3'
+    implementation 'com.google.code.gson:gson:2.8.1'
+    implementation 'com.squareup:javapoet:1.8.0'
+    implementation 'com.intellij:annotations:12.0@jar'
+    implementation 'com.google.auto.service:auto-service:1.0-rc3'
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }
 
 test {

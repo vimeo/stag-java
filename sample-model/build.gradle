@@ -45,15 +45,15 @@ jacoco {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation 'junit:junit:4.12'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile 'com.android.support:support-annotations:25.3.1'
+    implementation 'com.android.support:support-annotations:25.3.1'
 
-    compile project(':stag-library')
+    implementation project(':stag-library')
     annotationProcessor project(':stag-library-compiler')
 
-    compile 'com.google.code.gson:gson:2.8.0'
+    implementation 'com.google.code.gson:gson:2.8.0'
 }
 
 gradle.projectsEvaluated {
