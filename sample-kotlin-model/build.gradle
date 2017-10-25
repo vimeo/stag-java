@@ -43,7 +43,7 @@ android {
 }
 
 jacoco {
-    toolVersion = jacoco_version
+    toolVersion = jacocoVersion
 }
 
 kapt {
@@ -60,8 +60,8 @@ dependencies {
     implementation project(':stag-library')
     kapt project(':stag-library-compiler')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion"
     testImplementation 'uk.co.jemos.podam:podam:7.1.0.RELEASE'
 }
 

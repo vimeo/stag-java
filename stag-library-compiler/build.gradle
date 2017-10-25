@@ -9,7 +9,7 @@ compileJava {
 }
 
 jacoco {
-    toolVersion = jacoco_version
+    toolVersion = jacocoVersion
 }
 
 jacocoTestReport {
@@ -33,12 +33,12 @@ dependencies {
 
     implementation project(':stag-library')
 
-    implementation 'com.google.code.gson:gson:2.8.1'
-    implementation 'com.squareup:javapoet:1.8.0'
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation 'com.squareup:javapoet:1.9.0'
     implementation 'com.intellij:annotations:12.0@jar'
     implementation 'com.google.auto.service:auto-service:1.0-rc3'
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
 }
 
 test {

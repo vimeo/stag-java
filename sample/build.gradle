@@ -44,7 +44,7 @@ android {
 }
 
 jacoco {
-    toolVersion = jacoco_version
+    toolVersion = jacocoVersion
 }
 
 dependencies {
@@ -61,7 +61,7 @@ dependencies {
     implementation project(':stag-library')
     annotationProcessor project(':stag-library-compiler')
 
-    implementation 'com.google.code.gson:gson:2.8.0'
+    implementation "com.google.code.gson:gson:$gsonVersion"
 }
 
 gradle.projectsEvaluated {

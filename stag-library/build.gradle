@@ -8,7 +8,7 @@ compileJava {
 }
 
 jacoco {
-    toolVersion = jacoco_version
+    toolVersion = jacocoVersion
 }
 
 jacocoTestReport {
@@ -22,7 +22,7 @@ check.dependsOn jacocoTestReport
 jacocoTestReport.dependsOn test
 
 dependencies {
-    compile 'com.google.code.gson:gson:2.8.1'
+    compile "com.google.code.gson:gson:$gsonVersion"
     compile 'com.intellij:annotations:12.0@jar'
     testImplementation 'junit:junit:4.12'
 }
