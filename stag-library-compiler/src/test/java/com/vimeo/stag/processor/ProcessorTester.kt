@@ -48,7 +48,7 @@ class ProcessorTester(private val processor: () -> Processor, private vararg val
     }
 
     fun compileClassInModule(module: String, vararg clazz: KClass<*>): Compilation {
-        val modulePath = classpathRoot.parentFile.parentFile.parentFile.parentFile.parentFile.path + "/" + module + "/"
+        val modulePath = "${classpathRoot.parentFile.parentFile.parentFile.parentFile.parentFile.path}/$module/"
         val srcRoot = File(File(File(modulePath, "src"), "main"), "java")
         return Compiler.javac()
                 .withProcessors(processor())
@@ -57,7 +57,7 @@ class ProcessorTester(private val processor: () -> Processor, private vararg val
                         clazz.map { it.java }
                                 .map { it.name.replace(".", "/") }
                                 .map { "$it.java" }
-                                .map { File(srcRoot.path + "/" + it) })
+                                .map { File("${srcRoot.path}/$it") })
                 )
                 .printError()
     }
