@@ -21,8 +21,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor
+package com.vimeo.stag.processor.functional
 
+import com.vimeo.stag.processor.ProcessorTester
+import com.vimeo.stag.processor.StagProcessor
+import com.vimeo.stag.processor.isSuccessful
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 
@@ -52,4 +55,5 @@ class StagProcessorFunctionalTest {
     fun `User compiles successfully`() {
         assertThat(processorTester.compileResource("testcase/User.java").isSuccessful()).isTrue()
     }
+
 }
