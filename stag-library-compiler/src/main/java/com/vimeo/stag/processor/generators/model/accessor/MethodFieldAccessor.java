@@ -104,7 +104,7 @@ public class MethodFieldAccessor extends FieldAccessor {
 
         }
 
-        throw new UnsupportedOperationException("Unable to find setter for variable");
+        throw new UnsupportedOperationException("Unable to find setter for variable: " + variableElement.getSimpleName());
     }
 
     private static boolean isBoolean(@NotNull TypeMirror typeMirror) {
@@ -153,7 +153,7 @@ public class MethodFieldAccessor extends FieldAccessor {
 
         }
 
-        throw new UnsupportedOperationException("Unable to find getter for variable");
+        throw new UnsupportedOperationException("Unable to find getter for variable: " + variableElement.getSimpleName());
     }
 
     @NotNull
