@@ -34,40 +34,23 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
-import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.lang.model.element.Modifier;
-import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
 public class StagGenerator {
 
     @NotNull private static final String CLASS_STAG = "Stag";
     @NotNull private static final String CLASS_TYPE_ADAPTER_FACTORY = "Factory";
-    @NotNull private static final Map<String, GenericClassInfo> KNOWN_MAP_GENERIC_CLASSES = new HashMap<>();
-    @NotNull private static final Map<String, GenericClassInfo> KNOWN_COLLECTION_GENERIC_CLASSES = new HashMap<>();
-
-    static {
-        KNOWN_MAP_GENERIC_CLASSES.put(Map.class.getName(), new GenericClassInfo(false));
-        KNOWN_MAP_GENERIC_CLASSES.put(HashMap.class.getName(), new GenericClassInfo(false));
-        KNOWN_MAP_GENERIC_CLASSES.put(LinkedHashMap.class.getName(), new GenericClassInfo(false));
-        KNOWN_MAP_GENERIC_CLASSES.put(ConcurrentHashMap.class.getName(), new GenericClassInfo(false));
-        KNOWN_COLLECTION_GENERIC_CLASSES.put(Collection.class.getName(), new GenericClassInfo(false));
-        KNOWN_COLLECTION_GENERIC_CLASSES.put(List.class.getName(), new GenericClassInfo(false));
-        KNOWN_COLLECTION_GENERIC_CLASSES.put(ArrayList.class.getName(), new GenericClassInfo(false));
-    }
 
     @NotNull private final List<ClassInfo> mKnownClasses;
 
@@ -118,31 +101,6 @@ public class StagGenerator {
         typeString = typeString.replace("<", "").replace(">", "").replace("[", "").replace("]", "");
         typeString = typeString.replace(",", "").replace(".", "");
         return typeString;
-    }
-
-    @NotNull
-    private static String generateMethodName(@NotNull TypeMirror typeMirror) {
-        String result = "";
-        String outerClassType = TypeUtils.getSimpleOuterClassType(typeMirror);
-        if (TypeUtils.isConcreteType(typeMirror)) {
-            if (TypeUtils.isNativeArray(typeMirror)) {
-                result = removeSpecialCharacters(typeMirror);
-                return result + FileGenUtils.CODE_BLOCK_ESCAPED_SEPARATOR + "PrimitiveArray" +
-                       FileGenUtils.CODE_BLOCK_ESCAPED_SEPARATOR;
-            } else if (typeMirror instanceof DeclaredType) {
-                List<? extends TypeMirror> typeArguments = ((DeclaredType) typeMirror).getTypeArguments();
-                if (typeArguments.isEmpty()) {
-                    result = removeSpecialCharacters(typeMirror) + FileGenUtils.CODE_BLOCK_ESCAPED_SEPARATOR;
-                } else {
-                    result += outerClassType + FileGenUtils.CODE_BLOCK_ESCAPED_SEPARATOR;
-                    for (TypeMirror innerType : typeArguments) {
-                        result += generateMethodName(innerType);
-                    }
-                }
-            }
-        }
-
-        return result;
     }
 
     /**
@@ -239,15 +197,5 @@ public class StagGenerator {
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
 
         return adapterFactoryBuilder.build();
-    }
-
-
-    static class GenericClassInfo {
-
-        final boolean mHasUnknownVarTypeFields;
-
-        GenericClassInfo(boolean hasUnknownVarTypeFields) {
-            mHasUnknownVarTypeFields = hasUnknownVarTypeFields;
-        }
     }
 }
