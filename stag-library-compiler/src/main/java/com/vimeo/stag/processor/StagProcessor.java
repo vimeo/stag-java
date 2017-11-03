@@ -29,7 +29,6 @@ import com.squareup.javapoet.TypeSpec;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
-import com.vimeo.stag.processor.generators.ExternalAdapterInfo;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
@@ -146,9 +145,8 @@ public final class StagProcessor extends AbstractProcessor {
             } catch (Exception ignored) {
             }
 
-            Set<ExternalAdapterInfo> externalAdapterInfoSet = supportedTypesModel.getExternalSupportedAdapters();
 
-            StagGenerator stagFactoryGenerator = new StagGenerator(packageName, supportedTypes, externalAdapterInfoSet, supportedTypesModel);
+            StagGenerator stagFactoryGenerator = new StagGenerator(supportedTypes, supportedTypesModel);
 
             for (AnnotatedClass annotatedClass : supportedTypesModel.getSupportedTypes()) {
                 TypeElement element = annotatedClass.getElement();

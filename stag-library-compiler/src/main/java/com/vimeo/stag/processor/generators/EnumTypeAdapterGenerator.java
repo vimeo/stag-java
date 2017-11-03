@@ -108,8 +108,7 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
 
         MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
                 .addModifiers(Modifier.PUBLIC)
-                .addParameter(Gson.class, "gson")
-                .addParameter(stagGenerator.getGeneratedClassName(), "stagFactory");
+                .addParameter(Gson.class, "gson");
 
         String className = FileGenUtils.unescapeEscapedString(mInfo.getTypeAdapterClassName());
         TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
