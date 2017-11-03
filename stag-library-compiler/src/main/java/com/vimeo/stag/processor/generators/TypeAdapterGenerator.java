@@ -38,6 +38,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeSpec.Builder;
 import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.KnownTypeAdapters;
 import com.vimeo.stag.KnownTypeAdapters.ArrayTypeAdapter;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
@@ -237,8 +238,6 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 for (VariableElement parameter : adapterType.getParameters()) {
                     if (parameter.asType().toString().equals(TypeUtils.className(Gson.class))) {
                         constructorParameters.add("gson");
-                    } else if (TypeUtils.isAssignable(parameter.asType(), ElementUtils.getTypeFromQualifiedName(TypeAdapterFactory.class.getName()))) {
-                        constructorParameters.add("new " + parameter.asType() + "()");
                     } else {
                         throw new IllegalStateException("Not supported " + parameter.asType() + "parameter for @JsonAdapter value");
                     }
@@ -305,7 +304,14 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         if (null != knownTypeAdapter) {
             return knownTypeAdapter;
-        } else if (TypeUtils.isNativeArray(fieldType)) {
+        }
+
+        String fieldName = adapterFieldInfo.getFieldName(fieldType);
+        if(null != fieldName) {
+            return fieldName;
+        }
+
+        if (TypeUtils.isNativeArray(fieldType)) {
                 /*
                  * If the fieldType is of type native arrays such as String[] or int[]
                  */
@@ -322,6 +328,47 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         "(" + adapterAccessor + ", " + nativeArrayInstantiator + ")";
                 return adapterCode;
             }
+        } else if (TypeUtils.isSupportedList(fieldType)) {
+            DeclaredType declaredType = (DeclaredType) fieldType;
+            List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+            TypeMirror param = typeArguments.get(0);
+            String paramAdapterAccessor = getAdapterAccessor(param, typeVarsMap, adapterFieldInfo);
+            String listInstantiator = KnownTypeAdapterUtils.getListInstantiator(fieldType);
+            String adapterCode =
+                    "new " + TypeUtils.className(KnownTypeAdapters.ListTypeAdapter.class) + "<" + param.toString() + "," +
+                            fieldType.toString() + ">" +
+                            "(" + paramAdapterAccessor + ", " + listInstantiator + ")";
+            fieldName = TYPE_ADAPTER_FIELD_PREFIX + adapterFieldInfo.size();
+            adapterFieldInfo.addField(fieldType, fieldName, adapterCode);
+            return fieldName;
+
+        } else if (TypeUtils.isSupportedMap(fieldType)){
+            DeclaredType declaredType = (DeclaredType) fieldType;
+            String mapInstantiator = KnownTypeAdapterUtils.getMapInstantiator(fieldType);
+            List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+            String keyAdapterAccessor;
+            String valueAdapterAccessor;
+            String arguments = "";
+            if (typeArguments != null && typeArguments.size() == 2) {
+                TypeMirror keyType = typeArguments.get(0);
+                TypeMirror valueType = typeArguments.get(1);
+                keyAdapterAccessor = getAdapterAccessor(keyType, typeVarsMap, adapterFieldInfo);
+                valueAdapterAccessor = getAdapterAccessor(valueType, typeVarsMap, adapterFieldInfo);
+                arguments = "<" + keyType.toString() + ", " + valueType.toString() + ", " +
+                        fieldType.toString() + ">";
+            } else {
+                // If the map does not have any type arguments, use Object as type params in this case
+                String objectTypeAdapter = TypeUtils.className(KnownTypeAdapters.ObjectTypeAdapter.class);
+                keyAdapterAccessor = "new " + objectTypeAdapter + "(mGson)";
+                valueAdapterAccessor = "new " + objectTypeAdapter + "(mGson)";
+            }
+
+            String adapterCode = "new " + TypeUtils.className(KnownTypeAdapters.MapTypeAdapter.class) + arguments +
+                    "(" + keyAdapterAccessor + ", " + valueAdapterAccessor + ", " +
+                    mapInstantiator + ")";
+            fieldName = TYPE_ADAPTER_FIELD_PREFIX + adapterFieldInfo.size();
+            adapterFieldInfo.addField(fieldType, fieldName, adapterCode);
+            return fieldName;
         } else {
             return getAdapterForUnknownGenericType(fieldType, typeVarsMap, adapterFieldInfo);
         }
