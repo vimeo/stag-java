@@ -9,8 +9,13 @@ import org.junit.Test
  */
 class KotlinConcreteExampleTest {
 
-    @Test fun verifyTypeAdapterGenerated() {
+    @Test
+    fun verifyTypeAdapterGenerated() {
         Utils.verifyTypeAdapterGeneration(KotlinConcreteExample::class)
     }
 
+    @Test
+    fun verifyTypeAdapterCorrectness() {
+        Utils.verifyTypeAdapterCorrectness(KotlinConcreteExample::class)
+    }
 }

@@ -10,8 +10,12 @@ import org.junit.Test
 class BoolFieldsTest {
 
     @Test
-    fun name() {
+    fun verifyTypeAdapterWasGenerated() {
         Utils.verifyTypeAdapterGeneration(BoolFields::class)
     }
 
+    @Test
+    fun verifyTypeAdapterCorrect() {
+        Utils.verifyTypeAdapterCorrectness(BoolFields::class)
+    }
 }
