@@ -35,23 +35,20 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.TypeAdapter;
-import com.google.gson.reflect.TypeToken;
-import com.vimeo.sample.model.ComplexGenericClassExtended;
 import com.vimeo.sample.model.DateParser;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
+import com.vimeo.sample.model.VideoList$TypeAdapter;
 import com.vimeo.sample.stag.generated.Stag;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 
 public final class NetworkRequest {
@@ -122,6 +119,7 @@ public final class NetworkRequest {
                     builder.append(line);
                 }
 
+
                 Stag.Factory factory = new Stag.Factory();
                 Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateParser())
                         .registerTypeAdapterFactory(factory)
@@ -130,11 +128,11 @@ public final class NetworkRequest {
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
 
 
-
-                TypeAdapter<VideoList> videoListTypeAdapter = gson.getAdapter(TypeToken.get(VideoList.class));
                 long time = System.currentTimeMillis();
-
+                //Debug.startMethodTracing("trace");
+                TypeAdapter<VideoList> videoListTypeAdapter = gson.getAdapter(VideoList$TypeAdapter.TYPE_TOKEN);
                 videos.addAll(videoListTypeAdapter.fromJsonTree(jsonObject).data);
+                //Debug.stopMethodTracing();
                 Log.d(TAG, "Time elapsed while parsing: " + (System.currentTimeMillis() - time) + " ms");
 
             } catch (IOException e) {

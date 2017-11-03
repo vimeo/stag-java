@@ -134,8 +134,11 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
             }
         }
 
+
         MethodSpec writeMethod = getWriteMethodSpec(typeVariableName);
         MethodSpec readMethod = getReadMethodSpec(typeVariableName);
+
+        adapterBuilder.addField(createTypeTokenSpec(typeMirror));
 
         TypeName typeName =
                 ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(String.class),

@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Since this class is not annotated with @UseStag, this will use TypeToken for its adapter generation.
- * As it is of paramtereized type, this will use new TypeToken<>(){} instead of TypeToken.get()
+ * As it is of paramterized type, this will use TypeToken.getParameterized() instead of TypeToken.get()
  * @param <T>
  */
 public class ParameterizedData<T> {

@@ -37,8 +37,8 @@ import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,33 +52,15 @@ public class StagGenerator {
     @NotNull private static final String CLASS_STAG = "Stag";
     @NotNull private static final String CLASS_TYPE_ADAPTER_FACTORY = "Factory";
 
-    @NotNull private final List<ClassInfo> mKnownClasses;
+    @NotNull private final Map<String, ClassInfo> mKnownClasses;
 
     public StagGenerator(@NotNull Set<TypeMirror> knownTypes) {
-        mKnownClasses = new ArrayList<>(knownTypes.size());
+        mKnownClasses = new HashMap<>(knownTypes.size());
 
-        Map<String, ClassInfo> knownFieldNames = new HashMap<>(knownTypes.size());
-        Map<String, List<ClassInfo>> clashingClassNames = new HashMap<>(knownTypes.size());
         for (TypeMirror knownType : knownTypes) {
             if (!TypeUtils.isAbstract(knownType)) {
                 ClassInfo classInfo = new ClassInfo(knownType);
-                List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
-                if (null == typeArguments || typeArguments.isEmpty()) {
-                    String adapterFactoryMethodName = classInfo.getTypeAdapterClassName();
-                    ClassInfo clashingClass = knownFieldNames.get(adapterFactoryMethodName);
-                    if (null != clashingClass) {
-                        List<ClassInfo> classInfoList = clashingClassNames.get(adapterFactoryMethodName);
-                        if (null == classInfoList) {
-                            classInfoList = new ArrayList<>();
-                            classInfoList.add(clashingClass);
-                            clashingClassNames.put(adapterFactoryMethodName, classInfoList);
-                        }
-                        classInfoList.add(classInfo);
-                    } else {
-                        knownFieldNames.put(adapterFactoryMethodName, classInfo);
-                    }
-                }
-                mKnownClasses.add(classInfo);
+                mKnownClasses.put(knownType.toString(), classInfo);
             }
         }
     }
@@ -87,22 +69,10 @@ public class StagGenerator {
         return generatedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY;
     }
 
-    @NotNull
-    private static String removeSpecialCharacters(TypeMirror typeMirror) {
-        String typeString = typeMirror.toString();
-        /*
-         * This is done to avoid generating duplicate method names, where the inner class type
-         * has same name (in different packages). In that case we are using the complete package name
-         * of the class to avoid class. We'll come up with a better solution for this case.
-         */
-        if (TypeUtils.isSupportedNative(typeMirror.toString())) {
-            typeString = typeString.substring(typeString.lastIndexOf(".") + 1);
-        }
-        typeString = typeString.replace("<", "").replace(">", "").replace("[", "").replace("]", "");
-        typeString = typeString.replace(",", "").replace(".", "");
-        return typeString;
+    @Nullable
+    public ClassInfo getKnownClass(@NotNull TypeMirror typeMirror) {
+        return mKnownClasses.get(typeMirror.toString());
     }
-
     /**
      * Generates the public API in the form of the {@code Stag.Factory} type adapter factory
      * for the annotated classes. Creates the spec for the class.
@@ -140,29 +110,34 @@ public class StagGenerator {
                               "type")
                 .addStatement("Class<? super T> clazz = type.getRawType()");
 
+
+
+        createMethodBuilder.addStatement("TypeAdapter<T> result = null");
+        createMethodBuilder.beginControlFlow("switch (clazz.getName())");
+
         /*
          * Iterate through all the registered known classes, and map the classes to its corresponding type adapters.
          */
-        for (ClassInfo classInfo : mKnownClasses) {
+        for (ClassInfo classInfo : mKnownClasses.values()) {
             String qualifiedTypeAdapterName = classInfo.getTypeAdapterQualifiedClassName();
             List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
             if (null == typeArguments || typeArguments.isEmpty()) {
                 /*
                  *  This is used to generate the code if the class does not have any type arguments, or it is not parameterized.
                  */
-                createMethodBuilder.beginControlFlow(
-                        "if (clazz == " + classInfo.getClassAndPackage() + ".class)");
+
+                createMethodBuilder.addCode("case \"" + classInfo.getClassAndPackage() + "\" :\n");
                 createMethodBuilder.addStatement(
-                        "return (TypeAdapter<T>)(new " + qualifiedTypeAdapterName + "(gson))");
-                createMethodBuilder.endControlFlow();
-                createMethodBuilder.addCode("\n");
+                        "\tresult = (TypeAdapter<T>)(new " + qualifiedTypeAdapterName + "(gson))");
+                createMethodBuilder.addStatement(
+                        "\tbreak");
             } else {
 
                 /*
                  *  This is used to generate the code if the class has type arguments, or it is parameterized.
                  */
                 createMethodBuilder.beginControlFlow(
-                        "if (clazz == " + classInfo.getClassAndPackage() + ".class)");
+                        "case \"" + classInfo.getClassAndPackage() + "\" :\n");
                 createMethodBuilder.addStatement("java.lang.reflect.Type parameters = type.getType()");
                 createMethodBuilder.beginControlFlow(
                         "if (parameters instanceof java.lang.reflect.ParameterizedType)");
@@ -170,7 +145,7 @@ public class StagGenerator {
                         "java.lang.reflect.ParameterizedType parameterizedType = (java.lang.reflect.ParameterizedType) parameters");
                 createMethodBuilder.addStatement(
                         "java.lang.reflect.Type[] parametersType = parameterizedType.getActualTypeArguments()");
-                String statement = "return (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson";
+                String statement = "result =  (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson";
 
                 for (int idx = 0; idx < typeArguments.size(); idx++) {
                     statement += ", parametersType[" + idx + "]";
@@ -181,7 +156,7 @@ public class StagGenerator {
                 createMethodBuilder.endControlFlow();
                 createMethodBuilder.beginControlFlow("else");
                 createMethodBuilder.addStatement("TypeToken objectToken = TypeToken.get(Object.class)");
-                statement = "return (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson";
+                statement = "result = (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson";
                 for (int idx = 0; idx < typeArguments.size(); idx++) {
                     statement += ", objectToken.getType()";
                 }
@@ -189,11 +164,12 @@ public class StagGenerator {
                 createMethodBuilder.addStatement(statement);
                 createMethodBuilder.endControlFlow();
                 createMethodBuilder.endControlFlow();
-                createMethodBuilder.addCode("\n");
+                createMethodBuilder.addStatement("break");
             }
         }
 
-        createMethodBuilder.addStatement("return null");
+        createMethodBuilder.endControlFlow();
+        createMethodBuilder.addStatement("return result");
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
 
         return adapterFactoryBuilder.build();

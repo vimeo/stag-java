@@ -28,6 +28,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.TypeAdapters;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -73,6 +74,8 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Byte}.
      */
     public static final TypeAdapter<Byte> BYTE = new TypeAdapter<Byte>() {
+        public final TypeToken<Byte> TYPE_TOKEN = TypeToken.get(Byte.class);
+
         @Override
         public Byte read(JsonReader in) throws IOException {
             try {
@@ -118,6 +121,8 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Short}.
      */
     public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
+        public final TypeToken<Short> TYPE_TOKEN = TypeToken.get(Short.class);
+
         @Override
         public Short read(JsonReader in) throws IOException {
             try {
@@ -161,6 +166,8 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Integer}.
      */
     public static final TypeAdapter<Integer> INTEGER = new TypeAdapter<Integer>() {
+        public final TypeToken<Integer> TYPE_TOKEN = TypeToken.get(Integer.class);
+
         @Override
         public Integer read(JsonReader in) throws IOException {
             try {
@@ -205,6 +212,8 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Long}.
      */
     public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
+        public final TypeToken<Long> TYPE_TOKEN = TypeToken.get(Long.class);
+
         @Override
         public Long read(JsonReader in) throws IOException {
             try {
@@ -250,6 +259,9 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Float}.
      */
     public static final TypeAdapter<Float> FLOAT = new TypeAdapter<Float>() {
+        public final TypeToken<Float> TYPE_TOKEN = TypeToken.get(Float.class);
+
+
         @Override
         public Float read(JsonReader in) throws IOException {
             return (float) in.nextDouble();
@@ -291,6 +303,8 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Double}.
      */
     public static final TypeAdapter<Double> DOUBLE = new TypeAdapter<Double>() {
+        public final TypeToken<Double> TYPE_TOKEN = TypeToken.get(double.class);
+
         @Override
         public Double read(JsonReader in) throws IOException {
             return in.nextDouble();
@@ -955,6 +969,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Object}
      */
     public static final class ObjectTypeAdapter extends TypeAdapter<Object> {
+        public final TypeToken<Object> TYPE_TOKEN = TypeToken.get(Object.class);
 
         private final Gson gson;
 
