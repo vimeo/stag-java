@@ -454,6 +454,36 @@ public class StagGenerator {
         return adapterFactoryBuilder.build();
     }
 
+    private String getTypeTokenCode(TypeMirror classType) {
+        ClassInfo classInfo = new ClassInfo(classType);
+        String typeTokenCode;
+        if (!TypeUtils.isParameterizedType(classInfo.getType())) {
+                    /*
+                     * If the type is not of parameterized type, use TypeToken.get() call for creating a typetoken
+                     * object. This method call avoids calling the getSuperClass calls which uses reflection
+                     */
+            typeTokenCode = "TypeToken.get(" + classInfo.getType().toString() + ".class)";
+        } else {
+                    /*
+                     * If the type is of parameterized type, use the normal way of creating typetokens
+                     */
+            List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
+
+
+            typeTokenCode = "(TypeToken<" + classInfo.getType().toString() + ">)TypeToken.getParameterized(" + TypeUtils.getSimpleOuterClassType(classInfo.getType()) + ".class, ";
+            int idx = 0;
+            for (TypeMirror typeArgument: typeArguments) {
+                if(idx > 0) {
+                    typeTokenCode += ", ";
+                }
+                typeTokenCode +=  getTypeTokenCode(typeArgument) + ".getType()";
+                idx++;
+            }
+            typeTokenCode += ")";
+        }
+        return typeTokenCode;
+    }
+
     /**
      * Returns the {@link TypeVariableName} of Stag.Factory file. This is used to get the type adapters
      * that are already generated in the stag file, avoiding recreating the same type adapters.
