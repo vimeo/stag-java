@@ -146,7 +146,7 @@ public final class StagProcessor extends AbstractProcessor {
             }
 
 
-            StagGenerator stagFactoryGenerator = new StagGenerator(supportedTypes, supportedTypesModel);
+            StagGenerator stagFactoryGenerator = new StagGenerator(supportedTypes);
 
             for (AnnotatedClass annotatedClass : supportedTypesModel.getSupportedTypes()) {
                 TypeElement element = annotatedClass.getElement();

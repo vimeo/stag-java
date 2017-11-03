@@ -33,20 +33,15 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
-import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
-import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.utils.FileGenUtils;
-import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,15 +70,12 @@ public class StagGenerator {
     }
 
     @NotNull private final List<ClassInfo> mKnownClasses;
-    @NotNull private final Map<String, GenericClassInfo> mGenericClassInfo = new HashMap<>();
 
-    public StagGenerator(@NotNull Set<TypeMirror> knownTypes,
-                         @NotNull SupportedTypesModel supportedTypesModel) {
+    public StagGenerator(@NotNull Set<TypeMirror> knownTypes) {
         mKnownClasses = new ArrayList<>(knownTypes.size());
 
         Map<String, ClassInfo> knownFieldNames = new HashMap<>(knownTypes.size());
         Map<String, List<ClassInfo>> clashingClassNames = new HashMap<>(knownTypes.size());
-        Set<ClassInfo> genericClasses = new HashSet<>();
         for (TypeMirror knownType : knownTypes) {
             if (!TypeUtils.isAbstract(knownType)) {
                 ClassInfo classInfo = new ClassInfo(knownType);
@@ -102,23 +94,9 @@ public class StagGenerator {
                     } else {
                         knownFieldNames.put(adapterFactoryMethodName, classInfo);
                     }
-                } else {
-                    genericClasses.add(classInfo);
                 }
                 mKnownClasses.add(classInfo);
             }
-        }
-
-        for (ClassInfo knownGenericType : genericClasses) {
-            List<? extends TypeMirror> typeArguments = knownGenericType.getTypeArguments();
-            AnnotatedClass annotatedClass = supportedTypesModel.getSupportedType(knownGenericType.getType());
-            if (null == annotatedClass) {
-                throw new IllegalStateException("The AnnotatedClass class can't be null in StagGenerator : " + knownGenericType.toString());
-            }
-
-            Preconditions.checkNotNull(typeArguments);
-            mGenericClassInfo.put(knownGenericType.getType().toString(),
-                                  new GenericClassInfo(true));
         }
     }
 
@@ -165,12 +143,6 @@ public class StagGenerator {
         }
 
         return result;
-    }
-
-
-    @Nullable
-    GenericClassInfo getGenericClassInfo(@NotNull TypeMirror typeMirror) {
-        return mGenericClassInfo.get(typeMirror.toString());
     }
 
     /**
