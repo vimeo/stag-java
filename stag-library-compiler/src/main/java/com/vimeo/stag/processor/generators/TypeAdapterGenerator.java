@@ -51,7 +51,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,7 +92,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, "(com.google.gson.reflect.TypeToken<" + fieldType.toString() + ">) com.google.gson.reflect.TypeToken.get(" + typeVarsMap.get(fieldType) + ")");
         } else if (!TypeUtils.isParameterizedType(fieldType)) {
             ClassInfo classInfo = stagGenerator.getKnownClass(fieldType);
-            if(classInfo != null && !TypeUtils.isParameterizedType(classInfo.getType())) {
+            if(classInfo != null) {
                 return classInfo.getTypeAdapterQualifiedClassName() + ".TYPE_TOKEN";
             } else {
                 return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, "com.google.gson.reflect.TypeToken.get(" + fieldType.toString() + ".class)");
@@ -111,12 +110,19 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  * Iterate through all the types from the typeArguments and generate type token code accordingly
                  */
             for (TypeMirror parameterTypeMirror : typeMirrors) {
-                result += ",\n" + getTypeTokenCode(parameterTypeMirror, stagGenerator, typeVarsMap, adapterFieldInfo) + ".getType()";
+                if(parameterTypeMirror.getKind() != TypeKind.TYPEVAR && !TypeUtils.isParameterizedType(parameterTypeMirror)) {
+                    // Optimize so that we do not have to call TypeToken.getType()
+                    // When the class is non parametrized and we can call xxxxx.class directly
+                    result += ", " + parameterTypeMirror.toString() + ".class";
+                } else {
+                    result += ", " + getTypeTokenCode(parameterTypeMirror, stagGenerator, typeVarsMap, adapterFieldInfo) + ".getType()";
+                }
+
             }
             result += ")";
             return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, result);
         } else {
-            return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, "com.google.gson.reflect.TypeToken.get(" + fieldType.toString() + ")");
+            return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, "com.google.gson.reflect.TypeToken.get(" + fieldType.toString() + ".class)");
         }
     }
 
