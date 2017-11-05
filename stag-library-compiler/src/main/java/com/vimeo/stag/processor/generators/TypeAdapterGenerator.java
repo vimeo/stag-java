@@ -98,8 +98,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             } else {
                 return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, "com.google.gson.reflect.TypeToken.get(" + fieldType.toString() + ".class)");
             }
-        }
-        if (fieldType instanceof DeclaredType) {
+        } else if (fieldType instanceof DeclaredType) {
                 /*
                  * If it is of ParameterizedType, {@link com.vimeo.stag.utils.ParameterizedTypeUtil} is used to get the
                  * type token of the parameter type.
@@ -112,11 +111,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  * Iterate through all the types from the typeArguments and generate type token code accordingly
                  */
             for (TypeMirror parameterTypeMirror : typeMirrors) {
-                if (parameterTypeMirror.getKind() == TypeKind.TYPEVAR) {
-                    result += ", " + typeVarsMap.get(parameterTypeMirror);
-                } else {
-                    result += ",\n" + getTypeTokenCode(parameterTypeMirror, stagGenerator, typeVarsMap, adapterFieldInfo) + ".getType()";
-                }
+                result += ",\n" + getTypeTokenCode(parameterTypeMirror, stagGenerator, typeVarsMap, adapterFieldInfo) + ".getType()";
             }
             result += ")";
             return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, result);

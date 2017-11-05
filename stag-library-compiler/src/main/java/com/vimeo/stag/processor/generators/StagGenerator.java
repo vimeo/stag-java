@@ -113,7 +113,7 @@ public class StagGenerator {
 
 
         createMethodBuilder.addStatement("TypeAdapter<T> result = null");
-        createMethodBuilder.beginControlFlow("switch (clazz.getName())");
+        createMethodBuilder.beginControlFlow("switch (clazz.getCanonicalName())");
 
         /*
          * Iterate through all the registered known classes, and map the classes to its corresponding type adapters.
