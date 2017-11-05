@@ -113,7 +113,7 @@ public class StagGenerator {
 
 
         createMethodBuilder.addStatement("TypeAdapter<T> result = null");
-        createMethodBuilder.beginControlFlow("switch (clazz.getCanonicalName())");
+        createMethodBuilder.beginControlFlow("switch (clazz.getName())");
 
         /*
          * Iterate through all the registered known classes, and map the classes to its corresponding type adapters.
@@ -126,7 +126,7 @@ public class StagGenerator {
                  *  This is used to generate the code if the class does not have any type arguments, or it is not parameterized.
                  */
 
-                createMethodBuilder.addCode("case \"" + classInfo.getClassAndPackage() + "\" :\n");
+                createMethodBuilder.addCode("case \"" + classInfo.getQualifiedClassName() + "\" :\n");
                 createMethodBuilder.addStatement(
                         "\tresult = (TypeAdapter<T>)(new " + qualifiedTypeAdapterName + "(gson))");
                 createMethodBuilder.addStatement(
@@ -137,7 +137,7 @@ public class StagGenerator {
                  *  This is used to generate the code if the class has type arguments, or it is parameterized.
                  */
                 createMethodBuilder.beginControlFlow(
-                        "case \"" + classInfo.getClassAndPackage() + "\" :\n");
+                        "case \"" + classInfo.getQualifiedClassName() + "\" :\n");
                 createMethodBuilder.addStatement("java.lang.reflect.Type parameters = type.getType()");
                 createMethodBuilder.beginControlFlow(
                         "if (parameters instanceof java.lang.reflect.ParameterizedType)");
