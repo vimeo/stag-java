@@ -82,8 +82,8 @@ android {
 
 #### 2. Provide optional compiler arguments to Stag
  - `stagGeneratedPackageName`: Pass package name as an argument for the generated files. By default, the files will be in generated
- in `com.vimeo.sample.stag.generated` package. But, you can specify your own package for the generated files
- by passing it as an argument to the apt compiler.
+ in `com.vimeo.stag.generated` package. You can specify your own package for the generated files
+ by passing it as an argument to the annotation processor.
  - `stagDebug`: Turn on debugging in Stag. This will cause Stag to spit out a lot of output into the gradle console.
  This can aid you in figuring out what class is giving you trouble, if the exception gradle prints out
  isn't sufficient. Default is false.
