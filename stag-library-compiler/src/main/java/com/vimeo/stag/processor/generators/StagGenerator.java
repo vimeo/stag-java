@@ -100,20 +100,16 @@ public class StagGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
-                                       .addMember("value", "\"unchecked\"")
-                                       .addMember("value", "\"rawtypes\"")
-                                       .build())
+                        .addMember("value", "\"unchecked\"")
+                        .addMember("value", "\"rawtypes\"")
+                        .build())
                 .addTypeVariable(genericTypeName)
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
-                              "type")
-                .addStatement("Class<? super T> clazz = type.getRawType()");
-
-
-
-        createMethodBuilder.addStatement("TypeAdapter<T> result = null");
-        createMethodBuilder.beginControlFlow("switch (clazz.getName())");
+                        "type")
+                .addStatement("Class<? super T> clazz = type.getRawType()")
+                .addStatement("String className = clazz.getName()");
 
         /*
          * Iterate through all the registered known classes, and map the classes to its corresponding type adapters.
@@ -126,18 +122,19 @@ public class StagGenerator {
                  *  This is used to generate the code if the class does not have any type arguments, or it is not parameterized.
                  */
 
-                createMethodBuilder.addCode("case \"" + classInfo.getQualifiedClassName() + "\" :\n");
+                createMethodBuilder.beginControlFlow(
+                        "if (className == \"" + classInfo.getClassAndPackage() + "\")");
                 createMethodBuilder.addStatement(
-                        "\tresult = (TypeAdapter<T>)(new " + qualifiedTypeAdapterName + "(gson))");
-                createMethodBuilder.addStatement(
-                        "\tbreak");
+                        "return (TypeAdapter<T>)(new " + qualifiedTypeAdapterName + "(gson))");
+                createMethodBuilder.endControlFlow();
+                createMethodBuilder.addCode("\n");
             } else {
 
                 /*
                  *  This is used to generate the code if the class has type arguments, or it is parameterized.
                  */
                 createMethodBuilder.beginControlFlow(
-                        "case \"" + classInfo.getQualifiedClassName() + "\" :\n");
+                        "if (className == \"" + classInfo.getClassAndPackage() + "\")");
                 createMethodBuilder.addStatement("java.lang.reflect.Type parameters = type.getType()");
                 createMethodBuilder.beginControlFlow(
                         "if (parameters instanceof java.lang.reflect.ParameterizedType)");
@@ -145,7 +142,7 @@ public class StagGenerator {
                         "java.lang.reflect.ParameterizedType parameterizedType = (java.lang.reflect.ParameterizedType) parameters");
                 createMethodBuilder.addStatement(
                         "java.lang.reflect.Type[] parametersType = parameterizedType.getActualTypeArguments()");
-                String statement = "result =  (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson";
+                String statement = "return (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson";
 
                 for (int idx = 0; idx < typeArguments.size(); idx++) {
                     statement += ", parametersType[" + idx + "]";
@@ -156,7 +153,7 @@ public class StagGenerator {
                 createMethodBuilder.endControlFlow();
                 createMethodBuilder.beginControlFlow("else");
                 createMethodBuilder.addStatement("TypeToken objectToken = TypeToken.get(Object.class)");
-                statement = "result = (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson";
+                statement = "return (TypeAdapter<T>) new " + qualifiedTypeAdapterName + "(gson";
                 for (int idx = 0; idx < typeArguments.size(); idx++) {
                     statement += ", objectToken.getType()";
                 }
@@ -164,12 +161,10 @@ public class StagGenerator {
                 createMethodBuilder.addStatement(statement);
                 createMethodBuilder.endControlFlow();
                 createMethodBuilder.endControlFlow();
-                createMethodBuilder.addStatement("break");
             }
         }
 
-        createMethodBuilder.endControlFlow();
-        createMethodBuilder.addStatement("return result");
+        createMethodBuilder.addStatement("return null");
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
 
         return adapterFactoryBuilder.build();
