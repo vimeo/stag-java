@@ -47,6 +47,12 @@ class ProcessorTester(private val processor: () -> Processor, private vararg val
                 .printError()
     }
 
+    /**
+     * Compile the provided class(es) within the provided [module] and return the [Compilation]
+     * result.
+     *
+     * @param clazz the class(es) to compile.
+     */
     fun compileClassInModule(module: String, vararg clazz: KClass<*>): Compilation {
         val modulePath = "${classpathRoot.parentFile.parentFile.parentFile.parentFile.parentFile.path}/$module/"
         val srcRoot = File(File(File(modulePath, "src"), "main"), "java")

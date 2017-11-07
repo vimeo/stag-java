@@ -39,7 +39,8 @@ public class MethodFieldAccessor extends FieldAccessor {
     @NotNull private final String mSetterName;
     @NotNull private final String mGetterName;
 
-    public MethodFieldAccessor(@NotNull VariableElement element, @NotNull Notation notation) throws UnsupportedOperationException {
+    public MethodFieldAccessor(@NotNull final VariableElement element,
+                               @NotNull final Notation notation) throws UnsupportedOperationException {
         super(element);
 
         mSetterName = findSetterMethodName(element, notation);
@@ -54,16 +55,16 @@ public class MethodFieldAccessor extends FieldAccessor {
 
     @NotNull
     @Override
-    public String createSetterCode(@NotNull String assignment) {
+    public String createSetterCode(@NotNull final String assignment) {
         return mSetterName + '(' + assignment + ')';
     }
 
     @NotNull
-    private static List<ExecutableElement> getSiblingMethods(@NotNull VariableElement variableElement) {
-        List<ExecutableElement> methodElements = new ArrayList<>();
-        List<? extends Element> otherElements = variableElement.getEnclosingElement().getEnclosedElements();
+    private static List<ExecutableElement> getSiblingMethods(@NotNull final VariableElement variableElement) {
+        final List<ExecutableElement> methodElements = new ArrayList<>();
+        final List<? extends Element> otherElements = variableElement.getEnclosingElement().getEnclosedElements();
 
-        for (Element element : otherElements) {
+        for (final Element element : otherElements) {
             if (element.getKind() == ElementKind.METHOD && element instanceof ExecutableElement) {
                 methodElements.add((ExecutableElement) element);
             }
@@ -72,26 +73,26 @@ public class MethodFieldAccessor extends FieldAccessor {
         return methodElements;
     }
 
-    private static boolean isSupportedSetter(@NotNull ExecutableElement method,
-                                             @NotNull VariableElement variableElement,
-                                             @NotNull Notation namingNotation) {
+    private static boolean isSupportedSetter(@NotNull final ExecutableElement method,
+                                             @NotNull final VariableElement variableElement,
+                                             @NotNull final Notation namingNotation) {
 
         final String variableNameMethodComponent = getVariableNameAsMethodName(variableElement, namingNotation);
         final String methodName = method.getSimpleName().toString();
 
         return (variableNameBeginsWithIs(variableNameMethodComponent)
-            && methodName.equals("set" + variableNameMethodComponent.substring(2)))
-            || methodName.equals("set" + variableNameMethodComponent);
+                && methodName.equals("set" + variableNameMethodComponent.substring(2)))
+               || methodName.equals("set" + variableNameMethodComponent);
     }
 
     @NotNull
-    private static String findSetterMethodName(@NotNull VariableElement variableElement,
-                                               @NotNull Notation namingNotation) throws UnsupportedOperationException {
+    private static String findSetterMethodName(@NotNull final VariableElement variableElement,
+                                               @NotNull final Notation namingNotation) throws UnsupportedOperationException {
         MessagerUtils.logInfo("Looking for setter");
 
-        for (ExecutableElement method : getSiblingMethods(variableElement)) {
+        for (final ExecutableElement method : getSiblingMethods(variableElement)) {
 
-            List<? extends VariableElement> parameters = method.getParameters();
+            final List<? extends VariableElement> parameters = method.getParameters();
 
             if (method.getReturnType().getKind() == TypeKind.VOID &&
                 parameters.size() == 1 &&
@@ -107,14 +108,14 @@ public class MethodFieldAccessor extends FieldAccessor {
         throw new UnsupportedOperationException("Unable to find setter for variable: " + variableElement.getSimpleName());
     }
 
-    private static boolean isBoolean(@NotNull TypeMirror typeMirror) {
+    private static boolean isBoolean(@NotNull final TypeMirror typeMirror) {
         return TypeUtils.areEqual(TypeUtils.getPrimitive(typeMirror.getKind()), TypeUtils.getPrimitive(TypeKind.BOOLEAN))
-            || TypeUtils.areEqual(typeMirror, ElementUtils.getTypeFromClass(Boolean.class));
+               || TypeUtils.areEqual(typeMirror, ElementUtils.getTypeFromClass(Boolean.class));
     }
 
-    private static boolean isSupportedGetter(@NotNull ExecutableElement method,
-                                             @NotNull VariableElement variableElement,
-                                             @NotNull Notation namingNotation) {
+    private static boolean isSupportedGetter(@NotNull final ExecutableElement method,
+                                             @NotNull final VariableElement variableElement,
+                                             @NotNull final Notation namingNotation) {
         final String methodName = method.getSimpleName().toString();
         final TypeMirror returnType = method.getReturnType();
         final String variableNameMethodComponent = getVariableNameAsMethodName(variableElement, namingNotation);
@@ -122,24 +123,24 @@ public class MethodFieldAccessor extends FieldAccessor {
         final boolean variableNameBeginsWithIs = variableNameBeginsWithIs(variableNameMethodComponent);
 
         return (isBoolean(returnType)
-            && (methodName.equals(variableNameBeginsWithIs
-                                          ? StringUtils.convertCharAtToLowerCase(variableNameMethodComponent, 0)
-                                          : "is" + variableNameMethodComponent)))
-            || methodName.equals("get" + variableNameMethodComponent);
+                && (methodName.equals(variableNameBeginsWithIs
+                                              ? StringUtils.convertCharAtToLowerCase(variableNameMethodComponent, 0)
+                                              : "is" + variableNameMethodComponent)))
+               || methodName.equals("get" + variableNameMethodComponent);
     }
 
-    private static boolean variableNameBeginsWithIs(@NotNull String variableName) {
+    private static boolean variableNameBeginsWithIs(@NotNull final String variableName) {
         return variableName.length() > 2
-            && (variableName.startsWith("is") || variableName.startsWith("Is"))
-            && Character.isUpperCase(variableName.charAt(2));
+               && (variableName.startsWith("is") || variableName.startsWith("Is"))
+               && Character.isUpperCase(variableName.charAt(2));
     }
 
     @NotNull
-    private static String findGetterMethodName(@NotNull VariableElement variableElement,
-                                               @NotNull Notation namingNotation) throws UnsupportedOperationException {
+    private static String findGetterMethodName(@NotNull final VariableElement variableElement,
+                                               @NotNull final Notation namingNotation) throws UnsupportedOperationException {
         MessagerUtils.logInfo("Looking for getter");
 
-        for (ExecutableElement method : getSiblingMethods(variableElement)) {
+        for (final ExecutableElement method : getSiblingMethods(variableElement)) {
 
             final TypeMirror returnType = method.getReturnType();
             if (TypeUtils.areEqual(returnType, variableElement.asType())
@@ -157,9 +158,9 @@ public class MethodFieldAccessor extends FieldAccessor {
     }
 
     @NotNull
-    private static String getVariableNameAsMethodName(@NotNull VariableElement variableElement,
-                                                      @NotNull Notation notation) {
-        String variableName = variableElement.getSimpleName().toString();
+    private static String getVariableNameAsMethodName(@NotNull final VariableElement variableElement,
+                                                      @NotNull final Notation notation) {
+        final String variableName = variableElement.getSimpleName().toString();
 
         switch (notation) {
             case STANDARD:
