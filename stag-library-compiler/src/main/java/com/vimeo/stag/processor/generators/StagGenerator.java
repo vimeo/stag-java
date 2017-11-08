@@ -108,7 +108,8 @@ public class StagGenerator {
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
                         "type")
-                .addStatement("Class<? super T> clazz = type.getRawType()");
+                .addStatement("Class<? super T> clazz = type.getRawType()")
+                .addStatement("String className = clazz.getName()");
 
         /*
          * Iterate through all the registered known classes, and map the classes to its corresponding type adapters.
@@ -122,7 +123,7 @@ public class StagGenerator {
                  */
 
                 createMethodBuilder.beginControlFlow(
-                        "if (clazz == " + classInfo.getClassAndPackage() + ".class)");
+                        "if (className == \"" + classInfo.getClassAndPackage() + "\")");
                 createMethodBuilder.addStatement(
                         "return (TypeAdapter<T>)(new " + qualifiedTypeAdapterName + "(gson))");
                 createMethodBuilder.endControlFlow();
@@ -132,7 +133,7 @@ public class StagGenerator {
                  *  This is used to generate the code if the class has type arguments, or it is parameterized.
                  */
                 createMethodBuilder.beginControlFlow(
-                        "if (clazz == " + classInfo.getClassAndPackage() + ".class)");
+                        "if (className == \"" + classInfo.getClassAndPackage() + "\")");
                 createMethodBuilder.addStatement("java.lang.reflect.Type parameters = type.getType()");
                 createMethodBuilder.beginControlFlow(
                         "if (parameters instanceof java.lang.reflect.ParameterizedType)");
