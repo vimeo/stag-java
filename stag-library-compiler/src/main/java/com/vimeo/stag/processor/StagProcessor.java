@@ -47,7 +47,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -179,8 +178,6 @@ public final class StagProcessor extends AbstractProcessor {
             StagGenerator stagFactoryGenerator = new StagGenerator(supportedTypes);
 
             Map<String, List<ClassInfo>> adapterFactoryMap = new HashMap<>();
-            List<ClassInfo> classInfoList = new ArrayList<>();
-            String previousPackageName = null;
 
             for (AnnotatedClass annotatedClass : supportedTypesModel.getSupportedTypes()) {
                 TypeElement element = annotatedClass.getElement();
@@ -188,13 +185,14 @@ public final class StagProcessor extends AbstractProcessor {
                     generateTypeAdapter(supportedTypesModel, element, stagFactoryGenerator);
 
                     ClassInfo classInfo = new ClassInfo(element.asType());
-                    if (previousPackageName != null && !previousPackageName.equals(classInfo.getPackageName())) {
-                        adapterFactoryMap.put(classInfo.getPackageName(), Collections.singletonList(classInfo));
-                    } else {
-                        previousPackageName = classInfo.getPackageName();
-                        classInfoList.add(classInfo);
-                        adapterFactoryMap.put(classInfo.getPackageName(), new ArrayList<>(classInfoList));
+                    ArrayList<ClassInfo> result = new ArrayList<>();
+                    result.add(classInfo);
+
+                    List<ClassInfo> classInfos = adapterFactoryMap.get(classInfo.getPackageName());
+                    if (classInfos != null && !classInfos.isEmpty()) {
+                        result.addAll(classInfos);
                     }
+                    adapterFactoryMap.put(classInfo.getPackageName(), result);
                 }
             }
 
