@@ -1,5 +1,6 @@
 package com.vimeo.sample.model;
 
+import com.vimeo.sample.model.generic.GenericClass;
 import com.vimeo.sample_model.ExternalModel1;
 import com.vimeo.stag.UseStag;
 

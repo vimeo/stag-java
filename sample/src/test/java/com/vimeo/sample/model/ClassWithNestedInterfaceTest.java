@@ -1,7 +1,8 @@
 package com.vimeo.sample.model;
 
 import com.vimeo.sample.Utils;
-import com.vimeo.sample.model.ClassWithNestedInterface.AvailabilityIntentDef;
+import com.vimeo.sample.model.scenarios.ClassWithNestedInterface;
+import com.vimeo.sample.model.scenarios.ClassWithNestedInterface.AvailabilityIntentDef;
 
 import org.junit.Test;
 

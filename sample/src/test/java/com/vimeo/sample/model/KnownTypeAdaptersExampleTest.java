@@ -1,6 +1,7 @@
 package com.vimeo.sample.model;
 
 import com.vimeo.sample.Utils;
+import com.vimeo.sample.model.jsonadapter.KnownTypeAdaptersExample;
 
 import org.junit.Test;
 

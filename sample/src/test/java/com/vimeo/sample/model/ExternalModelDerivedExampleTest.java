@@ -1,6 +1,7 @@
 package com.vimeo.sample.model;
 
 import com.vimeo.sample.Utils;
+import com.vimeo.sample.model.external.ExternalModelDerivedExample;
 import com.vimeo.sample_model.BaseExternalModel;
 
 import org.junit.Test;

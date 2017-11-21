@@ -1,6 +1,7 @@
 package com.vimeo.sample.model;
 
 import com.vimeo.sample.Utils;
+import com.vimeo.sample.model.scenarios.SubClassWithSameVariableName;
 
 import org.junit.Test;
 
