@@ -177,7 +177,7 @@ public class StagGenerator {
         createMethodBuilder.addStatement("typeAdapterFactory = createFactory(position)");
         createMethodBuilder.addStatement("sSubTypeFactories[position] = typeAdapterFactory");
         createMethodBuilder.endControlFlow();
-        createMethodBuilder.addStatement("typeAdapterFactory.create(gson, type)");
+        createMethodBuilder.addStatement("return typeAdapterFactory.create(gson, type)");
         createMethodBuilder.endControlFlow();
         createMethodBuilder.addStatement("return null");
 
