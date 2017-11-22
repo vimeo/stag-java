@@ -121,13 +121,19 @@ public class StagGenerator {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addSuperinterface(TypeAdapterFactory.class);
 
+        AnnotationSpec suppressions = AnnotationSpec.builder(SuppressWarnings.class)
+                .addMember("value", "\"unchecked\"")
+                .addMember("value", "\"rawtypes\"")
+                .build();
+
         /*TypeName staticMap =  ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(String.class), TypeVariableName.get(Integer.class));
         FieldSpec.Builder packageToIndexMapFieldBuilder = FieldSpec.builder(staticMap, "sPackageToIndex", Modifier.STATIC, Modifier.FINAL, Modifier.PRIVATE);
         packageToIndexMapFieldBuilder.initializer("new HashMap<String, Integer>(" + generatedStagFactoryWrappers.size() + ")");
         adapterFactoryBuilder.addField(packageToIndexMapFieldBuilder.build());*/
 
-        FieldSpec.Builder supportedPackages = FieldSpec.builder(ArrayTypeName.of(ClassName.get(String.class)), "sSupportedPackages", Modifier.STATIC, Modifier.FINAL, Modifier.PRIVATE);
-        supportedPackages.initializer("new String[" + generatedStagFactoryWrappers.size() + "]");
+        FieldSpec.Builder supportedPackages = FieldSpec.builder(ArrayTypeName.of(ClassName.get(Class.class)), "sSupportedPackages", Modifier.STATIC, Modifier.FINAL, Modifier.PRIVATE);
+        supportedPackages.initializer("new Class[" + generatedStagFactoryWrappers.size() + "]");
+        supportedPackages.addAnnotation(suppressions);
         adapterFactoryBuilder.addField(supportedPackages.build());
 
         FieldSpec.Builder subTypeFactories = FieldSpec.builder(ArrayTypeName.of(ClassName.get(TypeAdapterFactory.class)), "sSubTypeFactories", Modifier.STATIC, Modifier.FINAL, Modifier.PRIVATE);
@@ -135,7 +141,6 @@ public class StagGenerator {
         adapterFactoryBuilder.addField(subTypeFactories.build());
 
         CodeBlock.Builder staticCodeBlockBuilder = CodeBlock.builder();
-
 
         MethodSpec.Builder getPackageNameBuilder = MethodSpec.methodBuilder("getPackageName")
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
@@ -157,7 +162,7 @@ public class StagGenerator {
                 .addParameter(ClassName.get(String.class), "packageName")
                 .returns(ClassName.get(Integer.class))
                 .beginControlFlow("for(int idx = 0; idx < sSupportedPackages.length; idx++)")
-                .beginControlFlow("if(sSupportedPackages[idx].equals(packageName))")
+                .beginControlFlow("if(getPackageName(sSupportedPackages[idx]).equals(packageName))")
                 .addStatement("return idx")
                 .endControlFlow()
                 .endControlFlow()
@@ -173,12 +178,10 @@ public class StagGenerator {
                         "position");
         getFactoryMethodBuilder.beginControlFlow("switch(position)");
 
-
-
         int count = 0;
         for (SubFactoriesInfo subFactoriesInfo : generatedStagFactoryWrappers) {
             //staticCodeBlockBuilder.addStatement("sPackageToIndex.put(getPackageName(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class), " + count +")");
-            staticCodeBlockBuilder.addStatement("sSupportedPackages[" + count + "] = getPackageName(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class)");
+            staticCodeBlockBuilder.addStatement("sSupportedPackages[" + count + "] = " + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class");
 
             getFactoryMethodBuilder.addCode("case " + count + ":\n");
             getFactoryMethodBuilder.addStatement("  return new " + subFactoriesInfo.classAndPackageName + "()");
