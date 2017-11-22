@@ -121,9 +121,9 @@ public class StagGenerator {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addSuperinterface(TypeAdapterFactory.class);
 
-        TypeName staticMap =  ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(Package.class), TypeVariableName.get(Integer.class));
+        TypeName staticMap =  ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(String.class), TypeVariableName.get(Integer.class));
         FieldSpec.Builder packageToIndexMapFieldBuilder = FieldSpec.builder(staticMap, "sPackageToIndex", Modifier.STATIC, Modifier.FINAL, Modifier.PRIVATE);
-        packageToIndexMapFieldBuilder.initializer("new HashMap<Package, Integer>(" + generatedStagFactoryWrappers.size() + ")");
+        packageToIndexMapFieldBuilder.initializer("new HashMap<String, Integer>(" + generatedStagFactoryWrappers.size() + ")");
         adapterFactoryBuilder.addField(packageToIndexMapFieldBuilder.build());
 
         FieldSpec.Builder subTypeFactories = FieldSpec.builder(ArrayTypeName.of(ClassName.get(TypeAdapterFactory.class)), "sSubTypeFactories", Modifier.STATIC, Modifier.FINAL, Modifier.PRIVATE);
