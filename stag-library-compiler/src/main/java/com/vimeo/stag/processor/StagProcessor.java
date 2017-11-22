@@ -29,7 +29,7 @@ import com.squareup.javapoet.TypeSpec;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
-import com.vimeo.stag.processor.generators.StagFactoryWrapperGenerator;
+import com.vimeo.stag.processor.generators.StagFactoryGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
@@ -200,7 +200,7 @@ public final class StagProcessor extends AbstractProcessor {
             for (Map.Entry<String, List<ClassInfo>> stringListEntry : adapterFactoryMap.entrySet()) {
                 List<ClassInfo> classInfos = stringListEntry.getValue();
                 generateAdapterFactory(classInfos, stringListEntry.getKey());
-                generatedStagFactoryWrappers.add(new StagGenerator.SubFactoriesInfo(classInfos.get(0), stringListEntry.getKey() + "." + StagFactoryWrapperGenerator.NAME));
+                generatedStagFactoryWrappers.add(new StagGenerator.SubFactoriesInfo(classInfos.get(0), stringListEntry.getKey() + "." + StagFactoryGenerator.NAME));
             }
 
             generateStagFactory(stagFactoryGenerator, packageName, generatedStagFactoryWrappers);
@@ -215,10 +215,10 @@ public final class StagProcessor extends AbstractProcessor {
     }
 
     private void generateAdapterFactory(List<ClassInfo> classInfos, String packageName) throws IOException {
-        StagFactoryWrapperGenerator stagFactoryWrapperGenerator = new StagFactoryWrapperGenerator(classInfos, StagFactoryWrapperGenerator.NAME);
+        StagFactoryGenerator stagFactoryGenerator = new StagFactoryGenerator(classInfos, StagFactoryGenerator.NAME);
 
         // Create the type spec
-        TypeSpec typeAdapterSpec = stagFactoryWrapperGenerator.getTypeAdapterFactorySpec();
+        TypeSpec typeAdapterSpec = stagFactoryGenerator.getTypeAdapterFactorySpec();
 
         // Write the type spec to a file
         writeTypeSpecToFile(typeAdapterSpec, packageName);

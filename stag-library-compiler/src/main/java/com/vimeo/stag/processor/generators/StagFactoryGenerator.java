@@ -18,12 +18,12 @@ import java.util.List;
 
 import javax.lang.model.element.Modifier;
 
-public class StagFactoryWrapperGenerator {
+public class StagFactoryGenerator {
     public static final String NAME = "StagFactoryWrapper";
     private final List<ClassInfo> classInfoList;
     private final String fileName;
 
-    public StagFactoryWrapperGenerator(List<ClassInfo> classInfoList, String fileName) {
+    public StagFactoryGenerator(List<ClassInfo> classInfoList, String fileName) {
         this.classInfoList = classInfoList;
         this.fileName = fileName;
     }
