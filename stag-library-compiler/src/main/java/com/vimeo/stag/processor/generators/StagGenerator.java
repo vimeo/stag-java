@@ -179,6 +179,7 @@ public class StagGenerator {
         for (SubFactoriesInfo subFactoriesInfo : generatedStagFactoryWrappers) {
             //staticCodeBlockBuilder.addStatement("sPackageToIndex.put(getPackageName(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class), " + count +")");
             staticCodeBlockBuilder.addStatement("sSupportedPackages[" + count + "] = getPackageName(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class)");
+
             getFactoryMethodBuilder.addCode("case " + count + ":\n");
             getFactoryMethodBuilder.addStatement("  return new " + subFactoriesInfo.classAndPackageName + "()");
             count++;
@@ -203,8 +204,6 @@ public class StagGenerator {
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
                         "type")
                 .addStatement("Class<? super T> clazz = type.getRawType()");
-
-
 
         createMethodBuilder.addStatement("String packageName = getPackageName(clazz)");
         createMethodBuilder.addStatement("Integer position = getPositionFromPackage(packageName)");
