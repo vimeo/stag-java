@@ -144,7 +144,7 @@ public class StagGenerator {
 
         int count = 0;
         for (SubFactoriesInfo subFactoriesInfo : generatedStagFactoryWrappers) {
-            staticCodeBlockBuilder.addStatement("sPackageToIndex.put(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class.getPackage(), " + count +")");
+            staticCodeBlockBuilder.addStatement("sPackageToIndex.put(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class.getName(), " + count +")");
             getFactoryMethodBuilder.addCode("case " + count + ":\n");
             getFactoryMethodBuilder.addStatement("  return new " + subFactoriesInfo.classAndPackageName + "()");
             count++;
@@ -170,7 +170,7 @@ public class StagGenerator {
                         "type")
                 .addStatement("Class<? super T> clazz = type.getRawType()");
 
-        createMethodBuilder.addStatement("Integer position = sPackageToIndex.get(clazz.getPackage())");
+        createMethodBuilder.addStatement("Integer position = sPackageToIndex.get(clazz.getName())");
         createMethodBuilder.beginControlFlow("if(null != position)");
         createMethodBuilder.addStatement("TypeAdapterFactory typeAdapterFactory = sSubTypeFactories[position]");
         createMethodBuilder.beginControlFlow("if(null == typeAdapterFactory)");
