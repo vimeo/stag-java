@@ -19,7 +19,7 @@ import java.util.List;
 import javax.lang.model.element.Modifier;
 
 public class StagFactoryGenerator {
-    public static final String NAME = "StagFactoryWrapper";
+    public static final String NAME = "StagFactory";
     private final List<ClassInfo> classInfoList;
     private final String fileName;
 
