@@ -2,6 +2,7 @@ package com.vimeo.stag.processor.generators;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
+import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -30,6 +31,7 @@ public class StagFactoryWrapperGenerator {
     public TypeSpec getTypeAdapterFactorySpec() {
         TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(fileName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addSuperinterface(TypeAdapterFactory.class)
                 .addMethod(getCreateMethodSpec());
 
         return adapterBuilder.build();
@@ -48,7 +50,7 @@ public class StagFactoryWrapperGenerator {
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericType), "type")
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericType))
                 .addAnnotation(suppressions)
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addModifiers(Modifier.PUBLIC)
                 .addCode("Class<? super T> clazz = type.getRawType();\n");
 
         for (ClassInfo classInfo : classInfoList) {
