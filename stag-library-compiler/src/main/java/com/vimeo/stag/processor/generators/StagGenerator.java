@@ -158,7 +158,7 @@ public class StagGenerator {
                 .addStatement("Integer result = sPackageToIndex.get(packageName)")
                 .beginControlFlow("if (null == result)")
                 .beginControlFlow("synchronized (Stag.Factory.class)")
-                .beginControlFlow("while (idx <= sSupportedPackages.length)")
+                .beginControlFlow("while (idx < sSupportedPackages.length)")
                 .addCode("int currentIndex = idx;\n" +
                         "String pkgName = getPackageName(sSupportedPackages[currentIndex]);\n" +
                         "sPackageToIndex.put(pkgName, currentIndex);\n" +
