@@ -211,7 +211,9 @@ public class StagGenerator {
                         "type")
                 .addStatement("Class<? super T> clazz = type.getRawType()");
 
+        createMethodBuilder.addStatement("TypeAdapter<T> result = null");
         createMethodBuilder.addStatement("String packageName = getPackageName(clazz)");
+        createMethodBuilder.beginControlFlow("if (null != packageName)");
         createMethodBuilder.addStatement("Integer position = getPositionFromPackage(packageName)");
         createMethodBuilder.beginControlFlow("if(null != position)");
         createMethodBuilder.addStatement("TypeAdapterFactory typeAdapterFactory = sSubTypeFactories[position]");
@@ -219,9 +221,10 @@ public class StagGenerator {
         createMethodBuilder.addStatement("typeAdapterFactory = createFactory(position)");
         createMethodBuilder.addStatement("sSubTypeFactories[position] = typeAdapterFactory");
         createMethodBuilder.endControlFlow();
-        createMethodBuilder.addStatement("return typeAdapterFactory.create(gson, type)");
+        createMethodBuilder.addStatement("result = typeAdapterFactory.create(gson, type)");
         createMethodBuilder.endControlFlow();
-        createMethodBuilder.addStatement("return null");
+        createMethodBuilder.endControlFlow();
+        createMethodBuilder.addStatement("return result");
 
 
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
