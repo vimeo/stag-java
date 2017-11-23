@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.TypeMirror;
 
 public class StagFactoryGenerator {
     public static final String NAME = "StagFactory";
@@ -54,10 +55,35 @@ public class StagFactoryGenerator {
                 .addCode("Class<? super T> clazz = type.getRawType();\n");
 
         for (ClassInfo classInfo : classInfoList) {
-            builder.addCode("if (clazz == " + classInfo.getClassAndPackage() + ".class) {\n" +
-                    "\treturn (TypeAdapter<T>) new " + classInfo.getTypeAdapterQualifiedClassName() +
-                    "(gson);\n" +
-                    "}\n");
+            builder.beginControlFlow("if (clazz == " + classInfo.getClassAndPackage() + ".class)");
+            List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
+            if (typeArguments == null || typeArguments.isEmpty()) {
+                builder.addStatement("return (TypeAdapter<T>) new " + classInfo.getTypeAdapterQualifiedClassName() + "(gson)");
+            } else {
+                builder.addStatement("java.lang.reflect.Type parameters = type.getType()");
+                builder.beginControlFlow("if (parameters instanceof java.lang.reflect.ParameterizedType)");
+                builder.addStatement(
+                        "java.lang.reflect.ParameterizedType parameterizedType = (java.lang.reflect.ParameterizedType) parameters");
+                builder.addStatement(
+                        "java.lang.reflect.Type[] parametersType = parameterizedType.getActualTypeArguments()");
+                String statement = "return (TypeAdapter<T>) new " + classInfo.getTypeAdapterQualifiedClassName() + "(gson";
+                for (int idx = 0; idx < typeArguments.size(); idx++) {
+                    statement += ", parametersType[" + idx + "]";
+                }
+                statement += ")";
+                builder.addStatement(statement);
+                builder.endControlFlow();
+                builder.beginControlFlow("else");
+                builder.addStatement("TypeToken objectToken = TypeToken.get(Object.class)");
+                statement = "return (TypeAdapter<T>) new " + classInfo.getTypeAdapterQualifiedClassName() + "(gson";
+                for (int idx = 0; idx < typeArguments.size(); idx++) {
+                    statement += ", objectToken.getType()";
+                }
+                statement += ")";
+                builder.addStatement(statement);
+                builder.endControlFlow();
+            }
+            builder.endControlFlow();
         }
 
         builder.addCode("return null;\n");
