@@ -48,27 +48,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
 
 public class StagGenerator {
 
-    public static class SubFactoriesInfo {
-        public ClassInfo representativeClassInfo;
-        public String classAndPackageName;
-
-        public SubFactoriesInfo(ClassInfo classInfo, String classAndPackageName) {
-            representativeClassInfo = classInfo;
-            this.classAndPackageName = classAndPackageName;
-        }
-    }
-
     @NotNull
     private static final String CLASS_STAG = "Stag";
     @NotNull
     private static final String CLASS_TYPE_ADAPTER_FACTORY = "Factory";
-
     @NotNull
     private final Map<String, ClassInfo> mKnownClasses;
     @NotNull
@@ -126,10 +116,10 @@ public class StagGenerator {
                 .addMember("value", "\"rawtypes\"")
                 .build();
 
-        /*TypeName staticMap =  ParameterizedTypeName.get(ClassName.get(HashMap.class), TypeVariableName.get(String.class), TypeVariableName.get(Integer.class));
+        TypeName staticMap = ParameterizedTypeName.get(ClassName.get(ConcurrentHashMap.class), TypeVariableName.get(String.class), TypeVariableName.get(Integer.class));
         FieldSpec.Builder packageToIndexMapFieldBuilder = FieldSpec.builder(staticMap, "sPackageToIndex", Modifier.STATIC, Modifier.FINAL, Modifier.PRIVATE);
-        packageToIndexMapFieldBuilder.initializer("new HashMap<String, Integer>(" + generatedStagFactoryWrappers.size() + ")");
-        adapterFactoryBuilder.addField(packageToIndexMapFieldBuilder.build());*/
+        packageToIndexMapFieldBuilder.initializer("new ConcurrentHashMap<String, Integer>(" + generatedStagFactoryWrappers.size() + ")");
+        adapterFactoryBuilder.addField(packageToIndexMapFieldBuilder.build());
 
         FieldSpec.Builder supportedPackages = FieldSpec.builder(ArrayTypeName.of(ClassName.get(Class.class)), "sSupportedPackages", Modifier.STATIC, Modifier.FINAL, Modifier.PRIVATE);
         supportedPackages.initializer("new Class[" + generatedStagFactoryWrappers.size() + "]");
@@ -139,6 +129,10 @@ public class StagGenerator {
         FieldSpec.Builder subTypeFactories = FieldSpec.builder(ArrayTypeName.of(ClassName.get(TypeAdapterFactory.class)), "sSubTypeFactories", Modifier.STATIC, Modifier.FINAL, Modifier.PRIVATE);
         subTypeFactories.initializer("new TypeAdapterFactory[" + generatedStagFactoryWrappers.size() + "]");
         adapterFactoryBuilder.addField(subTypeFactories.build());
+
+        FieldSpec.Builder idxField = FieldSpec.builder(int.class, "idx", Modifier.STATIC, Modifier.PRIVATE);
+        idxField.initializer("-1");
+        adapterFactoryBuilder.addField(idxField.build());
 
         CodeBlock.Builder staticCodeBlockBuilder = CodeBlock.builder();
 
@@ -161,12 +155,21 @@ public class StagGenerator {
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(ClassName.get(String.class), "packageName")
                 .returns(ClassName.get(Integer.class))
-                .beginControlFlow("for(int idx = 0; idx < sSupportedPackages.length; idx++)")
-                .beginControlFlow("if(getPackageName(sSupportedPackages[idx]).equals(packageName))")
-                .addStatement("return idx")
+                .addStatement("Integer result = sPackageToIndex.get(packageName)")
+                .beginControlFlow("if (null == result)")
+                .beginControlFlow("synchronized (Stag.Factory.class)")
+                .beginControlFlow("while (idx < sSupportedPackages.length)")
+                .addCode("int currentIndex = idx;\n" +
+                        "String pkgName = getPackageName(sSupportedPackages[currentIndex]);\n" +
+                        "sPackageToIndex.put(pkgName, currentIndex);\n" +
+                        "idx++;\n" +
+                        "if (pkgName.equals(packageName)) {\n" +
+                        "   return currentIndex;\n" +
+                        "}")
                 .endControlFlow()
                 .endControlFlow()
-                .addStatement("return null");
+                .endControlFlow()
+                .addStatement("return result");
 
         adapterFactoryBuilder.addMethod(getPositionFromPackage.build());
 
@@ -224,5 +227,15 @@ public class StagGenerator {
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
 
         return adapterFactoryBuilder.build();
+    }
+
+    public static class SubFactoriesInfo {
+        public ClassInfo representativeClassInfo;
+        public String classAndPackageName;
+
+        public SubFactoriesInfo(ClassInfo classInfo, String classAndPackageName) {
+            representativeClassInfo = classInfo;
+            this.classAndPackageName = classAndPackageName;
+        }
     }
 }
