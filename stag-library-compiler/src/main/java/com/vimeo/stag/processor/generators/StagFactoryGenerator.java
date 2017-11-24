@@ -32,7 +32,7 @@ public class StagFactoryGenerator {
     public TypeSpec getTypeAdapterFactorySpec() {
         TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(fileName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-                .addSuperinterface(TypeAdapterFactory.class)
+//                .addSuperinterface(TypeAdapterFactory.class)
                 .addMethod(getCreateMethodSpec());
 
         return adapterBuilder.build();
@@ -51,7 +51,7 @@ public class StagFactoryGenerator {
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericType), "type")
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericType))
                 .addAnnotation(suppressions)
-                .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addCode("Class<? super T> clazz = type.getRawType();\n");
 
         for (ClassInfo classInfo : classInfoList) {
