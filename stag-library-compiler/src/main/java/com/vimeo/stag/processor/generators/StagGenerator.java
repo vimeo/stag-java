@@ -123,7 +123,7 @@ public class StagGenerator {
         int count = 1;
         for (String stagFileName : generatedStagFactoryWrappers) {
             String fieldName = "adapter" + count;
-            createMethodBuilder.addStatement("TypeAdapter<T> " + fieldName + " = " + stagFileName + ".create(gson, type)");
+            createMethodBuilder.addStatement("TypeAdapter<T> " + fieldName + " = " + stagFileName + ".getAdapter(gson, type)");
             createMethodBuilder.beginControlFlow("if (" + fieldName + " != null)");
             createMethodBuilder.addStatement("return " + fieldName);
             createMethodBuilder.endControlFlow();
