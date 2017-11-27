@@ -28,6 +28,7 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        google()
     }
     apply plugin: "com.jfrog.bintray"
 

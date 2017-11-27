@@ -50,14 +50,9 @@ jacoco {
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    implementation 'com.android.support:appcompat-v7:25.3.1'
+    implementation 'com.android.support:appcompat-v7:27.0.1'
 
     implementation project(':sample-model')
-    implementation project(':sample-java-model')
-
-    implementation(project(':sample-kotlin-model')) {
-        exclude group: 'org.jetbrains', module: 'annotations'
-    }
 
     implementation project(':stag-library')
     annotationProcessor project(':stag-library-compiler')
