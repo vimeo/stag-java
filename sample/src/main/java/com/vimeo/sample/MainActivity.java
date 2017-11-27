@@ -32,7 +32,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.vimeo.sample.model.root.Video;
+import com.vimeo.sample.model.Video;
 import com.vimeo.sample.network.NetworkRequest;
 
 import java.util.ArrayList;

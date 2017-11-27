@@ -35,9 +35,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.TypeAdapter;
-import com.vimeo.sample.model.root.DateParser;
-import com.vimeo.sample.model.root.Video;
-import com.vimeo.sample.model.root.VideoList;
+import com.vimeo.sample.model.DateParser;
+import com.vimeo.sample.model.Video;
+import com.vimeo.sample.model.VideoList;
 import com.vimeo.sample.stag.generated.Stag;
 
 import java.io.BufferedReader;

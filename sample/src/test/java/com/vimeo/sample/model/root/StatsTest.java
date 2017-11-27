@@ -1,7 +1,7 @@
 package com.vimeo.sample.model.root;
 
 import com.vimeo.sample.Utils;
-import com.vimeo.sample.model.root.Stats;
+import com.vimeo.sample.model.Stats;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'jacoco-android'
 
 buildscript {
@@ -13,7 +13,6 @@ android {
     buildToolsVersion buildTools
 
     defaultConfig {
-        applicationId "com.vimeo.sample"
         minSdkVersion minSdk
         targetSdkVersion targetSdk
         versionCode 1
@@ -22,8 +21,8 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                        stagGeneratedPackageName: 'com.vimeo.sample.stag.generated',
-                        stagDebug               : 'true',
+                        stagGeneratedPackageName   : 'com.vimeo.sample_model.stag.generated',
+                        stagDebug                  : 'true',
                         stagAssumeHungarianNotation: 'true'
                 ]
             }
@@ -39,9 +38,6 @@ android {
             testCoverageEnabled false
         }
     }
-    lintOptions {
-        abortOnError false
-    }
 }
 
 jacoco {
@@ -50,9 +46,9 @@ jacoco {
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    implementation 'com.android.support:appcompat-v7:27.0.1'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation project(':integration-test-android')
+    implementation 'com.android.support:support-annotations:27.0.1'
 
     implementation project(':stag-library')
     annotationProcessor project(':stag-library-compiler')
