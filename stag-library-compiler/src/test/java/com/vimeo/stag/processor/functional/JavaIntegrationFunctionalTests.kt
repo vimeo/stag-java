@@ -11,10 +11,10 @@ import kotlin.reflect.KClass
 /**
  * Functional tests for the integrations in the `sample-model-java` module
  */
-class SampleJavaModelFunctionalTests {
+class JavaIntegrationFunctionalTests {
 
     private val processorTester = ProcessorTester({ StagProcessor() }, "-AstagAssumeHungarianNotation=true")
-    private val module = "sample-java-model"
+    private val module = "integration-test-java"
 
     @Test
     fun `BooleanFields compiles successfully`() {
