@@ -76,7 +76,7 @@ platform :android do
   ]
   begin
     gradle(
-      task: "stag-library:test stag-library-compiler:test sample:test integration-test-java:test integration-test-kotlin:test integration-test-android:tes integration-test-android-cross-module:test"
+      task: "stag-library:test stag-library-compiler:test sample:test integration-test-java:test integration-test-kotlin:test integration-test-android:test integration-test-android-cross-module:test"
     )
   rescue => error
   begin
