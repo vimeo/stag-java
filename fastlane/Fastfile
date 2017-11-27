@@ -69,14 +69,14 @@ platform :android do
     "stag-library/build/test-results/test/*.xml",
     "stag-library-compiler/build/test-results/test/*.xml",
     "integration-test-java/build/test-results/test/*.xml",
+    "integration-test-java-cross-module/build/test-results/test/*.xml",
     "integration-test-kotlin/build/test-results/testDebugUnitTest/*.xml",
     "sample/build/test-results/testDebugUnitTest/*.xml",
     "integration-test-android/build/test-results/testDebugUnitTest/*.xml",
-    "integration-test-android-cross-module/build/test-results/testDebugUnitTest/*.xml"
   ]
   begin
     gradle(
-      task: "stag-library:test stag-library-compiler:test sample:test integration-test-java:test integration-test-kotlin:test integration-test-android:test integration-test-android-cross-module:test"
+      task: "stag-library:test stag-library-compiler:test sample:test integration-test-java:test integration-test-java-cross-module:test integration-test-kotlin:test integration-test-android:test"
     )
   rescue => error
   begin
