@@ -1,2 +1,3 @@
-<manifest package="com.vimeo.sample_model">
-</manifest>
+<manifest
+    package="com.vimeo.integration_test_android"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

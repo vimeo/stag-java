@@ -1,1 +1,1 @@
-include ':stag-library', ':stag-library-compiler', ':sample', ':integration-test-android', ':integration-test-java', ':integration-test-kotlin', ':integration-test-android-cross-module'
+include ':stag-library', ':stag-library-compiler', ':sample', ':integration-test-java', ':integration-test-kotlin', ':integration-test-java-cross-module', ':integration-test-android'

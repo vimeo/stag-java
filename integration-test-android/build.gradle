@@ -1,14 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'jacoco-android'
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-}
-
 android {
-    // Please update the ".travis.yml" file "android.components" section
     compileSdkVersion targetSdk
     buildToolsVersion buildTools
 
@@ -18,26 +11,26 @@ android {
         versionCode 1
         versionName "1.0"
 
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                        stagGeneratedPackageName   : 'com.vimeo.sample_model.stag.generated',
-                        stagDebug                  : 'true',
-                        stagAssumeHungarianNotation: 'true'
+                        stagAssumeHungarianNotation: 'true',
+                        stagGeneratedPackageName   : 'com.vimeo.sample.stag.generated',
+                        stagDebug                  : 'true'
                 ]
             }
         }
     }
+
     buildTypes {
-        debug {
-            testCoverageEnabled true
-        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            testCoverageEnabled false
         }
     }
+
 }
 
 jacoco {
@@ -46,8 +39,8 @@ jacoco {
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation 'com.android.support:appcompat-v7:27.0.1'
     implementation 'com.android.support:support-annotations:27.0.1'
 
     implementation project(':stag-library')

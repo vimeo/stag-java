@@ -1,0 +1,46 @@
+apply plugin: 'java'
+apply plugin: 'jacoco'
+apply plugin: "net.ltgt.apt"
+
+dependencies {
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation 'com.android.support:support-annotations:27.0.1'
+
+    implementation project(':stag-library')
+    apt project(':stag-library-compiler')
+
+    implementation project(':integration-test-java')
+
+    testImplementation 'junit:junit:4.12'
+}
+
+jacoco {
+    toolVersion = jacocoVersion
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+
+check.dependsOn jacocoTestReport
+jacocoTestReport.dependsOn test
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        sourceCompatibility = '1.7'
+        targetCompatibility = '1.7'
+        aptOptions.processorArgs = [
+                stagGeneratedPackageName   : "com.vimeo.sample.stag.generated",
+                stagDebug                  : "true",
+                stagAssumeHungarianNotation: "true"
+        ]
+        options.compilerArgs += [
+                "-Xlint:all,-deprecation,-serial,-processing,-options",
+                "-Werror"
+        ]
+        options.setIncremental true
+    }
+}

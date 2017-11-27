@@ -52,8 +52,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     implementation 'com.android.support:appcompat-v7:27.0.1'
 
-    implementation project(':integration-test-android')
-
     implementation project(':stag-library')
     annotationProcessor project(':stag-library-compiler')
 
