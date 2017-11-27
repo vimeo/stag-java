@@ -6,6 +6,13 @@ import com.vimeo.stag.UseStag;
 @UseStag
 public class ExternalModel2 {
 
-    @SerializedName("externalModelString")
-    public String mExternalModelString;
+    @SerializedName("externalModelString") private String mExternalModelString;
+
+    public String getExternalModelString() {
+        return mExternalModelString;
+    }
+
+    public void setExternalModelString(String externalModelString) {
+        mExternalModelString = externalModelString;
+    }
 }

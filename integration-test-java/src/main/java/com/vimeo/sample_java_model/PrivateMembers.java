@@ -6,8 +6,7 @@ import com.vimeo.stag.UseStag;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Model testing private members with
- * public setters.
+ * Model testing private members with public setters.
  * <p>
  * Created by anthonycr on 5/16/17.
  */
