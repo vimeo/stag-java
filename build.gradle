@@ -6,9 +6,9 @@ buildscript {
     ext.gsonVersion = '2.8.2'
 
     // android dependencies
-    ext.targetSdk = 26
+    ext.targetSdk = 27
     ext.minSdk = 14
-    ext.buildTools = "26.0.2"
+    ext.buildTools = "27.0.1"
 
     repositories {
         google()
