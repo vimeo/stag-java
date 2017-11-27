@@ -27,6 +27,7 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.8.0'
     testImplementation 'com.google.testing.compile:compile-testing:0.12'
     testImplementation project(path: ':integration-test-java')
+    testImplementation project(path: ':integration-test-java-cross-module')
 
     // Forcibly add test resources to test classpath: https://code.google.com/p/android/issues/detail?id=64887
     testRuntime files('build/resources/test')
