@@ -71,7 +71,7 @@ platform :android do
     "integration-test-java/build/test-results/test/*.xml",
     "integration-test-kotlin/build/test-results/testDebugUnitTest/*.xml",
     "sample/build/test-results/testDebugUnitTest/*.xml",
-    "integration-test-android/build/test-results/testDebugUnitTest/*.xml"
+    "integration-test-android/build/test-results/testDebugUnitTest/*.xml",
     "integration-test-android-cross-module/build/test-results/testDebugUnitTest/*.xml"
   ]
   begin
