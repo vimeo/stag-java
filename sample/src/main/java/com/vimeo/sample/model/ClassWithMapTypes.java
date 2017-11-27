@@ -25,6 +25,7 @@ package com.vimeo.sample.model;
 
 import android.support.v4.util.ArrayMap;
 
+import com.vimeo.sample.model.root.Video;
 import com.vimeo.stag.UseStag;
 
 import java.util.HashMap;

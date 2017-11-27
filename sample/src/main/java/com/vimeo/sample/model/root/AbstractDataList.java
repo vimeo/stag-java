@@ -21,40 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.sample.model;
+package com.vimeo.sample.model.root;
 
-import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 
-import java.util.Date;
+import java.util.ArrayList;
 
 /**
- * Simple video model used by the sample app.
+ * Ensures that partial resolution of an
+ * abstract class' parameters works correctly,
+ * and that an adapter is still not generated
+ * since this class is also parameterized.
+ *
+ * @param <T> the type of the list.
  */
 @UseStag
-public class Video {
+public abstract class AbstractDataList<T> extends SuperAbstractDataList<Paging, ArrayList<T>> {
 
-    @SerializedName("user")
-    public User mUser;
-
-    @SerializedName("link")
-    public String mLink;
-
-    public com.vimeo.sample.model1.Video video;
-
-    @SerializedName("name")
-    public String mName;
-
-    @SerializedName("created_time")
-    public Date mCreatedTime;
-
-    @SerializedName("stats")
-    public Stats mStats;
-
-    @Override
-    public String toString() {
-        return "user: { " + (mUser != null ? mUser.toString() : null) + " }\nlink: " + mLink + "\nname: " +
-               mName + "\ncreated_time: " + mCreatedTime + "\nstats: { " +
-               (mStats != null ? mStats.toString() : null) + " }";
-    }
+    public int page;
 }

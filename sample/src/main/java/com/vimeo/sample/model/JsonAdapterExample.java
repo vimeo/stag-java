@@ -4,6 +4,8 @@ import android.support.annotation.NonNull;
 
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
+import com.vimeo.sample.model.root.DateParser;
+import com.vimeo.sample.model.root.User;
 import com.vimeo.stag.UseStag;
 
 import java.util.Date;

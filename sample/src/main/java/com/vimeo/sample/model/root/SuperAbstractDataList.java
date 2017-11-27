@@ -21,40 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.sample.model;
+package com.vimeo.sample.model.root;
 
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import com.vimeo.stag.UseStag;
 
 /**
- * The dates returned by the API differ from the
- * default parser provided by gson. Registering
- * this parser with gson ensures that we can
- * correctly handle dates.
+ * Ensures that retrieving fields from
+ * parent classes works correctly and
+ * that adapters are not created for
+ * parameterized classes whose parameters
+ * have not been resolved.
+ *
+ * @param <T> the paging type.
+ * @param <K> the data type.
  */
-public class DateParser extends TypeAdapter<Date> {
+@UseStag
+public abstract class SuperAbstractDataList<T, K> {
 
-    private static final SimpleDateFormat dateFormat =
-            new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZZZ", Locale.ENGLISH);
+    public T paging;
 
-    @Override
-    public void write(JsonWriter out, Date value) throws IOException {
-        out.value(dateFormat.format(value));
-    }
-
-    @Override
-    public Date read(JsonReader in) throws IOException {
-        try {
-            return dateFormat.parse(in.nextString());
-        } catch (ParseException e) {
-            throw new IOException("Date parsing failed", e);
-        }
-    }
+    public K data;
 }

@@ -25,6 +25,7 @@ package com.vimeo.sample.model;
 
 
 import com.google.gson.annotations.SerializedName;
+import com.vimeo.sample.model.root.Stats;
 import com.vimeo.stag.UseStag;
 
 import java.util.Collection;

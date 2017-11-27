@@ -21,22 +21,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.sample.model;
+package com.vimeo.sample.model.root;
 
 import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 
 /**
- * Simple stats model used by the sample app.
+ * Simple user model used by the sample app.
  */
 @UseStag
-public class Stats {
+public class User {
 
-    @SerializedName("plays")
-    public int mPlays;
+    @SerializedName("name")
+    public String mName;
+
+    @SerializedName("location")
+    public String mLocation;
 
     @Override
     public String toString() {
-        return "plays: " + mPlays;
+        return "name: " + mName + ", location: " + mLocation;
     }
 }

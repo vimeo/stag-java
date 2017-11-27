@@ -21,24 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.sample.model;
+package com.vimeo.sample.model.root;
 
+import com.google.gson.annotations.SerializedName;
 import com.vimeo.stag.UseStag;
 
 /**
- * Ensures that retrieving fields from
- * parent classes works correctly and
- * that adapters are not created for
- * parameterized classes whose parameters
- * have not been resolved.
- *
- * @param <T> the paging type.
- * @param <K> the data type.
+ * Simple stats model used by the sample app.
  */
 @UseStag
-public abstract class SuperAbstractDataList<T, K> {
+public class Stats {
 
-    public T paging;
+    @SerializedName("plays")
+    public int mPlays;
 
-    public K data;
+    @Override
+    public String toString() {
+        return "plays: " + mPlays;
+    }
 }

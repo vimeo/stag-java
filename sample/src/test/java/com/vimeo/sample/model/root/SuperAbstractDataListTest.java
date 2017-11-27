@@ -1,6 +1,7 @@
-package com.vimeo.sample.model;
+package com.vimeo.sample.model.root;
 
 import com.vimeo.sample.Utils;
+import com.vimeo.sample.model.root.SuperAbstractDataList;
 
 import org.junit.Test;
 

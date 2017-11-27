@@ -24,6 +24,7 @@
 package com.vimeo.sample.model;
 
 
+import com.vimeo.sample.model.root.Video;
 import com.vimeo.stag.UseStag;
 
 /**

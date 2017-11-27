@@ -1,17 +1,18 @@
-package com.vimeo.sample.model1;
+package com.vimeo.sample.model.root;
 
 import com.vimeo.sample.Utils;
+import com.vimeo.sample.model.root.VideoList;
 
 import org.junit.Test;
 
 /**
  * Created by restainoa on 2/2/17.
  */
-public class VideoTest {
+public class VideoListTest {
 
     @Test
     public void typeAdapterWasGenerated() throws Exception {
-        Utils.verifyTypeAdapterGeneration(Video.class);
+        Utils.verifyTypeAdapterGeneration(VideoList.class);
     }
 
 }
