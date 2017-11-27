@@ -9,7 +9,7 @@ import org.junit.Test
 import kotlin.reflect.KClass
 
 /**
- * Functional tests for the integrations in the `sample-model-java` module
+ * Functional tests for the integrations in the `integration-test-java` module
  */
 class JavaIntegrationFunctionalTests {
 
