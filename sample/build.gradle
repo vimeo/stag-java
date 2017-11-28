@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'jacoco-android'
 
 buildscript {
     repositories {
@@ -42,10 +41,6 @@ android {
     lintOptions {
         abortOnError false
     }
-}
-
-jacoco {
-    toolVersion = jacocoVersion
 }
 
 dependencies {

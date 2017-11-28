@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'jacoco-android'
 
 android {
     compileSdkVersion targetSdk
@@ -31,10 +30,6 @@ android {
         }
     }
 
-}
-
-jacoco {
-    toolVersion = jacocoVersion
 }
 
 dependencies {

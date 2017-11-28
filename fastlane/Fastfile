@@ -67,12 +67,7 @@ platform :android do
   # run the tests, but dont puke everywhere until the report is printed.
   junit_report_path_array = [
     "stag-library/build/test-results/test/*.xml",
-    "stag-library-compiler/build/test-results/test/*.xml",
-    "integration-test-java/build/test-results/test/*.xml",
-    "integration-test-java-cross-module/build/test-results/test/*.xml",
-    "integration-test-kotlin/build/test-results/testDebugUnitTest/*.xml",
-    "sample/build/test-results/testDebugUnitTest/*.xml",
-    "integration-test-android/build/test-results/testDebugUnitTest/*.xml",
+    "stag-library-compiler/build/test-results/test/*.xml"
   ]
   begin
     gradle(

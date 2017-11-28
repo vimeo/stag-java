@@ -1,7 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'jacoco-android'
 
 android {
     compileSdkVersion targetSdk
@@ -40,10 +39,6 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
         test.java.srcDirs += 'src/test/kotlin'
     }
-}
-
-jacoco {
-    toolVersion = jacocoVersion
 }
 
 kapt {
