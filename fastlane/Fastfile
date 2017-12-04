@@ -68,14 +68,15 @@ platform :android do
   junit_report_path_array = [
     "stag-library/build/test-results/test/*.xml",
     "stag-library-compiler/build/test-results/test/*.xml",
-    "sample-java-model/build/test-results/test/*.xml",
-    "sample-kotlin-model/build/test-results/testDebugUnitTest/*.xml",
+    "integration-test-java/build/test-results/test/*.xml",
+    "integration-test-java-cross-module/build/test-results/test/*.xml",
+    "integration-test-kotlin/build/test-results/testDebugUnitTest/*.xml",
     "sample/build/test-results/testDebugUnitTest/*.xml",
-    "sample-model/build/test-results/testDebugUnitTest/*.xml"
+    "integration-test-android/build/test-results/testDebugUnitTest/*.xml"
   ]
   begin
     gradle(
-      task: "sample:build stag-library:test stag-library-compiler:test sample:test sample-model:test sample-java-model:test sample-kotlin-model:test"
+      task: "stag-library:test stag-library-compiler:test sample:test integration-test-java:test integration-test-java-cross-module:test integration-test-kotlin:test integration-test-android:test"
     )
   rescue => error
   begin

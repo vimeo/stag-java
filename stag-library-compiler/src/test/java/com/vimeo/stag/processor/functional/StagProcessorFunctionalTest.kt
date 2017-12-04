@@ -51,9 +51,4 @@ class StagProcessorFunctionalTest {
         assertThat(processorTester.compileResource("testcase/PrivateFields.java").isSuccessful()).isFalse()
     }
 
-    @Test
-    fun `User compiles successfully`() {
-        assertThat(processorTester.compileResource("testcase/User.java").isSuccessful()).isTrue()
-    }
-
 }

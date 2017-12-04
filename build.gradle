@@ -1,14 +1,14 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
 
-    ext.kotlinVersion = '1.1.51'
+    ext.kotlinVersion = '1.2.0'
     ext.jacocoVersion = '0.7.9' // See http://www.eclemma.org/jacoco/
     ext.gsonVersion = '2.8.2'
 
     // android dependencies
-    ext.targetSdk = 26
+    ext.targetSdk = 27
     ext.minSdk = 14
-    ext.buildTools = "26.0.2"
+    ext.buildTools = "27.0.1"
 
     repositories {
         google()
@@ -17,7 +17,7 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:3.0.1'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -28,6 +28,7 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        google()
     }
     apply plugin: "com.jfrog.bintray"
 

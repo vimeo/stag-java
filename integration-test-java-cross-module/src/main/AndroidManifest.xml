@@ -1,0 +1,3 @@
+<manifest
+    package="com.vimeo.sample.integration_test_android"
+    xmlns:android="http://schemas.android.com/apk/res/android" />

@@ -40,8 +40,6 @@ public class Video {
     @SerializedName("link")
     public String mLink;
 
-    public com.vimeo.sample.model1.Video video;
-
     @SerializedName("name")
     public String mName;
 
