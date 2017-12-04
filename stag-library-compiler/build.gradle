@@ -25,7 +25,7 @@ jacocoTestReport.dependsOn test
 dependencies {
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.assertj:assertj-core:3.8.0'
-    testImplementation 'com.google.testing.compile:compile-testing:0.12'
+    testImplementation 'com.google.testing.compile:compile-testing:0.13'
     testImplementation project(path: ':integration-test-java')
     testImplementation project(path: ':integration-test-java-cross-module')
 
@@ -38,6 +38,9 @@ dependencies {
     implementation 'com.squareup:javapoet:1.9.0'
     implementation 'com.intellij:annotations:12.0@jar'
     implementation 'com.google.auto.service:auto-service:1.0-rc3'
+
+    // Used by both auto-service and compile-testing, we need to resolve the version for them.
+    implementation 'com.google.guava:guava:23.5-jre'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
 }
@@ -83,7 +86,7 @@ def pomConfig = {
             organisationUrl "https://github.com/vimeo"
         }
     }
-    
+
     scm {
         connection "scm:git:git://github.com/vimeo/stag-java.git"
         developerConnection "scm:git:ssh://github.com:vimeo/stag-java.git"
@@ -143,10 +146,12 @@ allprojects {
                             passphrase = System.getenv('BINTRAY_GPG_PASSWORD')
                         }
                         mavenCentralSync {
-                            sync = true //Optional (true by default). Determines whether to sync the version to Maven Central.
-                            user = System.getenv('SONATYPE_TOKEN_USER') //OSS user token
-                            password = System.getenv('SONATYPE_TOKEN_PASSWORD') //OSS user password
-                            close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                            sync = true
+                            // Optional (true by default). Determines whether to sync the version to Maven Central.
+                            user = System.getenv('SONATYPE_TOKEN_USER') // OSS user token
+                            password = System.getenv('SONATYPE_TOKEN_PASSWORD') // OSS user password
+                            close = '1'
+                            // Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
                         }
                     }
                 }
