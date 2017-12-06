@@ -1,8 +1,6 @@
 package com.vimeo.sample.model;
 
 import com.vimeo.sample.Utils;
-import com.vimeo.sample.model.scenarios.ClassWithNestedInterface;
-import com.vimeo.sample.model.scenarios.ClassWithNestedInterface.AvailabilityIntentDef;
 
 import org.junit.Test;
 
@@ -13,12 +11,11 @@ public class ClassWithNestedInterfaceTest {
 
     @Test
     public void typeAdapterWasNotGenerated_AvailabilityIntentDef() throws Exception {
-        Utils.verifyNoTypeAdapterGeneration(AvailabilityIntentDef.class);
+        Utils.verifyNoTypeAdapterGeneration(ClassWithNestedInterface.AvailabilityIntentDef.class);
     }
 
     @Test
     public void typeAdapterWasGenerated_ClassWithNestedInterface() throws Exception {
         Utils.verifyTypeAdapterGeneration(ClassWithNestedInterface.class);
     }
-
 }

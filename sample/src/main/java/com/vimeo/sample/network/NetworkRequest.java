@@ -129,10 +129,8 @@ public final class NetworkRequest {
 
 
                 long time = System.currentTimeMillis();
-                //Debug.startMethodTracing("trace");
                 TypeAdapter<VideoList> videoListTypeAdapter = gson.getAdapter(VideoList$TypeAdapter.TYPE_TOKEN);
                 videos.addAll(videoListTypeAdapter.fromJsonTree(jsonObject).data);
-                //Debug.stopMethodTracing();
                 Log.d(TAG, "Time elapsed while parsing: " + (System.currentTimeMillis() - time) + " ms");
 
             } catch (IOException e) {

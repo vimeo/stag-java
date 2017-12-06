@@ -1,7 +1,6 @@
 package com.vimeo.sample.model;
 
 import com.vimeo.sample.Utils;
-import com.vimeo.sample.model.scenarios.AccessModifiers;
 
 import org.junit.Test;
 
@@ -14,5 +13,4 @@ public class AccessModifiersTest {
     public void typeAdapterWasGenerated() throws Exception {
         Utils.verifyTypeAdapterGeneration(AccessModifiers.class);
     }
-
 }
