@@ -209,16 +209,16 @@ public class StagGenerator {
         int mapIndex = 0;
         for (SubFactoriesInfo subFactoriesInfo : generatedStagFactoryWrappers) {
             createMethodBuilder.addCode("case " + mapIndex + " : ");
-            createMethodBuilder.addCode("\t\t\nresult = getTypeAdapter(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class, " +
-                    "currentPackageName, gson, type, " + mapIndex + ");");
-            createMethodBuilder.beginControlFlow("\nif(null != result)");
-            createMethodBuilder.addCode("return result;\n");
-            createMethodBuilder.endControlFlow();
+            createMethodBuilder.addStatement("\t\nresult = getTypeAdapter(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class, " +
+                    "currentPackageName, gson, type, " + mapIndex + ")");
+            createMethodBuilder.beginControlFlow("\tif(null != result)");
+            createMethodBuilder.addStatement("\t\treturn result");
+            createMethodBuilder.addCode("\t}");
             mapIndex++;
         }
 
         createMethodBuilder.addCode("\ndefault : ");
-        createMethodBuilder.addCode("\t\t\nreturn null;\n");
+        createMethodBuilder.addStatement("\t\nreturn null");
         createMethodBuilder.endControlFlow();
 
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
