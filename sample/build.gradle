@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'jacoco-android'
 
 buildscript {
     repositories {
@@ -23,7 +22,8 @@ android {
             annotationProcessorOptions {
                 arguments = [
                         stagGeneratedPackageName: 'com.vimeo.sample.stag.generated',
-                        stagDebug               : 'true'
+                        stagDebug               : 'true',
+                        stagAssumeHungarianNotation: 'true'
                 ]
             }
         }
@@ -43,25 +43,14 @@ android {
     }
 }
 
-jacoco {
-    toolVersion = jacoco_version
-}
-
 dependencies {
-    testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.3.1'
+    testImplementation 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:27.0.2'
 
-    compile project(':sample-model')
-    compile project(':sample-java-model')
-
-    compile(project(':sample-kotlin-model')) {
-        exclude group: 'org.jetbrains', module: 'annotations'
-    }
-
-    compile project(':stag-library')
+    implementation project(':stag-library')
     annotationProcessor project(':stag-library-compiler')
 
-    compile 'com.google.code.gson:gson:2.8.0'
+    implementation "com.google.code.gson:gson:$gsonVersion"
 }
 
 gradle.projectsEvaluated {

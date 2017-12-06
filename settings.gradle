@@ -1,1 +1,1 @@
-include ':stag-library', ':stag-library-compiler', ':sample', ':sample-model', ':sample-java-model', ':sample-kotlin-model'
+include ':stag-library', ':stag-library-compiler', ':sample', ':integration-test-java', ':integration-test-kotlin', ':integration-test-java-cross-module', ':integration-test-android'
