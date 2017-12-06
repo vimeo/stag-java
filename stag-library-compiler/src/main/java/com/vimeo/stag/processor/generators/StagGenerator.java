@@ -183,6 +183,7 @@ public class StagGenerator {
                 .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
                         .addMember("value", "\"unchecked\"")
                         .addMember("value", "\"rawtypes\"")
+                        .addMember("value", "\"fallthrough\"")
                         .build())
                 .addTypeVariable(genericTypeName)
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
@@ -207,9 +208,12 @@ public class StagGenerator {
 
         int mapIndex = 0;
         for (SubFactoriesInfo subFactoriesInfo : generatedStagFactoryWrappers) {
-            createMethodBuilder.addCode("\ncase " + mapIndex + " : ");
-            createMethodBuilder.addCode("\t\t\nreturn getTypeAdapter(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class, " +
+            createMethodBuilder.addCode("case " + mapIndex + " : ");
+            createMethodBuilder.addCode("\t\t\nresult = getTypeAdapter(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class, " +
                     "currentPackageName, gson, type, " + mapIndex + ");");
+            createMethodBuilder.beginControlFlow("\nif(null != result)");
+            createMethodBuilder.addCode("return result;\n");
+            createMethodBuilder.endControlFlow();
             mapIndex++;
         }
 
