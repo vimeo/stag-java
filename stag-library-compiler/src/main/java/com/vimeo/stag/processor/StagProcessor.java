@@ -196,11 +196,11 @@ public final class StagProcessor extends AbstractProcessor {
                 }
             }
 
-            List<String> generatedStagFactoryWrappers = new ArrayList<>();
+            List<StagGenerator.SubFactoriesInfo> generatedStagFactoryWrappers = new ArrayList<>();
             for (Map.Entry<String, List<ClassInfo>> stringListEntry : adapterFactoryMap.entrySet()) {
                 List<ClassInfo> classInfos = stringListEntry.getValue();
                 generateAdapterFactory(classInfos, stringListEntry.getKey());
-                generatedStagFactoryWrappers.add(stringListEntry.getKey() + "." + StagFactoryGenerator.NAME);
+                generatedStagFactoryWrappers.add(new StagGenerator.SubFactoriesInfo(classInfos.get(0), stringListEntry.getKey() + "." + StagFactoryGenerator.NAME));
             }
 
             generateStagFactory(stagFactoryGenerator, packageName, generatedStagFactoryWrappers);
@@ -225,7 +225,7 @@ public final class StagProcessor extends AbstractProcessor {
     }
 
     private void generateStagFactory(@NotNull StagGenerator stagGenerator,
-                                     @NotNull String packageName, List<String> generatedStagFactoryWrappers) throws IOException {
+                                     @NotNull String packageName, List<StagGenerator.SubFactoriesInfo> generatedStagFactoryWrappers) throws IOException {
         stagGenerator.setGeneratedStagFactoryWrappers(generatedStagFactoryWrappers);
         // Create the type spec
         TypeSpec typeSpec = stagGenerator.createStagSpec();
