@@ -33,7 +33,6 @@ public class StagFactoryGenerator {
         TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(fileName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(TypeAdapterFactory.class)
-                .addMethod(createStaticAdapterCreationMethod())
                 .addMethod(getCreateMethodSpec());
 
         return adapterBuilder.build();
@@ -53,27 +52,7 @@ public class StagFactoryGenerator {
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericType))
                 .addAnnotation(suppressions)
                 .addAnnotation(Override.class)
-                .addModifiers(Modifier.PUBLIC);
-
-        builder.addCode("return getAdapter(gson, type);\n");
-
-        return builder.build();
-    }
-
-    @NotNull
-    private MethodSpec createStaticAdapterCreationMethod() {
-        TypeVariableName genericType = TypeVariableName.get("T");
-        AnnotationSpec suppressions = AnnotationSpec.builder(SuppressWarnings.class)
-                .addMember("value", "\"unchecked\"")
-                .addMember("value", "\"rawtypes\"")
-                .build();
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("getAdapter")
-                .addTypeVariable(genericType)
-                .addParameter(Gson.class, "gson")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericType), "type")
-                .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericType))
-                .addAnnotation(suppressions)
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addModifiers(Modifier.PUBLIC)
                 .addCode("Class<? super T> clazz = type.getRawType();\n");
 
         for (ClassInfo classInfo : classInfoList) {
