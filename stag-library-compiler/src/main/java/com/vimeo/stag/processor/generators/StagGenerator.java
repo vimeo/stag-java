@@ -197,7 +197,7 @@ public class StagGenerator {
         createMethodBuilder.beginControlFlow("if(null == currentPackageName)");
         createMethodBuilder.addStatement("return result");
         createMethodBuilder.endControlFlow();
-
+        createMethodBuilder.addCode("\n");
         createMethodBuilder.addStatement("Integer index = packageToIndexMap.get(currentPackageName)");
         createMethodBuilder.beginControlFlow("if(null != index)");
         createMethodBuilder.addStatement("TypeAdapterFactory typeAdapterFactory = getTypeAdapterFactory(index)");
@@ -209,15 +209,18 @@ public class StagGenerator {
         int mapIndex = 0;
         for (SubFactoriesInfo subFactoriesInfo : generatedStagFactoryWrappers) {
             createMethodBuilder.addCode("case " + mapIndex + " : ");
-            createMethodBuilder.addStatement("\t\nresult = getTypeAdapter(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class, " +
-                    "currentPackageName, gson, type, " + mapIndex + ")");
-            createMethodBuilder.beginControlFlow("\tif(null != result)");
+            createMethodBuilder.addCode("\n");
+            createMethodBuilder.addCode("\tresult = getTypeAdapter(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class, " +
+                    "currentPackageName, gson, type, " + mapIndex + ");");
+            createMethodBuilder.addCode("\n");
+            createMethodBuilder.addCode("\tif(null != result) {");
+            createMethodBuilder.addCode("\n");
             createMethodBuilder.addStatement("\t\treturn result");
-            createMethodBuilder.addCode("\t}");
+            createMethodBuilder.addCode("\t}\n");
             mapIndex++;
         }
 
-        createMethodBuilder.addCode("\ndefault : ");
+        createMethodBuilder.addCode("default : ");
         createMethodBuilder.addStatement("\t\nreturn null");
         createMethodBuilder.endControlFlow();
 
