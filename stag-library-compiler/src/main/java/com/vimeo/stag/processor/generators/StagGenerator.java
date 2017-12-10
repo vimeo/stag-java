@@ -197,8 +197,7 @@ public class StagGenerator {
         createMethodBuilder.beginControlFlow("if(null == currentPackageName)");
         createMethodBuilder.addStatement("return result");
         createMethodBuilder.endControlFlow();
-        createMethodBuilder.addCode("\n");
-        createMethodBuilder.addStatement("Integer index = packageToIndexMap.get(currentPackageName)");
+        createMethodBuilder.addCode("\nInteger index = packageToIndexMap.get(currentPackageName);\n");
         createMethodBuilder.beginControlFlow("if(null != index)");
         createMethodBuilder.addStatement("TypeAdapterFactory typeAdapterFactory = getTypeAdapterFactory(index)");
         createMethodBuilder.addStatement("return typeAdapterFactory.create(gson, type)");
