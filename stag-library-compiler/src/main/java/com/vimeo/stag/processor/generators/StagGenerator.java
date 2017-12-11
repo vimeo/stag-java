@@ -40,7 +40,6 @@ import com.vimeo.stag.processor.utils.TypeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +58,6 @@ public class StagGenerator {
 
     @NotNull
     private final Map<String, ClassInfo> mKnownClasses;
-    @NotNull
-    private List<SubFactoriesInfo> generatedStagFactoryWrappers = new ArrayList<>();
 
     public StagGenerator(@NotNull Set<TypeMirror> knownTypes) {
         mKnownClasses = new HashMap<>(knownTypes.size());
@@ -77,12 +74,8 @@ public class StagGenerator {
         return generatedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY;
     }
 
-    public void setGeneratedStagFactoryWrappers(@NotNull List<SubFactoriesInfo> generatedStagFactoryWrappers) {
-        this.generatedStagFactoryWrappers = generatedStagFactoryWrappers;
-    }
-
     @Nullable
-    public ClassInfo getKnownClass(@NotNull TypeMirror typeMirror) {
+    ClassInfo getKnownClass(@NotNull TypeMirror typeMirror) {
         return mKnownClasses.get(typeMirror.toString());
     }
 
@@ -91,18 +84,19 @@ public class StagGenerator {
      * for the annotated classes. Creates the spec for the class.
      *
      * @return A non null TypeSpec for the factory class.
+     * @param generatedStagFactoryWrappers List of Sub Factories that have been created
      */
     @NotNull
-    public TypeSpec createStagSpec() {
+    public TypeSpec createStagSpec(List<SubFactoriesInfo> generatedStagFactoryWrappers) {
         TypeSpec.Builder stagBuilder =
                 TypeSpec.classBuilder(CLASS_STAG).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
-        stagBuilder.addType(getAdapterFactorySpec());
+        stagBuilder.addType(getAdapterFactorySpec(generatedStagFactoryWrappers));
 
         return stagBuilder.build();
     }
 
     @NotNull
-    private TypeSpec getAdapterFactorySpec() {
+    private TypeSpec getAdapterFactorySpec(@NotNull List<SubFactoriesInfo> generatedStagFactoryWrappers) {
         TypeVariableName genericTypeName = TypeVariableName.get("T");
 
         TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(CLASS_TYPE_ADAPTER_FACTORY)
@@ -177,13 +171,14 @@ public class StagGenerator {
                         "return null;\n");
         adapterFactoryBuilder.addMethod(getTypeAdapterMethodBuilder.build());
 
+        String suppressWarningValue = "value";
         MethodSpec.Builder createMethodBuilder = MethodSpec.methodBuilder("create")
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
-                        .addMember("value", "\"unchecked\"")
-                        .addMember("value", "\"rawtypes\"")
-                        .addMember("value", "\"fallthrough\"")
+                        .addMember(suppressWarningValue, "\"unchecked\"")
+                        .addMember(suppressWarningValue, "\"rawtypes\"")
+                        .addMember(suppressWarningValue, "\"fallthrough\"")
                         .build())
                 .addTypeVariable(genericTypeName)
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
@@ -230,8 +225,8 @@ public class StagGenerator {
     }
 
     public static class SubFactoriesInfo {
-        public ClassInfo representativeClassInfo;
-        public String classAndPackageName;
+        ClassInfo representativeClassInfo;
+        String classAndPackageName;
 
         public SubFactoriesInfo(ClassInfo classInfo, String classAndPackageName) {
             this.representativeClassInfo = classInfo;

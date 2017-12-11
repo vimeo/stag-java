@@ -86,7 +86,7 @@ public abstract class AdapterGenerator {
     public abstract TypeSpec createTypeAdapterSpec(@NotNull StagGenerator stagGenerator);
 
 
-    protected FieldSpec createTypeTokenSpec(@NotNull TypeMirror typeMirror){
+    FieldSpec createTypeTokenSpec(@NotNull TypeMirror typeMirror){
         ParameterizedTypeName typeTokenType = ParameterizedTypeName.get(ClassName.get(TypeToken.class), TypeVariableName.get(typeMirror));
         FieldSpec.Builder typeTokenBuilder = FieldSpec.builder(typeTokenType, "TYPE_TOKEN", Modifier.PUBLIC,Modifier.STATIC, Modifier.FINAL);
         typeTokenBuilder.initializer("TypeToken.get(" + typeMirror.toString() + ".class)");

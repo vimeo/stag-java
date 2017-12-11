@@ -226,9 +226,8 @@ public final class StagProcessor extends AbstractProcessor {
 
     private void generateStagFactory(@NotNull StagGenerator stagGenerator,
                                      @NotNull String packageName, List<StagGenerator.SubFactoriesInfo> generatedStagFactoryWrappers) throws IOException {
-        stagGenerator.setGeneratedStagFactoryWrappers(generatedStagFactoryWrappers);
         // Create the type spec
-        TypeSpec typeSpec = stagGenerator.createStagSpec();
+        TypeSpec typeSpec = stagGenerator.createStagSpec(generatedStagFactoryWrappers);
 
         // Write the type spec to a file
         writeTypeSpecToFile(typeSpec, packageName);
