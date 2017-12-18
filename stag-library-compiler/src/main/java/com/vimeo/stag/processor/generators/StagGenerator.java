@@ -103,7 +103,7 @@ public class StagGenerator {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addSuperinterface(TypeAdapterFactory.class);
 
-        ParameterizedTypeName hashMapOfStringToInteger = ParameterizedTypeName.get(ConcurrentHashMap.class, String.class, Integer.class);
+        ParameterizedTypeName hashMapOfStringToInteger = ParameterizedTypeName.get(HashMap.class, String.class, Integer.class);
         FieldSpec.Builder packageToIndexMapField = FieldSpec.builder(hashMapOfStringToInteger,
                 "packageToIndexMap", Modifier.FINAL, Modifier.PRIVATE).initializer("new " + hashMapOfStringToInteger.toString() + "( " + generatedStagFactoryWrappers.size() + ")");
         adapterFactoryBuilder.addField(packageToIndexMapField.build());
@@ -116,7 +116,7 @@ public class StagGenerator {
         MethodSpec.Builder getPackageNameMethodBuilder = MethodSpec.methodBuilder("getPackageName")
                 .addTypeVariable(genericTypeName)
                 .returns(String.class)
-                .addModifiers(Modifier.PRIVATE)
+                .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addCode("String name = clazz.getName();\n" +
                         "int last = name.lastIndexOf('.');\n" +
@@ -125,7 +125,7 @@ public class StagGenerator {
 
         MethodSpec.Builder createTypeAdapterFactoryMethodBuilder = MethodSpec.methodBuilder("createTypeAdapterFactory")
                 .returns(TypeAdapterFactory.class)
-                .addModifiers(Modifier.PRIVATE)
+                .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(int.class, "index")
                 .addStatement("TypeAdapterFactory result = null")
                 .beginControlFlow("switch(index)");
@@ -193,6 +193,7 @@ public class StagGenerator {
         createMethodBuilder.addStatement("return result");
         createMethodBuilder.endControlFlow();
         createMethodBuilder.addCode("\n");
+        createMethodBuilder.beginControlFlow("synchronized(this)");
         createMethodBuilder.addStatement("Integer index = packageToIndexMap.get(currentPackageName);");
         createMethodBuilder.beginControlFlow("if(null != index)");
         createMethodBuilder.addStatement("TypeAdapterFactory typeAdapterFactory = getTypeAdapterFactory(index)");
@@ -217,6 +218,7 @@ public class StagGenerator {
 
         createMethodBuilder.addCode("default : ");
         createMethodBuilder.addStatement("\t\nreturn null");
+        createMethodBuilder.endControlFlow();
         createMethodBuilder.endControlFlow();
 
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
