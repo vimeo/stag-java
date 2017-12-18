@@ -43,4 +43,5 @@ public class BasicModel1 {
     public void setAwards(List<String> awards) {
         mAwards = awards;
     }
+
 }

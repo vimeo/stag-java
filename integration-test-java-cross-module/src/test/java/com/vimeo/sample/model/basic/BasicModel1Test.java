@@ -13,4 +13,5 @@ public class BasicModel1Test {
     public void verifyTypeAdapterWasGenerated() throws Exception {
         Utils.verifyTypeAdapterGeneration(BasicModel1.class);
     }
+
 }
