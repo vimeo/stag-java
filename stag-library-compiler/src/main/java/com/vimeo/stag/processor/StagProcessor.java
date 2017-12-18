@@ -29,7 +29,7 @@ import com.squareup.javapoet.TypeSpec;
 import com.vimeo.stag.UseStag;
 import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
-import com.vimeo.stag.processor.generators.ExternalAdapterInfo;
+import com.vimeo.stag.processor.generators.StagFactoryGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
@@ -46,7 +46,10 @@ import com.vimeo.stag.processor.utils.TypeUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -69,18 +72,12 @@ import javax.lang.model.type.TypeMirror;
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
 
-    public static volatile boolean DEBUG;
     static final String OPTION_DEBUG = "stagDebug";
     static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
     static final String OPTION_HUNGARIAN_NOTATION = "stagAssumeHungarianNotation";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
+    public static volatile boolean DEBUG;
     private boolean mHasBeenProcessed;
-
-    @Override
-    public SourceVersion getSupportedSourceVersion() {
-        // Always try to support the latest Java version
-        return SourceVersion.latestSupported();
-    }
 
     private static boolean getDebugBoolean(@NotNull ProcessingEnvironment processingEnvironment) {
         String debugString = processingEnvironment.getOptions().get(OPTION_DEBUG);
@@ -105,6 +102,38 @@ public final class StagProcessor extends AbstractProcessor {
             packageName = DEFAULT_GENERATED_PACKAGE_NAME;
         }
         return packageName;
+    }
+
+    /**
+     * Adds all classes annotated with {@link UseStag}
+     * to the supported type model. It does this recursively
+     * for unsupported types. Supported types handle their
+     * own enclosed element adding. Unsupported types that
+     * could be annotated are @interface and interface. Enums
+     * and classes are supported.
+     *
+     * @param supportedTypesModel the supported types model
+     * @param useStagElement      the element to add to the
+     *                            supported type model.
+     */
+    private static void processSupportedElements(@NotNull SupportedTypesModel supportedTypesModel,
+                                                 @NotNull Element useStagElement) {
+        if (ElementUtils.isSupportedElementKind(useStagElement)) {
+            TypeMirror rootType = useStagElement.asType();
+            DebugLog.log("Annotated type: " + rootType + "\n");
+            supportedTypesModel.addSupportedType(rootType);
+        }
+
+        List<? extends Element> enclosedElements = useStagElement.getEnclosedElements();
+        for (Element element : enclosedElements) {
+            processSupportedElements(supportedTypesModel, element);
+        }
+    }
+
+    @Override
+    public SourceVersion getSupportedSourceVersion() {
+        // Always try to support the latest Java version
+        return SourceVersion.latestSupported();
     }
 
     @Override
@@ -146,19 +175,35 @@ public final class StagProcessor extends AbstractProcessor {
             } catch (Exception ignored) {
             }
 
-            Set<ExternalAdapterInfo> externalAdapterInfoSet = supportedTypesModel.getExternalSupportedAdapters();
+            StagGenerator stagFactoryGenerator = new StagGenerator(supportedTypes);
 
-            StagGenerator stagFactoryGenerator = new StagGenerator(packageName, supportedTypes, externalAdapterInfoSet, supportedTypesModel);
+            Map<String, List<ClassInfo>> adapterFactoryMap = new HashMap<>();
 
             for (AnnotatedClass annotatedClass : supportedTypesModel.getSupportedTypes()) {
                 TypeElement element = annotatedClass.getElement();
-                if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) &&
-                    !TypeUtils.isAbstract(element)) {
+                if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) && !TypeUtils.isAbstract(element)) {
                     generateTypeAdapter(supportedTypesModel, element, stagFactoryGenerator);
+
+                    ClassInfo classInfo = new ClassInfo(element.asType());
+                    ArrayList<ClassInfo> result = new ArrayList<>();
+                    result.add(classInfo);
+
+                    List<ClassInfo> classInfos = adapterFactoryMap.get(classInfo.getPackageName());
+                    if (classInfos != null && !classInfos.isEmpty()) {
+                        result.addAll(classInfos);
+                    }
+                    adapterFactoryMap.put(classInfo.getPackageName(), result);
                 }
             }
 
-            generateStagFactory(stagFactoryGenerator, packageName);
+            List<StagGenerator.SubFactoriesInfo> generatedStagFactoryWrappers = new ArrayList<>();
+            for (Map.Entry<String, List<ClassInfo>> stringListEntry : adapterFactoryMap.entrySet()) {
+                List<ClassInfo> classInfos = stringListEntry.getValue();
+                generateAdapterFactory(classInfos, stringListEntry.getKey());
+                generatedStagFactoryWrappers.add(new StagGenerator.SubFactoriesInfo(classInfos.get(0), stringListEntry.getKey() + "." + StagFactoryGenerator.NAME));
+            }
+
+            generateStagFactory(stagFactoryGenerator, packageName, generatedStagFactoryWrappers);
             KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, supportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -169,10 +214,20 @@ public final class StagProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void generateStagFactory(@NotNull StagGenerator stagGenerator,
-                                     @NotNull String packageName) throws IOException {
+    private void generateAdapterFactory(@NotNull List<ClassInfo> classInfos, @NotNull String packageName) throws IOException {
+        StagFactoryGenerator stagFactoryGenerator = new StagFactoryGenerator(classInfos, StagFactoryGenerator.NAME);
+
         // Create the type spec
-        TypeSpec typeSpec = stagGenerator.createStagSpec();
+        TypeSpec typeAdapterSpec = stagFactoryGenerator.getTypeAdapterFactorySpec();
+
+        // Write the type spec to a file
+        writeTypeSpecToFile(typeAdapterSpec, packageName);
+    }
+
+    private void generateStagFactory(@NotNull StagGenerator stagGenerator,
+                                     @NotNull String packageName, List<StagGenerator.SubFactoriesInfo> generatedStagFactoryWrappers) throws IOException {
+        // Create the type spec
+        TypeSpec typeSpec = stagGenerator.createStagSpec(generatedStagFactoryWrappers);
 
         // Write the type spec to a file
         writeTypeSpecToFile(typeSpec, packageName);
@@ -185,8 +240,8 @@ public final class StagProcessor extends AbstractProcessor {
         ClassInfo classInfo = new ClassInfo(element.asType());
 
         AdapterGenerator independentAdapter = element.getKind() == ElementKind.ENUM ?
-            new EnumTypeAdapterGenerator(classInfo, element) :
-            new TypeAdapterGenerator(supportedTypesModel, classInfo);
+                new EnumTypeAdapterGenerator(classInfo, element) :
+                new TypeAdapterGenerator(supportedTypesModel, classInfo);
 
         // Create the type spec
         TypeSpec typeAdapterSpec = independentAdapter.createTypeAdapterSpec(stagGenerator);
@@ -204,31 +259,5 @@ public final class StagProcessor extends AbstractProcessor {
 
         // Write the Java file to disk
         FileGenUtils.writeToFile(javaFile, filer);
-    }
-
-    /**
-     * Adds all classes annotated with {@link UseStag}
-     * to the supported type model. It does this recursively
-     * for unsupported types. Supported types handle their
-     * own enclosed element adding. Unsupported types that
-     * could be annotated are @interface and interface. Enums
-     * and classes are supported.
-     *
-     * @param supportedTypesModel the supported types model
-     * @param useStagElement      the element to add to the
-     *                            supported type model.
-     */
-    private static void processSupportedElements(@NotNull SupportedTypesModel supportedTypesModel,
-                                                 @NotNull Element useStagElement) {
-        if (ElementUtils.isSupportedElementKind(useStagElement)) {
-            TypeMirror rootType = useStagElement.asType();
-            DebugLog.log("Annotated type: " + rootType + "\n");
-            supportedTypesModel.addSupportedType(rootType);
-        }
-
-        List<? extends Element> enclosedElements = useStagElement.getEnclosedElements();
-        for (Element element : enclosedElements) {
-            processSupportedElements(supportedTypesModel, element);
-        }
     }
 }

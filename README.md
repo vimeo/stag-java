@@ -2,7 +2,7 @@
 
 Stag improves Gson performance by automatically generating reflection-less TypeAdapters for your model objects.
 
-[![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=master)](https://travis-ci.org/vimeo/stag-java) [![codecov](https://codecov.io/gh/vimeo/stag-java/branch/dev/graph/badge.svg)](https://codecov.io/gh/vimeo/stag-java) [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library/images/download.svg)](https://bintray.com/vimeo/maven/stag-library/_latestVersion) [![Javadocs](https://www.javadoc.io/badge/com.vimeo.stag/stag-library.svg)](https://www.javadoc.io/doc/com.vimeo.stag/stag-library)
+[![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=develop)](https://travis-ci.org/vimeo/stag-java) [![codecov](https://codecov.io/gh/vimeo/stag-java/branch/develop/graph/badge.svg)](https://codecov.io/gh/vimeo/stag-java) [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library/images/download.svg)](https://bintray.com/vimeo/maven/stag-library/_latestVersion) [![Javadocs](https://www.javadoc.io/badge/com.vimeo.stag/stag-library.svg)](https://www.javadoc.io/doc/com.vimeo.stag/stag-library)
 
 
 ## Why Build Stag?
@@ -36,7 +36,7 @@ buildscript {
 apply plugin: 'net.ltgt.apt'
 
 dependencies {
-    def stagVersion = '2.4.0'
+    def stagVersion = '2.5.0'
     compile "com.vimeo.stag:stag-library:$stagVersion"
     apt "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }
@@ -57,7 +57,7 @@ gradle.projectsEvaluated {
 
 ```groovy
 dependencies {
-    def stagVersion = '2.4.0'
+    def stagVersion = '2.5.0'
     compile "com.vimeo.stag:stag-library:$stagVersion"
     annotationProcessor "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }
@@ -82,8 +82,8 @@ android {
 
 #### 2. Provide optional compiler arguments to Stag
  - `stagGeneratedPackageName`: Pass package name as an argument for the generated files. By default, the files will be in generated
- in `com.vimeo.sample.stag.generated` package. But, you can specify your own package for the generated files
- by passing it as an argument to the apt compiler.
+ in `com.vimeo.stag.generated` package. You can specify your own package for the generated files
+ by passing it as an argument to the annotation processor.
  - `stagDebug`: Turn on debugging in Stag. This will cause Stag to spit out a lot of output into the gradle console.
  This can aid you in figuring out what class is giving you trouble, if the exception gradle prints out
  isn't sufficient. Default is false.

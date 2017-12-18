@@ -1,6 +1,7 @@
 package com.vimeo.stag.processor
 
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.vimeo.sample_java_model.NullFields
 import com.vimeo.sample_java_model.stag.generated.Stag
 import org.assertj.core.api.Assertions.assertThat
@@ -15,8 +16,9 @@ class StagProcessorIntegrationTest {
 
     @Test
     fun `NullFields type adapter is correct for null values`() {
-        val typeAdapter = Stag.Factory().`getNullFields$TypeAdapter`(Gson())
         val nullFields = NullFields()
+        val typeToken = TypeToken.get(nullFields.javaClass)
+        val typeAdapter = Stag.Factory().create(Gson(), typeToken)
         val json = typeAdapter.toJson(nullFields)
 
         // Assert that we are getting the JSON we expect

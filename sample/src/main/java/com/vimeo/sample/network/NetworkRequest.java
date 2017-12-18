@@ -38,6 +38,7 @@ import com.google.gson.TypeAdapter;
 import com.vimeo.sample.model.DateParser;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
+import com.vimeo.sample.model.VideoList$TypeAdapter;
 import com.vimeo.sample.stag.generated.Stag;
 
 import java.io.BufferedReader;
@@ -105,6 +106,7 @@ public final class NetworkRequest {
             StringBuilder builder = new StringBuilder();
             BufferedReader stream = null;
             try {
+
                 URL uri = new URL(url);
                 HttpURLConnection connection = (HttpURLConnection) uri.openConnection();
                 connection.setRequestProperty("Authorization", token);
@@ -117,6 +119,7 @@ public final class NetworkRequest {
                     builder.append(line);
                 }
 
+
                 Stag.Factory factory = new Stag.Factory();
                 Gson gson = new GsonBuilder().registerTypeAdapter(Date.class, new DateParser())
                         .registerTypeAdapterFactory(factory)
@@ -124,9 +127,9 @@ public final class NetworkRequest {
 
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
 
-                TypeAdapter<VideoList> videoListTypeAdapter = factory.getVideoList$TypeAdapter(gson);
-                long time = System.currentTimeMillis();
 
+                long time = System.currentTimeMillis();
+                TypeAdapter<VideoList> videoListTypeAdapter = gson.getAdapter(VideoList$TypeAdapter.TYPE_TOKEN);
                 videos.addAll(videoListTypeAdapter.fromJsonTree(jsonObject).data);
                 Log.d(TAG, "Time elapsed while parsing: " + (System.currentTimeMillis() - time) + " ms");
 
