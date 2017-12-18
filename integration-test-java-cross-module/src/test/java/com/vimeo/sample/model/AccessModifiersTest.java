@@ -13,5 +13,4 @@ public class AccessModifiersTest {
     public void typeAdapterWasGenerated() throws Exception {
         Utils.verifyTypeAdapterGeneration(AccessModifiers.class);
     }
-
 }

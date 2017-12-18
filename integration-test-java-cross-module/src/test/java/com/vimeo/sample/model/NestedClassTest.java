@@ -1,7 +1,6 @@
 package com.vimeo.sample.model;
 
 import com.vimeo.sample.Utils;
-import com.vimeo.sample.model.NestedClass.NestedWithAnnotation.NestedWithoutAnnotation;
 
 import org.junit.Test;
 
@@ -33,7 +32,7 @@ public class NestedClassTest {
     @Test
     public void typeAdapterWasNotGenerated_NestedClass_NestedWithAnnotation_NestedWithoutAnnotation()
             throws Exception {
-        Utils.verifyNoTypeAdapterGeneration(NestedWithoutAnnotation.class);
+        Utils.verifyNoTypeAdapterGeneration(NestedClass.NestedWithAnnotation.NestedWithoutAnnotation.class);
     }
 
 }

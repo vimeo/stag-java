@@ -53,15 +53,9 @@ public class SwappableParserExampleModelTest {
     }
 
     /**
-     * This tests the Stag.Factory to ensure that it cannot
-     * be used by multiple gson instances.
-     * <p>
-     * In a world where Stag supports reusing a single Stag.Factory among gson instances,
-     * this test should assert that the factory handles the case where a type adapter
-     * could be different between gson instances.
+     * Stag does support being used across Gson instances now
      */
-    @Test(expected = UnsupportedOperationException.class)
-    public void test_SwappingTypeAdapters_ThrowsException() {
+    public void test_SwappingTypeAdapters() {
 
         final Stag.Factory factory = new Stag.Factory();
 
