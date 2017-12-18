@@ -214,7 +214,7 @@ public final class StagProcessor extends AbstractProcessor {
         return true;
     }
 
-    private void generateAdapterFactory(List<ClassInfo> classInfos, String packageName) throws IOException {
+    private void generateAdapterFactory(@NotNull List<ClassInfo> classInfos, @NotNull String packageName) throws IOException {
         StagFactoryGenerator stagFactoryGenerator = new StagFactoryGenerator(classInfos, StagFactoryGenerator.NAME);
 
         // Create the type spec

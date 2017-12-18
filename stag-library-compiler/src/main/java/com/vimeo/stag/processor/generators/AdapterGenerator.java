@@ -23,7 +23,6 @@
  */
 package com.vimeo.stag.processor.generators;
 
-
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.squareup.javapoet.ClassName;
@@ -79,16 +78,21 @@ public abstract class AdapterGenerator {
     /**
      * Creates a {@link TypeSpec} for the the type adapter.
      *
-     * @param stagGenerator               the generator for the Stag class.
+     * @param stagGenerator the generator for the Stag class.
      * @return A non null {@link TypeSpec} describing the adapter class.
      */
     @NotNull
     public abstract TypeSpec createTypeAdapterSpec(@NotNull StagGenerator stagGenerator);
 
-
-    FieldSpec createTypeTokenSpec(@NotNull TypeMirror typeMirror){
+    /**
+     * Creates a TypeToken field in the generated adapter factory
+     * @param typeMirror Type of class for which typetoken has to be generated
+     * @return {@link FieldSpec}
+     */
+    @NotNull
+    FieldSpec createTypeTokenSpec(@NotNull TypeMirror typeMirror) {
         ParameterizedTypeName typeTokenType = ParameterizedTypeName.get(ClassName.get(TypeToken.class), TypeVariableName.get(typeMirror));
-        FieldSpec.Builder typeTokenBuilder = FieldSpec.builder(typeTokenType, "TYPE_TOKEN", Modifier.PUBLIC,Modifier.STATIC, Modifier.FINAL);
+        FieldSpec.Builder typeTokenBuilder = FieldSpec.builder(typeTokenType, "TYPE_TOKEN", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
         typeTokenBuilder.initializer("TypeToken.get(" + typeMirror.toString() + ".class)");
         return typeTokenBuilder.build();
     }

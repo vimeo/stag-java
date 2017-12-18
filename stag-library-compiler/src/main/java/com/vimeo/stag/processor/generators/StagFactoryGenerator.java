@@ -24,11 +24,12 @@ public class StagFactoryGenerator {
     private final List<ClassInfo> classInfoList;
     private final String fileName;
 
-    public StagFactoryGenerator(List<ClassInfo> classInfoList, String fileName) {
+    public StagFactoryGenerator(@NotNull List<ClassInfo> classInfoList, @NotNull String fileName) {
         this.classInfoList = classInfoList;
         this.fileName = fileName;
     }
 
+    @NotNull
     public TypeSpec getTypeAdapterFactorySpec() {
         TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(fileName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
