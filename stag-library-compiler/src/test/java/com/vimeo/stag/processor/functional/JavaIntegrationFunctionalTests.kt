@@ -110,6 +110,11 @@ class JavaIntegrationFunctionalTests {
         assertThatClassCompilationIsSuccessful(SwappableParserExampleModel::class)
     }
 
+    @Test
+    fun `WrapperTypeAdapterModel compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(WrapperTypeAdapterModel::class)
+    }
+
     private fun <T : Any> assertThatClassCompilationIsSuccessful(kClass: KClass<T>) {
         assertThat(processorTester.compileClassInModule(module, kClass).isSuccessful()).isTrue()
     }

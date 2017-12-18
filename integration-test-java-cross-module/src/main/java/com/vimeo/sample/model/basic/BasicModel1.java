@@ -44,23 +44,4 @@ public class BasicModel1 {
         mAwards = awards;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) { return true; }
-        if (o == null || getClass() != o.getClass()) { return false; }
-
-        BasicModel1 that = (BasicModel1) o;
-
-        if (mAge != that.mAge) { return false; }
-        if (mName != null ? !mName.equals(that.mName) : that.mName != null) { return false; }
-        return mAwards != null ? mAwards.equals(that.mAwards) : that.mAwards == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = mName != null ? mName.hashCode() : 0;
-        result = 31 * result + mAge;
-        result = 31 * result + (mAwards != null ? mAwards.hashCode() : 0);
-        return result;
-    }
 }
