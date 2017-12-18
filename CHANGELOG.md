@@ -1,6 +1,14 @@
 Change Log
 ==========
 
+Version 2.5.0 *(2017-12-18)*
+----------------------------
+- Improved performance of loading the `Stag.Factory`.
+- Improved error logging when getters/setters can't be found.
+- Splitting up examples into integration test modules.
+- Wrote functional tests for most use cases.
+- Fixed bug where wrapper type adapters would not be called when `Stag.Factory` was registered.
+
 Version 2.4.0 *(2017-10-24)*
 ----------------------------
 - Fixed bug where generated type adapters would write out an empty JSON object for a `null` value.
