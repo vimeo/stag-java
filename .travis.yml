@@ -1,6 +1,6 @@
 language: android
 jdk:
-- oraclejdk8
+  - oraclejdk8
 android:
   components:
     - tools
@@ -9,19 +9,19 @@ android:
     - extra-android-support
     - extra-android-m2repository
 before_cache:
-- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-  - "$HOME/.gradle/caches/"
-  - "$HOME/.gradle/wrapper/"
-  - "$HOME/.android/build-cache"
+    - "$HOME/.gradle/caches/"
+    - "$HOME/.gradle/wrapper/"
+    - "$HOME/.android/build-cache"
 script:
-- rvm install 2.2
-- rvm use 2.2
-- bundle install
-- FASTLANE_SKIP_UPDATE_CHECK=1 bundle exec fastlane shipit
-- ./gradlew jacocoTestReport --stacktrace
+  - rvm install 2.2
+  - rvm use 2.2
+  - bundle install
+  - FASTLANE_SKIP_UPDATE_CHECK=1 bundle exec fastlane shipit
+  - ./gradlew jacocoTestReport --stacktrace
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 
