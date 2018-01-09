@@ -110,7 +110,10 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  * Iterate through all the types from the typeArguments and generate type token code accordingly
                  */
             for (TypeMirror parameterTypeMirror : typeMirrors) {
-                if (parameterTypeMirror.getKind() != TypeKind.TYPEVAR && !TypeUtils.isParameterizedType(parameterTypeMirror)) {
+                if (parameterTypeMirror.getKind() == TypeKind.WILDCARD) {
+                    return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType,
+                            "new com.google.gson.reflect.TypeToken<" + fieldType + ">() {}");
+                } else if (parameterTypeMirror.getKind() != TypeKind.TYPEVAR && !TypeUtils.isParameterizedType(parameterTypeMirror)) {
                     // Optimize so that we do not have to call TypeToken.getType()
                     // When the class is non parametrized and we can call xxxxx.class directly
                     result += ", " + parameterTypeMirror.toString() + ".class";
