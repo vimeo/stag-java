@@ -147,6 +147,17 @@ public abstract class FieldAccessor {
     }
 
     /**
+     * Returns the accessor in its {@link Element} form.
+     *
+     * @return the {@link Element} associated
+     * with this accessor.
+     */
+    @NotNull
+    public final Element asElement() {
+        return mVariableElement;
+    }
+
+    /**
      * Gets the JSON name for the element the name passed to
      * {@link SerializedName} will be used. If the element is
      * not annotated with {@link SerializedName}, the variable

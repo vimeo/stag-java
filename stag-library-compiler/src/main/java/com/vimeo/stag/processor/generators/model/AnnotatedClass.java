@@ -128,6 +128,10 @@ public class AnnotatedClass {
 
     private void addMemberVariable(@NotNull FieldAccessor element, @NotNull TypeMirror typeMirror,
                                    @NotNull Map<String, FieldAccessor> variableNames) {
+        if (TypeUtils.isWildcardedType(typeMirror)) {
+            MessagerUtils.reportError("Fields utilizing generic wildcards are unsupported by Stag at this time",
+                    element.asElement());
+        }
         FieldAccessor previousElement = variableNames.put(element.createGetterCode(), element);
         if (null != previousElement) {
             mMemberVariables.remove(previousElement);
