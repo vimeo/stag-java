@@ -511,15 +511,15 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         List<? extends TypeMirror> typeArguments = mInfo.getTypeArguments();
 
         MethodSpec.Builder constructorBuilder = MethodSpec.constructorBuilder()
-                .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
-                        .addMember("value", "\"unchecked\"")
-                        .addMember("value", "\"rawtypes\"")
-                        .build())
                 .addModifiers(Modifier.PUBLIC)
                 .addParameter(Gson.class, "gson");
 
         String className = FileGenUtils.unescapeEscapedString(mInfo.getTypeAdapterClassName());
         TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(className)
+                .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
+                        .addMember("value", "\"unchecked\"")
+                        .addMember("value", "\"rawtypes\"")
+                        .build())
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
 
