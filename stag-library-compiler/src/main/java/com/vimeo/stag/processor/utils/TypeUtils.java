@@ -32,9 +32,12 @@ import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -660,5 +663,48 @@ public final class TypeUtils {
         WildcardType wildcardType = types.getWildcardType(null, null);
         TypeMirror[] typex = {wildcardType};
         return types.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(className), typex);
+    }
+
+    /**
+     * Detect types which utilize generics wildcard (?)
+     *
+     * @param type type to consider
+     * @return {@code true} if a wildcard appears in the type, {@code false} otherwise
+     */
+    public static boolean isWildcardedType(@NotNull TypeMirror type) {
+        HashSet<TypeMirror> resolved = new HashSet<>();
+        List<TypeMirror> remainingTypes = new ArrayList<>();
+        remainingTypes.add(type);
+        boolean result = false;
+        while (remainingTypes.size() > 0) {
+            TypeMirror toResolve = remainingTypes.remove(0);
+            if (resolved.add(toResolve)) {
+
+                if (toResolve instanceof ParameterizedType) {
+                    ParameterizedType parameterizedType = (ParameterizedType) toResolve;
+                    Type[] typeArguments = parameterizedType.getActualTypeArguments();
+                    for (Type typeArgument : typeArguments) {
+                        if (typeArgument instanceof WildcardType) {
+                            result = true;
+                            break;
+                        } else if (typeArgument instanceof Class) {
+                            TypeMirror argTypeMirror = ElementUtils.getTypeFromClass((Class) typeArgument);
+                            remainingTypes.add(argTypeMirror);
+                        }
+                    }
+                }
+                if (toResolve instanceof DeclaredType) {
+                    DeclaredType declaredType = (DeclaredType) toResolve;
+                    for (TypeMirror typeArgument : declaredType.getTypeArguments()) {
+                        if (typeArgument instanceof WildcardType) {
+                            result = true;
+                            break;
+                        }
+                        remainingTypes.add(typeArgument);
+                    }
+                }
+            }
+        }
+        return result;
     }
 }
