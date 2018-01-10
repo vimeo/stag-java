@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -190,10 +191,31 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             String variableType = element.getValue().toString();
             boolean isPrimitive = TypeUtils.isSupportedPrimitive(variableType);
 
-            if (isPrimitive) {
+            String getterCode = fieldAccessor.createGetterCode();
+            if (adapterFieldInfo.isUnsupported(elementValue)) {
+                builder.addComment("Wildcard generics cannot be accelerated by Stag: " + elementValue);
+                builder.addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
+                        .addMember("value", "{\"rawtypes\",\"unchecked\"}")
+                        .build());
+
+                /*
+                 * This is where we need to make a bad decision with respect to getting a hold on
+                 * a type that Gson will properly map at runtime:
+                 */
+                builder.addStatement("\tjava.lang.reflect.Type fieldType;");
+                builder.addStatement("\ttry {");
+                builder.addStatement("\t\tfieldType = object.getClass().getField(\"" + name + "\").getGenericType()");
+                builder.addStatement("\t} catch (NoSuchFieldException e) {");
+                builder.addStatement("\t\tthrow new IOException(\"Unable to map field: " + name + "\")");
+                builder.addStatement("\t}");
+                builder.addStatement("\tTypeAdapter fieldAdapter = mGson.getAdapter(TypeToken.get(fieldType))");
+
+                builder.addStatement("\tobject." +
+                        fieldAccessor.createSetterCode("(" + elementValue + ") fieldAdapter.read(reader)"));
+            } else if (isPrimitive) {
                 builder.addStatement("\tobject." +
                         fieldAccessor.createSetterCode(adapterFieldInfo.getAdapterAccessor(elementValue, name) +
-                                ".read(reader, object." + fieldAccessor.createGetterCode() + ")"));
+                                ".read(reader, object." + getterCode + ")"));
 
             } else {
                 builder.addStatement("\tobject." + fieldAccessor.createSetterCode(adapterFieldInfo.getAdapterAccessor(elementValue, name) +
@@ -350,9 +372,18 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
             builder.addStatement("writer.name(\"" + name + "\")");
             if (!isPrimitive) {
-                builder.addStatement(
-                        adapterFieldInfo.getAdapterAccessor(element.getValue(), name) + ".write(writer, object." +
-                                getterCode + ")");
+                if (adapterFieldInfo.isUnsupported(element.getValue())) {
+                    builder.addComment("Wildcard generics cannot be accelerated by Stag: " + variableType);
+                    builder.addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
+                            .addMember("value", "{\"rawtypes\",\"unchecked\"}")
+                            .build());
+                    builder.addStatement("TypeAdapter fieldAdapter = mGson.getAdapter(object." + getterCode + ".getClass())");
+                    builder.addStatement("fieldAdapter.write(writer, object." + getterCode + ")");
+                } else {
+                    builder.addStatement(
+                            adapterFieldInfo.getAdapterAccessor(element.getValue(), name) + ".write(writer, object." +
+                                    getterCode + ")");
+                }
                 /*
                 * If the element is annotated with NonNull annotation, throw {@link IOException} if it is null.
                 */
@@ -467,7 +498,10 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
             String adapterAccessor = null;
             TypeMirror optionalJsonAdapter = fieldAccessor.getJsonAdapterType();
-            if (optionalJsonAdapter != null) {
+
+            if (TypeUtils.isWildcardedType(fieldType)) {
+                result.addUnsupportedField(fieldType);
+            } else if (optionalJsonAdapter != null) {
                 ExecutableElement constructor = ElementUtils.getFirstConstructor(optionalJsonAdapter);
                 if (constructor != null) {
                     TypeUtils.JsonAdapterType jsonAdapterType1 = TypeUtils.getJsonAdapterType(optionalJsonAdapter);
@@ -626,11 +660,16 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         @NotNull
         private final Map<String, FieldInfo> mTypeTokenAccessorFields;
 
+        //Type.toString
+        @NotNull
+        private final HashSet<String> unsupportedFields;
+
         AdapterFieldInfo(int capacity) {
             mAdapterFields = new LinkedHashMap<>(capacity);
             mAdapterAccessor = new HashMap<>(capacity);
             mFieldAdapterAccessor = new HashMap<>(capacity);
             mTypeTokenAccessorFields = new LinkedHashMap<>();
+            unsupportedFields = new HashSet<>();
         }
 
         String getAdapterAccessor(@NotNull TypeMirror typeMirror, @NotNull String fieldName) {
@@ -666,6 +705,14 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         void addFieldToAccessor(@NotNull String fieldName, @NotNull String variableName, TypeMirror fieldType, @NotNull String fieldInitializationCode) {
             mFieldAdapterAccessor.put(fieldName, new FieldInfo(fieldType, fieldInitializationCode, variableName));
+        }
+
+        void addUnsupportedField(@NotNull TypeMirror typeMirror) {
+            unsupportedFields.add(typeMirror.toString());
+        }
+
+        boolean isUnsupported(@NotNull TypeMirror typeMirror) {
+            return unsupportedFields.contains(typeMirror.toString());
         }
     }
 }
