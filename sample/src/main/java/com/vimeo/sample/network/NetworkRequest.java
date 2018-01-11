@@ -36,6 +36,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.TypeAdapter;
 import com.vimeo.sample.model.DateParser;
+import com.vimeo.sample.model.DynamicallyTypedModel;
+import com.vimeo.sample.model.DynamicallyTypedWildcardReadModel;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
 import com.vimeo.sample.model.VideoList$TypeAdapter;
@@ -54,14 +56,6 @@ import java.util.concurrent.Executors;
 public final class NetworkRequest {
 
     private static final String TAG = "NetworkRequest";
-
-    public interface Callback {
-
-        void onReceived(List<Video> list);
-
-        void onError();
-    }
-
     @NonNull
     private final Request mRequest;
 
@@ -80,12 +74,19 @@ public final class NetworkRequest {
         mRequest.cancelRequest();
     }
 
+    public interface Callback {
+
+        void onReceived(List<Video> list);
+
+        void onError();
+    }
+
     private static final class Request extends AsyncTask<Void, Void, List<Video>> {
 
-        @Nullable
-        Callback mCallback;
         @NonNull
         private final Handler mHandler;
+        @Nullable
+        Callback mCallback;
 
         Request(@NonNull Callback Callback) {
             mCallback = Callback;
@@ -127,6 +128,18 @@ public final class NetworkRequest {
 
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
 
+                DynamicallyTypedWildcardReadModel dynamicallyTypedWildcardReadModel = new DynamicallyTypedWildcardReadModel();
+                dynamicallyTypedWildcardReadModel.name = "example";
+
+                DynamicallyTypedModel<String> dynamicallyTypedModel = new DynamicallyTypedModel<>();
+                dynamicallyTypedModel.value = "wildcard";
+
+                ArrayList<DynamicallyTypedModel<?>> list = new ArrayList<>();
+                list.add(dynamicallyTypedModel);
+
+                dynamicallyTypedWildcardReadModel.models = list;
+
+                gson.toJson(dynamicallyTypedWildcardReadModel);
 
                 long time = System.currentTimeMillis();
                 TypeAdapter<VideoList> videoListTypeAdapter = gson.getAdapter(VideoList$TypeAdapter.TYPE_TOKEN);

@@ -661,4 +661,9 @@ public final class TypeUtils {
         TypeMirror[] typex = {wildcardType};
         return types.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(className), typex);
     }
+
+    public static boolean isWildcardType() {
+        Types types = getUtils();
+        types.
+    }
 }
