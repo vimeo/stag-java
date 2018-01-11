@@ -359,9 +359,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 */
                 builder.endControlFlow();
                 builder.beginControlFlow("else");
-                builder.addStatement("writer.nullValue()");
                 if (fieldAccessor.doesRequireNotNull()) {
+                    //throw exception in case the field is annotated as NonNull
                     builder.addStatement("throw new java.io.IOException(\"" + getterCode + " cannot be null\")");
+                } else {
+                    //write null value to the writer if the field is null
+                    builder.addStatement("writer.nullValue()");
                 }
                 builder.endControlFlow();
             } else {
