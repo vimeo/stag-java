@@ -80,6 +80,23 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         mInfo = info;
     }
 
+    private static TypeMirror getReplacedTypeMirror(TypeMirror type, Map<TypeMirror, TypeMirror> fieldTypeVarsMap) {
+        if (type.getKind() == TypeKind.TYPEVAR) {
+            return fieldTypeVarsMap.get(type);
+        } else if (type instanceof DeclaredType) {
+            DeclaredType declaredType = (DeclaredType) type;
+            List<? extends TypeMirror> typeMirrors = declaredType.getTypeArguments();
+            TypeMirror[] args = new TypeMirror[typeMirrors.size()];
+            for (int idx = 0; idx < typeMirrors.size() ; idx++) {
+                args[idx] = getReplacedTypeMirror(typeMirrors.get(idx), fieldTypeVarsMap);
+                idx++;
+            }
+            return TypeUtils.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(declaredType.asElement().toString()), args);
+        } else {
+            return type;
+        }
+    }
+
     /**
      * This is used to generate the type token code for the types that are unknown.
      */
@@ -109,15 +126,41 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 /*
                  * Iterate through all the types from the typeArguments and generate type token code accordingly
                  */
+
+            Map<TypeMirror, TypeMirror> fieldTypeVarsMap = new HashMap<>(typeMirrors.size());
+            List<? extends TypeMirror> classArguments = TypeUtils.getTypeArguments(declaredFieldType.asElement().asType());
+
+            int paramIndex = 0;
             for (TypeMirror parameterTypeMirror : typeMirrors) {
-                if (parameterTypeMirror.getKind() != TypeKind.TYPEVAR && !TypeUtils.isParameterizedType(parameterTypeMirror)) {
+                TypeMirror classArg = null != classArguments && classArguments.size() > paramIndex ? classArguments.get(paramIndex) : null;
+                if(null != classArg) {
+                    fieldTypeVarsMap.put(classArg, parameterTypeMirror);
+                }
+                if (parameterTypeMirror.getKind() == TypeKind.WILDCARD) {
+                    String upperBoundString = "";
+                    if (null != classArg && classArg.getKind() == TypeKind.TYPEVAR) {
+                        TypeVariable typeVariable = (TypeVariable) classArg;
+                        TypeMirror upperBound = typeVariable.getUpperBound();
+                        if (TypeUtils.isParameterizedType(upperBound)) {
+                            System.out.println("Going into this with : " + upperBound.toString());
+                            TypeMirror replacedQualifiedType = getReplacedTypeMirror(upperBound, fieldTypeVarsMap);
+                            System.out.println("Came out with : " + replacedQualifiedType.toString());
+                            fieldTypeVarsMap.put(classArg, replacedQualifiedType);
+                            upperBoundString += getTypeTokenCode(replacedQualifiedType, stagGenerator, typeVarsMap, adapterFieldInfo) + ".getType()";
+                        } else {
+                            upperBoundString += upperBound.toString() + ".class";
+                            fieldTypeVarsMap.put(classArg, upperBound);
+                        }
+                    }
+                    result += ", " + "com.vimeo.stag.Types.getWildcardType(new java.lang.reflect.Type[]{" + upperBoundString + "} , new java.lang.reflect.Type[]{})";
+                } else if (parameterTypeMirror.getKind() != TypeKind.TYPEVAR && !TypeUtils.isParameterizedType(parameterTypeMirror)) {
                     // Optimize so that we do not have to call TypeToken.getType()
                     // When the class is non parametrized and we can call xxxxx.class directly
                     result += ", " + parameterTypeMirror.toString() + ".class";
                 } else {
                     result += ", " + getTypeTokenCode(parameterTypeMirror, stagGenerator, typeVarsMap, adapterFieldInfo) + ".getType()";
                 }
-
+                paramIndex++;
             }
             result += ")";
             return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, result);
