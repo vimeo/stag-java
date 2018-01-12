@@ -54,6 +54,14 @@ import java.util.concurrent.Executors;
 public final class NetworkRequest {
 
     private static final String TAG = "NetworkRequest";
+
+    public interface Callback {
+
+        void onReceived(List<Video> list);
+
+        void onError();
+    }
+
     @NonNull
     private final Request mRequest;
 
@@ -72,19 +80,12 @@ public final class NetworkRequest {
         mRequest.cancelRequest();
     }
 
-    public interface Callback {
-
-        void onReceived(List<Video> list);
-
-        void onError();
-    }
-
     private static final class Request extends AsyncTask<Void, Void, List<Video>> {
 
-        @NonNull
-        private final Handler mHandler;
         @Nullable
         Callback mCallback;
+        @NonNull
+        private final Handler mHandler;
 
         Request(@NonNull Callback Callback) {
             mCallback = Callback;
@@ -125,6 +126,7 @@ public final class NetworkRequest {
                         .create();
 
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
+
 
                 long time = System.currentTimeMillis();
                 TypeAdapter<VideoList> videoListTypeAdapter = gson.getAdapter(VideoList$TypeAdapter.TYPE_TOKEN);
