@@ -80,14 +80,15 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         mInfo = info;
     }
 
-    private static TypeMirror getReplacedTypeMirror(TypeMirror type, Map<TypeMirror, TypeMirror> fieldTypeVarsMap) {
+    @NotNull
+    private static TypeMirror getReplacedTypeMirror(@NotNull TypeMirror type, @NotNull Map<TypeMirror, TypeMirror> fieldTypeVarsMap) {
         if (type.getKind() == TypeKind.TYPEVAR) {
             return fieldTypeVarsMap.get(type);
         } else if (type instanceof DeclaredType) {
             DeclaredType declaredType = (DeclaredType) type;
             List<? extends TypeMirror> typeMirrors = declaredType.getTypeArguments();
             TypeMirror[] args = new TypeMirror[typeMirrors.size()];
-            for (int idx = 0; idx < typeMirrors.size() ; idx++) {
+            for (int idx = 0; idx < typeMirrors.size(); idx++) {
                 args[idx] = getReplacedTypeMirror(typeMirrors.get(idx), fieldTypeVarsMap);
                 idx++;
             }
@@ -121,19 +122,19 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                  */
             DeclaredType declaredFieldType = (DeclaredType) fieldType;
             List<? extends TypeMirror> typeMirrors = ((DeclaredType) fieldType).getTypeArguments();
-            String result = "(com.google.gson.reflect.TypeToken<" + fieldType.toString() + ">)com.google.gson.reflect.TypeToken.getParameterized(" +
-                    declaredFieldType.asElement().toString() + ".class";
-                /*
-                 * Iterate through all the types from the typeArguments and generate type token code accordingly
-                 */
+            StringBuilder result = new StringBuilder("(com.google.gson.reflect.TypeToken<" + fieldType.toString() + ">)com.google.gson.reflect.TypeToken.getParameterized(" +
+                    declaredFieldType.asElement().toString() + ".class");
 
+            /*
+             * Iterate through all the types from the typeArguments and generate type token code accordingly
+             */
             Map<TypeMirror, TypeMirror> fieldTypeVarsMap = new HashMap<>(typeMirrors.size());
             List<? extends TypeMirror> classArguments = TypeUtils.getTypeArguments(declaredFieldType.asElement().asType());
 
             int paramIndex = 0;
             for (TypeMirror parameterTypeMirror : typeMirrors) {
                 TypeMirror classArg = null != classArguments && classArguments.size() > paramIndex ? classArguments.get(paramIndex) : null;
-                if(null != classArg) {
+                if (null != classArg) {
                     fieldTypeVarsMap.put(classArg, parameterTypeMirror);
                 }
                 if (parameterTypeMirror.getKind() == TypeKind.WILDCARD) {
@@ -142,9 +143,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         TypeVariable typeVariable = (TypeVariable) classArg;
                         TypeMirror upperBound = typeVariable.getUpperBound();
                         if (TypeUtils.isParameterizedType(upperBound)) {
-                            System.out.println("Going into this with : " + upperBound.toString());
                             TypeMirror replacedQualifiedType = getReplacedTypeMirror(upperBound, fieldTypeVarsMap);
-                            System.out.println("Came out with : " + replacedQualifiedType.toString());
                             fieldTypeVarsMap.put(classArg, replacedQualifiedType);
                             upperBoundString += getTypeTokenCode(replacedQualifiedType, stagGenerator, typeVarsMap, adapterFieldInfo) + ".getType()";
                         } else {
@@ -152,18 +151,18 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                             fieldTypeVarsMap.put(classArg, upperBound);
                         }
                     }
-                    result += ", " + "com.vimeo.stag.Types.getWildcardType(new java.lang.reflect.Type[]{" + upperBoundString + "} , new java.lang.reflect.Type[]{})";
+                    result.append(", " + "com.vimeo.stag.Types.getWildcardType(new java.lang.reflect.Type[]{").append(upperBoundString).append("} , new java.lang.reflect.Type[]{})");
                 } else if (parameterTypeMirror.getKind() != TypeKind.TYPEVAR && !TypeUtils.isParameterizedType(parameterTypeMirror)) {
                     // Optimize so that we do not have to call TypeToken.getType()
                     // When the class is non parametrized and we can call xxxxx.class directly
-                    result += ", " + parameterTypeMirror.toString() + ".class";
+                    result.append(", ").append(parameterTypeMirror.toString()).append(".class");
                 } else {
-                    result += ", " + getTypeTokenCode(parameterTypeMirror, stagGenerator, typeVarsMap, adapterFieldInfo) + ".getType()";
+                    result.append(", ").append(getTypeTokenCode(parameterTypeMirror, stagGenerator, typeVarsMap, adapterFieldInfo)).append(".getType()");
                 }
                 paramIndex++;
             }
-            result += ")";
-            return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, result);
+            result.append(")");
+            return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, result.toString());
         } else {
             return adapterFieldInfo.updateAndGetTypeTokenFieldName(fieldType, "com.google.gson.reflect.TypeToken.get(" + fieldType.toString() + ".class)");
         }
@@ -295,14 +294,14 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             }
 
 
-            String constructorParameterStr = "(";
+            StringBuilder constructorParameterStr = new StringBuilder("(");
             for (int i = 0; i < constructorParameters.size(); i++) {
-                constructorParameterStr += constructorParameters.get(i);
+                constructorParameterStr.append(constructorParameters.get(i));
                 if (i != constructorParameters.size() - 1) {
-                    constructorParameterStr += ",";
+                    constructorParameterStr.append(",");
                 }
             }
-            constructorParameterStr += ")";
+            constructorParameterStr.append(")");
             fieldAdapterAccessor += constructorParameterStr;
         } else if (jsonAdapterType == TypeUtils.JsonAdapterType.TYPE_ADAPTER_FACTORY) {
             String typeTokenAccessorCode = getTypeTokenCode(fieldType, stagGenerator, typeVarsMap, adapterFieldInfo);
@@ -447,10 +446,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                         adapterFieldInfo);
                 String nativeArrayInstantiator =
                         KnownTypeAdapterUtils.getNativeArrayInstantiator(arrayInnerType);
-                String adapterCode = "new " + TypeUtils.className(ArrayTypeAdapter.class) + "<" +
+                return "new " + TypeUtils.className(ArrayTypeAdapter.class) + "<" +
                         arrayInnerType.toString() + ">" +
                         "(" + adapterAccessor + ", " + nativeArrayInstantiator + ")";
-                return adapterCode;
             }
         } else if (TypeUtils.isSupportedList(fieldType)) {
             DeclaredType declaredType = (DeclaredType) fieldType;
