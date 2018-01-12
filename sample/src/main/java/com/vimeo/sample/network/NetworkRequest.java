@@ -36,8 +36,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.TypeAdapter;
 import com.vimeo.sample.model.DateParser;
-import com.vimeo.sample.model.DynamicallyTypedModel;
-import com.vimeo.sample.model.DynamicallyTypedWildcardReadModel;
 import com.vimeo.sample.model.Video;
 import com.vimeo.sample.model.VideoList;
 import com.vimeo.sample.model.VideoList$TypeAdapter;
@@ -127,19 +125,6 @@ public final class NetworkRequest {
                         .create();
 
                 JsonObject jsonObject = new JsonParser().parse(builder.toString()).getAsJsonObject();
-
-                DynamicallyTypedWildcardReadModel dynamicallyTypedWildcardReadModel = new DynamicallyTypedWildcardReadModel();
-                dynamicallyTypedWildcardReadModel.name = "example";
-
-                DynamicallyTypedModel<String> dynamicallyTypedModel = new DynamicallyTypedModel<>();
-                dynamicallyTypedModel.value = "wildcard";
-
-                ArrayList<DynamicallyTypedModel<?>> list = new ArrayList<>();
-                list.add(dynamicallyTypedModel);
-
-                dynamicallyTypedWildcardReadModel.models = list;
-
-                gson.toJson(dynamicallyTypedWildcardReadModel);
 
                 long time = System.currentTimeMillis();
                 TypeAdapter<VideoList> videoListTypeAdapter = gson.getAdapter(VideoList$TypeAdapter.TYPE_TOKEN);
