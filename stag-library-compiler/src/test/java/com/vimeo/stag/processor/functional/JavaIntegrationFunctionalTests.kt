@@ -87,6 +87,11 @@ class JavaIntegrationFunctionalTests {
     }
 
     @Test
+    fun `RawGenericField compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(RawGenericField::class)
+    }
+
+    @Test
     fun `NullFields compiles successfully`() {
         assertThatClassCompilationIsSuccessful(NullFields::class)
     }
