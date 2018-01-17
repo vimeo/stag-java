@@ -44,7 +44,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
@@ -83,8 +82,8 @@ public class StagGenerator {
      * Generates the public API in the form of the {@code Stag.Factory} type adapter factory
      * for the annotated classes. Creates the spec for the class.
      *
-     * @return A non null TypeSpec for the factory class.
      * @param generatedStagFactoryWrappers List of Sub Factories that have been created
+     * @return A non null TypeSpec for the factory class.
      */
     @NotNull
     public TypeSpec createStagSpec(List<SubFactoriesInfo> generatedStagFactoryWrappers) {
@@ -154,22 +153,55 @@ public class StagGenerator {
                         "return typeAdapterFactory;\n");
         adapterFactoryBuilder.addMethod(getTypeAdapterFactoryMethodBuilder.build());
 
-        MethodSpec.Builder getTypeAdapterMethodBuilder = MethodSpec.methodBuilder("getTypeAdapter")
-                .addTypeVariable(genericTypeName)
-                .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
+        MethodSpec.Builder getTypeAdapterMethodBuilder = MethodSpec.methodBuilder("getTypeAdapterFactory")
+                .returns(ClassName.get(TypeAdapterFactory.class))
                 .addModifiers(Modifier.PRIVATE)
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), TypeVariableName.get("?")), "clazz")
                 .addParameter(String.class, "currentPackageName")
-                .addParameter(Gson.class, "gson")
-                .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName), "type")
                 .addParameter(int.class, "index")
                 .addCode("String packageName = getPackageName(clazz);\n" +
                         "packageToIndexMap.put(packageName, index);\n" +
                         "if(currentPackageName.equals(packageName)) {\n" +
-                        "   return getTypeAdapterFactory(index).create(gson, type);\n" +
+                        "   return getTypeAdapterFactory(index);\n" +
                         "}\n" +
                         "return null;\n");
         adapterFactoryBuilder.addMethod(getTypeAdapterMethodBuilder.build());
+
+        MethodSpec.Builder getSubTypeAdapterMethodBuilder = MethodSpec.methodBuilder("getSubFactory")
+                .returns(ClassName.get(TypeAdapterFactory.class))
+                .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
+                                .addMember("value", "\"fallthrough\"")
+                                .build())
+                .addModifiers(Modifier.PRIVATE, Modifier.SYNCHRONIZED)
+                .addParameter(String.class, "currentPackageName");
+
+        getSubTypeAdapterMethodBuilder.addStatement("Integer index = packageToIndexMap.get(currentPackageName);");
+        getSubTypeAdapterMethodBuilder.beginControlFlow("if(null != index)");
+        getSubTypeAdapterMethodBuilder.addStatement("TypeAdapterFactory typeAdapterFactory = getTypeAdapterFactory(index)");
+        getSubTypeAdapterMethodBuilder.addStatement("return typeAdapterFactory");
+        getSubTypeAdapterMethodBuilder.endControlFlow();
+        getSubTypeAdapterMethodBuilder.addStatement("TypeAdapterFactory result = null");
+        getSubTypeAdapterMethodBuilder.beginControlFlow("switch(packageToIndexMap.size())");
+
+        int mapIndex = 0;
+        for (SubFactoriesInfo subFactoriesInfo : generatedStagFactoryWrappers) {
+            getSubTypeAdapterMethodBuilder.addCode("case " + mapIndex + " : ");
+            getSubTypeAdapterMethodBuilder.addCode("\n");
+            getSubTypeAdapterMethodBuilder.addCode("\tresult = getTypeAdapterFactory(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class, " +
+                    "currentPackageName, " + mapIndex + ");");
+            getSubTypeAdapterMethodBuilder.addCode("\n");
+            getSubTypeAdapterMethodBuilder.addCode("\tif(null != result) {");
+            getSubTypeAdapterMethodBuilder.addCode("\n");
+            getSubTypeAdapterMethodBuilder.addStatement("\t\treturn result");
+            getSubTypeAdapterMethodBuilder.addCode("\t}\n");
+            mapIndex++;
+        }
+
+        getSubTypeAdapterMethodBuilder.addCode("default : ");
+        getSubTypeAdapterMethodBuilder.addStatement("\t\nreturn null");
+        getSubTypeAdapterMethodBuilder.endControlFlow();
+
+        adapterFactoryBuilder.addMethod(getSubTypeAdapterMethodBuilder.build());
 
         String suppressWarningValue = "value";
         MethodSpec.Builder createMethodBuilder = MethodSpec.methodBuilder("create")
@@ -178,7 +210,6 @@ public class StagGenerator {
                 .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
                         .addMember(suppressWarningValue, "\"unchecked\"")
                         .addMember(suppressWarningValue, "\"rawtypes\"")
-                        .addMember(suppressWarningValue, "\"fallthrough\"")
                         .build())
                 .addTypeVariable(genericTypeName)
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
@@ -187,39 +218,13 @@ public class StagGenerator {
                         "type");
 
         createMethodBuilder.addStatement("Class<? super T> clazz = type.getRawType()");
-        createMethodBuilder.addStatement("TypeAdapter<T> result = null");
         createMethodBuilder.addStatement("String currentPackageName = getPackageName(clazz)");
         createMethodBuilder.beginControlFlow("if(null == currentPackageName)");
-        createMethodBuilder.addStatement("return result");
+        createMethodBuilder.addStatement("return null");
         createMethodBuilder.endControlFlow();
         createMethodBuilder.addCode("\n");
-        createMethodBuilder.beginControlFlow("synchronized(this)");
-        createMethodBuilder.addStatement("Integer index = packageToIndexMap.get(currentPackageName);");
-        createMethodBuilder.beginControlFlow("if(null != index)");
-        createMethodBuilder.addStatement("TypeAdapterFactory typeAdapterFactory = getTypeAdapterFactory(index)");
-        createMethodBuilder.addStatement("return typeAdapterFactory.create(gson, type)");
-        createMethodBuilder.endControlFlow();
-
-        createMethodBuilder.beginControlFlow("switch(packageToIndexMap.size())");
-
-        int mapIndex = 0;
-        for (SubFactoriesInfo subFactoriesInfo : generatedStagFactoryWrappers) {
-            createMethodBuilder.addCode("case " + mapIndex + " : ");
-            createMethodBuilder.addCode("\n");
-            createMethodBuilder.addCode("\tresult = getTypeAdapter(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class, " +
-                    "currentPackageName, gson, type, " + mapIndex + ");");
-            createMethodBuilder.addCode("\n");
-            createMethodBuilder.addCode("\tif(null != result) {");
-            createMethodBuilder.addCode("\n");
-            createMethodBuilder.addStatement("\t\treturn result");
-            createMethodBuilder.addCode("\t}\n");
-            mapIndex++;
-        }
-
-        createMethodBuilder.addCode("default : ");
-        createMethodBuilder.addStatement("\t\nreturn null");
-        createMethodBuilder.endControlFlow();
-        createMethodBuilder.endControlFlow();
+        createMethodBuilder.addStatement("TypeAdapterFactory typeAdapterFactory = getSubFactory(currentPackageName)");
+        createMethodBuilder.addStatement("return null != typeAdapterFactory ? typeAdapterFactory.create(gson, type) : null");
 
         adapterFactoryBuilder.addMethod(createMethodBuilder.build());
 

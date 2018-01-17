@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
 
-    ext.kotlinVersion = '1.2.10'
+    ext.kotlinVersion = '1.2.20'
     ext.jacocoVersion = '0.7.9' // See http://www.eclemma.org/jacoco/
     ext.gsonVersion = '2.8.2'
 
@@ -43,5 +43,5 @@ allprojects {
 
 subprojects {
     group = 'com.vimeo.stag'
-    version = '2.5.0'
+    version = '2.5.1'
 }

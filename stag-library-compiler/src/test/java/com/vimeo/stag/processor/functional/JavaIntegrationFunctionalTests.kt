@@ -87,6 +87,11 @@ class JavaIntegrationFunctionalTests {
     }
 
     @Test
+    fun `RawGenericField compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(RawGenericField::class)
+    }
+
+    @Test
     fun `NullFields compiles successfully`() {
         assertThatClassCompilationIsSuccessful(NullFields::class)
     }
@@ -94,6 +99,36 @@ class JavaIntegrationFunctionalTests {
     @Test
     fun `PrivateMembers compiles successfully`() {
         assertThatClassCompilationIsSuccessful(PrivateMembers::class)
+    }
+
+    @Test
+    fun `WildcardModel compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(WildcardModel::class)
+    }
+
+    @Test
+    fun `DynamicallyTypedModel compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(DynamicallyTypedModel::class)
+    }
+
+    @Test
+    fun `DynamicallyTypedWildcard compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(DynamicallyTypedWildcard::class)
+    }
+
+    @Test
+    fun `AbstractDataList compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(AbstractDataList::class)
+    }
+
+    @Test
+    fun `SuperAbstractDataList compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(SuperAbstractDataList::class)
+    }
+
+    @Test
+    fun `ConcreteDataList compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(ConcreteDataList::class)
     }
 
     @Test
