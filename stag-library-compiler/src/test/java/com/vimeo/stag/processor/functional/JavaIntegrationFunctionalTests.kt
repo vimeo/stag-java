@@ -102,6 +102,36 @@ class JavaIntegrationFunctionalTests {
     }
 
     @Test
+    fun `WildcardModel compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(WildcardModel::class)
+    }
+
+    @Test
+    fun `DynamicallyTypedModel compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(DynamicallyTypedModel::class)
+    }
+
+    @Test
+    fun `DynamicallyTypedWildcard compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(DynamicallyTypedWildcard::class)
+    }
+
+    @Test
+    fun `AbstractDataList compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(AbstractDataList::class)
+    }
+
+    @Test
+    fun `SuperAbstractDataList compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(SuperAbstractDataList::class)
+    }
+
+    @Test
+    fun `ConcreteDataList compiles successfully`() {
+        assertThatClassCompilationIsSuccessful(ConcreteDataList::class)
+    }
+
+    @Test
     fun `PublicFieldsNoHungarian compiles successfully`() {
         val processorTesterWithNoHungarian = ProcessorTester({ StagProcessor() }, "-AstagAssumeHungarianNotation=false")
         assertThat(processorTesterWithNoHungarian.compileClassInModule(module, PublicFieldsNoHungarian::class).isSuccessful()).isTrue()

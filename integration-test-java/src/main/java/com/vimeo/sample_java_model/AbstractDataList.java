@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.sample.model;
+package com.vimeo.sample_java_model;
 
 import com.vimeo.stag.UseStag;
 
@@ -36,7 +36,7 @@ import java.util.ArrayList;
  * @param <T> the type of the list.
  */
 @UseStag
-public abstract class AbstractDataList<T> extends SuperAbstractDataList<Paging, ArrayList<T>> {
+public abstract class AbstractDataList<T> extends SuperAbstractDataList<BaseExternalModel, ArrayList<T>> {
 
     public int page;
 }

@@ -1,12 +1,9 @@
-package com.vimeo.sample.model.root;
-
-import com.vimeo.sample.Utils;
-import com.vimeo.sample.model.AbstractDataList;
+package com.vimeo.sample_java_model;
 
 import org.junit.Test;
 
 /**
- * Created by restainoa on 2/2/17.
+ * Integration tests for {@link AbstractDataList}.
  */
 public class AbstractDataListTest {
 
