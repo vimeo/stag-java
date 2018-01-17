@@ -386,11 +386,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             boolean isPrimitive = TypeUtils.isSupportedPrimitive(variableType);
 
             builder.addCode("\n");
+            builder.addStatement("writer.name(\"" + name + "\")");
+
             if (!isPrimitive) {
                 builder.beginControlFlow("if (object." + getterCode + " != null) ");
             }
 
-            builder.addStatement("writer.name(\"" + name + "\")");
             if (!isPrimitive) {
                 builder.addStatement(
                         adapterFieldInfo.getAdapterAccessor(element.getValue(), name) + ".write(writer, object." +
@@ -398,13 +399,15 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 /*
                 * If the element is annotated with NonNull annotation, throw {@link IOException} if it is null.
                 */
+                builder.endControlFlow();
+                builder.beginControlFlow("else");
                 if (fieldAccessor.doesRequireNotNull()) {
-                    builder.endControlFlow();
-                    builder.beginControlFlow("else if (object." + getterCode + " == null)");
-                    builder.addStatement("throw new java.io.IOException(\"" + getterCode +
-                            " cannot be null\")");
+                    //throw exception in case the field is annotated as NonNull
+                    builder.addStatement("throw new java.io.IOException(\"" + getterCode + " cannot be null\")");
+                } else {
+                    //write null value to the writer if the field is null
+                    builder.addStatement("writer.nullValue()");
                 }
-
                 builder.endControlFlow();
             } else {
                 builder.addStatement("writer.value(object." + getterCode + ")");
