@@ -2,7 +2,7 @@
 
 Stag improves Gson performance by automatically generating reflection-less TypeAdapters for your model objects.
 
-[![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=develop)](https://travis-ci.org/vimeo/stag-java) [![codecov](https://codecov.io/gh/vimeo/stag-java/branch/develop/graph/badge.svg)](https://codecov.io/gh/vimeo/stag-java) [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library/images/download.svg)](https://bintray.com/vimeo/maven/stag-library/_latestVersion) [![Javadocs](https://www.javadoc.io/badge/com.vimeo.stag/stag-library.svg)](https://www.javadoc.io/doc/com.vimeo.stag/stag-library)
+[![Build Status](https://travis-ci.org/vimeo/stag-java.svg?branch=develop)](https://travis-ci.org/vimeo/stag-java) [![codecov](https://codecov.io/gh/vimeo/stag-java/branch/develop/graph/badge.svg)](https://codecov.io/gh/vimeo/stag-java) [![Download](https://api.bintray.com/packages/vimeo/maven/stag-library/images/download.svg)](https://bintray.com/vimeo/maven/stag-library/_latestVersion)
 
 
 ## Why Build Stag?
@@ -36,7 +36,7 @@ buildscript {
 apply plugin: 'net.ltgt.apt'
 
 dependencies {
-    def stagVersion = '2.5.0'
+    def stagVersion = '2.5.1'
     compile "com.vimeo.stag:stag-library:$stagVersion"
     apt "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }
@@ -57,7 +57,7 @@ gradle.projectsEvaluated {
 
 ```groovy
 dependencies {
-    def stagVersion = '2.5.0'
+    def stagVersion = '2.5.1'
     compile "com.vimeo.stag:stag-library:$stagVersion"
     annotationProcessor "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }
