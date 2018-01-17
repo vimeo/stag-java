@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 2.5.1 *(2018-01-17)*
+----------------------------
+- Fixed bug where types with wildcards caused compilation to fail.
+- Fixed bug where fields with default types would not be correctly serialized if assigned to null.
+- Improved thread safety of factory usage.
+
 Version 2.5.0 *(2017-12-18)*
 ----------------------------
 - Improved performance of loading the `Stag.Factory`.
