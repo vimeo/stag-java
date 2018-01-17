@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.sample.model;
+package com.vimeo.sample_java_model;
 
 import com.vimeo.stag.UseStag;
 

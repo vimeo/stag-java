@@ -1,4 +1,4 @@
-package com.vimeo.sample.model;
+package com.vimeo.sample_java_model;
 
 import com.vimeo.stag.UseStag;
 

@@ -25,16 +25,18 @@ package com.vimeo.sample.model;
 
 import com.vimeo.stag.UseStag;
 
+import java.util.ArrayList;
+
 /**
- * Since this class has no annotated fields,
- * this class would not normally be picked
- * up by stag. The class level annotation
- * ensures that stag sees it, and this class
- * tests the ability of stag to recurse through
- * the abstraction hierarchy and to resolve
- * parameterized fields.
+ * A list of videos.
  */
 @UseStag
-public class VideoList extends AbstractDataList<Video> {
+public class VideoList {
+
+    public Paging paging;
+
+    public int page;
+
+    public ArrayList<Video> data;
 
 }
