@@ -69,10 +69,6 @@ public class StagGenerator {
         }
     }
 
-    public static String getGeneratedFactoryClassAndPackage(String generatedPackageName) {
-        return generatedPackageName + "." + CLASS_STAG + "." + CLASS_TYPE_ADAPTER_FACTORY;
-    }
-
     @Nullable
     ClassInfo getKnownClass(@NotNull TypeMirror typeMirror) {
         return mKnownClasses.get(typeMirror.toString());
@@ -86,7 +82,7 @@ public class StagGenerator {
      * @return A non null TypeSpec for the factory class.
      */
     @NotNull
-    public TypeSpec createStagSpec(List<SubFactoriesInfo> generatedStagFactoryWrappers) {
+    public static TypeSpec createStagSpec(List<SubFactoriesInfo> generatedStagFactoryWrappers) {
         TypeSpec.Builder stagBuilder =
                 TypeSpec.classBuilder(CLASS_STAG).addModifiers(Modifier.PUBLIC, Modifier.FINAL);
         stagBuilder.addType(getAdapterFactorySpec(generatedStagFactoryWrappers));
@@ -233,8 +229,8 @@ public class StagGenerator {
 
     public static class SubFactoriesInfo {
 
-        ClassInfo representativeClassInfo;
-        String classAndPackageName;
+        final ClassInfo representativeClassInfo;
+        final String classAndPackageName;
 
         public SubFactoriesInfo(ClassInfo classInfo, String classAndPackageName) {
             this.representativeClassInfo = classInfo;

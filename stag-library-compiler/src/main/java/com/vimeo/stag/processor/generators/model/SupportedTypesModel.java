@@ -40,11 +40,9 @@ public final class SupportedTypesModel {
 
     @NotNull private final Map<String, AnnotatedClass> mSupportedTypesMap = new HashMap<>();
     @NotNull private final Map<String, AnnotatedClass> mKnownInheritedTypesMap = new HashMap<>();
-    @NotNull private final String mGeneratedStagFactoryName;
     @NotNull private final Notation mNamingNotation;
 
-    public SupportedTypesModel(@NotNull String generatedStagFactoryName, @NotNull Notation namingNotation) {
-        mGeneratedStagFactoryName = generatedStagFactoryName;
+    public SupportedTypesModel(@NotNull Notation namingNotation) {
         mNamingNotation = namingNotation;
     }
 

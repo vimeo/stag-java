@@ -4,7 +4,9 @@ package com.vimeo.stag;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 
-public class Types {
+public final class Types {
+
+    private Types() {}
 
     public static WildcardType getWildcardType(Type[] upperBounds, Type[] lowerBounds) {
         return new WildcardTypeImpl(upperBounds, lowerBounds);
@@ -12,7 +14,8 @@ public class Types {
 
     private static final class WildcardTypeImpl implements WildcardType {
 
-        private Type[] upperBounds, lowerBounds;
+        private final Type[] upperBounds;
+        private final Type[] lowerBounds;
 
         public WildcardTypeImpl(Type[] upperBounds, Type[] lowerBounds) {
             this.upperBounds = upperBounds;

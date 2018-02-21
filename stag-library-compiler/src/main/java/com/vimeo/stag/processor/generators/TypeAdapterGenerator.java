@@ -316,7 +316,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 String initializer = adapterType.getEnclosingElement().toString() + " " + varName + " = " +
                                      "new " + adapterType;
                 constructorBuilder.addStatement(initializer);
-                serializer = deserializer = varName;
+                serializer = varName;
+                deserializer = varName;
             } else if (jsonAdapterType == TypeUtils.JsonAdapterType.JSON_SERIALIZER) {
                 serializer = "new " + adapterType;
             } else if (jsonAdapterType == TypeUtils.JsonAdapterType.JSON_DESERIALIZER) {

@@ -14,6 +14,7 @@ import com.vimeo.stag.processor.generators.model.ClassInfo;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.Modifier;
@@ -26,7 +27,7 @@ public class StagFactoryGenerator {
     private final String fileName;
 
     public StagFactoryGenerator(@NotNull List<ClassInfo> classInfoList, @NotNull String fileName) {
-        this.classInfoList = classInfoList;
+        this.classInfoList = new ArrayList<>(classInfoList);
         this.fileName = fileName;
     }
 
