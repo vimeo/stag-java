@@ -108,7 +108,7 @@ public final class ElementUtils {
         }
         ElementKind elementKind = element.getKind();
         return (elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM)
-            && isAnnotatedWith(UseStag.class, element);
+               && isAnnotatedWith(UseStag.class, element);
     }
 
     @Nullable

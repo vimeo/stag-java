@@ -86,6 +86,7 @@ public abstract class AdapterGenerator {
 
     /**
      * Creates a TypeToken field in the generated adapter factory
+     *
      * @param typeMirror Type of class for which typetoken has to be generated
      * @return {@link FieldSpec}
      */

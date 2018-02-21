@@ -24,7 +24,9 @@
 package com.vimeo.stag.processor.dummy
 
 import com.vimeo.stag.processor.TypeUtilsUnitTest
-import java.util.*
+import java.util.ArrayList
+import java.util.HashMap
+import java.util.HashSet
 
 /**
  * Do not change this class without sure the

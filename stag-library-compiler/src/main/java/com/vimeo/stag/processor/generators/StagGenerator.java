@@ -104,12 +104,12 @@ public class StagGenerator {
 
         ParameterizedTypeName hashMapOfStringToInteger = ParameterizedTypeName.get(HashMap.class, String.class, Integer.class);
         FieldSpec.Builder packageToIndexMapField = FieldSpec.builder(hashMapOfStringToInteger,
-                "packageToIndexMap", Modifier.FINAL, Modifier.PRIVATE).initializer("new " + hashMapOfStringToInteger.toString() + "( " + generatedStagFactoryWrappers.size() + ")");
+                                                                     "packageToIndexMap", Modifier.FINAL, Modifier.PRIVATE).initializer("new " + hashMapOfStringToInteger.toString() + "( " + generatedStagFactoryWrappers.size() + ")");
         adapterFactoryBuilder.addField(packageToIndexMapField.build());
 
         TypeVariableName typeAdapterFactoryArray = TypeVariableName.get("TypeAdapterFactory[]");
         FieldSpec.Builder typeAdapterFactoryArrayField = FieldSpec.builder(typeAdapterFactoryArray,
-                "typeAdapterFactoryArray", Modifier.FINAL, Modifier.PRIVATE).initializer("new TypeAdapterFactory[" + generatedStagFactoryWrappers.size() + "]");
+                                                                           "typeAdapterFactoryArray", Modifier.FINAL, Modifier.PRIVATE).initializer("new TypeAdapterFactory[" + generatedStagFactoryWrappers.size() + "]");
         adapterFactoryBuilder.addField(typeAdapterFactoryArrayField.build());
 
         MethodSpec.Builder getPackageNameMethodBuilder = MethodSpec.methodBuilder("getPackageName")
@@ -118,8 +118,8 @@ public class StagGenerator {
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(ParameterizedTypeName.get(ClassName.get(Class.class), genericTypeName), "clazz")
                 .addCode("String name = clazz.getName();\n" +
-                        "int last = name.lastIndexOf('.');\n" +
-                        "return last == -1 ? null : name.substring(0, last);\n");
+                         "int last = name.lastIndexOf('.');\n" +
+                         "return last == -1 ? null : name.substring(0, last);\n");
         adapterFactoryBuilder.addMethod(getPackageNameMethodBuilder.build());
 
         MethodSpec.Builder createTypeAdapterFactoryMethodBuilder = MethodSpec.methodBuilder("createTypeAdapterFactory")
@@ -146,11 +146,11 @@ public class StagGenerator {
                 .addModifiers(Modifier.PRIVATE)
                 .addParameter(int.class, "index")
                 .addCode("TypeAdapterFactory typeAdapterFactory = typeAdapterFactoryArray[index];\n" +
-                        "if(null == typeAdapterFactory) {\n" +
-                        "   typeAdapterFactory = createTypeAdapterFactory(index);\n" +
-                        "   typeAdapterFactoryArray[index] = typeAdapterFactory;\n" +
-                        "}\n" +
-                        "return typeAdapterFactory;\n");
+                         "if(null == typeAdapterFactory) {\n" +
+                         "   typeAdapterFactory = createTypeAdapterFactory(index);\n" +
+                         "   typeAdapterFactoryArray[index] = typeAdapterFactory;\n" +
+                         "}\n" +
+                         "return typeAdapterFactory;\n");
         adapterFactoryBuilder.addMethod(getTypeAdapterFactoryMethodBuilder.build());
 
         MethodSpec.Builder getTypeAdapterMethodBuilder = MethodSpec.methodBuilder("getTypeAdapterFactory")
@@ -160,18 +160,18 @@ public class StagGenerator {
                 .addParameter(String.class, "currentPackageName")
                 .addParameter(int.class, "index")
                 .addCode("String packageName = getPackageName(clazz);\n" +
-                        "packageToIndexMap.put(packageName, index);\n" +
-                        "if(currentPackageName.equals(packageName)) {\n" +
-                        "   return getTypeAdapterFactory(index);\n" +
-                        "}\n" +
-                        "return null;\n");
+                         "packageToIndexMap.put(packageName, index);\n" +
+                         "if(currentPackageName.equals(packageName)) {\n" +
+                         "   return getTypeAdapterFactory(index);\n" +
+                         "}\n" +
+                         "return null;\n");
         adapterFactoryBuilder.addMethod(getTypeAdapterMethodBuilder.build());
 
         MethodSpec.Builder getSubTypeAdapterMethodBuilder = MethodSpec.methodBuilder("getSubFactory")
                 .returns(ClassName.get(TypeAdapterFactory.class))
                 .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
-                                .addMember("value", "\"fallthrough\"")
-                                .build())
+                                       .addMember("value", "\"fallthrough\"")
+                                       .build())
                 .addModifiers(Modifier.PRIVATE, Modifier.SYNCHRONIZED)
                 .addParameter(String.class, "currentPackageName");
 
@@ -188,7 +188,7 @@ public class StagGenerator {
             getSubTypeAdapterMethodBuilder.addCode("case " + mapIndex + " : ");
             getSubTypeAdapterMethodBuilder.addCode("\n");
             getSubTypeAdapterMethodBuilder.addCode("\tresult = getTypeAdapterFactory(" + subFactoriesInfo.representativeClassInfo.getClassAndPackage() + ".class, " +
-                    "currentPackageName, " + mapIndex + ");");
+                                                   "currentPackageName, " + mapIndex + ");");
             getSubTypeAdapterMethodBuilder.addCode("\n");
             getSubTypeAdapterMethodBuilder.addCode("\tif(null != result) {");
             getSubTypeAdapterMethodBuilder.addCode("\n");
@@ -208,14 +208,14 @@ public class StagGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addAnnotation(Override.class)
                 .addAnnotation(AnnotationSpec.builder(SuppressWarnings.class)
-                        .addMember(suppressWarningValue, "\"unchecked\"")
-                        .addMember(suppressWarningValue, "\"rawtypes\"")
-                        .build())
+                                       .addMember(suppressWarningValue, "\"unchecked\"")
+                                       .addMember(suppressWarningValue, "\"rawtypes\"")
+                                       .build())
                 .addTypeVariable(genericTypeName)
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericTypeName))
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericTypeName),
-                        "type");
+                              "type");
 
         createMethodBuilder.addStatement("Class<? super T> clazz = type.getRawType()");
         createMethodBuilder.addStatement("String currentPackageName = getPackageName(clazz)");
@@ -232,6 +232,7 @@ public class StagGenerator {
     }
 
     public static class SubFactoriesInfo {
+
         ClassInfo representativeClassInfo;
         String classAndPackageName;
 

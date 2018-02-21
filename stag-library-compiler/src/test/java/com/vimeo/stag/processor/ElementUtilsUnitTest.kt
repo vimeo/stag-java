@@ -33,7 +33,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
-import java.util.*
+import java.util.ArrayList
 
 class ElementUtilsUnitTest : BaseUnitTest() {
 

@@ -5,6 +5,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 
 public class Types {
+
     public static WildcardType getWildcardType(Type[] upperBounds, Type[] lowerBounds) {
         return new WildcardTypeImpl(upperBounds, lowerBounds);
     }

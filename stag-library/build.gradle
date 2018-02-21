@@ -63,7 +63,7 @@ def pomConfig = {
             organisationUrl "https://github.com/vimeo"
         }
     }
-    
+
     scm {
         connection "scm:git:git://github.com/vimeo/stag-java.git"
         developerConnection "scm:git:ssh://github.com:vimeo/stag-java.git"
@@ -123,10 +123,12 @@ allprojects {
                             passphrase = System.getenv('BINTRAY_GPG_PASSWORD')
                         }
                         mavenCentralSync {
-                            sync = true //Optional (true by default). Determines whether to sync the version to Maven Central.
+                            sync = true
+                            //Optional (true by default). Determines whether to sync the version to Maven Central.
                             user = System.getenv('SONATYPE_TOKEN_USER') //OSS user token
                             password = System.getenv('SONATYPE_TOKEN_PASSWORD') //OSS user password
-                            close = '1' //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+                            close = '1'
+                            //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
                         }
                     }
                 }

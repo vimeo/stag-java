@@ -20,6 +20,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
 
 public class StagFactoryGenerator {
+
     public static final String NAME = "StagFactory";
     private final List<ClassInfo> classInfoList;
     private final String fileName;

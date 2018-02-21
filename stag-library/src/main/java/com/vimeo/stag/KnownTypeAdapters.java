@@ -989,6 +989,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Object}
      */
     public static final class ObjectTypeAdapter extends TypeAdapter<Object> {
+
         public final TypeToken<Object> TYPE_TOKEN = TypeToken.get(Object.class);
 
         private final Gson gson;
