@@ -23,17 +23,17 @@ import javax.lang.model.type.TypeMirror;
 public class StagFactoryGenerator {
 
     @NotNull public static final String NAME = "StagFactory";
-    @NotNull private final List<ClassInfo> classInfoList;
-    @NotNull private final String fileName;
+    @NotNull private final List<ClassInfo> mClassInfoList;
+    @NotNull private final String mFileName;
 
     public StagFactoryGenerator(@NotNull List<ClassInfo> classInfoList, @NotNull String fileName) {
-        this.classInfoList = new ArrayList<>(classInfoList);
-        this.fileName = fileName;
+        mClassInfoList = new ArrayList<>(classInfoList);
+        mFileName = fileName;
     }
 
     @NotNull
     public TypeSpec getTypeAdapterFactorySpec() {
-        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(fileName)
+        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(mFileName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(TypeAdapterFactory.class)
                 .addMethod(getCreateMethodSpec());
@@ -58,7 +58,7 @@ public class StagFactoryGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .addCode("Class<? super T> clazz = type.getRawType();\n");
 
-        for (ClassInfo classInfo : classInfoList) {
+        for (ClassInfo classInfo : mClassInfoList) {
             builder.beginControlFlow("if (clazz == " + classInfo.getClassAndPackage() + ".class)");
             List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
             if (typeArguments == null || typeArguments.isEmpty()) {
