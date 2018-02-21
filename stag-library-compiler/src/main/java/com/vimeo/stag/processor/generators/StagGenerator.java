@@ -95,7 +95,7 @@ public class StagGenerator {
     }
 
     @NotNull
-    private TypeSpec getAdapterFactorySpec(@NotNull List<SubFactoriesInfo> generatedStagFactoryWrappers) {
+    private static TypeSpec getAdapterFactorySpec(@NotNull List<SubFactoriesInfo> generatedStagFactoryWrappers) {
         TypeVariableName genericTypeName = TypeVariableName.get("T");
 
         TypeSpec.Builder adapterFactoryBuilder = TypeSpec.classBuilder(CLASS_TYPE_ADAPTER_FACTORY)

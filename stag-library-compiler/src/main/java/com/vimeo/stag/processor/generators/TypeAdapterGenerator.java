@@ -422,9 +422,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     /**
      * Returns the adapter code for the known types.
      */
-    private String getAdapterAccessor(@NotNull TypeMirror fieldType
+    private static String getAdapterAccessor(@NotNull TypeMirror fieldType
             , @NotNull StagGenerator stagGenerator, @NotNull Map<TypeMirror, String> typeVarsMap,
-                                      @NotNull AdapterFieldInfo adapterFieldInfo) {
+                                             @NotNull AdapterFieldInfo adapterFieldInfo) {
 
         String knownTypeAdapter = KnownTypeAdapterUtils.getKnownTypeAdapterForType(fieldType);
 
@@ -499,10 +499,10 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     }
 
     @NotNull
-    private AdapterFieldInfo addAdapterFields(@NotNull StagGenerator stagGenerator,
-                                              @NotNull MethodSpec.Builder constructorBuilder,
-                                              @NotNull Map<FieldAccessor, TypeMirror> memberVariables,
-                                              @NotNull Map<TypeMirror, String> typeVarsMap) {
+    private static AdapterFieldInfo addAdapterFields(@NotNull StagGenerator stagGenerator,
+                                                     @NotNull MethodSpec.Builder constructorBuilder,
+                                                     @NotNull Map<FieldAccessor, TypeMirror> memberVariables,
+                                                     @NotNull Map<TypeMirror, String> typeVarsMap) {
 
         AdapterFieldInfo result = new AdapterFieldInfo(memberVariables.size());
         for (Map.Entry<FieldAccessor, TypeMirror> entry : memberVariables.entrySet()) {
@@ -639,12 +639,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
     private static class FieldInfo {
 
-        @NotNull
-        private final TypeMirror type;
-        @NotNull
-        private final String initializationCode;
-        @NotNull
-        private final String accessorVariable;
+        @NotNull final TypeMirror type;
+        @NotNull final String initializationCode;
+        @NotNull final String accessorVariable;
 
         FieldInfo(@NotNull TypeMirror type, @NotNull String initializationCode, @NotNull String accessorVariable) {
             this.type = type;
@@ -660,16 +657,13 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         private final Map<String, String> mAdapterAccessor;
 
         //FieldName -> Accessor Map
-        @NotNull
-        private final Map<String, FieldInfo> mFieldAdapterAccessor;
+        @NotNull final Map<String, FieldInfo> mFieldAdapterAccessor;
 
         //Type.toString -> Accessor Map
-        @NotNull
-        private final Map<String, FieldInfo> mAdapterFields;
+        @NotNull final Map<String, FieldInfo> mAdapterFields;
 
         //Type.toString -> Type Token Accessor Map
-        @NotNull
-        private final Map<String, FieldInfo> mTypeTokenAccessorFields;
+        @NotNull final Map<String, FieldInfo> mTypeTokenAccessorFields;
 
         AdapterFieldInfo(int capacity) {
             mAdapterFields = new LinkedHashMap<>(capacity);

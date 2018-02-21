@@ -87,11 +87,11 @@ public abstract class AdapterGenerator {
     /**
      * Creates a TypeToken field in the generated adapter factory
      *
-     * @param typeMirror Type of class for which typetoken has to be generated
+     * @param typeMirror Type of class for which TypeToken has to be generated
      * @return {@link FieldSpec}
      */
     @NotNull
-    FieldSpec createTypeTokenSpec(@NotNull TypeMirror typeMirror) {
+    static FieldSpec createTypeTokenSpec(@NotNull TypeMirror typeMirror) {
         ParameterizedTypeName typeTokenType = ParameterizedTypeName.get(ClassName.get(TypeToken.class), TypeVariableName.get(typeMirror));
         FieldSpec.Builder typeTokenBuilder = FieldSpec.builder(typeTokenType, "TYPE_TOKEN", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
         typeTokenBuilder.initializer("TypeToken.get(" + typeMirror.toString() + ".class)");
