@@ -55,6 +55,7 @@ public class SwappableParserExampleModelTest {
     /**
      * Stag does support being used across Gson instances now
      */
+    @Test
     public void test_SwappingTypeAdapters() {
 
         final Stag.Factory factory = new Stag.Factory();
