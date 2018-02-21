@@ -34,6 +34,7 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeVariableName;
+import com.vimeo.stag.processor.codegen.SwitchCodeBlockBuilder;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
@@ -122,18 +123,22 @@ public class StagGenerator {
                 .returns(TypeAdapterFactory.class)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(int.class, "index")
-                .addStatement("TypeAdapterFactory result = null")
-                .beginControlFlow("switch(index)");
+                .addStatement("TypeAdapterFactory result = null");
+
+        SwitchCodeBlockBuilder factorySwitchBuilder = new SwitchCodeBlockBuilder()
+                .beginSwitch("switch(index)");
 
         for (int index = 0; index < generatedStagFactoryWrappers.size(); index++) {
-            createTypeAdapterFactoryMethodBuilder
-                    .addStatement("case $L : ", index)
+            factorySwitchBuilder
+                    .beginCase("case $L", index)
                     .addStatement("result = new $L()", generatedStagFactoryWrappers.get(index).classAndPackageName)
-                    .addStatement("break");
+                    .endCase();
         }
 
+        factorySwitchBuilder.endSwitch();
+
         createTypeAdapterFactoryMethodBuilder
-                .endControlFlow()
+                .addCode(factorySwitchBuilder.build())
                 .addStatement("return result");
         adapterFactoryBuilder.addMethod(createTypeAdapterFactoryMethodBuilder.build());
 
@@ -175,22 +180,26 @@ public class StagGenerator {
                 .addStatement("TypeAdapterFactory typeAdapterFactory = getTypeAdapterFactory(index)")
                 .addStatement("return typeAdapterFactory")
                 .endControlFlow()
-                .addStatement("TypeAdapterFactory result = null")
-                .beginControlFlow("switch(packageToIndexMap.size())");
+                .addStatement("TypeAdapterFactory result = null");
+
+        SwitchCodeBlockBuilder subFactorySwitchBuilder = new SwitchCodeBlockBuilder()
+                .beginSwitch("switch(packageToIndexMap.size())");
 
         for (int index = 0; index < generatedStagFactoryWrappers.size(); index++) {
-            getSubTypeAdapterMethodBuilder
-                    .addStatement("case $L :", index)
+            subFactorySwitchBuilder
+                    .beginCase("case $L", index)
                     .addStatement("result = getTypeAdapterFactory($L.class, currentPackageName, $L)", generatedStagFactoryWrappers.get(index).representativeClassInfo.getClassAndPackage(), index)
                     .beginControlFlow("if (result != null)")
                     .addStatement("return result")
                     .endControlFlow();
         }
 
-        getSubTypeAdapterMethodBuilder
-                .addStatement("default :")
+        subFactorySwitchBuilder
+                .beginCase("default")
                 .addStatement("return null")
-                .endControlFlow();
+                .endSwitch();
+
+        getSubTypeAdapterMethodBuilder.addCode(subFactorySwitchBuilder.build());
 
         adapterFactoryBuilder.addMethod(getSubTypeAdapterMethodBuilder.build());
 
