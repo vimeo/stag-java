@@ -114,11 +114,8 @@ public final class SupportedTypesModel {
      *
      * @param type the type that maps to a specific
      *             AnnotatedClass.
-     * @return the AnnotatedClass object associated
-     * with the class type.
      */
-    @NotNull
-    public AnnotatedClass addSupportedType(@NotNull TypeMirror type) {
+    public void addSupportedType(@NotNull TypeMirror type) {
         String outerClassType = TypeUtils.getOuterClassType(type);
         AnnotatedClass model = getSupportedType(outerClassType);
 
@@ -129,7 +126,6 @@ public final class SupportedTypesModel {
             }
             addSupportedType(model);
         }
-        return model;
     }
 
     /**

@@ -31,6 +31,7 @@ import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.StagFactoryGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
+import com.vimeo.stag.processor.generators.StagGenerator.SubFactoriesInfo;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
@@ -201,7 +202,7 @@ public final class StagProcessor extends AbstractProcessor {
                 generatedStagFactoryWrappers.add(new StagGenerator.SubFactoriesInfo(classInfos.get(0), stringListEntry.getKey() + "." + StagFactoryGenerator.NAME));
             }
 
-            generateStagFactory(stagFactoryGenerator, packageName, generatedStagFactoryWrappers);
+            generateStagFactory(packageName, generatedStagFactoryWrappers);
             KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, supportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -222,8 +223,7 @@ public final class StagProcessor extends AbstractProcessor {
         writeTypeSpecToFile(typeAdapterSpec, packageName);
     }
 
-    private void generateStagFactory(@NotNull StagGenerator stagGenerator,
-                                     @NotNull String packageName, List<StagGenerator.SubFactoriesInfo> generatedStagFactoryWrappers) throws IOException {
+    private void generateStagFactory(@NotNull String packageName, List<SubFactoriesInfo> generatedStagFactoryWrappers) throws IOException {
         // Create the type spec
         TypeSpec typeSpec = StagGenerator.createStagSpec(generatedStagFactoryWrappers);
 

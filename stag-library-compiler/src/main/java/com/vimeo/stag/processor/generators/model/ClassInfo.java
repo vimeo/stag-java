@@ -96,16 +96,6 @@ public final class ClassInfo {
     }
 
     /**
-     * return the class name as will be returned by Class.name() on runtime
-     *
-     * @return a valid class and package name.
-     */
-    @NotNull
-    public String getQualifiedClassName() {
-        return FileGenUtils.escapeStringForCodeBlock(mPackageName + "." + mClassName);
-    }
-
-    /**
      * The TypeMirror object backing this
      * ClassInfo object.
      *
