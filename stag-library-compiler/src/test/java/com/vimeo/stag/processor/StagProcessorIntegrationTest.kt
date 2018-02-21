@@ -7,6 +7,7 @@ import com.vimeo.sample_java_model.NullFields
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.StringWriter
+import com.vimeo.sample_java_model.stag.generated.Stag
 
 /**
  * Integration tests for the compiler.
