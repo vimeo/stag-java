@@ -251,7 +251,7 @@ public final class StagProcessor extends AbstractProcessor {
     private void writeTypeSpecToFile(@NotNull TypeSpec typeSpec, @NotNull String packageName) throws IOException {
 
         // Create the Java file
-        JavaFile javaFile = JavaFile.builder(packageName, typeSpec).build();
+        JavaFile javaFile = JavaFile.builder(packageName, typeSpec).indent("    ").build();
 
         Filer filer = processingEnv.getFiler();
 
