@@ -22,9 +22,9 @@ import javax.lang.model.type.TypeMirror;
 
 public class StagFactoryGenerator {
 
-    public static final String NAME = "StagFactory";
-    private final List<ClassInfo> classInfoList;
-    private final String fileName;
+    @NotNull public static final String NAME = "StagFactory";
+    @NotNull private final List<ClassInfo> classInfoList;
+    @NotNull private final String fileName;
 
     public StagFactoryGenerator(@NotNull List<ClassInfo> classInfoList, @NotNull String fileName) {
         this.classInfoList = new ArrayList<>(classInfoList);
@@ -44,7 +44,7 @@ public class StagFactoryGenerator {
     @NotNull
     private MethodSpec getCreateMethodSpec() {
         TypeVariableName genericType = TypeVariableName.get("T");
-        AnnotationSpec suppressions = AnnotationSpec.builder(SuppressWarnings.class)
+        AnnotationSpec suppressedWarnings = AnnotationSpec.builder(SuppressWarnings.class)
                 .addMember("value", "\"unchecked\"")
                 .addMember("value", "\"rawtypes\"")
                 .build();
@@ -53,7 +53,7 @@ public class StagFactoryGenerator {
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericType), "type")
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericType))
-                .addAnnotation(suppressions)
+                .addAnnotation(suppressedWarnings)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addCode("Class<? super T> clazz = type.getRawType();\n");

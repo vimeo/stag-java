@@ -12,5 +12,5 @@ class DummyClassWithConstructor {
         this.string = string
     }
 
-    constructor() {}
+    constructor()
 }

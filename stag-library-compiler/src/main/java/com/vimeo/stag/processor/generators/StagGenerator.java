@@ -229,10 +229,11 @@ public class StagGenerator {
 
     public static class SubFactoriesInfo {
 
-        final ClassInfo representativeClassInfo;
-        final String classAndPackageName;
+        @NotNull final ClassInfo representativeClassInfo;
 
-        public SubFactoriesInfo(ClassInfo classInfo, String classAndPackageName) {
+        @NotNull final String classAndPackageName;
+
+        public SubFactoriesInfo(@NotNull ClassInfo classInfo, @NotNull String classAndPackageName) {
             this.representativeClassInfo = classInfo;
             this.classAndPackageName = classAndPackageName;
         }
