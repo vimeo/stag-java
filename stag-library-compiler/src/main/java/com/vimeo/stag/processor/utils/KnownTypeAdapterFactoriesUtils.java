@@ -92,7 +92,7 @@ public final class KnownTypeAdapterFactoriesUtils {
         String[] knownFactories = content.toString().split("[\\n\\r]+");
         for (String knownFactory : knownFactories) {
             TypeElement element = elementUtils.getTypeElement(knownFactory);
-            if (null != element) {
+            if (element != null) {
                 resultSet.add(element.asType());
             }
         }
@@ -113,7 +113,7 @@ public final class KnownTypeAdapterFactoriesUtils {
                 String line;
                 while ((line = bufferedReader.readLine()) != null) {
                     TypeElement element = elementUtils.getTypeElement(line.trim());
-                    if (null != element) {
+                    if (element != null) {
                         resultSet.add(element.asType());
                     }
 

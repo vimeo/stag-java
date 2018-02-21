@@ -98,9 +98,9 @@ public final class SupportedTypesModel {
     public AnnotatedClass addToKnownInheritedType(@NotNull TypeMirror type, @Nullable FieldOption childFieldOption) {
         String outerClassType = TypeUtils.getOuterClassType(type);
         AnnotatedClass model = getSupportedType(outerClassType);
-        if (null == model) {
+        if (model == null) {
             model = mKnownInheritedTypesMap.get(outerClassType);
-            if (null == model) {
+            if (model == null) {
                 model = new AnnotatedClass(this, TypeUtils.safeTypeMirrorToTypeElement(type), mNamingNotation, childFieldOption);
                 mKnownInheritedTypesMap.put(outerClassType, model);
             }
@@ -121,7 +121,7 @@ public final class SupportedTypesModel {
 
         if (model == null) {
             model = mKnownInheritedTypesMap.get(outerClassType);
-            if (null == model) {
+            if (model == null) {
                 model = new AnnotatedClass(this, TypeUtils.safeTypeMirrorToTypeElement(type), mNamingNotation);
             }
             addSupportedType(model);

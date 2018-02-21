@@ -127,7 +127,7 @@ public class AnnotatedClass {
     private void addMemberVariable(@NotNull FieldAccessor element, @NotNull TypeMirror typeMirror,
                                    @NotNull Map<String, FieldAccessor> variableNames) {
         FieldAccessor previousElement = variableNames.put(element.createGetterCode(), element);
-        if (null != previousElement) {
+        if (previousElement != null) {
             mMemberVariables.remove(previousElement);
             MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
                                   element.toString() + ", with variable name " + previousElement.asType().toString());

@@ -52,11 +52,11 @@ public abstract class AdapterGenerator {
     @NotNull
     static String getJsonName(@NotNull Element element) {
 
-        String name = null != element.getAnnotation(SerializedName.class) ?
-                element.getAnnotation(SerializedName.class).value() :
-                null;
+        String name = element.getAnnotation(SerializedName.class) != null
+                ? element.getAnnotation(SerializedName.class).value()
+                : null;
 
-        if (null == name || name.isEmpty()) {
+        if (name == null || name.isEmpty()) {
             name = element.getSimpleName().toString();
         }
         return name;
@@ -70,9 +70,9 @@ public abstract class AdapterGenerator {
      */
     @Nullable
     static String[] getAlternateJsonNames(@NotNull Element element) {
-        return null != element.getAnnotation(SerializedName.class) ?
-                element.getAnnotation(SerializedName.class).alternate() :
-                null;
+        return element.getAnnotation(SerializedName.class) != null
+                ? element.getAnnotation(SerializedName.class).alternate()
+                : null;
     }
 
     /**

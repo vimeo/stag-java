@@ -60,7 +60,7 @@ public final class ElementUtils {
     @Nullable
     public static TypeMirror getTypeFromQualifiedName(@NotNull String qualifiedName) {
         TypeElement typeElement = getTypeElementFromQualifiedName(qualifiedName);
-        return null != typeElement ? typeElement.asType() : null;
+        return typeElement != null ? typeElement.asType() : null;
     }
 
     @Nullable

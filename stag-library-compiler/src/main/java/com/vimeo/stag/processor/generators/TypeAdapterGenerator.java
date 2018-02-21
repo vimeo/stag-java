@@ -133,13 +133,15 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
             int paramIndex = 0;
             for (TypeMirror parameterTypeMirror : typeMirrors) {
-                TypeMirror classArg = null != classArguments && classArguments.size() > paramIndex ? classArguments.get(paramIndex) : null;
-                if (null != classArg) {
+                TypeMirror classArg = classArguments != null && classArguments.size() > paramIndex
+                        ? classArguments.get(paramIndex)
+                        : null;
+                if (classArg != null) {
                     fieldTypeVarsMap.put(classArg, parameterTypeMirror);
                 }
                 if (parameterTypeMirror.getKind() == TypeKind.WILDCARD) {
                     String upperBoundString = "";
-                    if (null != classArg && classArg.getKind() == TypeKind.TYPEVAR) {
+                    if (classArg != null && classArg.getKind() == TypeKind.TYPEVAR) {
                         TypeVariable typeVariable = (TypeVariable) classArg;
                         TypeMirror upperBound = typeVariable.getUpperBound();
                         if (TypeUtils.isParameterizedType(upperBound)) {
@@ -350,7 +352,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                                                           @NotNull AdapterFieldInfo adapterFieldInfo) {
 
         String fieldName = adapterFieldInfo.getFieldName(fieldType);
-        if (null == fieldName) {
+        if (fieldName == null) {
             fieldName = TYPE_ADAPTER_FIELD_PREFIX + adapterFieldInfo.size();
             String fieldInitializationCode = "gson.getAdapter(" +
                                              getTypeTokenCode(fieldType, stagGenerator, typeVarsMap, adapterFieldInfo) + ")";
@@ -429,12 +431,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         String knownTypeAdapter = KnownTypeAdapterUtils.getKnownTypeAdapterForType(fieldType);
 
-        if (null != knownTypeAdapter) {
+        if (knownTypeAdapter != null) {
             return knownTypeAdapter;
         }
 
         String fieldName = adapterFieldInfo.getFieldName(fieldType);
-        if (null != fieldName) {
+        if (fieldName != null) {
             return fieldName;
         }
 
@@ -533,7 +535,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 adapterAccessor = getAdapterAccessor(fieldType, stagGenerator, typeVarsMap, result);
             }
 
-            if (null != adapterAccessor) {
+            if (adapterAccessor != null) {
                 result.addTypeToAdapterAccessor(fieldType, adapterAccessor);
             }
         }
@@ -571,7 +573,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         Map<TypeMirror, String> typeVarsMap = new HashMap<>();
 
         int idx = 0;
-        if (null != typeArguments) {
+        if (typeArguments != null) {
             for (TypeMirror innerTypeMirror : typeArguments) {
                 if (innerTypeMirror.getKind() == TypeKind.TYPEVAR) {
                     TypeVariable typeVariable = (TypeVariable) innerTypeMirror;
@@ -595,7 +597,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
         }
 
         AnnotatedClass annotatedClass = mSupportedTypesModel.getSupportedType(typeMirror);
-        if (null == annotatedClass) {
+        if (annotatedClass == null) {
             throw new IllegalStateException("The AnnotatedClass class can't be null in TypeAdapterGenerator : " + typeMirror.toString());
         }
         Map<FieldAccessor, TypeMirror> memberVariables = annotatedClass.getMemberVariables();
@@ -675,12 +677,12 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         String getAdapterAccessor(@NotNull TypeMirror typeMirror, @NotNull String fieldName) {
             FieldInfo adapterAccessor = mFieldAdapterAccessor.get(fieldName);
-            return null != adapterAccessor ? adapterAccessor.accessorVariable : mAdapterAccessor.get(typeMirror.toString());
+            return adapterAccessor != null ? adapterAccessor.accessorVariable : mAdapterAccessor.get(typeMirror.toString());
         }
 
         String updateAndGetTypeTokenFieldName(@NotNull TypeMirror fieldType, @NotNull String initializationCode) {
             FieldInfo result = mTypeTokenAccessorFields.get(fieldType.toString());
-            if (null == result) {
+            if (result == null) {
                 result = new FieldInfo(fieldType, initializationCode, "typeToken" + mTypeTokenAccessorFields.size());
                 mTypeTokenAccessorFields.put(fieldType.toString(), result);
             }
@@ -689,7 +691,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         String getFieldName(@NotNull TypeMirror fieldType) {
             FieldInfo fieldInfo = mAdapterFields.get(fieldType.toString());
-            return null != fieldInfo ? fieldInfo.accessorVariable : null;
+            return fieldInfo != null ? fieldInfo.accessorVariable : null;
         }
 
         int size() {

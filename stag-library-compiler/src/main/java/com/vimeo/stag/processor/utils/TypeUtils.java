@@ -128,7 +128,7 @@ public final class TypeUtils {
      */
     public static boolean isParameterizedType(@Nullable TypeMirror type) {
         List<? extends TypeMirror> typeArguments = getTypeArguments(type);
-        return null != typeArguments && !typeArguments.isEmpty();
+        return typeArguments != null && !typeArguments.isEmpty();
     }
 
     /**
