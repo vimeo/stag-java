@@ -14,6 +14,7 @@ public class NestedClass {
      * classes to explicitly specify the annotation in order to enable generation.
      */
     public static class NestedExtension extends NestedClass {
+
         String field;
     }
 

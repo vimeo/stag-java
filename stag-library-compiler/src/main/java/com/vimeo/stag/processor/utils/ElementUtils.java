@@ -60,7 +60,7 @@ public final class ElementUtils {
     @Nullable
     public static TypeMirror getTypeFromQualifiedName(@NotNull String qualifiedName) {
         TypeElement typeElement = getTypeElementFromQualifiedName(qualifiedName);
-        return null != typeElement ? typeElement.asType() : null;
+        return typeElement != null ? typeElement.asType() : null;
     }
 
     @Nullable
@@ -90,8 +90,8 @@ public final class ElementUtils {
      * @param <T>             annotation type
      * @return {@code true} if the element is annotated, {@code false} otherwise
      */
-    public static <T extends Annotation> boolean isAnnotatedWith(@NotNull Class<T> annotationClass,
-                                                                 @Nullable Element element) {
+    private static <T extends Annotation> boolean isAnnotatedWith(@NotNull Class<T> annotationClass,
+                                                                  @Nullable Element element) {
         return element != null && element.getAnnotation(annotationClass) != null;
     }
 
@@ -108,7 +108,7 @@ public final class ElementUtils {
         }
         ElementKind elementKind = element.getKind();
         return (elementKind == ElementKind.CLASS || elementKind == ElementKind.ENUM)
-            && isAnnotatedWith(UseStag.class, element);
+               && isAnnotatedWith(UseStag.class, element);
     }
 
     @Nullable

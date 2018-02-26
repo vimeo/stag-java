@@ -68,7 +68,6 @@ public class AnnotatedClass {
     @NotNull private final TypeMirror mType;
     @NotNull private final TypeElement mElement;
     @NotNull private final LinkedHashMap<FieldAccessor, TypeMirror> mMemberVariables;
-    @NotNull private final SupportedTypesModel mSupportedTypesModel;
     @NotNull private final Notation mNamingNotation;
 
     AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel,
@@ -82,7 +81,6 @@ public class AnnotatedClass {
                    @NotNull Notation namingNotation,
                    @Nullable FieldOption childFieldOption) {
         mNamingNotation = namingNotation;
-        mSupportedTypesModel = supportedTypesModel;
         mType = element.asType();
         mElement = element;
         Map<String, FieldAccessor> variableNames = new HashMap<>(element.getEnclosedElements().size());
@@ -105,7 +103,7 @@ public class AnnotatedClass {
         if (inheritedType != null) {
             DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
 
-            AnnotatedClass genericInheritedType = mSupportedTypesModel.addToKnownInheritedType(inheritedType, fieldOption);
+            AnnotatedClass genericInheritedType = supportedTypesModel.addToKnownInheritedType(inheritedType, fieldOption);
 
             LinkedHashMap<FieldAccessor, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
                                                                                                              genericInheritedType.getElement(),
@@ -129,7 +127,7 @@ public class AnnotatedClass {
     private void addMemberVariable(@NotNull FieldAccessor element, @NotNull TypeMirror typeMirror,
                                    @NotNull Map<String, FieldAccessor> variableNames) {
         FieldAccessor previousElement = variableNames.put(element.createGetterCode(), element);
-        if (null != previousElement) {
+        if (previousElement != null) {
             mMemberVariables.remove(previousElement);
             MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
                                   element.toString() + ", with variable name " + previousElement.asType().toString());

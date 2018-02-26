@@ -59,7 +59,6 @@ public final class TypeUtils {
 
     @Nullable private static Types sTypeUtils;
 
-
     static {
         PRIMITIVE_TO_OBJECT_MAP.put(boolean.class.getName(), Boolean.class.getName());
         PRIMITIVE_TO_OBJECT_MAP.put(int.class.getName(), Integer.class.getName());
@@ -121,26 +120,6 @@ public final class TypeUtils {
     }
 
     /**
-     * Retrieves the outer type of a parameterized class.
-     * e.g. an ArrayList{@literal <T>} would be returned as
-     * just ArrayList. If an interface is passed in, i.e. a
-     * List, the underlying implementation will be returned,
-     * i.e. ArrayList.
-     *
-     * @param type the type to get the outer class from/
-     * @return the outer class of the type passed in, or the
-     * type itself if it is not parameterized.
-     */
-    @NotNull
-    public static String getSimpleOuterClassType(@NotNull TypeMirror type) {
-        if (type instanceof DeclaredType) {
-            return ((DeclaredType) type).asElement().getSimpleName().toString();
-        } else {
-            return type.toString();
-        }
-    }
-
-    /**
      * Determines whether or not the type has type parameters.
      *
      * @param type the type to check.
@@ -149,7 +128,7 @@ public final class TypeUtils {
      */
     public static boolean isParameterizedType(@Nullable TypeMirror type) {
         List<? extends TypeMirror> typeArguments = getTypeArguments(type);
-        return null != typeArguments && !typeArguments.isEmpty();
+        return typeArguments != null && !typeArguments.isEmpty();
     }
 
     /**
@@ -383,7 +362,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), resolvedType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                        " resolved to - " + resolvedType.toString());
+                                      " resolved to - " + resolvedType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -391,7 +370,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                        " resolved to - " + concreteType.toString());
+                                      " resolved to - " + concreteType.toString());
                 }
             }
         }
@@ -443,7 +422,7 @@ public final class TypeUtils {
             concreteGenericTypes.add(resolveTypeVars(type, inheritedTypes, concreteTypes));
         }
         TypeMirror[] concreteTypeArray =
-            concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
+                concreteGenericTypes.toArray(new TypeMirror[concreteGenericTypes.size()]);
         return types.getDeclaredType(typeElement, concreteTypeArray);
     }
 
@@ -465,16 +444,6 @@ public final class TypeUtils {
      */
     public static boolean isSupportedPrimitive(@NotNull String type) {
         return PRIMITIVE_TO_OBJECT_MAP.containsKey(type);
-    }
-
-    /**
-     * Method to check if the {@link TypeMirror} is of primitive type
-     *
-     * @param type :TypeMirror type
-     * @return String
-     */
-    public static String getObjectForPrimitive(@NotNull String type) {
-        return PRIMITIVE_TO_OBJECT_MAP.get(type);
     }
 
     /**
@@ -509,22 +478,8 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-            outerClassType.equals(List.class.getName()) ||
-            outerClassType.equals(Collection.class.getName());
-    }
-
-    /**
-     * Method to check if the {@link TypeMirror} is of {@link Object}
-     *
-     * @param type :TypeMirror type
-     * @return boolean
-     */
-    public static boolean isNativeObject(@Nullable TypeMirror type) {
-        if (type == null) {
-            return false;
-        }
-        String outerClassType = TypeUtils.getOuterClassType(type);
-        return outerClassType.equals(Object.class.getName());
+               outerClassType.equals(List.class.getName()) ||
+               outerClassType.equals(Collection.class.getName());
     }
 
     /**
@@ -539,11 +494,11 @@ public final class TypeUtils {
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(Map.class.getName()) ||
-            outerClassType.equals(HashMap.class.getName()) ||
-            outerClassType.equals(ConcurrentHashMap.class.getName()) ||
-            outerClassType.equals("android.util.ArrayMap") ||
-            outerClassType.equals("android.support.v4.util.ArrayMap") ||
-            outerClassType.equals(LinkedHashMap.class.getName());
+               outerClassType.equals(HashMap.class.getName()) ||
+               outerClassType.equals(ConcurrentHashMap.class.getName()) ||
+               outerClassType.equals("android.util.ArrayMap") ||
+               outerClassType.equals("android.support.v4.util.ArrayMap") ||
+               outerClassType.equals(LinkedHashMap.class.getName());
     }
 
     /**
@@ -554,9 +509,9 @@ public final class TypeUtils {
      */
     public static boolean isSupportedNative(@NotNull String type) {
         return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
-            type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
-            type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
-            type.equals(Float.class.getName()) || type.equals(Number.class.getName());
+               type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
+               type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
+               type.equals(Float.class.getName()) || type.equals(Number.class.getName());
     }
 
     /**
@@ -565,7 +520,7 @@ public final class TypeUtils {
     @NotNull
     public static TypeMirror getArrayInnerType(@NotNull TypeMirror type) {
         return (type instanceof ArrayType) ? ((ArrayType) type).getComponentType() : ((DeclaredType) type).getTypeArguments()
-            .get(0);
+                .get(0);
     }
 
     @NotNull
@@ -650,16 +605,11 @@ public final class TypeUtils {
         }
     }
 
-    public static boolean isAssignable(TypeMirror t1, TypeMirror t2) {
-        return getUtils().isAssignable(t1, t2);
-    }
-
     @NotNull
-    public static DeclaredType getDeclaredTypeForParameterizedClass(@NotNull String className) {
-        Types types = getUtils();
-        WildcardType wildcardType = types.getWildcardType(null, null);
-        TypeMirror[] typex = {wildcardType};
-        return types.getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(className), typex);
+    private static DeclaredType getDeclaredTypeForParameterizedClass(@NotNull String className) {
+        WildcardType wildcardType = getUtils().getWildcardType(null, null);
+        TypeMirror[] types = {wildcardType};
+        return getUtils().getDeclaredType(ElementUtils.getTypeElementFromQualifiedName(className), types);
     }
 
 
@@ -669,7 +619,4 @@ public final class TypeUtils {
         return types.getDeclaredType(typeElem, typeArgs);
     }
 
-    public static boolean isWildcardType(@Nullable TypeMirror typeMirror) {
-        return typeMirror instanceof WildcardType;
-    }
 }

@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-public class Utils {
+public final class Utils {
+
+    private Utils() {}
 
     public static <K, V> void assertMapsEqual(Map<K, V> map1, Map<K, V> map2) throws Exception {
         for (Entry<K, V> kvEntry : map1.entrySet()) {

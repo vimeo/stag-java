@@ -21,8 +21,8 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                        stagGeneratedPackageName: 'com.vimeo.sample.stag.generated',
-                        stagDebug               : 'true',
+                        stagGeneratedPackageName   : 'com.vimeo.sample.stag.generated',
+                        stagDebug                  : 'true',
                         stagAssumeHungarianNotation: 'true'
                 ]
             }

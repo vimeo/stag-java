@@ -52,11 +52,11 @@ public abstract class AdapterGenerator {
     @NotNull
     static String getJsonName(@NotNull Element element) {
 
-        String name = null != element.getAnnotation(SerializedName.class) ?
-                element.getAnnotation(SerializedName.class).value() :
-                null;
+        String name = element.getAnnotation(SerializedName.class) != null
+                ? element.getAnnotation(SerializedName.class).value()
+                : null;
 
-        if (null == name || name.isEmpty()) {
+        if (name == null || name.isEmpty()) {
             name = element.getSimpleName().toString();
         }
         return name;
@@ -70,9 +70,9 @@ public abstract class AdapterGenerator {
      */
     @Nullable
     static String[] getAlternateJsonNames(@NotNull Element element) {
-        return null != element.getAnnotation(SerializedName.class) ?
-                element.getAnnotation(SerializedName.class).alternate() :
-                null;
+        return element.getAnnotation(SerializedName.class) != null
+                ? element.getAnnotation(SerializedName.class).alternate()
+                : null;
     }
 
     /**
@@ -86,11 +86,12 @@ public abstract class AdapterGenerator {
 
     /**
      * Creates a TypeToken field in the generated adapter factory
-     * @param typeMirror Type of class for which typetoken has to be generated
+     *
+     * @param typeMirror Type of class for which TypeToken has to be generated
      * @return {@link FieldSpec}
      */
     @NotNull
-    FieldSpec createTypeTokenSpec(@NotNull TypeMirror typeMirror) {
+    static FieldSpec createTypeTokenSpec(@NotNull TypeMirror typeMirror) {
         ParameterizedTypeName typeTokenType = ParameterizedTypeName.get(ClassName.get(TypeToken.class), TypeVariableName.get(typeMirror));
         FieldSpec.Builder typeTokenBuilder = FieldSpec.builder(typeTokenType, "TYPE_TOKEN", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
         typeTokenBuilder.initializer("TypeToken.get(" + typeMirror.toString() + ".class)");

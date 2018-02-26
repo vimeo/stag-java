@@ -3,11 +3,11 @@ package com.vimeo.dummy.sample_kotlin
 import com.google.gson.Gson
 import com.google.gson.TypeAdapter
 import com.google.gson.reflect.TypeToken
-import com.vimeo.sample_kotlin.stag.generated.Stag
 import junit.framework.Assert
 import junit.framework.Assert.assertEquals
 import uk.co.jemos.podam.api.PodamFactoryImpl
 import kotlin.reflect.KClass
+import com.vimeo.sample_kotlin.stag.generated.Stag
 
 /**
  * Created by restainoa on 5/8/17.

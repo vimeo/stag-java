@@ -86,7 +86,7 @@ class TypeUtilsUnitTest : BaseUnitTest() {
         val genericMembers = HashMap<FieldAccessor, TypeMirror>()
         genericElement.enclosedElements
                 .filterIsInstance<VariableElement>()
-                .forEach { genericMembers.put(DirectFieldAccessor(it), it.asType()) }
+                .forEach { genericMembers[DirectFieldAccessor(it)] = it.asType() }
 
         val concreteType = TypeUtils.getInheritedType(Utils.getElementFromClass(DummyInheritedClass::class.java))
 

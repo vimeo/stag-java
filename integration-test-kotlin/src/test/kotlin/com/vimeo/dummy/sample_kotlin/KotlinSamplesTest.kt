@@ -9,7 +9,8 @@ import org.junit.Test
  */
 class KotlinSamplesTest {
 
-    @Test fun verifyTypeAdapterGenerated() {
+    @Test
+    fun verifyTypeAdapterGenerated() {
         Utils.verifyTypeAdapterGeneration(KotlinSamples::class)
     }
 

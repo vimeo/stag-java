@@ -494,7 +494,7 @@ public final class KnownTypeAdapters {
         public static int[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Integer> arrayList = INTEGER_ARRAY_LIST_ADAPTER.read(reader);
             int[] result = null;
-            if (null != arrayList) {
+            if (arrayList != null) {
                 result = new int[arrayList.size()];
                 for (int idx = 0; idx < arrayList.size(); idx++) {
                     result[idx] = arrayList.get(idx);
@@ -529,7 +529,7 @@ public final class KnownTypeAdapters {
         public static long[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Long> arrayList = LONG_ARRAY_LIST_ADAPTER.read(reader);
             long[] result = null;
-            if (null != arrayList) {
+            if (arrayList != null) {
                 result = new long[arrayList.size()];
                 for (int idx = 0; idx < arrayList.size(); idx++) {
                     result[idx] = arrayList.get(idx);
@@ -564,7 +564,7 @@ public final class KnownTypeAdapters {
         public static double[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Double> arrayList = DOUBLE_ARRAY_LIST_ADAPTER.read(reader);
             double[] result = null;
-            if (null != arrayList) {
+            if (arrayList != null) {
                 result = new double[arrayList.size()];
                 for (int idx = 0; idx < arrayList.size(); idx++) {
                     result[idx] = arrayList.get(idx);
@@ -599,7 +599,7 @@ public final class KnownTypeAdapters {
         public static short[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Short> arrayList = SHORT_ARRAY_LIST_ADAPTER.read(reader);
             short[] result = null;
-            if (null != arrayList) {
+            if (arrayList != null) {
                 result = new short[arrayList.size()];
                 for (int idx = 0; idx < arrayList.size(); idx++) {
                     result[idx] = arrayList.get(idx);
@@ -634,7 +634,7 @@ public final class KnownTypeAdapters {
         public static float[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Float> arrayList = FLOAT_ARRAY_LIST_ADAPTER.read(reader);
             float[] result = null;
-            if (null != arrayList) {
+            if (arrayList != null) {
                 result = new float[arrayList.size()];
                 for (int idx = 0; idx < arrayList.size(); idx++) {
                     result[idx] = arrayList.get(idx);
@@ -669,7 +669,7 @@ public final class KnownTypeAdapters {
         public static boolean[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Boolean> arrayList = BOOLEAN_ARRAY_LIST_ADAPTER.read(reader);
             boolean[] result = null;
-            if (null != arrayList) {
+            if (arrayList != null) {
                 result = new boolean[arrayList.size()];
                 for (int idx = 0; idx < arrayList.size(); idx++) {
                     result[idx] = arrayList.get(idx);
@@ -704,7 +704,7 @@ public final class KnownTypeAdapters {
         public static byte[] read(@NotNull JsonReader reader) throws IOException {
             ArrayList<Byte> byteArrayList = BYTE_ARRAY_LIST_ADAPTER.read(reader);
             byte[] result = null;
-            if (null != byteArrayList) {
+            if (byteArrayList != null) {
                 result = new byte[byteArrayList.size()];
                 for (int idx = 0; idx < byteArrayList.size(); idx++) {
                     result[idx] = byteArrayList.get(idx);
@@ -737,7 +737,7 @@ public final class KnownTypeAdapters {
         @Nullable
         public static char[] read(@NotNull JsonReader reader) throws IOException {
             String string = STRING_NULL_SAFE_TYPE_ADAPTER.read(reader);
-            return null != string ? string.toCharArray() : null;
+            return string != null ? string.toCharArray() : null;
         }
     }
 
@@ -989,6 +989,7 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Object}
      */
     public static final class ObjectTypeAdapter extends TypeAdapter<Object> {
+
         public final TypeToken<Object> TYPE_TOKEN = TypeToken.get(Object.class);
 
         private final Gson gson;

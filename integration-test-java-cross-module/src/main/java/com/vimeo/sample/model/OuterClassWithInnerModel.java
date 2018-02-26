@@ -8,10 +8,10 @@ import com.vimeo.stag.UseStag;
  */
 public class OuterClassWithInnerModel {
 
-	@UseStag
-	public static class InnerModel {
+    @UseStag
+    public static class InnerModel {
 
-		public int version;
+        public int version;
 
-	}
+    }
 }

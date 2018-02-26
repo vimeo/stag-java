@@ -40,11 +40,9 @@ public final class SupportedTypesModel {
 
     @NotNull private final Map<String, AnnotatedClass> mSupportedTypesMap = new HashMap<>();
     @NotNull private final Map<String, AnnotatedClass> mKnownInheritedTypesMap = new HashMap<>();
-    @NotNull private final String mGeneratedStagFactoryName;
     @NotNull private final Notation mNamingNotation;
 
-    public SupportedTypesModel(@NotNull String generatedStagFactoryName, @NotNull Notation namingNotation) {
-        mGeneratedStagFactoryName = generatedStagFactoryName;
+    public SupportedTypesModel(@NotNull Notation namingNotation) {
         mNamingNotation = namingNotation;
     }
 
@@ -100,9 +98,9 @@ public final class SupportedTypesModel {
     public AnnotatedClass addToKnownInheritedType(@NotNull TypeMirror type, @Nullable FieldOption childFieldOption) {
         String outerClassType = TypeUtils.getOuterClassType(type);
         AnnotatedClass model = getSupportedType(outerClassType);
-        if (null == model) {
+        if (model == null) {
             model = mKnownInheritedTypesMap.get(outerClassType);
-            if (null == model) {
+            if (model == null) {
                 model = new AnnotatedClass(this, TypeUtils.safeTypeMirrorToTypeElement(type), mNamingNotation, childFieldOption);
                 mKnownInheritedTypesMap.put(outerClassType, model);
             }
@@ -116,22 +114,18 @@ public final class SupportedTypesModel {
      *
      * @param type the type that maps to a specific
      *             AnnotatedClass.
-     * @return the AnnotatedClass object associated
-     * with the class type.
      */
-    @NotNull
-    public AnnotatedClass addSupportedType(@NotNull TypeMirror type) {
+    public void addSupportedType(@NotNull TypeMirror type) {
         String outerClassType = TypeUtils.getOuterClassType(type);
         AnnotatedClass model = getSupportedType(outerClassType);
 
         if (model == null) {
             model = mKnownInheritedTypesMap.get(outerClassType);
-            if (null == model) {
+            if (model == null) {
                 model = new AnnotatedClass(this, TypeUtils.safeTypeMirrorToTypeElement(type), mNamingNotation);
             }
             addSupportedType(model);
         }
-        return model;
     }
 
     /**

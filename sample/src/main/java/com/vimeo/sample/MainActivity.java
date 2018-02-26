@@ -49,9 +49,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final ListView listView = (ListView) findViewById(R.id.list_view);
-        final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar);
-        final TextView errorText = (TextView) findViewById(R.id.error_text);
+        final ListView listView = findViewById(R.id.list_view);
+        final ProgressBar progressBar = findViewById(R.id.progress_bar);
+        final TextView errorText = findViewById(R.id.error_text);
 
         if (listView == null || progressBar == null || errorText == null) {
             throw new RuntimeException("Unable to find view");

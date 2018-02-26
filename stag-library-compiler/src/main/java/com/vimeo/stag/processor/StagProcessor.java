@@ -31,6 +31,7 @@ import com.vimeo.stag.processor.generators.AdapterGenerator;
 import com.vimeo.stag.processor.generators.EnumTypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.StagFactoryGenerator;
 import com.vimeo.stag.processor.generators.StagGenerator;
+import com.vimeo.stag.processor.generators.StagGenerator.SubFactoriesInfo;
 import com.vimeo.stag.processor.generators.TypeAdapterGenerator;
 import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
@@ -154,11 +155,9 @@ public final class StagProcessor extends AbstractProcessor {
         ElementUtils.initialize(processingEnv.getElementUtils());
         MessagerUtils.initialize(processingEnv.getMessager());
 
-        String stagFactoryGeneratedName = StagGenerator.getGeneratedFactoryClassAndPackage(packageName);
-
         Notation notation = assumeHungarianNotation ? Notation.HUNGARIAN : Notation.STANDARD;
 
-        SupportedTypesModel supportedTypesModel = new SupportedTypesModel(stagFactoryGeneratedName, notation);
+        SupportedTypesModel supportedTypesModel = new SupportedTypesModel(notation);
 
         DebugLog.log("\nBeginning @UseStag annotation processing\n");
 
@@ -203,7 +202,7 @@ public final class StagProcessor extends AbstractProcessor {
                 generatedStagFactoryWrappers.add(new StagGenerator.SubFactoriesInfo(classInfos.get(0), stringListEntry.getKey() + "." + StagFactoryGenerator.NAME));
             }
 
-            generateStagFactory(stagFactoryGenerator, packageName, generatedStagFactoryWrappers);
+            generateStagFactory(packageName, generatedStagFactoryWrappers);
             KnownTypeAdapterFactoriesUtils.writeKnownTypes(processingEnv, packageName, supportedTypes);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -224,10 +223,9 @@ public final class StagProcessor extends AbstractProcessor {
         writeTypeSpecToFile(typeAdapterSpec, packageName);
     }
 
-    private void generateStagFactory(@NotNull StagGenerator stagGenerator,
-                                     @NotNull String packageName, List<StagGenerator.SubFactoriesInfo> generatedStagFactoryWrappers) throws IOException {
+    private void generateStagFactory(@NotNull String packageName, List<SubFactoriesInfo> generatedStagFactoryWrappers) throws IOException {
         // Create the type spec
-        TypeSpec typeSpec = stagGenerator.createStagSpec(generatedStagFactoryWrappers);
+        TypeSpec typeSpec = StagGenerator.createStagSpec(generatedStagFactoryWrappers);
 
         // Write the type spec to a file
         writeTypeSpecToFile(typeSpec, packageName);
@@ -253,7 +251,7 @@ public final class StagProcessor extends AbstractProcessor {
     private void writeTypeSpecToFile(@NotNull TypeSpec typeSpec, @NotNull String packageName) throws IOException {
 
         // Create the Java file
-        JavaFile javaFile = JavaFile.builder(packageName, typeSpec).build();
+        JavaFile javaFile = JavaFile.builder(packageName, typeSpec).indent("    ").build();
 
         Filer filer = processingEnv.getFiler();
 
