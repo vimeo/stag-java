@@ -4,6 +4,8 @@ import com.vimeo.stag.UseStag;
 
 import org.junit.Test;
 
+import verification.Utils;
+
 @UseStag
 public class WildcardModelTest {
 

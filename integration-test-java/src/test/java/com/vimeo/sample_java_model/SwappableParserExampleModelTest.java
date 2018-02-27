@@ -37,6 +37,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import verification.Utils;
+
 /**
  * Unit tests for {@link SwappableParserExampleModel}.
  */
