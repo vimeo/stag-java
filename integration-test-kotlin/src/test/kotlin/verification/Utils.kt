@@ -1,4 +1,4 @@
-package com.vimeo.dummy.sample_kotlin
+package verification
 
 import com.google.gson.Gson
 import com.google.gson.TypeAdapter

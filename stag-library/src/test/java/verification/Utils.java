@@ -1,4 +1,4 @@
-package com.vimeo.stag;
+package verification;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;

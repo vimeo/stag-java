@@ -1,6 +1,6 @@
 package com.vimeo.sample.model;
 
-import com.vimeo.sample.Utils;
+import verification.Utils;
 
 import org.junit.Test;
 

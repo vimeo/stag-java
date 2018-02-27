@@ -15,6 +15,8 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import verification.Utils;
+
 public class KnownTypeAdaptersTest {
 
     /**

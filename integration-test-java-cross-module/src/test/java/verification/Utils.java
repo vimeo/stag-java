@@ -1,4 +1,4 @@
-package com.vimeo.sample;
+package verification;
 
 import android.support.annotation.NonNull;
 
