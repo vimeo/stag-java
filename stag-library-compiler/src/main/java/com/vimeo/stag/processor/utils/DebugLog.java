@@ -28,6 +28,9 @@ import com.vimeo.stag.processor.StagProcessor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A logging utility that only logs to the console if {@link StagProcessor#DEBUG} is true.
+ */
 public final class DebugLog {
 
     private static final String TAG = "Stag";
@@ -36,6 +39,11 @@ public final class DebugLog {
         throw new UnsupportedOperationException("This class is not instantiable");
     }
 
+    /**
+     * Log the provided message with the default log tag "Stag"
+     *
+     * @param message the message to log.
+     */
     public static void log(@Nullable CharSequence message) {
         if (StagProcessor.DEBUG) {
             //noinspection UseOfSystemOutOrSystemErr
@@ -43,6 +51,12 @@ public final class DebugLog {
         }
     }
 
+    /**
+     * Log the provided message with an additional log tag.
+     *
+     * @param tag     the tag to add to the log.
+     * @param message the message to log.
+     */
     public static void log(@NotNull CharSequence tag, @Nullable CharSequence message) {
         if (StagProcessor.DEBUG) {
             //noinspection UseOfSystemOutOrSystemErr
