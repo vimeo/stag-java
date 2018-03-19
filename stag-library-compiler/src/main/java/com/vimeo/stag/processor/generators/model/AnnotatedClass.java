@@ -129,8 +129,8 @@ public class AnnotatedClass {
         FieldAccessor previousElement = variableNames.put(element.createGetterCode(), element);
         if (previousElement != null) {
             mMemberVariables.remove(previousElement);
-            MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
-                                  element.toString() + ", with variable name " + previousElement.asType().toString());
+            DebugLog.log("Ignoring inherited Member variable with the same variable name in class" +
+                         element.toString() + ", with variable name " + previousElement.asType().toString());
         }
         mMemberVariables.put(element, typeMirror);
     }

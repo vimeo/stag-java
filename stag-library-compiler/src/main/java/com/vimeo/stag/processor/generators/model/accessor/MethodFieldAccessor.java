@@ -1,7 +1,7 @@
 package com.vimeo.stag.processor.generators.model.accessor;
 
+import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.ElementUtils;
-import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.StringUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
 
@@ -88,7 +88,7 @@ public class MethodFieldAccessor extends FieldAccessor {
     @NotNull
     private static String findSetterMethodName(@NotNull final VariableElement variableElement,
                                                @NotNull final Notation namingNotation) throws UnsupportedOperationException {
-        MessagerUtils.logInfo("Looking for setter");
+        DebugLog.log("Looking for setter");
 
         for (final ExecutableElement method : getSiblingMethods(variableElement)) {
 
@@ -98,7 +98,7 @@ public class MethodFieldAccessor extends FieldAccessor {
                 parameters.size() == 1 &&
                 TypeUtils.areEqual(parameters.get(0).asType(), variableElement.asType()) &&
                 isSupportedSetter(method, variableElement, namingNotation)) {
-                MessagerUtils.logInfo("Found setter");
+                DebugLog.log("Found setter");
 
                 return method.getSimpleName().toString();
             }
@@ -138,7 +138,7 @@ public class MethodFieldAccessor extends FieldAccessor {
     @NotNull
     private static String findGetterMethodName(@NotNull final VariableElement variableElement,
                                                @NotNull final Notation namingNotation) throws UnsupportedOperationException {
-        MessagerUtils.logInfo("Looking for getter");
+        DebugLog.log("Looking for getter");
 
         for (final ExecutableElement method : getSiblingMethods(variableElement)) {
 
@@ -147,7 +147,7 @@ public class MethodFieldAccessor extends FieldAccessor {
                 && method.getParameters().isEmpty()
                 && isSupportedGetter(method, variableElement, namingNotation)) {
 
-                MessagerUtils.logInfo("Found getter");
+                DebugLog.log("Found getter");
 
                 return method.getSimpleName().toString();
             }
