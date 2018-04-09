@@ -8,7 +8,7 @@ buildscript {
     // android dependencies
     ext.targetSdk = 27
     ext.minSdk = 14
-    ext.buildTools = "27.0.2"
+    ext.buildTools = "27.0.3"
 
     repositories {
         google()
