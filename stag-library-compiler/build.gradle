@@ -42,7 +42,7 @@ dependencies {
     // Used by both auto-service and compile-testing, we need to resolve the version for them.
     implementation 'com.google.guava:guava:23.5-jre'
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
 }
 
 test {

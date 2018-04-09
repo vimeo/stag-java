@@ -15,7 +15,15 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+@SuppressWarnings("MagicNumber")
 public class KnownTypeAdaptersTest {
+
+    @Test
+    public void testThatKnownTypeAdaptersIsNotInstantiable() {
+        Utils.testZeroArgumentConstructorFinalClass(KnownTypeAdapters.class);
+    }
 
     /**
      * Test for {@link KnownTypeAdapters#INTEGER}
@@ -403,17 +411,15 @@ public class KnownTypeAdaptersTest {
      */
     @Test
     public void testForPrimitiveBooleanTypeAdapter() throws Exception {
-        boolean value = true;
-
         // create a string writer, and write the value to it using adapter
         StringWriter stringWriter = new StringWriter();
-        KnownTypeAdapters.PrimitiveBooleanTypeAdapter.write(new JsonWriter(stringWriter), value);
+        KnownTypeAdapters.PrimitiveBooleanTypeAdapter.write(new JsonWriter(stringWriter), true);
         String jsonString = stringWriter.toString();
 
         // call the TypeAdapter#read method
         boolean readValue = KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(new JsonReader(new StringReader(jsonString)), false);
 
-        Assert.assertEquals(value, readValue);
+        Assert.assertEquals(true, readValue);
     }
 
     /**
@@ -514,6 +520,8 @@ public class KnownTypeAdaptersTest {
 
         ArrayList<String> readValue = listTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
 
+        assertThat(readValue).isNotNull();
+
         Assert.assertEquals(dummyList.size(), readValue.size());
         for (int i = 0; i < dummyList.size(); i++) {
             Assert.assertEquals(dummyList.get(i), readValue.get(i));
@@ -529,6 +537,8 @@ public class KnownTypeAdaptersTest {
         jsonString = stringWriter.toString();
 
         ArrayList<Integer> readValue1 = listTypeAdapter1.read(new JsonReader(new StringReader(jsonString)));
+
+        assertThat(readValue1).isNotNull();
 
         Assert.assertEquals(intDummyList.size(), readValue1.size());
         for (int i = 0; i < intDummyList.size(); i++) {
@@ -554,6 +564,8 @@ public class KnownTypeAdaptersTest {
 
         HashMap<String, String> readValue = mapTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
 
+        assertThat(readValue).isNotNull();
+
         Assert.assertEquals(dummyMap.size(), readValue.size());
         Utils.assertMapsEqual(dummyMap, readValue);
 
@@ -567,6 +579,8 @@ public class KnownTypeAdaptersTest {
         jsonString = stringWriter.toString();
 
         HashMap<Integer, Integer> readValue1 = mapTypeAdapter1.read(new JsonReader(new StringReader(jsonString)));
+
+        assertThat(readValue1).isNotNull();
 
         Assert.assertEquals(intDummyMap.size(), readValue1.size());
         Utils.assertMapsEqual(intDummyMap, readValue1);

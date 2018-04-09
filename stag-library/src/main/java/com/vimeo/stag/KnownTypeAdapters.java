@@ -67,7 +67,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class KnownTypeAdapters {
 
     private KnownTypeAdapters() {
-        throw new IllegalStateException("KnownTypeAdapters cannot be instantiated");
+        throw new UnsupportedOperationException("KnownTypeAdapters cannot be instantiated");
     }
 
     /**
