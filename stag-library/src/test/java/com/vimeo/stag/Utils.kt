@@ -1,9 +1,10 @@
 @file:JvmName("Utils")
+
 package com.vimeo.stag
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import org.junit.Assert
+import org.assertj.core.api.Assertions.assertThat
 import java.lang.reflect.InvocationTargetException
 import java.util.ArrayList
 import java.util.HashMap
@@ -20,90 +21,66 @@ fun <T> testZeroArgumentConstructorFinalClass(clazz: Class<T>) {
         }
     }
 
-    Assert.assertTrue(exceptionThrown)
+    assertThat(exceptionThrown).isTrue()
 }
 
 fun <K, V> assertMapsEqual(map1: Map<K, V>, map2: Map<K, V>) {
     for ((key, value) in map1) {
-        Assert.assertEquals(value, map2[key])
+        assertThat(value).isEqualTo(map2[key])
     }
 
     for ((key, value) in map2) {
-        Assert.assertEquals(value, map1[key])
+        assertThat(value).isEqualTo(map1[key])
     }
 }
 
-fun createStringDummyList(): ArrayList<String> {
-    val stringList = ArrayList<String>()
-
-    stringList.add("abc")
-    stringList.add("abc1")
-    stringList.add("abc2")
-    stringList.add("abc3")
-    stringList.add("abc4")
-    stringList.add("abc5")
-
-    return stringList
+fun createStringDummyList() = ArrayList<String>().apply {
+    add("abc")
+    add("abc1")
+    add("abc2")
+    add("abc3")
+    add("abc4")
+    add("abc5")
 }
 
-fun createStringDummyMap(): HashMap<String, String> {
-    val stringMap = HashMap<String, String>()
-
-    stringMap["abc"] = "0"
-    stringMap["abc1"] = "1"
-    stringMap["abc2"] = "2"
-    stringMap["abc3"] = "3"
-    stringMap["abc4"] = "4"
-    stringMap["abc5"] = "5"
-
-    return stringMap
+fun createStringDummyMap() = HashMap<String, String>().apply {
+    this["abc"] = "0"
+    this["abc1"] = "1"
+    this["abc2"] = "2"
+    this["abc3"] = "3"
+    this["abc4"] = "4"
+    this["abc5"] = "5"
 }
 
-fun createIntegerDummyList(): ArrayList<Int> {
-    val integerArrayList = ArrayList<Int>()
-
-    integerArrayList.add(1)
-    integerArrayList.add(2)
-    integerArrayList.add(3)
-    integerArrayList.add(4)
-    integerArrayList.add(5)
-    integerArrayList.add(6)
-
-    return integerArrayList
+fun createIntegerDummyList() = ArrayList<Int>().apply {
+    add(1)
+    add(2)
+    add(3)
+    add(4)
+    add(5)
+    add(6)
 }
 
-fun createIntegerDummyMap(): HashMap<Int, Int> {
-    val integerMap = HashMap<Int, Int>()
-
-    integerMap[1] = 11
-    integerMap[2] = 22
-    integerMap[3] = 33
-    integerMap[4] = 44
-    integerMap[5] = 55
-    integerMap[6] = 66
-
-    return integerMap
+fun createIntegerDummyMap() = HashMap<Int, Int>().apply {
+    this[1] = 11
+    this[2] = 22
+    this[3] = 33
+    this[4] = 44
+    this[5] = 55
+    this[6] = 66
 }
 
-fun createDummyJsonObject(): JsonObject {
-    val jsonObject = JsonObject()
-
-    jsonObject.addProperty("key", "value")
-    jsonObject.addProperty("key1", "value1")
-    jsonObject.addProperty("key2", "value2")
-    jsonObject.addProperty("key3", "value3")
-    jsonObject.addProperty("key4", "value4")
-
-    return jsonObject
+fun createDummyJsonObject() = JsonObject().apply {
+    addProperty("key", "value")
+    addProperty("key1", "value1")
+    addProperty("key2", "value2")
+    addProperty("key3", "value3")
+    addProperty("key4", "value4")
 }
 
-fun createDummyJsonArray(): JsonArray {
-    val jsonArray = JsonArray()
-
-    jsonArray.add("item1")
-    jsonArray.add("item2")
-    jsonArray.add("item3")
-    jsonArray.add("item4")
-
-    return jsonArray
+fun createDummyJsonArray() = JsonArray().apply {
+    add("item1")
+    add("item2")
+    add("item3")
+    add("item4")
 }
