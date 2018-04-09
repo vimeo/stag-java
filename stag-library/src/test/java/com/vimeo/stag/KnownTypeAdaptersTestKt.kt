@@ -1,5 +1,6 @@
 package com.vimeo.stag
 
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
 import com.google.gson.stream.JsonReader
 import org.assertj.core.api.Assertions.assertThat
@@ -159,5 +160,20 @@ class KnownTypeAdaptersTestKt {
     @Test
     fun `PrimitiveCharArrayAdapter is non-instantiable`() {
         testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveCharArrayAdapter::class.java)
+    }
+
+    @Test
+    fun `ObjectTypeAdapter serializes data correctly`() {
+        val gson = GsonBuilder().create()
+        val objectTypeAdapter = KnownTypeAdapters.ObjectTypeAdapter(gson)
+
+        fun <T> assertSerializationEquality(type: T) {
+            assertThat(objectTypeAdapter.fromJson(objectTypeAdapter.toJson(type))).isEqualTo(type)
+        }
+
+        assertSerializationEquality("test")
+        assertSerializationEquality(123.0)
+        assertSerializationEquality(true)
+        assertSerializationEquality(null)
     }
 }
