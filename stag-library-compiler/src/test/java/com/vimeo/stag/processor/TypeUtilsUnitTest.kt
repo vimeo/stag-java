@@ -75,8 +75,6 @@ class TypeUtilsUnitTest : BaseUnitTest() {
      * added, removed, renamed, or changed, will probably
      * break this test either explicitly, or implicitly.
      * Any changes to that class need to be reflected here.
-     *
-     * @throws Exception thrown if the test fails.
      */
     @Test
     fun getConcreteMembers_isCorrect() {

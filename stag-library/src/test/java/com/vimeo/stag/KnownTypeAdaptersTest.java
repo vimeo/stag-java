@@ -19,8 +19,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters#INTEGER}
-     *
-     * @throws Exception
      */
     @Test
     public void testForIntegerTypeAdapter() throws Exception {
@@ -41,8 +39,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveIntTypeAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveIntegerTypeAdapter() throws Exception {
@@ -61,8 +57,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveIntegerArrayAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveArrayIntegerTypeAdapter() throws Exception {
@@ -87,8 +81,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters#BYTE}
-     *
-     * @throws Exception
      */
     @Test
     public void testForByteTypeAdapter() throws Exception {
@@ -111,8 +103,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveByteTypeAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveByteTypeAdapter() throws Exception {
@@ -131,8 +121,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveByteArrayAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveArrayByteTypeAdapter() throws Exception {
@@ -157,8 +145,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters#SHORT}
-     *
-     * @throws Exception
      */
     @Test
     public void testForShortTypeAdapter() throws Exception {
@@ -181,8 +167,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveShortTypeAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveShortTypeAdapter() throws Exception {
@@ -201,8 +185,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveShortArrayAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveArrayShortTypeAdapter() throws Exception {
@@ -227,8 +209,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters#LONG}
-     *
-     * @throws Exception
      */
     @Test
     public void testForLongTypeAdapter() throws Exception {
@@ -251,8 +231,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveLongTypeAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveLongTypeAdapter() throws Exception {
@@ -271,8 +249,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveLongArrayAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveArrayLongTypeAdapter() throws Exception {
@@ -297,8 +273,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters#FLOAT}
-     *
-     * @throws Exception
      */
     @Test
     public void testForFloatTypeAdapter() throws Exception {
@@ -321,8 +295,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveFloatTypeAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveFloatTypeAdapter() throws Exception {
@@ -341,8 +313,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveFloatArrayAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveArrayFloatTypeAdapter() throws Exception {
@@ -367,8 +337,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters#DOUBLE}
-     *
-     * @throws Exception
      */
     @Test
     public void testForDoubleTypeAdapter() throws Exception {
@@ -390,8 +358,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveDoubleTypeAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveDoubleTypeAdapter() throws Exception {
@@ -410,8 +376,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveDoubleArrayAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveArrayDoubleTypeAdapter() throws Exception {
@@ -436,8 +400,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveBooleanTypeAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveBooleanTypeAdapter() throws Exception {
@@ -456,8 +418,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveBooleanArrayAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveArrayBooleanTypeAdapter() throws Exception {
@@ -482,8 +442,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveCharTypeAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveCharacterTypeAdapter() throws Exception {
@@ -502,8 +460,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.PrimitiveCharArrayAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForPrimitiveArrayCharacterTypeAdapter() throws Exception {
@@ -542,8 +498,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.ListTypeAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForListTypeAdapter() throws Exception {
@@ -584,8 +538,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters.MapTypeAdapter}
-     *
-     * @throws Exception
      */
     @Test
     public void testForMapTypeAdapter() throws Exception {
@@ -622,8 +574,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters#JSON_OBJECT}
-     *
-     * @throws Exception
      */
     @Test
     public void testForJsonObjectTypeAdapter() throws Exception {
@@ -641,8 +591,6 @@ public class KnownTypeAdaptersTest {
 
     /**
      * Test for {@link KnownTypeAdapters#JSON_ARRAY}
-     *
-     * @throws Exception
      */
     @Test
     public void testForJsonArrayTypeAdapter() throws Exception {
