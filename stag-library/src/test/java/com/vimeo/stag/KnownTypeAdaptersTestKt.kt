@@ -110,4 +110,54 @@ class KnownTypeAdaptersTestKt {
     fun `PrimitiveBooleanTypeAdapter parses boolean from string`() {
         assertThat(KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(JsonReader(StringReader("true".quote())), true)).isTrue()
     }
+
+    @Test
+    fun `PrimitiveFloatTypeAdapter returns default value for null`() {
+        assertThat(KnownTypeAdapters.PrimitiveFloatTypeAdapter.read(JsonReader(StringReader("null")), 1.0f)).isEqualTo(1.0f)
+    }
+
+    @Test(expected = JsonSyntaxException::class)
+    fun `PrimitiveFloatTypeAdapter throws JsonSyntaxException if used on non double`() {
+        KnownTypeAdapters.PrimitiveFloatTypeAdapter.read(JsonReader(StringReader("test".quote())), 1.0f)
+    }
+
+    @Test
+    fun `PrimitiveIntegerArrayAdapter is non-instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveIntegerArrayAdapter::class.java)
+    }
+
+    @Test
+    fun `PrimitiveLongArrayAdapter is non-instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveLongArrayAdapter::class.java)
+    }
+
+    @Test
+    fun `PrimitiveDoubleArrayAdapter is non-instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveDoubleArrayAdapter::class.java)
+    }
+
+    @Test
+    fun `PrimitiveShortArrayAdapter is non-instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveShortArrayAdapter::class.java)
+    }
+
+    @Test
+    fun `PrimitiveFloatArrayAdapter is non-instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveFloatArrayAdapter::class.java)
+    }
+
+    @Test
+    fun `PrimitiveBooleanArrayAdapter is non-instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveBooleanArrayAdapter::class.java)
+    }
+
+    @Test
+    fun `PrimitiveByteArrayAdapter is non-instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveByteArrayAdapter::class.java)
+    }
+
+    @Test
+    fun `PrimitiveCharArrayAdapter is non-instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveCharArrayAdapter::class.java)
+    }
 }
