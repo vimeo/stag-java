@@ -74,7 +74,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Byte}.
      */
     public static final TypeAdapter<Byte> BYTE = new TypeAdapter<Byte>() {
-        public final TypeToken<Byte> TYPE_TOKEN = TypeToken.get(Byte.class);
 
         @Override
         public Byte read(JsonReader in) throws IOException {
@@ -121,7 +120,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Short}.
      */
     public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
-        public final TypeToken<Short> TYPE_TOKEN = TypeToken.get(Short.class);
 
         @Override
         public Short read(JsonReader in) throws IOException {
@@ -166,7 +164,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Integer}.
      */
     public static final TypeAdapter<Integer> INTEGER = new TypeAdapter<Integer>() {
-        public final TypeToken<Integer> TYPE_TOKEN = TypeToken.get(Integer.class);
 
         @Override
         public Integer read(JsonReader in) throws IOException {
@@ -212,7 +209,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Long}.
      */
     public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
-        public final TypeToken<Long> TYPE_TOKEN = TypeToken.get(Long.class);
 
         @Override
         public Long read(JsonReader in) throws IOException {
@@ -259,8 +255,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Float}.
      */
     public static final TypeAdapter<Float> FLOAT = new TypeAdapter<Float>() {
-        public final TypeToken<Float> TYPE_TOKEN = TypeToken.get(Float.class);
-
 
         @Override
         public Float read(JsonReader in) throws IOException {
@@ -303,7 +297,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Double}.
      */
     public static final TypeAdapter<Double> DOUBLE = new TypeAdapter<Double>() {
-        public final TypeToken<Double> TYPE_TOKEN = TypeToken.get(double.class);
 
         @Override
         public Double read(JsonReader in) throws IOException {

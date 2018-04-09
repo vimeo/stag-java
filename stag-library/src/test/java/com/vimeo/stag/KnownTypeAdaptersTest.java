@@ -20,11 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SuppressWarnings("MagicNumber")
 public class KnownTypeAdaptersTest {
 
-    @Test
-    public void testThatKnownTypeAdaptersIsNotInstantiable() {
-        Utils.testZeroArgumentConstructorFinalClass(KnownTypeAdapters.class);
-    }
-
     /**
      * Test for {@link KnownTypeAdapters#INTEGER}
      */
