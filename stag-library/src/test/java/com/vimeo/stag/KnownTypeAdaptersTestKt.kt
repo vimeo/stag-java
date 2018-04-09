@@ -176,4 +176,22 @@ class KnownTypeAdaptersTestKt {
         assertSerializationEquality(true)
         assertSerializationEquality(null)
     }
+
+    @Test
+    fun `ArrayTypeAdapter serializes data correctly`() {
+        val intTypeAdapter = KnownTypeAdapters.INTEGER
+        val arrayTypeAdapter = KnownTypeAdapters.ArrayTypeAdapter(intTypeAdapter, KnownTypeAdapters.PrimitiveArrayConstructor<Int> { size -> Array(size, { 0 }) })
+
+        val testArray = arrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+        assertThat(arrayTypeAdapter.fromJson(arrayTypeAdapter.toJson(testArray))).isEqualTo(testArray)
+    }
+
+    @Test
+    fun `ArrayTypeAdapter serializes null correctly`() {
+        val intTypeAdapter = KnownTypeAdapters.INTEGER
+        val arrayTypeAdapter = KnownTypeAdapters.ArrayTypeAdapter(intTypeAdapter, KnownTypeAdapters.PrimitiveArrayConstructor<Int> { size -> Array(size, { 0 }) })
+
+        assertThat(arrayTypeAdapter.fromJson(arrayTypeAdapter.toJson(null))).isEqualTo(null)
+    }
 }
