@@ -53,7 +53,28 @@ gradle.projectsEvaluated {
 }
 ```
 
-### Android Gradle
+### Kotlin Gradle
+```groovy
+apply plugin: 'kotlin-kapt'
+
+dependencies {
+    def stagVersion = '2.5.1'
+    compile "com.vimeo.stag:stag-library:$stagVersion"
+    kapt "com.vimeo.stag:stag-library-compiler:$stagVersion"
+}
+
+kapt {
+    correctErrorTypes = true
+    // Optional annotation processor arguments (see below)
+    arguments {
+        arg("stagDebug", "true")
+        arg("stagGeneratedPackageName", "com.vimeo.sample.stag.generated")
+        arg("stagAssumeHungarianNotation", "true")
+    }
+}
+```
+
+### Android Gradle (Java)
 
 ```groovy
 dependencies {
