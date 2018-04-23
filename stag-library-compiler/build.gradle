@@ -24,7 +24,7 @@ jacocoTestReport.dependsOn test
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    testImplementation 'org.assertj:assertj-core:3.9.1'
+    testImplementation "org.assertj:assertj-core:$assertJ"
     testImplementation 'com.google.testing.compile:compile-testing:0.15'
     testImplementation project(path: ':integration-test-java')
     testImplementation project(path: ':integration-test-java-cross-module')
@@ -42,7 +42,7 @@ dependencies {
     // Used by both auto-service and compile-testing, we need to resolve the version for them.
     implementation 'com.google.guava:guava:23.5-jre'
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
+    testImplementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
 }
 
 test {

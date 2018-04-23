@@ -43,7 +43,6 @@ internal object Utils {
         return types
     }
 
-    @Throws(Exception::class)
     fun <T> testZeroArgumentConstructorFinalClass(clazz: Class<T>) {
         var exceptionThrown = false
         try {

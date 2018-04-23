@@ -28,7 +28,6 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.internal.ObjectConstructor;
 import com.google.gson.internal.Streams;
 import com.google.gson.internal.bind.TypeAdapters;
-import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -67,14 +66,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class KnownTypeAdapters {
 
     private KnownTypeAdapters() {
-        throw new IllegalStateException("KnownTypeAdapters cannot be instantiated");
+        throw new UnsupportedOperationException("KnownTypeAdapters cannot be instantiated");
     }
 
     /**
      * Type Adapter for {@link Byte}.
      */
     public static final TypeAdapter<Byte> BYTE = new TypeAdapter<Byte>() {
-        public final TypeToken<Byte> TYPE_TOKEN = TypeToken.get(Byte.class);
 
         @Override
         public Byte read(JsonReader in) throws IOException {
@@ -121,7 +119,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Short}.
      */
     public static final TypeAdapter<Short> SHORT = new TypeAdapter<Short>() {
-        public final TypeToken<Short> TYPE_TOKEN = TypeToken.get(Short.class);
 
         @Override
         public Short read(JsonReader in) throws IOException {
@@ -166,7 +163,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Integer}.
      */
     public static final TypeAdapter<Integer> INTEGER = new TypeAdapter<Integer>() {
-        public final TypeToken<Integer> TYPE_TOKEN = TypeToken.get(Integer.class);
 
         @Override
         public Integer read(JsonReader in) throws IOException {
@@ -212,7 +208,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Long}.
      */
     public static final TypeAdapter<Long> LONG = new TypeAdapter<Long>() {
-        public final TypeToken<Long> TYPE_TOKEN = TypeToken.get(Long.class);
 
         @Override
         public Long read(JsonReader in) throws IOException {
@@ -259,8 +254,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Float}.
      */
     public static final TypeAdapter<Float> FLOAT = new TypeAdapter<Float>() {
-        public final TypeToken<Float> TYPE_TOKEN = TypeToken.get(Float.class);
-
 
         @Override
         public Float read(JsonReader in) throws IOException {
@@ -303,7 +296,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Double}.
      */
     public static final TypeAdapter<Double> DOUBLE = new TypeAdapter<Double>() {
-        public final TypeToken<Double> TYPE_TOKEN = TypeToken.get(double.class);
 
         @Override
         public Double read(JsonReader in) throws IOException {
@@ -475,7 +467,7 @@ public final class KnownTypeAdapters {
     public static final class PrimitiveIntegerArrayAdapter {
 
         private PrimitiveIntegerArrayAdapter() {
-            throw new IllegalStateException("PrimitiveIntegerArrayAdapter cannot be instantiated");
+            throw new UnsupportedOperationException("PrimitiveIntegerArrayAdapter cannot be instantiated");
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable int[] value) throws IOException {
@@ -510,7 +502,7 @@ public final class KnownTypeAdapters {
     public static final class PrimitiveLongArrayAdapter {
 
         private PrimitiveLongArrayAdapter() {
-            throw new IllegalStateException("PrimitiveLongArrayAdapter cannot be instantiated");
+            throw new UnsupportedOperationException("PrimitiveLongArrayAdapter cannot be instantiated");
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable long[] value) throws IOException {
@@ -545,7 +537,7 @@ public final class KnownTypeAdapters {
     public static final class PrimitiveDoubleArrayAdapter {
 
         private PrimitiveDoubleArrayAdapter() {
-            throw new IllegalStateException("PrimitiveDoubleArrayAdapter cannot be instantiated");
+            throw new UnsupportedOperationException("PrimitiveDoubleArrayAdapter cannot be instantiated");
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable double[] value) throws IOException {
@@ -580,7 +572,7 @@ public final class KnownTypeAdapters {
     public static final class PrimitiveShortArrayAdapter {
 
         private PrimitiveShortArrayAdapter() {
-            throw new IllegalStateException("PrimitiveShortArrayAdapter cannot be instantiated");
+            throw new UnsupportedOperationException("PrimitiveShortArrayAdapter cannot be instantiated");
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable short[] value) throws IOException {
@@ -615,7 +607,7 @@ public final class KnownTypeAdapters {
     public static final class PrimitiveFloatArrayAdapter {
 
         private PrimitiveFloatArrayAdapter() {
-            throw new IllegalStateException("PrimitiveFloatArrayAdapter cannot be instantiated");
+            throw new UnsupportedOperationException("PrimitiveFloatArrayAdapter cannot be instantiated");
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable float[] value) throws IOException {
@@ -650,7 +642,7 @@ public final class KnownTypeAdapters {
     public static final class PrimitiveBooleanArrayAdapter {
 
         private PrimitiveBooleanArrayAdapter() {
-            throw new IllegalStateException("PrimitiveBooleanArrayAdapter cannot be instantiated");
+            throw new UnsupportedOperationException("PrimitiveBooleanArrayAdapter cannot be instantiated");
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable boolean[] value) throws IOException {
@@ -685,7 +677,7 @@ public final class KnownTypeAdapters {
     public static final class PrimitiveByteArrayAdapter {
 
         private PrimitiveByteArrayAdapter() {
-            throw new IllegalStateException("PrimitiveByteArrayAdapter cannot be instantiated");
+            throw new UnsupportedOperationException("PrimitiveByteArrayAdapter cannot be instantiated");
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable byte[] value) throws IOException {
@@ -722,7 +714,7 @@ public final class KnownTypeAdapters {
     public static final class PrimitiveCharArrayAdapter {
 
         private PrimitiveCharArrayAdapter() {
-            throw new IllegalStateException("PrimitiveCharArrayAdapter cannot be instantiated");
+            throw new UnsupportedOperationException("PrimitiveCharArrayAdapter cannot be instantiated");
         }
 
         public static void write(@NotNull JsonWriter writer, @Nullable char[] value) throws IOException {
@@ -989,8 +981,6 @@ public final class KnownTypeAdapters {
      * Type Adapter for {@link Object}
      */
     public static final class ObjectTypeAdapter extends TypeAdapter<Object> {
-
-        public final TypeToken<Object> TYPE_TOKEN = TypeToken.get(Object.class);
 
         private final Gson gson;
 

@@ -486,7 +486,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                             fieldType.toString() + ">";
             } else {
                 // If the map does not have any type arguments, use Object as type params in this case
-                keyAdapterAccessor = "mGson.getAdapter(KnownTypeAdapters.ObjectTypeAdapter.TYPE_TOKEN)";
+                keyAdapterAccessor = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
                 valueAdapterAccessor = keyAdapterAccessor;
             }
 
