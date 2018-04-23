@@ -24,7 +24,7 @@ jacocoTestReport.dependsOn test
 
 dependencies {
     testImplementation 'junit:junit:4.12'
-    testImplementation 'org.assertj:assertj-core:3.9.1'
+    testImplementation "org.assertj:assertj-core:$assertJ"
     testImplementation 'com.google.testing.compile:compile-testing:0.15'
     testImplementation project(path: ':integration-test-java')
     testImplementation project(path: ':integration-test-java-cross-module')

@@ -3,6 +3,7 @@ apply plugin: "net.ltgt.apt"
 
 dependencies {
     implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation 'com.intellij:annotations:12.0@jar'
     implementation 'com.android.support:support-annotations:27.1.1'
 
     implementation project(':stag-library')
