@@ -5,23 +5,20 @@ package com.vimeo.stag
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.assertj.core.api.Assertions.assertThat
-import java.lang.reflect.InvocationTargetException
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import java.util.ArrayList
 import java.util.HashMap
 
 fun <T> testZeroArgumentConstructorFinalClass(clazz: Class<T>) {
-    var exceptionThrown = false
-    try {
-        val constructor = clazz.getDeclaredConstructor()
-        constructor.isAccessible = true
-        constructor.newInstance()
-    } catch (e: InvocationTargetException) {
-        if (e.cause is UnsupportedOperationException) {
-            exceptionThrown = true
-        }
+    fun instantiateClass(clazz: Class<T>): T {
+        return clazz.getDeclaredConstructor().apply {
+            isAccessible = true
+        }.newInstance()
     }
 
-    assertThat(exceptionThrown).isTrue()
+    assertThatThrownBy {
+        instantiateClass(clazz)
+    }.hasCauseInstanceOf(UnsupportedOperationException::class.java)
 }
 
 fun <K, V> assertMapsEqual(map1: Map<K, V>, map2: Map<K, V>) {

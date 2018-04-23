@@ -37,6 +37,11 @@ class KnownTypeAdaptersTestKt {
         KnownTypeAdapters.PrimitiveByteTypeAdapter.read(JsonReader(StringReader("test".quote())), 1)
     }
 
+    @Test
+    fun `PrimitiveByteTypeAdapter is not instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveByteTypeAdapter::class.java)
+    }
+
     @Test(expected = JsonSyntaxException::class)
     fun `Short TypeAdapter throws JsonSyntaxException if used on non integer`() {
         KnownTypeAdapters.SHORT.fromJson("test".quote())
@@ -52,6 +57,11 @@ class KnownTypeAdaptersTestKt {
         KnownTypeAdapters.PrimitiveShortTypeAdapter.read(JsonReader(StringReader("test".quote())), 1)
     }
 
+    @Test
+    fun `PrimitiveShortTypeAdapter is not instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveShortTypeAdapter::class.java)
+    }
+
     @Test(expected = JsonSyntaxException::class)
     fun `Integer TypeAdapter throws JsonSyntaxException if used on non integer`() {
         KnownTypeAdapters.INTEGER.fromJson("test".quote())
@@ -65,6 +75,11 @@ class KnownTypeAdaptersTestKt {
     @Test(expected = JsonSyntaxException::class)
     fun `PrimitiveIntTypeAdapter throws JsonSyntaxException if used on non integer`() {
         KnownTypeAdapters.PrimitiveIntTypeAdapter.read(JsonReader(StringReader("test".quote())), 1)
+    }
+
+    @Test
+    fun `PrimitiveIntTypeAdapter is not instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveIntTypeAdapter::class.java)
     }
 
     @Test(expected = JsonSyntaxException::class)
@@ -83,6 +98,11 @@ class KnownTypeAdaptersTestKt {
     }
 
     @Test
+    fun `PrimitiveLongTypeAdapter is not instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveLongTypeAdapter::class.java)
+    }
+
+    @Test
     fun `PrimitiveDoubleTypeAdapter returns default value for null`() {
         assertThat(KnownTypeAdapters.PrimitiveDoubleTypeAdapter.read(JsonReader(StringReader("null")), 1.0)).isEqualTo(1.0)
     }
@@ -90,6 +110,11 @@ class KnownTypeAdaptersTestKt {
     @Test(expected = JsonSyntaxException::class)
     fun `PrimitiveDoubleTypeAdapter throws JsonSyntaxException if used on non double`() {
         KnownTypeAdapters.PrimitiveDoubleTypeAdapter.read(JsonReader(StringReader("test".quote())), 1.0)
+    }
+
+    @Test
+    fun `PrimitiveDoubleTypeAdapter is not instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveDoubleTypeAdapter::class.java)
     }
 
     @Test
@@ -103,6 +128,11 @@ class KnownTypeAdaptersTestKt {
     }
 
     @Test
+    fun `PrimitiveCharTypeAdapter is not instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveCharTypeAdapter::class.java)
+    }
+
+    @Test
     fun `PrimitiveBooleanTypeAdapter returns default value for null`() {
         assertThat(KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(JsonReader(StringReader("null")), true)).isTrue()
     }
@@ -113,6 +143,11 @@ class KnownTypeAdaptersTestKt {
     }
 
     @Test
+    fun `PrimitiveBooleanTypeAdapter is not instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveBooleanTypeAdapter::class.java)
+    }
+
+    @Test
     fun `PrimitiveFloatTypeAdapter returns default value for null`() {
         assertThat(KnownTypeAdapters.PrimitiveFloatTypeAdapter.read(JsonReader(StringReader("null")), 1.0f)).isEqualTo(1.0f)
     }
@@ -120,6 +155,11 @@ class KnownTypeAdaptersTestKt {
     @Test(expected = JsonSyntaxException::class)
     fun `PrimitiveFloatTypeAdapter throws JsonSyntaxException if used on non double`() {
         KnownTypeAdapters.PrimitiveFloatTypeAdapter.read(JsonReader(StringReader("test".quote())), 1.0f)
+    }
+
+    @Test
+    fun `PrimitiveFloatTypeAdapter is not instantiable`() {
+        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveFloatTypeAdapter::class.java)
     }
 
     @Test
