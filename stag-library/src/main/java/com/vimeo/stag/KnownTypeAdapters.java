@@ -859,11 +859,6 @@ public final class KnownTypeAdapters {
                 return null;
             }
 
-            if (JsonToken.BEGIN_ARRAY != peek) {
-                reader.skipValue();
-                return null;
-            }
-
             T collection = objectConstructor.construct();
             reader.beginArray();
             while (reader.hasNext()) {
