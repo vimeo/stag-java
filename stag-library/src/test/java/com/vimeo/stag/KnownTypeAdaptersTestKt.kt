@@ -234,4 +234,29 @@ class KnownTypeAdaptersTestKt {
 
         assertThat(arrayTypeAdapter.fromJson(arrayTypeAdapter.toJson(null))).isEqualTo(null)
     }
+
+    @Test
+    fun `ListInstantiator creates an empty List`() {
+        assertThat(KnownTypeAdapters.ListInstantiator<String>().construct()).isEmpty()
+    }
+
+    @Test
+    fun `CollectionInstantiator creates an empty Collection`() {
+        assertThat(KnownTypeAdapters.CollectionInstantiator<String>().construct()).isEmpty()
+    }
+
+    @Test
+    fun `ConcurrentHashMapInstantiator creates an empty ConcurrentHashMap`() {
+        assertThat(KnownTypeAdapters.ConcurrentHashMapInstantiator<String, String>().construct()).isEmpty()
+    }
+
+    @Test
+    fun `LinkedHashMapInstantiator creates an empty LinkedHashMap`() {
+        assertThat(KnownTypeAdapters.LinkedHashMapInstantiator<String, String>().construct()).isEmpty()
+    }
+
+    @Test
+    fun `MapInstantiator creates an empty Map`() {
+        assertThat(KnownTypeAdapters.MapInstantiator<String, String>().construct()).isEmpty()
+    }
 }
