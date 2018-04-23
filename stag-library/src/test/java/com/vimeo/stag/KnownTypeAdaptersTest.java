@@ -392,7 +392,7 @@ public class KnownTypeAdaptersTest {
     }
 
     @Test
-    public void primitiveArrayFloatTypeAdapterHandlesNullsCorrectly() {
+    public void primitiveArrayFloatTypeAdapterHandlesNullsCorrectly() throws Exception {
         final float[] input = null;
         StringWriter stringWriter = new StringWriter();
         KnownTypeAdapters.PrimitiveFloatArrayAdapter.write(new JsonWriter(stringWriter), input);
