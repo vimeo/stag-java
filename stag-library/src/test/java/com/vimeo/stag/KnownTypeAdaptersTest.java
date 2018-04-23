@@ -7,7 +7,6 @@ import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.StringReader;
@@ -16,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 @SuppressWarnings("MagicNumber")
 public class KnownTypeAdaptersTest {
@@ -37,7 +38,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         Integer readValue = integerTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertEquals(value.intValue(), readValue.intValue());
+        assertEquals(value.intValue(), readValue.intValue());
     }
 
     /**
@@ -55,7 +56,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         int readValue = KnownTypeAdapters.PrimitiveIntTypeAdapter.read(new JsonReader(new StringReader(jsonString)), 0);
 
-        Assert.assertEquals(value, readValue);
+        assertEquals(value, readValue);
     }
 
     /**
@@ -79,7 +80,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         int[] readValue = KnownTypeAdapters.PrimitiveIntegerArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertArrayEquals(value, readValue);
+        assertArrayEquals(value, readValue);
     }
 
     /**
@@ -99,9 +100,9 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         Byte readValue = byteTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertEquals(value.intValue(), readValue.intValue());
-        Assert.assertEquals(value.byteValue(), readValue.byteValue());
-        Assert.assertEquals(value, readValue);
+        assertEquals(value.intValue(), readValue.intValue());
+        assertEquals(value.byteValue(), readValue.byteValue());
+        assertEquals(value, readValue);
     }
 
     /**
@@ -119,7 +120,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         byte readValue = KnownTypeAdapters.PrimitiveByteTypeAdapter.read(new JsonReader(new StringReader(jsonString)), (byte) 0);
 
-        Assert.assertEquals(value, readValue);
+        assertEquals(value, readValue);
     }
 
     /**
@@ -143,7 +144,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         byte[] readValue = KnownTypeAdapters.PrimitiveByteArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertArrayEquals(value, readValue);
+        assertArrayEquals(value, readValue);
     }
 
     /**
@@ -163,9 +164,9 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         Short readValue = shortTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertEquals(value.intValue(), readValue.intValue());
-        Assert.assertEquals(value.shortValue(), readValue.shortValue());
-        Assert.assertEquals(value, readValue);
+        assertEquals(value.intValue(), readValue.intValue());
+        assertEquals(value.shortValue(), readValue.shortValue());
+        assertEquals(value, readValue);
     }
 
     /**
@@ -183,7 +184,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         short readValue = KnownTypeAdapters.PrimitiveShortTypeAdapter.read(new JsonReader(new StringReader(jsonString)), (short) 0);
 
-        Assert.assertEquals(value, readValue);
+        assertEquals(value, readValue);
     }
 
     /**
@@ -207,7 +208,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         short[] readValue = KnownTypeAdapters.PrimitiveShortArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertArrayEquals(value, readValue);
+        assertArrayEquals(value, readValue);
     }
 
     /**
@@ -227,9 +228,9 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         Long readValue = longTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertEquals(value.intValue(), readValue.intValue());
-        Assert.assertEquals(value.longValue(), readValue.longValue());
-        Assert.assertEquals(value, readValue);
+        assertEquals(value.intValue(), readValue.intValue());
+        assertEquals(value.longValue(), readValue.longValue());
+        assertEquals(value, readValue);
     }
 
     /**
@@ -247,7 +248,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         long readValue = KnownTypeAdapters.PrimitiveLongTypeAdapter.read(new JsonReader(new StringReader(jsonString)), 0);
 
-        Assert.assertEquals(value, readValue);
+        assertEquals(value, readValue);
     }
 
     /**
@@ -271,7 +272,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         long[] readValue = KnownTypeAdapters.PrimitiveLongArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertArrayEquals(value, readValue);
+        assertArrayEquals(value, readValue);
     }
 
     /**
@@ -291,9 +292,9 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         Float readValue = floatTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertEquals(value.intValue(), readValue.intValue());
-        Assert.assertEquals(value.doubleValue(), readValue.doubleValue(), 0);
-        Assert.assertEquals(value, readValue, 0);
+        assertEquals(value.intValue(), readValue.intValue());
+        assertEquals(value.doubleValue(), readValue.doubleValue(), 0);
+        assertEquals(value, readValue, 0);
     }
 
     /**
@@ -311,7 +312,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         float readValue = KnownTypeAdapters.PrimitiveFloatTypeAdapter.read(new JsonReader(new StringReader(jsonString)), 0f);
 
-        Assert.assertEquals(value, readValue, 0);
+        assertEquals(value, readValue, 0);
     }
 
     /**
@@ -335,7 +336,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         float[] readValue = KnownTypeAdapters.PrimitiveFloatArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertArrayEquals(value, readValue, 0);
+        assertArrayEquals(value, readValue, 0);
     }
 
     /**
@@ -355,8 +356,8 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         Double readValue = floatTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertEquals(value.intValue(), readValue.intValue());
-        Assert.assertEquals(value, readValue, 0);
+        assertEquals(value.intValue(), readValue.intValue());
+        assertEquals(value, readValue, 0);
     }
 
     /**
@@ -374,7 +375,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         double readValue = KnownTypeAdapters.PrimitiveDoubleTypeAdapter.read(new JsonReader(new StringReader(jsonString)), 0f);
 
-        Assert.assertEquals(value, readValue, 0);
+        assertEquals(value, readValue, 0);
     }
 
     /**
@@ -398,7 +399,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         double[] readValue = KnownTypeAdapters.PrimitiveDoubleArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertArrayEquals(value, readValue, 0);
+        assertArrayEquals(value, readValue, 0);
     }
 
     /**
@@ -414,7 +415,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         boolean readValue = KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(new JsonReader(new StringReader(jsonString)), false);
 
-        Assert.assertEquals(true, readValue);
+        assertEquals(true, readValue);
     }
 
     /**
@@ -438,7 +439,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         boolean[] readValue = KnownTypeAdapters.PrimitiveBooleanArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertArrayEquals(value, readValue);
+        assertArrayEquals(value, readValue);
     }
 
     /**
@@ -456,7 +457,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         char readValue = KnownTypeAdapters.PrimitiveCharTypeAdapter.read(new JsonReader(new StringReader(jsonString)), 'B');
 
-        Assert.assertEquals(value, readValue);
+        assertEquals(value, readValue);
     }
 
     /**
@@ -481,7 +482,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         char[] readValue = KnownTypeAdapters.PrimitiveCharArrayAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertArrayEquals(value, readValue);
+        assertArrayEquals(value, readValue);
 
         // test a string as a char array
         char[] value1 = "abcde".toCharArray();
@@ -494,7 +495,7 @@ public class KnownTypeAdaptersTest {
         // call the TypeAdapter#read method
         char[] readValue1 = KnownTypeAdapters.PrimitiveCharArrayAdapter.read(new JsonReader(new StringReader(jsonString1)));
 
-        Assert.assertArrayEquals(value1, readValue1);
+        assertArrayEquals(value1, readValue1);
     }
 
     /**
@@ -517,9 +518,9 @@ public class KnownTypeAdaptersTest {
 
         assertThat(readValue).isNotNull();
 
-        Assert.assertEquals(dummyList.size(), readValue.size());
+        assertEquals(dummyList.size(), readValue.size());
         for (int i = 0; i < dummyList.size(); i++) {
-            Assert.assertEquals(dummyList.get(i), readValue.get(i));
+            assertEquals(dummyList.get(i), readValue.get(i));
         }
 
         // for integer arrays
@@ -535,9 +536,9 @@ public class KnownTypeAdaptersTest {
 
         assertThat(readValue1).isNotNull();
 
-        Assert.assertEquals(intDummyList.size(), readValue1.size());
+        assertEquals(intDummyList.size(), readValue1.size());
         for (int i = 0; i < intDummyList.size(); i++) {
-            Assert.assertEquals(intDummyList.get(i), readValue1.get(i));
+            assertEquals(intDummyList.get(i), readValue1.get(i));
         }
     }
 
@@ -561,7 +562,7 @@ public class KnownTypeAdaptersTest {
 
         assertThat(readValue).isNotNull();
 
-        Assert.assertEquals(dummyMap.size(), readValue.size());
+        assertEquals(dummyMap.size(), readValue.size());
         Utils.assertMapsEqual(dummyMap, readValue);
 
         // for integer arrays
@@ -577,7 +578,7 @@ public class KnownTypeAdaptersTest {
 
         assertThat(readValue1).isNotNull();
 
-        Assert.assertEquals(intDummyMap.size(), readValue1.size());
+        assertEquals(intDummyMap.size(), readValue1.size());
         Utils.assertMapsEqual(intDummyMap, readValue1);
     }
 
@@ -595,7 +596,7 @@ public class KnownTypeAdaptersTest {
 
         JsonObject readValue = jsonObjectTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertEquals(jsonObject.size(), readValue.size());
+        assertEquals(jsonObject.size(), readValue.size());
     }
 
     /**
@@ -612,9 +613,9 @@ public class KnownTypeAdaptersTest {
 
         JsonArray readValue = jsonObjectTypeAdapter.read(new JsonReader(new StringReader(jsonString)));
 
-        Assert.assertEquals(jsonArray.size(), readValue.size());
+        assertEquals(jsonArray.size(), readValue.size());
         for (int i = 0; i < jsonArray.size(); i++) {
-            Assert.assertEquals(jsonArray.get(i), readValue.get(i));
+            assertEquals(jsonArray.get(i), readValue.get(i));
         }
     }
 
