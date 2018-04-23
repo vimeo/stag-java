@@ -1,6 +1,7 @@
 package com.vimeo.stag
 
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSyntaxException
 import com.google.gson.stream.JsonReader
 import org.assertj.core.api.Assertions.assertThat
@@ -259,4 +260,12 @@ class KnownTypeAdaptersTestKt {
     fun `MapInstantiator creates an empty Map`() {
         assertThat(KnownTypeAdapters.MapInstantiator<String, String>().construct()).isEmpty()
     }
+
+    @Test
+    fun `JSON_PRIMITIVE adapter serializes and deserializes correctly`() {
+        val value = JsonPrimitive(5)
+        val json = KnownTypeAdapters.JSON_PRIMITIVE.toJson(value)
+        assertThat(KnownTypeAdapters.JSON_PRIMITIVE.fromJson(json)).isEqualTo(value)
+    }
+
 }
