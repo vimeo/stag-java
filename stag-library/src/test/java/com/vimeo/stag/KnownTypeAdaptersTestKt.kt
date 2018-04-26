@@ -20,7 +20,7 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `KnownTypeAdapters is not instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters>()
     }
 
     @Test(expected = JsonSyntaxException::class)
@@ -40,7 +40,7 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `PrimitiveByteTypeAdapter is not instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveByteTypeAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveByteTypeAdapter>()
     }
 
     @Test(expected = JsonSyntaxException::class)
@@ -60,7 +60,7 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `PrimitiveShortTypeAdapter is not instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveShortTypeAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveShortTypeAdapter>()
     }
 
     @Test(expected = JsonSyntaxException::class)
@@ -80,7 +80,7 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `PrimitiveIntTypeAdapter is not instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveIntTypeAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveIntTypeAdapter>()
     }
 
     @Test(expected = JsonSyntaxException::class)
@@ -100,7 +100,7 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `PrimitiveLongTypeAdapter is not instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveLongTypeAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveLongTypeAdapter>()
     }
 
     @Test
@@ -115,7 +115,7 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `PrimitiveDoubleTypeAdapter is not instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveDoubleTypeAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveDoubleTypeAdapter>()
     }
 
     @Test
@@ -130,7 +130,7 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `PrimitiveCharTypeAdapter is not instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveCharTypeAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveCharTypeAdapter>()
     }
 
     @Test
@@ -145,7 +145,7 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `PrimitiveBooleanTypeAdapter is not instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveBooleanTypeAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveBooleanTypeAdapter>()
     }
 
     @Test
@@ -160,47 +160,47 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `PrimitiveFloatTypeAdapter is not instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveFloatTypeAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveFloatTypeAdapter>()
     }
 
     @Test
     fun `PrimitiveIntegerArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveIntegerArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveIntegerArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveLongArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveLongArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveLongArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveDoubleArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveDoubleArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveDoubleArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveShortArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveShortArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveShortArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveFloatArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveFloatArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveFloatArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveBooleanArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveBooleanArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveBooleanArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveByteArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveByteArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveByteArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveCharArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveCharArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveCharArrayAdapter>()
     }
 
     @Test

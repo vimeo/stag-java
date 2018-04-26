@@ -9,15 +9,12 @@ import org.assertj.core.api.Assertions.assertThatThrownBy
 import java.util.ArrayList
 import java.util.HashMap
 
-fun <T> testZeroArgumentConstructorFinalClass(clazz: Class<T>) {
-    fun instantiateClass(clazz: Class<T>): T {
-        return clazz.getDeclaredConstructor().apply {
+inline fun <reified T : Any> assertThatClassIsNotInstantiable() {
+    assertThatThrownBy {
+        T::class.java.getDeclaredConstructor().apply {
+            assertThat(isAccessible).isFalse()
             isAccessible = true
         }.newInstance()
-    }
-
-    assertThatThrownBy {
-        instantiateClass(clazz)
     }.hasCauseInstanceOf(UnsupportedOperationException::class.java)
 }
 
