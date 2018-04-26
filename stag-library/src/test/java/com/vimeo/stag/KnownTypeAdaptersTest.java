@@ -611,8 +611,9 @@ public class KnownTypeAdaptersTest {
         // for string arrays
         ArrayList<String> dummyList = Utils.createStringDummyList();
 
-        TypeAdapter<ArrayList<String>> listTypeAdapter = new KnownTypeAdapters.ListTypeAdapter<>(TypeAdapters.STRING,
-                                                                                                 new KnownTypeAdapters.ArrayListInstantiator<String>());
+        TypeAdapter<ArrayList<String>> listTypeAdapter =
+                new KnownTypeAdapters.ListTypeAdapter<>(TypeAdapters.STRING,
+                                                        new KnownTypeAdapters.ArrayListInstantiator<String>());
 
         StringWriter stringWriter = new StringWriter();
         listTypeAdapter.write(new JsonWriter(stringWriter), dummyList);
@@ -630,8 +631,9 @@ public class KnownTypeAdaptersTest {
         // for integer arrays
         ArrayList<Integer> intDummyList = Utils.createIntegerDummyList();
 
-        TypeAdapter<ArrayList<Integer>> listTypeAdapter1 = new KnownTypeAdapters.ListTypeAdapter<>(KnownTypeAdapters.INTEGER,
-                                                                                                   new KnownTypeAdapters.ArrayListInstantiator<Integer>());
+        TypeAdapter<ArrayList<Integer>> listTypeAdapter1 =
+                new KnownTypeAdapters.ListTypeAdapter<>(KnownTypeAdapters.INTEGER,
+                                                        new KnownTypeAdapters.ArrayListInstantiator<Integer>());
         stringWriter = new StringWriter();
         listTypeAdapter1.write(new JsonWriter(stringWriter), intDummyList);
         jsonString = stringWriter.toString();
@@ -650,8 +652,9 @@ public class KnownTypeAdaptersTest {
     public void listTypeAdapterHandlesNullsCorrectly() throws Exception {
         final ArrayList<String> dummyList = null;
 
-        TypeAdapter<ArrayList<String>> listTypeAdapter = new KnownTypeAdapters.ListTypeAdapter<>(TypeAdapters.STRING,
-                                                                                                 new KnownTypeAdapters.ArrayListInstantiator<String>());
+        TypeAdapter<ArrayList<String>> listTypeAdapter =
+                new KnownTypeAdapters.ListTypeAdapter<>(TypeAdapters.STRING,
+                                                        new KnownTypeAdapters.ArrayListInstantiator<String>());
 
         StringWriter stringWriter = new StringWriter();
         listTypeAdapter.write(new JsonWriter(stringWriter), dummyList);
@@ -671,8 +674,10 @@ public class KnownTypeAdaptersTest {
         // for string arrays
         HashMap<String, String> dummyMap = Utils.createStringDummyMap();
 
-        TypeAdapter<HashMap<String, String>> mapTypeAdapter = new KnownTypeAdapters.MapTypeAdapter<>(TypeAdapters.STRING, TypeAdapters.STRING,
-                                                                                                     new KnownTypeAdapters.HashMapInstantiator<String, String>());
+        TypeAdapter<HashMap<String, String>> mapTypeAdapter =
+                new KnownTypeAdapters.MapTypeAdapter<>(TypeAdapters.STRING,
+                                                       TypeAdapters.STRING,
+                                                       new KnownTypeAdapters.HashMapInstantiator<String, String>());
 
         StringWriter stringWriter = new StringWriter();
         mapTypeAdapter.write(new JsonWriter(stringWriter), dummyMap);
@@ -688,8 +693,10 @@ public class KnownTypeAdaptersTest {
         // for integer arrays
         HashMap<Integer, Integer> intDummyMap = Utils.createIntegerDummyMap();
 
-        TypeAdapter<HashMap<Integer, Integer>> mapTypeAdapter1 = new KnownTypeAdapters.MapTypeAdapter<>(KnownTypeAdapters.INTEGER, KnownTypeAdapters.INTEGER,
-                                                                                                        new KnownTypeAdapters.HashMapInstantiator<Integer, Integer>());
+        TypeAdapter<HashMap<Integer, Integer>> mapTypeAdapter1 =
+                new KnownTypeAdapters.MapTypeAdapter<>(KnownTypeAdapters.INTEGER,
+                                                       KnownTypeAdapters.INTEGER,
+                                                       new KnownTypeAdapters.HashMapInstantiator<Integer, Integer>());
         stringWriter = new StringWriter();
         mapTypeAdapter1.write(new JsonWriter(stringWriter), intDummyMap);
         jsonString = stringWriter.toString();
@@ -706,8 +713,10 @@ public class KnownTypeAdaptersTest {
     public void mapTypeAdapterHandlesNullsCorrectly() throws Exception {
         final HashMap<String, String> dummyMap = null;
 
-        TypeAdapter<HashMap<String, String>> mapTypeAdapter = new KnownTypeAdapters.MapTypeAdapter<>(TypeAdapters.STRING, TypeAdapters.STRING,
-                                                                                                     new KnownTypeAdapters.HashMapInstantiator<String, String>());
+        TypeAdapter<HashMap<String, String>> mapTypeAdapter =
+                new KnownTypeAdapters.MapTypeAdapter<>(TypeAdapters.STRING,
+                                                       TypeAdapters.STRING,
+                                                       new KnownTypeAdapters.HashMapInstantiator<String, String>());
 
         StringWriter stringWriter = new StringWriter();
         mapTypeAdapter.write(new JsonWriter(stringWriter), dummyMap);
