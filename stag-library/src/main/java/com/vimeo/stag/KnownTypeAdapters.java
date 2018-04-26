@@ -95,7 +95,9 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveByteTypeAdapter {
 
-        private PrimitiveByteTypeAdapter() {}
+        private PrimitiveByteTypeAdapter() {
+            throw new UnsupportedOperationException("Cannot be instantiated");
+        }
 
         public static byte read(JsonReader in, byte defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -140,7 +142,9 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveShortTypeAdapter {
 
-        private PrimitiveShortTypeAdapter() {}
+        private PrimitiveShortTypeAdapter() {
+            throw new UnsupportedOperationException("Cannot be instantiated");
+        }
 
         public static short read(JsonReader in, short defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -184,7 +188,9 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveIntTypeAdapter {
 
-        private PrimitiveIntTypeAdapter() {}
+        private PrimitiveIntTypeAdapter() {
+            throw new UnsupportedOperationException("Cannot be instantiated");
+        }
 
         public static int read(JsonReader in, int defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -230,7 +236,9 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveLongTypeAdapter {
 
-        private PrimitiveLongTypeAdapter() {}
+        private PrimitiveLongTypeAdapter() {
+            throw new UnsupportedOperationException("Cannot be instantiated");
+        }
 
         public static long read(JsonReader in, long defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -272,7 +280,9 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveFloatTypeAdapter {
 
-        private PrimitiveFloatTypeAdapter() {}
+        private PrimitiveFloatTypeAdapter() {
+            throw new UnsupportedOperationException("Cannot be instantiated");
+        }
 
         public static float read(JsonReader in, float defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -313,7 +323,9 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveDoubleTypeAdapter {
 
-        private PrimitiveDoubleTypeAdapter() {}
+        private PrimitiveDoubleTypeAdapter() {
+            throw new UnsupportedOperationException("Cannot be instantiated");
+        }
 
         public static double read(JsonReader in, double defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -337,7 +349,9 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveCharTypeAdapter {
 
-        private PrimitiveCharTypeAdapter() {}
+        private PrimitiveCharTypeAdapter() {
+            throw new UnsupportedOperationException("Cannot be instantiated");
+        }
 
         public static char read(JsonReader in, char defaultValue) throws IOException {
             if (in.peek() == JsonToken.NULL) {
@@ -362,7 +376,9 @@ public final class KnownTypeAdapters {
      */
     public static final class PrimitiveBooleanTypeAdapter {
 
-        private PrimitiveBooleanTypeAdapter() {}
+        private PrimitiveBooleanTypeAdapter() {
+            throw new UnsupportedOperationException("Cannot be instantiated");
+        }
 
         public static boolean read(JsonReader in, boolean defaultValue) throws IOException {
             JsonToken peek = in.peek();
@@ -441,10 +457,6 @@ public final class KnownTypeAdapters {
             JsonToken peek = reader.peek();
             if (JsonToken.NULL == peek) {
                 reader.nextNull();
-                return null;
-            }
-            if (JsonToken.BEGIN_ARRAY != peek) {
-                reader.skipValue();
                 return null;
             }
             reader.beginArray();
@@ -844,11 +856,6 @@ public final class KnownTypeAdapters {
             JsonToken peek = reader.peek();
             if (JsonToken.NULL == peek) {
                 reader.nextNull();
-                return null;
-            }
-
-            if (JsonToken.BEGIN_ARRAY != peek) {
-                reader.skipValue();
                 return null;
             }
 

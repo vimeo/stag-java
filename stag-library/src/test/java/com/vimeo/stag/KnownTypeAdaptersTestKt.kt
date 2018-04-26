@@ -1,6 +1,7 @@
 package com.vimeo.stag
 
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSyntaxException
 import com.google.gson.stream.JsonReader
 import org.assertj.core.api.Assertions.assertThat
@@ -19,7 +20,7 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `KnownTypeAdapters is not instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters>()
     }
 
     @Test(expected = JsonSyntaxException::class)
@@ -37,6 +38,11 @@ class KnownTypeAdaptersTestKt {
         KnownTypeAdapters.PrimitiveByteTypeAdapter.read(JsonReader(StringReader("test".quote())), 1)
     }
 
+    @Test
+    fun `PrimitiveByteTypeAdapter is not instantiable`() {
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveByteTypeAdapter>()
+    }
+
     @Test(expected = JsonSyntaxException::class)
     fun `Short TypeAdapter throws JsonSyntaxException if used on non integer`() {
         KnownTypeAdapters.SHORT.fromJson("test".quote())
@@ -52,6 +58,11 @@ class KnownTypeAdaptersTestKt {
         KnownTypeAdapters.PrimitiveShortTypeAdapter.read(JsonReader(StringReader("test".quote())), 1)
     }
 
+    @Test
+    fun `PrimitiveShortTypeAdapter is not instantiable`() {
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveShortTypeAdapter>()
+    }
+
     @Test(expected = JsonSyntaxException::class)
     fun `Integer TypeAdapter throws JsonSyntaxException if used on non integer`() {
         KnownTypeAdapters.INTEGER.fromJson("test".quote())
@@ -65,6 +76,11 @@ class KnownTypeAdaptersTestKt {
     @Test(expected = JsonSyntaxException::class)
     fun `PrimitiveIntTypeAdapter throws JsonSyntaxException if used on non integer`() {
         KnownTypeAdapters.PrimitiveIntTypeAdapter.read(JsonReader(StringReader("test".quote())), 1)
+    }
+
+    @Test
+    fun `PrimitiveIntTypeAdapter is not instantiable`() {
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveIntTypeAdapter>()
     }
 
     @Test(expected = JsonSyntaxException::class)
@@ -83,6 +99,11 @@ class KnownTypeAdaptersTestKt {
     }
 
     @Test
+    fun `PrimitiveLongTypeAdapter is not instantiable`() {
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveLongTypeAdapter>()
+    }
+
+    @Test
     fun `PrimitiveDoubleTypeAdapter returns default value for null`() {
         assertThat(KnownTypeAdapters.PrimitiveDoubleTypeAdapter.read(JsonReader(StringReader("null")), 1.0)).isEqualTo(1.0)
     }
@@ -90,6 +111,11 @@ class KnownTypeAdaptersTestKt {
     @Test(expected = JsonSyntaxException::class)
     fun `PrimitiveDoubleTypeAdapter throws JsonSyntaxException if used on non double`() {
         KnownTypeAdapters.PrimitiveDoubleTypeAdapter.read(JsonReader(StringReader("test".quote())), 1.0)
+    }
+
+    @Test
+    fun `PrimitiveDoubleTypeAdapter is not instantiable`() {
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveDoubleTypeAdapter>()
     }
 
     @Test
@@ -103,6 +129,11 @@ class KnownTypeAdaptersTestKt {
     }
 
     @Test
+    fun `PrimitiveCharTypeAdapter is not instantiable`() {
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveCharTypeAdapter>()
+    }
+
+    @Test
     fun `PrimitiveBooleanTypeAdapter returns default value for null`() {
         assertThat(KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(JsonReader(StringReader("null")), true)).isTrue()
     }
@@ -110,6 +141,11 @@ class KnownTypeAdaptersTestKt {
     @Test
     fun `PrimitiveBooleanTypeAdapter parses boolean from string`() {
         assertThat(KnownTypeAdapters.PrimitiveBooleanTypeAdapter.read(JsonReader(StringReader("true".quote())), true)).isTrue()
+    }
+
+    @Test
+    fun `PrimitiveBooleanTypeAdapter is not instantiable`() {
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveBooleanTypeAdapter>()
     }
 
     @Test
@@ -123,43 +159,48 @@ class KnownTypeAdaptersTestKt {
     }
 
     @Test
+    fun `PrimitiveFloatTypeAdapter is not instantiable`() {
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveFloatTypeAdapter>()
+    }
+
+    @Test
     fun `PrimitiveIntegerArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveIntegerArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveIntegerArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveLongArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveLongArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveLongArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveDoubleArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveDoubleArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveDoubleArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveShortArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveShortArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveShortArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveFloatArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveFloatArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveFloatArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveBooleanArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveBooleanArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveBooleanArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveByteArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveByteArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveByteArrayAdapter>()
     }
 
     @Test
     fun `PrimitiveCharArrayAdapter is non-instantiable`() {
-        testZeroArgumentConstructorFinalClass(KnownTypeAdapters.PrimitiveCharArrayAdapter::class.java)
+        assertThatClassIsNotInstantiable<KnownTypeAdapters.PrimitiveCharArrayAdapter>()
     }
 
     @Test
@@ -194,4 +235,37 @@ class KnownTypeAdaptersTestKt {
 
         assertThat(arrayTypeAdapter.fromJson(arrayTypeAdapter.toJson(null))).isEqualTo(null)
     }
+
+    @Test
+    fun `ListInstantiator creates an empty List`() {
+        assertThat(KnownTypeAdapters.ListInstantiator<String>().construct()).isEmpty()
+    }
+
+    @Test
+    fun `CollectionInstantiator creates an empty Collection`() {
+        assertThat(KnownTypeAdapters.CollectionInstantiator<String>().construct()).isEmpty()
+    }
+
+    @Test
+    fun `ConcurrentHashMapInstantiator creates an empty ConcurrentHashMap`() {
+        assertThat(KnownTypeAdapters.ConcurrentHashMapInstantiator<String, String>().construct()).isEmpty()
+    }
+
+    @Test
+    fun `LinkedHashMapInstantiator creates an empty LinkedHashMap`() {
+        assertThat(KnownTypeAdapters.LinkedHashMapInstantiator<String, String>().construct()).isEmpty()
+    }
+
+    @Test
+    fun `MapInstantiator creates an empty Map`() {
+        assertThat(KnownTypeAdapters.MapInstantiator<String, String>().construct()).isEmpty()
+    }
+
+    @Test
+    fun `JSON_PRIMITIVE adapter serializes and deserializes correctly`() {
+        val value = JsonPrimitive(5)
+        val json = KnownTypeAdapters.JSON_PRIMITIVE.toJson(value)
+        assertThat(KnownTypeAdapters.JSON_PRIMITIVE.fromJson(json)).isEqualTo(value)
+    }
+
 }
