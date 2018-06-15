@@ -377,27 +377,6 @@ class TypeUtilsUnitTest : BaseUnitTest() {
 
     @Test
     @Throws(Exception::class)
-    fun testIsSupportedNative_supportsCorrectTypes() {
-        // Check supported primitives
-        assertTrue(TypeUtils.isSupportedNative(Long::class.javaPrimitiveType!!.name))
-        assertTrue(TypeUtils.isSupportedNative(Int::class.javaPrimitiveType!!.name))
-        assertTrue(TypeUtils.isSupportedNative(Boolean::class.javaPrimitiveType!!.name))
-        assertTrue(TypeUtils.isSupportedNative(Float::class.javaPrimitiveType!!.name))
-        assertTrue(TypeUtils.isSupportedNative(Double::class.javaPrimitiveType!!.name))
-        assertTrue(TypeUtils.isSupportedNative(String::class.java.name))
-        assertTrue(TypeUtils.isSupportedNative(Byte::class.javaPrimitiveType!!.name))
-        assertTrue(TypeUtils.isSupportedNative(Char::class.javaPrimitiveType!!.name))
-        assertTrue(TypeUtils.isSupportedNative(Short::class.javaPrimitiveType!!.name))
-
-        // Check unsupported primitives
-        assertFalse(TypeUtils.isSupportedNative(Void.TYPE.name))
-
-        // Check non-primitives
-        assertFalse(TypeUtils.isSupportedNative(Any::class.java.name))
-    }
-
-    @Test
-    @Throws(Exception::class)
     fun testIsMap_supportsCorrectTypes() {
         // Check null
         assertFalse(TypeUtils.isSupportedMap(null))

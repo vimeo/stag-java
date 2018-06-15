@@ -502,19 +502,6 @@ public final class TypeUtils {
     }
 
     /**
-     * Method to check if the type is natively supported such as {@link String} etc
-     *
-     * @param type String type
-     * @return boolean
-     */
-    public static boolean isSupportedNative(@NotNull String type) {
-        return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
-               type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
-               type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
-               type.equals(Float.class.getName()) || type.equals(Number.class.getName());
-    }
-
-    /**
      * Returns the inner {@link TypeMirror} for a given {@link TypeMirror}
      */
     @NotNull
