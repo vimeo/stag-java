@@ -285,8 +285,9 @@ class TypeUtilsUnitTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
-    fun isParameterizedType_Element_isCorrect() {
+    fun `isParameterizedType (TypeElement) is correct`() {
+        assertFalse(TypeUtils.isParameterizedType(null as TypeElement?))
+
         val testMap = HashMap<String, List<Any>>()
         assertTrue(TypeUtils.isParameterizedType(Utils.getElementFromObject(testMap)))
 
