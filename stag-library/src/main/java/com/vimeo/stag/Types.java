@@ -23,7 +23,7 @@ public final class Types {
         @NotNull
         private final Type[] lowerBounds;
 
-        public WildcardTypeImpl(@NotNull Type[] upperBounds, @NotNull Type[] lowerBounds) {
+        WildcardTypeImpl(@NotNull Type[] upperBounds, @NotNull Type[] lowerBounds) {
             this.upperBounds = upperBounds;
             this.lowerBounds = lowerBounds;
         }
