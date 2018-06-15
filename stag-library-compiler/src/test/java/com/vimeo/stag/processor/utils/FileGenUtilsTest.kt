@@ -1,5 +1,6 @@
 package com.vimeo.stag.processor.utils
 
+import com.vimeo.stag.processor.Utils
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.Closeable
@@ -11,6 +12,11 @@ import java.io.IOException
  * Created by restainoa on 6/15/18.
  */
 class FileGenUtilsTest {
+
+    @Test
+    fun `FileGenUtils is not instantiable`() {
+        Utils.testZeroArgumentConstructorFinalClass(FileGenUtils::class.java)
+    }
 
     @Test
     fun close() {

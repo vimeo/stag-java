@@ -132,6 +132,7 @@ public final class KnownTypeAdapterUtils {
     }
 
     private KnownTypeAdapterUtils() {
+        throw new UnsupportedOperationException("KnownTypeAdapterUtils cannot be instantiated");
     }
 
     @Nullable
