@@ -1,6 +1,9 @@
 package com.vimeo.stag
 
-import com.google.gson.*
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonPrimitive
+import com.google.gson.JsonSyntaxException
+import com.google.gson.TypeAdapter
 import com.google.gson.internal.ObjectConstructor
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
@@ -220,6 +223,34 @@ class KnownTypeAdaptersTestKt {
     }
 
     @Test
+    fun `ObjectTypeAdapter serializes list correctly`() {
+        val list = listOf("a", "b", "c", "d")
+
+        val gson = GsonBuilder().create()
+        val objectTypeAdapter = KnownTypeAdapters.ObjectTypeAdapter(gson)
+
+        val json = objectTypeAdapter.toJson(list)
+
+        assertThat(objectTypeAdapter.fromJson(json)).isEqualTo(list)
+    }
+
+    @Test
+    fun `ObjectTypeAdapter serializes map correctly`() {
+        val map = mapOf(
+                "a" to "b",
+                "b" to "c",
+                "c" to "e"
+        )
+
+        val gson = GsonBuilder().create()
+        val objectTypeAdapter = KnownTypeAdapters.ObjectTypeAdapter(gson)
+
+        val json = objectTypeAdapter.toJson(map)
+
+        assertThat(objectTypeAdapter.fromJson(json)).isEqualTo(map)
+    }
+
+    @Test
     fun `ArrayTypeAdapter serializes data correctly`() {
         val intTypeAdapter = KnownTypeAdapters.INTEGER
         val arrayTypeAdapter = KnownTypeAdapters.ArrayTypeAdapter(intTypeAdapter, KnownTypeAdapters.PrimitiveArrayConstructor<Int> { size -> Array(size, { 0 }) })
@@ -296,8 +327,8 @@ class KnownTypeAdaptersTestKt {
         )
 
         val testMap = mapOf(
-                Pair(KeyTest("a"), "b"),
-                Pair(KeyTest("b"), "c")
+                KeyTest("a") to "b",
+                KeyTest("b") to "c"
         )
 
         val json = mapTypeAdapter.toJson(testMap)
@@ -339,20 +370,8 @@ class KnownTypeAdaptersTestKt {
         )
 
         val testMap = mapOf(
-                Pair(
-                        listOf(
-                                KeyTest("a"),
-                                KeyTest("b")
-                        ),
-                        "b"
-                ),
-                Pair(
-                        listOf(
-                                KeyTest("c"),
-                                KeyTest("c")
-                        ),
-                        "c"
-                )
+                listOf(KeyTest("a"), KeyTest("b")) to "b",
+                listOf(KeyTest("c"), KeyTest("c")) to "c"
         )
 
         val json = mapTypeAdapter.toJson(testMap)
