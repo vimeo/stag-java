@@ -27,11 +27,11 @@ import com.vimeo.stag.processor.dummy.*
 import com.vimeo.stag.processor.generators.model.accessor.DirectFieldAccessor
 import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor
 import com.vimeo.stag.processor.utils.TypeUtils
-import org.junit.Assert
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import java.util.*
+import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
@@ -245,23 +245,43 @@ class TypeUtilsUnitTest : BaseUnitTest() {
     }
 
     @Test
-    @Throws(Exception::class)
-    fun isAbstract_isCorrect() {
+    fun `isAbstract (Element) is correct`() {
+        assertFalse(TypeUtils.isAbstract(null as Element?))
+
         val abstractElement = Utils.getElementFromClass(DummyAbstractClass::class.java)
-        Assert.assertTrue(TypeUtils.isAbstract(abstractElement))
+        assertTrue(TypeUtils.isAbstract(abstractElement))
 
         val concreteElement = Utils.getElementFromClass(DummyConcreteClass::class.java)
-        Assert.assertFalse(TypeUtils.isAbstract(concreteElement))
+        assertFalse(TypeUtils.isAbstract(concreteElement))
 
         val genericElement = Utils.getElementFromClass(DummyGenericClass::class.java)
-        Assert.assertFalse(TypeUtils.isAbstract(genericElement))
+        assertFalse(TypeUtils.isAbstract(genericElement))
 
         val enumElement = Utils.getElementFromClass(DummyEnumClass::class.java)
-        Assert.assertFalse(TypeUtils.isAbstract(enumElement))
+        assertFalse(TypeUtils.isAbstract(enumElement))
 
         val inheritedElement = Utils.getElementFromClass(DummyInheritedClass::class.java)
-        Assert.assertFalse(TypeUtils.isAbstract(inheritedElement))
+        assertFalse(TypeUtils.isAbstract(inheritedElement))
+    }
 
+    @Test
+    fun `isAbstract (TypeMirror) is correct`() {
+        assertFalse(TypeUtils.isAbstract(null as TypeMirror?))
+
+        val abstractElement = Utils.getTypeMirrorFromClass(DummyAbstractClass::class.java)
+        assertTrue(TypeUtils.isAbstract(abstractElement))
+
+        val concreteElement = Utils.getTypeMirrorFromClass(DummyConcreteClass::class.java)
+        assertFalse(TypeUtils.isAbstract(concreteElement))
+
+        val genericElement = Utils.getTypeMirrorFromClass(DummyGenericClass::class.java)
+        assertFalse(TypeUtils.isAbstract(genericElement))
+
+        val enumElement = Utils.getTypeMirrorFromClass(DummyEnumClass::class.java)
+        assertFalse(TypeUtils.isAbstract(enumElement))
+
+        val inheritedElement = Utils.getTypeMirrorFromClass(DummyInheritedClass::class.java)
+        assertFalse(TypeUtils.isAbstract(inheritedElement))
     }
 
     @Test
@@ -285,72 +305,72 @@ class TypeUtilsUnitTest : BaseUnitTest() {
     fun testIsSupportedPrimitive_supportsTypes() {
 
         // Check supported primitives
-        Assert.assertTrue(TypeUtils.isSupportedPrimitive(Long::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedPrimitive(Int::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedPrimitive(Boolean::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedPrimitive(Float::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedPrimitive(Double::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedPrimitive(Byte::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedPrimitive(Char::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedPrimitive(Short::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedPrimitive(Long::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedPrimitive(Int::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedPrimitive(Boolean::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedPrimitive(Float::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedPrimitive(Double::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedPrimitive(Byte::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedPrimitive(Char::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedPrimitive(Short::class.javaPrimitiveType!!.name))
 
         // Check unsupported primitives
-        Assert.assertFalse(TypeUtils.isSupportedPrimitive(Void.TYPE.name))
+        assertFalse(TypeUtils.isSupportedPrimitive(Void.TYPE.name))
 
         // Check non-primitives
-        Assert.assertFalse(TypeUtils.isSupportedPrimitive(String::class.java.name))
-        Assert.assertFalse(TypeUtils.isSupportedPrimitive(Any::class.java.name))
+        assertFalse(TypeUtils.isSupportedPrimitive(String::class.java.name))
+        assertFalse(TypeUtils.isSupportedPrimitive(Any::class.java.name))
     }
 
     @Test
     @Throws(Exception::class)
     fun testIsSupportedCollection_supportsTypes() {
         // Check supported list types
-        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(List::class.java)))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList::class.java)))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection::class.java)))
+        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(List::class.java)))
+        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList::class.java)))
+        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection::class.java)))
 
         // Check unsupported list types
-        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList::class.java)))
-        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector::class.java)))
-        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack::class.java)))
+        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList::class.java)))
+        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector::class.java)))
+        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack::class.java)))
 
-        Assert.assertFalse(TypeUtils.isSupportedCollection(null))
+        assertFalse(TypeUtils.isSupportedCollection(null))
 
-        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Any::class.java)))
+        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Any::class.java)))
 
         // Check array types
-        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String::class.java))))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Any::class.java))))
+        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))))
+        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))))
+        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))))
+        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String::class.java))))
+        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Any::class.java))))
     }
 
     @Test
     @Throws(Exception::class)
     fun testIsSupportedList_supportsTypes() {
         // Check supported types
-        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(List::class.java)))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList::class.java)))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection::class.java)))
+        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(List::class.java)))
+        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList::class.java)))
+        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection::class.java)))
 
         // Check unsupported list types
-        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList::class.java)))
-        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector::class.java)))
-        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack::class.java)))
+        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList::class.java)))
+        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector::class.java)))
+        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack::class.java)))
 
 
-        Assert.assertFalse(TypeUtils.isSupportedCollection(null))
+        assertFalse(TypeUtils.isSupportedCollection(null))
 
-        Assert.assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Any::class.java)))
+        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Any::class.java)))
 
         // Check supported array types
-        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String::class.java))))
-        Assert.assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Any::class.java))))
+        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))))
+        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))))
+        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))))
+        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String::class.java))))
+        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Any::class.java))))
 
     }
 
@@ -358,40 +378,40 @@ class TypeUtilsUnitTest : BaseUnitTest() {
     @Throws(Exception::class)
     fun testIsSupportedNative_supportsCorrectTypes() {
         // Check supported primitives
-        Assert.assertTrue(TypeUtils.isSupportedNative(Long::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedNative(Int::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedNative(Boolean::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedNative(Float::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedNative(Double::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedNative(String::class.java.name))
-        Assert.assertTrue(TypeUtils.isSupportedNative(Byte::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedNative(Char::class.javaPrimitiveType!!.name))
-        Assert.assertTrue(TypeUtils.isSupportedNative(Short::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedNative(Long::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedNative(Int::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedNative(Boolean::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedNative(Float::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedNative(Double::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedNative(String::class.java.name))
+        assertTrue(TypeUtils.isSupportedNative(Byte::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedNative(Char::class.javaPrimitiveType!!.name))
+        assertTrue(TypeUtils.isSupportedNative(Short::class.javaPrimitiveType!!.name))
 
         // Check unsupported primitives
-        Assert.assertFalse(TypeUtils.isSupportedNative(Void.TYPE.name))
+        assertFalse(TypeUtils.isSupportedNative(Void.TYPE.name))
 
         // Check non-primitives
-        Assert.assertFalse(TypeUtils.isSupportedNative(Any::class.java.name))
+        assertFalse(TypeUtils.isSupportedNative(Any::class.java.name))
     }
 
     @Test
     @Throws(Exception::class)
     fun testIsMap_supportsCorrectTypes() {
         // Check null
-        Assert.assertFalse(TypeUtils.isSupportedMap(null))
+        assertFalse(TypeUtils.isSupportedMap(null))
 
         // Check supported types
-        Assert.assertTrue(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(Map::class.java)))
-        Assert.assertTrue(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(HashMap::class.java)))
-        Assert.assertTrue(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(LinkedHashMap::class.java)))
+        assertTrue(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(Map::class.java)))
+        assertTrue(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(HashMap::class.java)))
+        assertTrue(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(LinkedHashMap::class.java)))
 
         // Check type that implements map
-        Assert.assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(DummyMapClass::class.java)))
+        assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(DummyMapClass::class.java)))
 
         // Check other types
-        Assert.assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(Any::class.java)))
-        Assert.assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(DummyConcreteClass::class.java)))
-        Assert.assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(String::class.java)))
+        assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(Any::class.java)))
+        assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(DummyConcreteClass::class.java)))
+        assertFalse(TypeUtils.isSupportedMap(Utils.getTypeMirrorFromClass(String::class.java)))
     }
 }
