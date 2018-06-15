@@ -77,12 +77,7 @@ public final class FileGenUtils {
             }
             throw e;
         } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ignored) {
-                }
-            }
+            close(writer);
         }
     }
 
@@ -116,13 +111,7 @@ public final class FileGenUtils {
             }
             throw e;
         } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ignored) {
-
-                }
-            }
+            close(writer);
         }
     }
 
