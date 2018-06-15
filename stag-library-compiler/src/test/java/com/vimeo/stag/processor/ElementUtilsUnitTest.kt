@@ -29,8 +29,7 @@ import com.vimeo.stag.processor.dummy.DummyGenericClass
 import com.vimeo.stag.processor.dummy.DummyInheritedClass
 import com.vimeo.stag.processor.utils.ElementUtils
 import com.vimeo.stag.processor.utils.TypeUtils
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import java.util.ArrayList
@@ -48,6 +47,16 @@ class ElementUtilsUnitTest : BaseUnitTest() {
 
     @Test
     fun testGetTypeFromQualifiedName() {
+        fun <T> testTypeMirrorCreationAndEquality(clazz: Class<T>) {
+            assertEquals(Utils.getTypeMirrorFromClass(clazz), ElementUtils.getTypeFromQualifiedName(clazz.name))
+        }
+
+        fun <T, R> testTypeMirrorCreationAndInequality(clazz: Class<T>, otherClass: Class<R>) {
+            assertNotEquals(Utils.getTypeMirrorFromClass(clazz), ElementUtils.getTypeFromQualifiedName(otherClass.name))
+        }
+
+        assertNull(ElementUtils.getTypeElementFromQualifiedName(""))
+
         testTypeMirrorCreationAndEquality(String::class.java)
         testTypeMirrorCreationAndEquality(Any::class.java)
         testTypeMirrorCreationAndEquality(ArrayList::class.java)
@@ -60,12 +69,14 @@ class ElementUtilsUnitTest : BaseUnitTest() {
         testTypeMirrorCreationAndInequality(DummyInheritedClass::class.java, DummyGenericClass::class.java)
     }
 
-    private fun <T> testTypeMirrorCreationAndEquality(clazz: Class<T>) {
-        assertEquals(Utils.getTypeMirrorFromClass(clazz), ElementUtils.getTypeFromQualifiedName(clazz.name))
+    @Test
+    fun `isSupportedElementKind returns false for null Element`() {
+        assertFalse(ElementUtils.isSupportedElementKind(null))
     }
 
-    private fun <T, R> testTypeMirrorCreationAndInequality(clazz: Class<T>, otherClass: Class<R>) {
-        assertNotEquals(Utils.getTypeMirrorFromClass(clazz), ElementUtils.getTypeFromQualifiedName(otherClass.name))
+    @Test
+    fun `isSupportedElementKind returns false for non annotated element`() {
+        assertFalse(ElementUtils.isSupportedElementKind(Utils.getElementFromClass(String::class.java)))
     }
 
     @Test
