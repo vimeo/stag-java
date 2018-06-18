@@ -30,7 +30,10 @@ import com.vimeo.stag.processor.utils.TypeUtils
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import java.util.*
+import java.util.ArrayList
+import java.util.HashMap
+import java.util.HashSet
+import java.util.LinkedHashMap
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
@@ -321,58 +324,6 @@ class TypeUtilsUnitTest : BaseUnitTest() {
         // Check non-primitives
         assertFalse(TypeUtils.isSupportedPrimitive(String::class.java.name))
         assertFalse(TypeUtils.isSupportedPrimitive(Any::class.java.name))
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testIsSupportedCollection_supportsTypes() {
-        // Check supported list types
-        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(List::class.java)))
-        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList::class.java)))
-        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection::class.java)))
-
-        // Check unsupported list types
-        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList::class.java)))
-        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector::class.java)))
-        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack::class.java)))
-
-        assertFalse(TypeUtils.isSupportedCollection(null))
-
-        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Any::class.java)))
-
-        // Check array types
-        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))))
-        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))))
-        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))))
-        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String::class.java))))
-        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Any::class.java))))
-    }
-
-    @Test
-    @Throws(Exception::class)
-    fun testIsSupportedList_supportsTypes() {
-        // Check supported types
-        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(List::class.java)))
-        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(ArrayList::class.java)))
-        assertTrue(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Collection::class.java)))
-
-        // Check unsupported list types
-        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(LinkedList::class.java)))
-        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Vector::class.java)))
-        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Stack::class.java)))
-
-
-        assertFalse(TypeUtils.isSupportedCollection(null))
-
-        assertFalse(TypeUtils.isSupportedCollection(Utils.getTypeMirrorFromClass(Any::class.java)))
-
-        // Check supported array types
-        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.INT))))
-        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.BOOLEAN))))
-        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(types.getPrimitiveType(TypeKind.CHAR))))
-        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(String::class.java))))
-        assertTrue(TypeUtils.isSupportedCollection(types.getArrayType(Utils.getTypeMirrorFromClass(Any::class.java))))
-
     }
 
     @Test

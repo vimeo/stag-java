@@ -457,16 +457,6 @@ public final class TypeUtils {
     }
 
     /**
-     * Method to check if the {@link TypeMirror} is of {@link Collection} type
-     *
-     * @param type :TypeMirror type
-     * @return boolean
-     */
-    public static boolean isSupportedCollection(@Nullable TypeMirror type) {
-        return type != null && (isNativeArray(type) || isSupportedList(type));
-    }
-
-    /**
      * Method to check if the {@link TypeMirror} is of {@link List} type
      *
      * @param type :TypeMirror type
@@ -493,6 +483,7 @@ public final class TypeUtils {
             return false;
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
+        //noinspection LiteralAsArgToStringEquals
         return outerClassType.equals(Map.class.getName()) ||
                outerClassType.equals(HashMap.class.getName()) ||
                outerClassType.equals(ConcurrentHashMap.class.getName()) ||

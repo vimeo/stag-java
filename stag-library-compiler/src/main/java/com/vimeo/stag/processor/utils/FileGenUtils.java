@@ -81,6 +81,7 @@ public final class FileGenUtils {
         }
     }
 
+    @Nullable
     static CharSequence readResource(@NotNull Filer filer, @NotNull String generatedPackageName,
                                      @NotNull String resourceName) throws IOException {
         try {
