@@ -425,8 +425,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     /**
      * Returns the adapter code for the known types.
      */
-    private static String getAdapterAccessor(@NotNull TypeMirror fieldType
-            , @NotNull StagGenerator stagGenerator, @NotNull Map<TypeMirror, String> typeVarsMap,
+    private static String getAdapterAccessor(@NotNull TypeMirror fieldType,
+                                             @NotNull StagGenerator stagGenerator,
+                                             @NotNull Map<TypeMirror, String> typeVarsMap,
                                              @NotNull AdapterFieldInfo adapterFieldInfo) {
 
         String knownTypeAdapter = KnownTypeAdapterUtils.getKnownTypeAdapterForType(fieldType);

@@ -273,8 +273,8 @@ public final class TypeUtils {
      * inherits from Object or Enum.
      */
     @Nullable
-    public static TypeMirror getInheritedType(@Nullable TypeElement element) {
-        TypeMirror typeMirror = element != null ? element.getSuperclass() : null;
+    public static TypeMirror getInheritedType(@NotNull TypeElement element) {
+        TypeMirror typeMirror = element.getSuperclass();
         String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
         if (!Object.class.getName().equals(className) && !Enum.class.getName().equals(className)) {
             return typeMirror;
@@ -288,8 +288,8 @@ public final class TypeUtils {
      * @param element the element to check.
      * @return true if the element inherits from an enum, false otherwise.
      */
-    public static boolean isEnum(@Nullable TypeElement element) {
-        TypeMirror typeMirror = element != null ? element.getSuperclass() : null;
+    public static boolean isEnum(@NotNull TypeElement element) {
+        TypeMirror typeMirror = element.getSuperclass();
         String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
 
         return Enum.class.getName().equals(className);
@@ -459,13 +459,10 @@ public final class TypeUtils {
     /**
      * Method to check if the {@link TypeMirror} is of {@link List} type
      *
-     * @param type :TypeMirror type
+     * @param type TypeMirror type
      * @return boolean
      */
-    public static boolean isSupportedList(@Nullable TypeMirror type) {
-        if (type == null) {
-            return false;
-        }
+    public static boolean isSupportedList(@NotNull TypeMirror type) {
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
                outerClassType.equals(List.class.getName()) ||
