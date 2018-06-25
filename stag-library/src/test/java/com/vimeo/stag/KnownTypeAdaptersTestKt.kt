@@ -304,24 +304,26 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `MapTypeAdapter serializes and deserializes object keys correctly`() {
+        val keyTypeAdapter = object : TypeAdapter<KeyTest>() {
+            override fun write(out: JsonWriter, value: KeyTest?) {
+                out.beginObject()
+                out.name("string")
+                out.value(value?.string)
+                out.endObject()
+            }
+
+            override fun read(input: JsonReader): KeyTest {
+                input.beginObject()
+                input.nextName()
+                val string = input.nextString()
+                input.endObject()
+                return KeyTest(string ?: throw Exception("Null string"))
+            }
+
+        }
+
         val mapTypeAdapter = KnownTypeAdapters.MapTypeAdapter<KeyTest, String, Map<KeyTest, String>>(
-                object : TypeAdapter<KeyTest>() {
-                    override fun write(out: JsonWriter, value: KeyTest?) {
-                        out.beginObject()
-                        out.name("string")
-                        out.value(value?.string)
-                        out.endObject()
-                    }
-
-                    override fun read(input: JsonReader): KeyTest {
-                        input.beginObject()
-                        input.nextName()
-                        val string = input.nextString()
-                        input.endObject()
-                        return KeyTest(string ?: throw Exception("Null string"))
-                    }
-
-                },
+                keyTypeAdapter,
                 KnownTypeAdapters.STRING_NULL_SAFE_TYPE_ADAPTER,
                 ObjectConstructor<Map<KeyTest, String>> { HashMap() }
         )
@@ -337,34 +339,34 @@ class KnownTypeAdaptersTestKt {
 
     @Test
     fun `MapTypeAdapter serializes and deserializes array keys correctly`() {
-        val mapTypeAdapter = KnownTypeAdapters.MapTypeAdapter<List<KeyTest>, String, Map<List<KeyTest>, String>>(
-                object : TypeAdapter<List<KeyTest>>() {
-                    override fun write(out: JsonWriter, value: List<KeyTest>?) {
-                        out.beginArray()
-                        value?.forEach {
-                            out.beginObject()
-                            out.name("string")
-                            out.value(it.string)
-                            out.endObject()
-                        }
-                        out.endArray()
-                    }
+        val keyTypeAdapter = object : TypeAdapter<List<KeyTest>>() {
+            override fun write(out: JsonWriter, value: List<KeyTest>?) {
+                out.beginArray()
+                value?.forEach {
+                    out.beginObject()
+                    out.name("string")
+                    out.value(it.string)
+                    out.endObject()
+                }
+                out.endArray()
+            }
+            override fun read(input: JsonReader): List<KeyTest> {
+                val mutableList = mutableListOf<KeyTest>()
+                input.beginArray()
+                while (input.peek() == JsonToken.BEGIN_OBJECT) {
+                    input.beginObject()
+                    input.nextName()
+                    val string = input.nextString()
+                    input.endObject()
+                    mutableList.add(KeyTest(string ?: throw Exception("Null string")))
+                }
+                input.endArray()
+                return mutableList
+            }
+        }
 
-                    override fun read(input: JsonReader): List<KeyTest> {
-                        val mutableList = mutableListOf<KeyTest>()
-                        input.beginArray()
-                        while (input.peek() == JsonToken.BEGIN_OBJECT) {
-                            input.beginObject()
-                            input.nextName()
-                            val string = input.nextString()
-                            input.endObject()
-                            mutableList.add(KeyTest(string ?: throw Exception("Null string")))
-                        }
-                        input.endArray()
-                        return mutableList
-                    }
-
-                },
+            val mapTypeAdapter = KnownTypeAdapters.MapTypeAdapter<List<KeyTest>, String, Map<List<KeyTest>, String>>(
+                keyTypeAdapter,
                 KnownTypeAdapters.STRING_NULL_SAFE_TYPE_ADAPTER,
                 ObjectConstructor<Map<List<KeyTest>, String>> { HashMap() }
         )
