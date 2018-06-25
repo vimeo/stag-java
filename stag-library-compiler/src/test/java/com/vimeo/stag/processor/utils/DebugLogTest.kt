@@ -16,8 +16,6 @@ import org.junit.Test
  */
 class DebugLogTest {
 
-    private val logger = mock<Logger>()
-
     @Before
     fun setUp() {
         DebugLog.initialize(null)
@@ -40,6 +38,7 @@ class DebugLogTest {
 
     @Test
     fun `log message works`() {
+        val logger = mock<Logger>()
         DebugLog.initialize(logger)
         DebugLog.log("test message")
 
@@ -49,6 +48,7 @@ class DebugLogTest {
 
     @Test
     fun `log with tag and message works`() {
+        val logger = mock<Logger>()
         DebugLog.initialize(logger)
         DebugLog.log("test tag", "test message")
 

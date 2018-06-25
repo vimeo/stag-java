@@ -1,7 +1,9 @@
 package com.vimeo.stag.processor.utils
 
+import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
 import com.vimeo.stag.processor.Utils
-import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.io.Closeable
 import java.io.IOException
@@ -19,15 +21,21 @@ class FileGenUtilsTest {
     }
 
     @Test
-    fun close() {
-        var counter = 0
-        val closeable = Closeable { counter++ }
+    fun `close calls close on closeable once`() {
+        val closeable = mock<Closeable>()
         FileGenUtils.close(closeable)
-        assertEquals(1, counter)
 
+        verify(closeable).close()
+        verifyNoMoreInteractions(closeable)
+    }
+
+    @Test
+    fun `close accepts null closeable`() {
         FileGenUtils.close(null)
-        assertEquals(1, counter)
+    }
 
+    @Test
+    fun `close safely catches IO exceptions`() {
         val failureCloseable = Closeable { throw IOException("test") }
         FileGenUtils.close(failureCloseable)
     }
