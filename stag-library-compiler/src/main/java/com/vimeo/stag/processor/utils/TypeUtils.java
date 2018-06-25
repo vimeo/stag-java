@@ -439,8 +439,9 @@ public final class TypeUtils {
     /**
      * Method to check if the {@link TypeMirror} is of primitive type
      *
-     * @param type :TypeMirror type
-     * @return boolean
+     * @param type TypeMirror type
+     * @return true if the type represented as a string is a primitive type that's supported, false
+     * otherwise.
      */
     public static boolean isSupportedPrimitive(@NotNull String type) {
         return PRIMITIVE_TO_OBJECT_MAP.containsKey(type);
@@ -449,8 +450,8 @@ public final class TypeUtils {
     /**
      * Method to check if the {@link TypeMirror} is of {@link ArrayType}
      *
-     * @param type :TypeMirror type
-     * @return boolean
+     * @param type TypeMirror type
+     * @return true if the type is a native array type, false otherwise.
      */
     public static boolean isNativeArray(@NotNull TypeMirror type) {
         return (type instanceof ArrayType);
@@ -460,7 +461,8 @@ public final class TypeUtils {
      * Method to check if the {@link TypeMirror} is of {@link List} type
      *
      * @param type TypeMirror type
-     * @return boolean
+     * @return true if the type is a {@link List}, {@link ArrayList}, or {@link Collection},
+     * false otherwise.
      */
     public static boolean isSupportedList(@NotNull TypeMirror type) {
         String outerClassType = TypeUtils.getOuterClassType(type);
@@ -472,8 +474,8 @@ public final class TypeUtils {
     /**
      * Method to check if the {@link TypeMirror} is of {@link Map} type
      *
-     * @param type :TypeMirror type
-     * @return boolean
+     * @param type TypeMirror type
+     * @return true if the type is a supported map type, false otherwise.
      */
     public static boolean isSupportedMap(@Nullable TypeMirror type) {
         if (type == null) {
@@ -555,7 +557,7 @@ public final class TypeUtils {
     /**
      * Return the type of JsonAdapter {@link TypeMirror}
      *
-     * @param type :TypeMirror type
+     * @param type TypeMirror type
      * @return {@link JsonAdapterType}
      */
     @NotNull
