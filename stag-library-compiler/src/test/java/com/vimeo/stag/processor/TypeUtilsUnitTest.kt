@@ -27,13 +27,12 @@ import com.vimeo.stag.processor.dummy.*
 import com.vimeo.stag.processor.generators.model.accessor.DirectFieldAccessor
 import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor
 import com.vimeo.stag.processor.utils.TypeUtils
+import com.vimeo.stag.processor.utils.logging.DebugLog
+import com.vimeo.stag.processor.utils.logging.NoOpLogger
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import java.util.ArrayList
-import java.util.HashMap
-import java.util.HashSet
-import java.util.LinkedHashMap
+import java.util.*
 import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
@@ -47,7 +46,10 @@ import javax.lang.model.type.TypeMirror
 class TypeUtilsUnitTest : BaseUnitTest() {
 
     @Before
-    fun setup() = TypeUtils.initialize(types)
+    fun setup() {
+        TypeUtils.initialize(types)
+        DebugLog.initialize(NoOpLogger())
+    }
 
     @Test
     @Throws(Exception::class)
