@@ -1,6 +1,5 @@
 package com.vimeo.stag;
 
-
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Type;

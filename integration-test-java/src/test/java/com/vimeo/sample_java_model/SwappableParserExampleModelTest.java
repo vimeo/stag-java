@@ -37,6 +37,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Unit tests for {@link SwappableParserExampleModel}.
  */
@@ -67,7 +70,7 @@ public class SwappableParserExampleModelTest {
                 .registerTypeAdapter(TestObject.class, new TestObjectAdapter1())
                 .create();
         final SwappableParserExampleModel model1 = gson1.fromJson(typeAdapter1Json, SwappableParserExampleModel.class);
-        Assert.assertEquals(model1.testField2.testField, "test");
+        assertEquals(model1.testField2.testField, "test");
 
         // TypeAdapter2 assumes a reversed string
         final String typeAdapter2Json = swappableParserExampleJsonWithTestObjectField("tset");
@@ -76,7 +79,7 @@ public class SwappableParserExampleModelTest {
                 .registerTypeAdapter(TestObject.class, new TestObjectAdapter2())
                 .create();
         final SwappableParserExampleModel model2 = gson2.fromJson(typeAdapter2Json, SwappableParserExampleModel.class);
-        Assert.assertEquals(model2.testField2.testField, "test");
+        assertEquals(model2.testField2.testField, "test");
     }
 
     /**
@@ -112,7 +115,7 @@ public class SwappableParserExampleModelTest {
             TestObject object = new TestObject();
 
             in.beginObject();
-            Assert.assertTrue("testField".equals(in.nextName()));
+            assertTrue("testField".equals(in.nextName()));
             object.testField = in.nextString();
             in.endObject();
 
@@ -140,7 +143,7 @@ public class SwappableParserExampleModelTest {
             TestObject object = new TestObject();
 
             in.beginObject();
-            Assert.assertTrue("testField".equals(in.nextName()));
+            assertTrue("testField".equals(in.nextName()));
             object.testField = new StringBuilder(in.nextString()).reverse().toString();
             in.endObject();
 

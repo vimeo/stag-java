@@ -38,6 +38,10 @@ import static com.vimeo.stag.processor.utils.TypeUtils.className;
  */
 public final class KnownTypeAdapterUtils {
 
+    private KnownTypeAdapterUtils() {
+        throw new UnsupportedOperationException("KnownTypeAdapterUtils cannot be instantiated");
+    }
+
     @NotNull private static final HashMap<String, String> KNOWN_TYPE_ADAPTERS = new HashMap<>();
     @NotNull private static final HashMap<String, String> SUPPORTED_COLLECTION_INSTANTIATORS = new HashMap<>();
     @NotNull private static final HashMap<String, String> SUPPORTED_MAP_INSTANTIATORS = new HashMap<>();
@@ -129,10 +133,6 @@ public final class KnownTypeAdapterUtils {
         }
 
         throw new IllegalStateException("Unable to find field: " + clazz.getName());
-    }
-
-    private KnownTypeAdapterUtils() {
-        throw new UnsupportedOperationException("KnownTypeAdapterUtils cannot be instantiated");
     }
 
     @Nullable
