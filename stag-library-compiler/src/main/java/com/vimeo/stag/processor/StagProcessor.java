@@ -37,12 +37,15 @@ import com.vimeo.stag.processor.generators.model.AnnotatedClass;
 import com.vimeo.stag.processor.generators.model.ClassInfo;
 import com.vimeo.stag.processor.generators.model.SupportedTypesModel;
 import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor.Notation;
-import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.FileGenUtils;
 import com.vimeo.stag.processor.utils.KnownTypeAdapterFactoriesUtils;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;
+import com.vimeo.stag.processor.utils.logging.ConsoleLogger;
+import com.vimeo.stag.processor.utils.logging.DebugLog;
+import com.vimeo.stag.processor.utils.logging.Logger;
+import com.vimeo.stag.processor.utils.logging.NoOpLogger;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -77,7 +80,6 @@ public final class StagProcessor extends AbstractProcessor {
     static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
     static final String OPTION_HUNGARIAN_NOTATION = "stagAssumeHungarianNotation";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
-    public static volatile boolean DEBUG;
     private boolean mHasBeenProcessed;
 
     private static boolean getDebugBoolean(@NotNull ProcessingEnvironment processingEnvironment) {
@@ -145,7 +147,14 @@ public final class StagProcessor extends AbstractProcessor {
 
         mHasBeenProcessed = true;
 
-        DEBUG = getDebugBoolean(processingEnv);
+        final Logger logger;
+        if (getDebugBoolean(processingEnv)) {
+            logger = new ConsoleLogger();
+        } else {
+            logger = new NoOpLogger();
+        }
+
+        DebugLog.initialize(logger);
 
         String packageName = getOptionalPackageName(processingEnv);
 

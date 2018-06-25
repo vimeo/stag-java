@@ -28,6 +28,7 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
+import com.vimeo.stag.processor.utils.logging.DebugLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

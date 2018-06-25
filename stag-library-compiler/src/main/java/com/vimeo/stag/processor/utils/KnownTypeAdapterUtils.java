@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.internal.bind.TypeAdapters;
 import com.vimeo.stag.KnownTypeAdapters;
+import com.vimeo.stag.processor.utils.logging.DebugLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

@@ -25,6 +25,7 @@ package com.vimeo.stag.processor.utils;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
+import com.vimeo.stag.processor.utils.logging.DebugLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
