@@ -3,7 +3,11 @@ package com.vimeo.stag
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSyntaxException
+import com.google.gson.TypeAdapter
+import com.google.gson.internal.ObjectConstructor
 import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonToken
+import com.google.gson.stream.JsonWriter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.StringReader
@@ -219,6 +223,34 @@ class KnownTypeAdaptersTestKt {
     }
 
     @Test
+    fun `ObjectTypeAdapter serializes list correctly`() {
+        val list = listOf("a", "b", "c", "d")
+
+        val gson = GsonBuilder().create()
+        val objectTypeAdapter = KnownTypeAdapters.ObjectTypeAdapter(gson)
+
+        val json = objectTypeAdapter.toJson(list)
+
+        assertThat(objectTypeAdapter.fromJson(json)).isEqualTo(list)
+    }
+
+    @Test
+    fun `ObjectTypeAdapter serializes map correctly`() {
+        val map = mapOf(
+                "a" to "b",
+                "b" to "c",
+                "c" to "e"
+        )
+
+        val gson = GsonBuilder().create()
+        val objectTypeAdapter = KnownTypeAdapters.ObjectTypeAdapter(gson)
+
+        val json = objectTypeAdapter.toJson(map)
+
+        assertThat(objectTypeAdapter.fromJson(json)).isEqualTo(map)
+    }
+
+    @Test
     fun `ArrayTypeAdapter serializes data correctly`() {
         val intTypeAdapter = KnownTypeAdapters.INTEGER
         val arrayTypeAdapter = KnownTypeAdapters.ArrayTypeAdapter(intTypeAdapter, KnownTypeAdapters.PrimitiveArrayConstructor<Int> { size -> Array(size, { 0 }) })
@@ -268,4 +300,83 @@ class KnownTypeAdaptersTestKt {
         assertThat(KnownTypeAdapters.JSON_PRIMITIVE.fromJson(json)).isEqualTo(value)
     }
 
+    data class KeyTest(val string: String)
+
+    @Test
+    fun `MapTypeAdapter serializes and deserializes object keys correctly`() {
+        val keyTypeAdapter = object : TypeAdapter<KeyTest>() {
+            override fun write(out: JsonWriter, value: KeyTest?) {
+                out.beginObject()
+                out.name("string")
+                out.value(value?.string)
+                out.endObject()
+            }
+
+            override fun read(input: JsonReader): KeyTest {
+                input.beginObject()
+                input.nextName()
+                val string = input.nextString()
+                input.endObject()
+                return KeyTest(string ?: throw Exception("Null string"))
+            }
+
+        }
+
+        val mapTypeAdapter = KnownTypeAdapters.MapTypeAdapter<KeyTest, String, Map<KeyTest, String>>(
+                keyTypeAdapter,
+                KnownTypeAdapters.STRING_NULL_SAFE_TYPE_ADAPTER,
+                ObjectConstructor<Map<KeyTest, String>> { HashMap() }
+        )
+
+        val testMap = mapOf(
+                KeyTest("a") to "b",
+                KeyTest("b") to "c"
+        )
+
+        val json = mapTypeAdapter.toJson(testMap)
+        assertThat(mapTypeAdapter.fromJson(json)).isEqualTo(testMap)
+    }
+
+    @Test
+    fun `MapTypeAdapter serializes and deserializes array keys correctly`() {
+        val keyTypeAdapter = object : TypeAdapter<List<KeyTest>>() {
+            override fun write(out: JsonWriter, value: List<KeyTest>?) {
+                out.beginArray()
+                value?.forEach {
+                    out.beginObject()
+                    out.name("string")
+                    out.value(it.string)
+                    out.endObject()
+                }
+                out.endArray()
+            }
+            override fun read(input: JsonReader): List<KeyTest> {
+                val mutableList = mutableListOf<KeyTest>()
+                input.beginArray()
+                while (input.peek() == JsonToken.BEGIN_OBJECT) {
+                    input.beginObject()
+                    input.nextName()
+                    val string = input.nextString()
+                    input.endObject()
+                    mutableList.add(KeyTest(string ?: throw Exception("Null string")))
+                }
+                input.endArray()
+                return mutableList
+            }
+        }
+
+            val mapTypeAdapter = KnownTypeAdapters.MapTypeAdapter<List<KeyTest>, String, Map<List<KeyTest>, String>>(
+                keyTypeAdapter,
+                KnownTypeAdapters.STRING_NULL_SAFE_TYPE_ADAPTER,
+                ObjectConstructor<Map<List<KeyTest>, String>> { HashMap() }
+        )
+
+        val testMap = mapOf(
+                listOf(KeyTest("a"), KeyTest("b")) to "b",
+                listOf(KeyTest("c"), KeyTest("c")) to "c"
+        )
+
+        val json = mapTypeAdapter.toJson(testMap)
+        assertThat(mapTypeAdapter.fromJson(json)).isEqualTo(testMap)
+    }
 }

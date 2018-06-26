@@ -30,7 +30,7 @@ import com.vimeo.stag.processor.generators.model.accessor.DirectFieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor.Notation;
-import com.vimeo.stag.processor.utils.DebugLog;
+import com.vimeo.stag.processor.utils.logging.DebugLog;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.TypeUtils;

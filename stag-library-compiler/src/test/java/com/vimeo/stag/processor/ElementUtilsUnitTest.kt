@@ -29,11 +29,10 @@ import com.vimeo.stag.processor.dummy.DummyGenericClass
 import com.vimeo.stag.processor.dummy.DummyInheritedClass
 import com.vimeo.stag.processor.utils.ElementUtils
 import com.vimeo.stag.processor.utils.TypeUtils
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import java.util.ArrayList
+import java.util.*
 
 class ElementUtilsUnitTest : BaseUnitTest() {
 
@@ -44,32 +43,45 @@ class ElementUtilsUnitTest : BaseUnitTest() {
     }
 
     @Test
-    fun testConstructor() = Utils.testZeroArgumentConstructorFinalClass(ElementUtils::class.java)
+    fun `test constructor`() = Utils.testZeroArgumentConstructorFinalClass(ElementUtils::class.java)
 
     @Test
-    fun testGetTypeFromQualifiedName() {
-        testTypeMirrorCreationAndEquality(String::class.java)
-        testTypeMirrorCreationAndEquality(Any::class.java)
-        testTypeMirrorCreationAndEquality(ArrayList::class.java)
-        testTypeMirrorCreationAndEquality(DummyConcreteClass::class.java)
-        testTypeMirrorCreationAndEquality(DummyGenericClass::class.java)
-        testTypeMirrorCreationAndEquality(DummyInheritedClass::class.java)
-
-        testTypeMirrorCreationAndInequality(DummyConcreteClass::class.java, DummyInheritedClass::class.java)
-        testTypeMirrorCreationAndInequality(DummyGenericClass::class.java, DummyConcreteClass::class.java)
-        testTypeMirrorCreationAndInequality(DummyInheritedClass::class.java, DummyGenericClass::class.java)
-    }
-
-    private fun <T> testTypeMirrorCreationAndEquality(clazz: Class<T>) {
-        assertEquals(Utils.getTypeMirrorFromClass(clazz), ElementUtils.getTypeFromQualifiedName(clazz.name))
-    }
-
-    private fun <T, R> testTypeMirrorCreationAndInequality(clazz: Class<T>, otherClass: Class<R>) {
-        assertNotEquals(Utils.getTypeMirrorFromClass(clazz), ElementUtils.getTypeFromQualifiedName(otherClass.name))
+    fun `getTypeFromQualifiedName equality test`() {
+        listOf(
+                String::class.java,
+                Any::class.java,
+                ArrayList::class.java,
+                DummyConcreteClass::class.java,
+                DummyGenericClass::class.java,
+                DummyInheritedClass::class.java
+        ).forEach {
+            assertEquals(Utils.getTypeMirrorFromClass(it), ElementUtils.getTypeFromQualifiedName(it.name))
+        }
     }
 
     @Test
-    fun testGetPackage() {
+    fun `getTypeFromQualifiedName inequality test`() {
+        listOf(
+                DummyConcreteClass::class.java to DummyInheritedClass::class.java,
+                DummyGenericClass::class.java to DummyConcreteClass::class.java,
+                DummyInheritedClass::class.java to DummyGenericClass::class.java
+        ).forEach { (one, theOther) ->
+            assertNotEquals(Utils.getTypeMirrorFromClass(one), ElementUtils.getTypeFromQualifiedName(theOther.name))
+        }
+    }
+
+    @Test
+    fun `isSupportedElementKind returns false for null Element`() {
+        assertFalse(ElementUtils.isSupportedElementKind(null))
+    }
+
+    @Test
+    fun `isSupportedElementKind returns false for non annotated element`() {
+        assertFalse(ElementUtils.isSupportedElementKind(Utils.getElementFromClass(String::class.java)))
+    }
+
+    @Test
+    fun `test getPackage`() {
         testPackageEquality(String::class.java)
         testPackageEquality(ArrayList::class.java)
         testPackageEquality(Any::class.java)
@@ -94,7 +106,7 @@ class ElementUtilsUnitTest : BaseUnitTest() {
     }
 
     @Test
-    fun testGetConstructor() {
+    fun `test getConstructor`() {
         var executableElement = ElementUtils.getFirstConstructor(Utils.getTypeMirrorFromClass(String::class.java))!!
         assertEquals(executableElement.enclosingElement.toString(), Utils.getElementFromClass(String::class.java).toString())
         assertEquals(executableElement.parameters.size.toLong(), 0)

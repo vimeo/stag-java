@@ -39,6 +39,11 @@ public final class MessagerUtils {
         throw new UnsupportedOperationException("This class is not instantiable");
     }
 
+    /**
+     * Initialize the Messager. Must be done before the messager can be used.
+     *
+     * @param messager the messager instance.
+     */
     public static void initialize(@NotNull Messager messager) {
         sMessager = messager;
     }
@@ -49,12 +54,14 @@ public final class MessagerUtils {
         return sMessager;
     }
 
+    /**
+     * Report a fatal error to the compiler. Will halt compilation.
+     *
+     * @param message the message to display in the compilation output.
+     * @param element the offending element.
+     */
     public static void reportError(@NotNull String message, @NotNull Element element) {
         getMessager().printMessage(Kind.ERROR, message, element);
-    }
-
-    public static void reportWarning(@NotNull String message) {
-        getMessager().printMessage(Kind.MANDATORY_WARNING, message);
     }
 
 }

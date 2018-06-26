@@ -63,6 +63,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * is used to read and write the values, and the ObjectConstructor tells the type of List to be instantiated. This will also support the scenario
  * where we have a nested list. In that case the valueTypeAdapter will be again a {@link ListTypeAdapter} with its value TypeAdapter
  */
+@SuppressWarnings("WeakerAccess")
 public final class KnownTypeAdapters {
 
     private KnownTypeAdapters() {
