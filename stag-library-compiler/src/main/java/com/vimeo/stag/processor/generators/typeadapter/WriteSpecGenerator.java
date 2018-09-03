@@ -1,7 +1,5 @@
 package com.vimeo.stag.processor.generators.typeadapter;
 
-import android.support.annotation.NonNull;
-
 import com.google.gson.stream.JsonWriter;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeName;
@@ -20,8 +18,8 @@ import javax.lang.model.type.TypeMirror;
 public class WriteSpecGenerator {
 
     @NotNull
-    public static MethodSpec getWriteMethodSpec(@NonNull TypeName typeName, @NonNull Map<FieldAccessor, TypeMirror> memberVariables,
-                                                @NonNull TypeAdapterGenerator.AdapterFieldInfo adapterFieldInfo, boolean serializeNulls) {
+    public static MethodSpec getWriteMethodSpec(@NotNull TypeName typeName, @NotNull Map<FieldAccessor, TypeMirror> memberVariables,
+                                                @NotNull TypeAdapterGenerator.AdapterFieldInfo adapterFieldInfo, boolean serializeNulls) {
         final MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("write")
                 .addParameter(JsonWriter.class, "writer")
                 .addParameter(typeName, "object")
@@ -56,9 +54,9 @@ public class WriteSpecGenerator {
         return methodBuilder.build();
     }
 
-    private static void specForSerializedNullsDisabled(@NonNull MethodSpec.Builder methodBuilder, @NonNull Map.Entry<FieldAccessor, TypeMirror> element,
-                                                       @NonNull TypeAdapterGenerator.AdapterFieldInfo adapterFieldInfo, @NonNull FieldAccessor fieldAccessor,
-                                                       @NonNull String getterCode, @NonNull String name, boolean isPrimitive) {
+    private static void specForSerializedNullsDisabled(@NotNull MethodSpec.Builder methodBuilder, @NotNull Map.Entry<FieldAccessor, TypeMirror> element,
+                                                       @NotNull TypeAdapterGenerator.AdapterFieldInfo adapterFieldInfo, @NotNull FieldAccessor fieldAccessor,
+                                                       @NotNull String getterCode, @NotNull String name, boolean isPrimitive) {
         methodBuilder.addCode("\n");
         if (!isPrimitive) {
             methodBuilder.beginControlFlow("if (object." + getterCode + " != null) ");
@@ -69,7 +67,7 @@ public class WriteSpecGenerator {
                     adapterFieldInfo.getAdapterAccessor(element.getValue(), name) + ".write(writer, object." +
                             getterCode + ")");
             /*
-             * If the element is annotated with NonNull annotation, throw {@link IOException} if it is null.
+             * If the element is annotated with NotNull annotation, throw {@link IOException} if it is null.
              */
             if (fieldAccessor.doesRequireNotNull()) {
                 methodBuilder.endControlFlow();
@@ -83,9 +81,9 @@ public class WriteSpecGenerator {
         }
     }
 
-    private static void specForSerializedNullsEnabled(@NonNull MethodSpec.Builder methodBuilder, @NonNull Map.Entry<FieldAccessor, TypeMirror> element,
-                                                      @NonNull TypeAdapterGenerator.AdapterFieldInfo adapterFieldInfo,
-                                                      @NonNull FieldAccessor fieldAccessor, @NonNull String getterCode, @NonNull String name, boolean isPrimitive) {
+    private static void specForSerializedNullsEnabled(@NotNull MethodSpec.Builder methodBuilder, @NotNull Map.Entry<FieldAccessor, TypeMirror> element,
+                                                      @NotNull TypeAdapterGenerator.AdapterFieldInfo adapterFieldInfo,
+                                                      @NotNull FieldAccessor fieldAccessor, @NotNull String getterCode, @NotNull String name, boolean isPrimitive) {
         methodBuilder.addCode("\n");
         methodBuilder.addStatement("writer.name(\"" + name + "\")");
         if (!isPrimitive) {
@@ -96,12 +94,12 @@ public class WriteSpecGenerator {
                     adapterFieldInfo.getAdapterAccessor(element.getValue(), name) + ".write(writer, object." +
                             getterCode + ")");
             /*
-             * If the element is annotated with NonNull annotation, throw {@link IOException} if it is null.
+             * If the element is annotated with NotNull annotation, throw {@link IOException} if it is null.
              */
             methodBuilder.endControlFlow();
             methodBuilder.beginControlFlow("else");
             if (fieldAccessor.doesRequireNotNull()) {
-                //throw exception in case the field is annotated as NonNull
+                //throw exception in case the field is annotated as NotNull
                 methodBuilder.addStatement("throw new java.io.IOException(\"" + getterCode + " cannot be null\")");
             } else {
                 //write null value to the writer if the field is null
