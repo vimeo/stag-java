@@ -30,18 +30,17 @@ import com.vimeo.stag.processor.generators.model.accessor.DirectFieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor.Notation;
-import com.vimeo.stag.processor.utils.logging.DebugLog;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.TypeUtils;
+import com.vimeo.stag.processor.utils.logging.DebugLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,7 +54,7 @@ public class AnnotatedClass {
 
     @NotNull
     public static Set<TypeMirror> annotatedClassToTypeMirror(@NotNull Collection<AnnotatedClass> annotatedClasses) {
-        Set<TypeMirror> typeMirrors = new HashSet<>();
+        Set<TypeMirror> typeMirrors = new LinkedHashSet<>();
         for (AnnotatedClass annotatedClass : annotatedClasses) {
             typeMirrors.add(annotatedClass.getType());
         }
@@ -83,7 +82,7 @@ public class AnnotatedClass {
         mNamingNotation = namingNotation;
         mType = element.asType();
         mElement = element;
-        Map<String, FieldAccessor> variableNames = new HashMap<>(element.getEnclosedElements().size());
+        Map<String, FieldAccessor> variableNames = new LinkedHashMap<>(element.getEnclosedElements().size());
         TypeMirror inheritedType = TypeUtils.getInheritedType(element);
 
         UseStag useStag = element.getAnnotation(UseStag.class);
