@@ -134,10 +134,10 @@ class JavaIntegrationFunctionalTests {
     @Test
     fun `PublicFieldsNoHungarian compiles successfully`() {
         val processorTesterWithNoHungarian = ProcessorTester({ StagProcessor() }, "-AstagAssumeHungarianNotation=false")
-        assertThat(processorTesterWithNoHungarian.compileClassInModule(module, PublicFieldsNoHungarian::class).isSuccessful()).isTrue()
+        assertThat(processorTesterWithNoHungarian.compileClassesInModule(module, PublicFieldsNoHungarian::class).isSuccessful()).isTrue()
 
         val processorTesterWithHungarian = ProcessorTester({ StagProcessor() }, "-AstagAssumeHungarianNotation=true")
-        assertThat(processorTesterWithHungarian.compileClassInModule(module, PublicFieldsNoHungarian::class).isSuccessful()).isTrue()
+        assertThat(processorTesterWithHungarian.compileClassesInModule(module, PublicFieldsNoHungarian::class).isSuccessful()).isTrue()
     }
 
     @Test
@@ -150,8 +150,49 @@ class JavaIntegrationFunctionalTests {
         assertThatClassCompilationIsSuccessful(WrapperTypeAdapterModel::class)
     }
 
+    @Test
+    fun `Verify that compilation is deterministic`() {
+        val classes = arrayOf(
+                AlternateNameModel::class,
+                AlternateNameModel1::class,
+                BaseExternalModel::class,
+                BooleanFields::class,
+                EnumWithFieldsModel::class,
+                ExternalAbstractClass::class,
+                ExternalModel1::class,
+                ExternalModel2::class,
+                ExternalModelGeneric::class,
+                ExternalModelGeneric1::class,
+                ModelWithNestedInterface::class,
+                NativeJavaModel::class,
+                NativeJavaModelExtension::class,
+                NativeJavaModelExtensionWithoutAnnotation::class,
+                RawGenericField::class,
+                NullFields::class,
+                PrivateMembers::class,
+                WildcardModel::class,
+                DynamicallyTypedModel::class,
+                DynamicallyTypedWildcard::class,
+                AbstractDataList::class,
+                SuperAbstractDataList::class,
+                ConcreteDataList::class
+        )
+
+        val compilation1Hash = processorTester.compileClassesInModule(module, *classes)
+                .generatedFiles()
+                .map { it.getCharContent(false).hashCode() }
+                .sum()
+
+        val compilation2Hash = processorTester.compileClassesInModule(module, *classes)
+                .generatedFiles()
+                .map { it.getCharContent(false).hashCode() }
+                .sum()
+
+        assertThat(compilation1Hash).isEqualTo(compilation2Hash)
+    }
+
     private fun <T : Any> assertThatClassCompilationIsSuccessful(kClass: KClass<T>) {
-        assertThat(processorTester.compileClassInModule(module, kClass).isSuccessful()).isTrue()
+        assertThat(processorTester.compileClassesInModule(module, kClass).isSuccessful()).isTrue()
     }
 
 }
