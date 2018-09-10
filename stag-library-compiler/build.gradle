@@ -36,7 +36,7 @@ dependencies {
 
     implementation "com.google.code.gson:gson:$gsonVersion"
     implementation 'com.squareup:javapoet:1.11.1'
-    implementation 'org.jetbrains:annotations:16.0.2@jar'
+    implementation 'org.jetbrains:annotations-java5:16.0.2@jar'
     implementation 'com.google.auto.service:auto-service:1.0-rc3'
 
     // Used by both auto-service and compile-testing, we need to resolve the version for them.
