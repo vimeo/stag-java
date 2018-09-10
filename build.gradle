@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.50'
+        kotlinVersion = '1.2.61'
         jacocoVersion = '0.7.9' // See http://www.eclemma.org/jacoco/
         gsonVersion = '2.8.2'
         assertJ = '3.9.1'
