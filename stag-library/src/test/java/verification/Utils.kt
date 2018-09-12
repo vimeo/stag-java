@@ -1,13 +1,12 @@
 @file:JvmName("Utils")
 
-package com.vimeo.stag
+package verification
 
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import java.util.ArrayList
-import java.util.HashMap
+import java.util.*
 
 inline fun <reified T : Any> assertThatClassIsNotInstantiable() {
     assertThatThrownBy {
