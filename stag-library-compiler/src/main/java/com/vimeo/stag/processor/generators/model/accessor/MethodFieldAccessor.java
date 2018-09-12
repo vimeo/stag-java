@@ -1,6 +1,6 @@
 package com.vimeo.stag.processor.generators.model.accessor;
 
-import com.vimeo.stag.processor.utils.DebugLog;
+import com.vimeo.stag.processor.utils.logging.DebugLog;
 import com.vimeo.stag.processor.utils.ElementUtils;
 import com.vimeo.stag.processor.utils.StringUtils;
 import com.vimeo.stag.processor.utils.TypeUtils;

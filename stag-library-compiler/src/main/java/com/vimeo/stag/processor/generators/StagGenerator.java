@@ -42,6 +42,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +61,7 @@ public class StagGenerator {
     private final Map<String, ClassInfo> mKnownClasses;
 
     public StagGenerator(@NotNull Set<TypeMirror> knownTypes) {
-        mKnownClasses = new HashMap<>(knownTypes.size());
+        mKnownClasses = new LinkedHashMap<>(knownTypes.size());
 
         for (TypeMirror knownType : knownTypes) {
             if (!TypeUtils.isAbstract(knownType)) {

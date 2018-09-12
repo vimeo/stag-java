@@ -3,7 +3,7 @@ package com.vimeo.stag.processor
 import com.google.testing.compile.Compilation
 import com.google.testing.compile.Compiler
 import java.io.File
-import java.util.Locale
+import java.util.*
 import javax.annotation.processing.Processor
 import javax.tools.DiagnosticCollector
 import javax.tools.ToolProvider
@@ -53,7 +53,7 @@ class ProcessorTester(private val processor: () -> Processor, private vararg val
      *
      * @param clazz the class(es) to compile.
      */
-    fun compileClassInModule(module: String, vararg clazz: KClass<*>): Compilation {
+    fun compileClassesInModule(module: String, vararg clazz: KClass<*>): Compilation {
         val modulePath = "${classpathRoot.parentFile.parentFile.parentFile.parentFile.parentFile.path}/$module/"
         val srcRoot = File(File(File(modulePath, "src"), "main"), "java")
         return Compiler.javac()

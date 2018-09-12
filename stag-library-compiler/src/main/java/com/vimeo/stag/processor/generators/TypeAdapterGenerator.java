@@ -53,7 +53,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,7 +127,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
             /*
              * Iterate through all the types from the typeArguments and generate type token code accordingly
              */
-            Map<TypeMirror, TypeMirror> fieldTypeVarsMap = new HashMap<>(typeMirrors.size());
+            Map<TypeMirror, TypeMirror> fieldTypeVarsMap = new LinkedHashMap<>(typeMirrors.size());
             List<? extends TypeMirror> classArguments = TypeUtils.getTypeArguments(declaredFieldType.asElement().asType());
 
             int paramIndex = 0;
@@ -425,8 +424,9 @@ public class TypeAdapterGenerator extends AdapterGenerator {
     /**
      * Returns the adapter code for the known types.
      */
-    private static String getAdapterAccessor(@NotNull TypeMirror fieldType
-            , @NotNull StagGenerator stagGenerator, @NotNull Map<TypeMirror, String> typeVarsMap,
+    private static String getAdapterAccessor(@NotNull TypeMirror fieldType,
+                                             @NotNull StagGenerator stagGenerator,
+                                             @NotNull Map<TypeMirror, String> typeVarsMap,
                                              @NotNull AdapterFieldInfo adapterFieldInfo) {
 
         String knownTypeAdapter = KnownTypeAdapterUtils.getKnownTypeAdapterForType(fieldType);
@@ -486,7 +486,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                             fieldType.toString() + ">";
             } else {
                 // If the map does not have any type arguments, use Object as type params in this case
-                keyAdapterAccessor = "mGson.getAdapter(KnownTypeAdapters.ObjectTypeAdapter.TYPE_TOKEN)";
+                keyAdapterAccessor = "new com.vimeo.stag.KnownTypeAdapters.ObjectTypeAdapter(mGson)";
                 valueAdapterAccessor = keyAdapterAccessor;
             }
 
@@ -570,7 +570,7 @@ public class TypeAdapterGenerator extends AdapterGenerator {
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
 
-        Map<TypeMirror, String> typeVarsMap = new HashMap<>();
+        Map<TypeMirror, String> typeVarsMap = new LinkedHashMap<>();
 
         int idx = 0;
         if (typeArguments != null) {
@@ -670,8 +670,8 @@ public class TypeAdapterGenerator extends AdapterGenerator {
 
         AdapterFieldInfo(int capacity) {
             mAdapterFields = new LinkedHashMap<>(capacity);
-            mAdapterAccessor = new HashMap<>(capacity);
-            mFieldAdapterAccessor = new HashMap<>(capacity);
+            mAdapterAccessor = new LinkedHashMap<>(capacity);
+            mFieldAdapterAccessor = new LinkedHashMap<>(capacity);
             mTypeTokenAccessorFields = new LinkedHashMap<>();
         }
 

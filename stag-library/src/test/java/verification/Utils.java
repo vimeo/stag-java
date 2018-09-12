@@ -10,17 +10,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import static org.junit.Assert.assertEquals;
+
 public final class Utils {
 
     private Utils() {}
 
-    public static <K, V> void assertMapsEqual(Map<K, V> map1, Map<K, V> map2) throws Exception {
+    public static <K, V> void assertMapsEqual(Map<K, V> map1, Map<K, V> map2) {
         for (Entry<K, V> kvEntry : map1.entrySet()) {
-            Assert.assertEquals(kvEntry.getValue(), map2.get(kvEntry.getKey()));
+            assertEquals(kvEntry.getValue(), map2.get(kvEntry.getKey()));
         }
 
         for (Entry<K, V> kvEntry : map2.entrySet()) {
-            Assert.assertEquals(kvEntry.getValue(), map1.get(kvEntry.getKey()));
+            assertEquals(kvEntry.getValue(), map1.get(kvEntry.getKey()));
         }
     }
 

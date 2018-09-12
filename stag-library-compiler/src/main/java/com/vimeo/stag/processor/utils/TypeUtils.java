@@ -28,6 +28,7 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
+import com.vimeo.stag.processor.utils.logging.DebugLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -55,9 +56,11 @@ public final class TypeUtils {
 
     private static final String TAG = TypeUtils.class.getSimpleName();
 
-    @NotNull private static final HashMap<String, String> PRIMITIVE_TO_OBJECT_MAP = new HashMap<>();
+    @NotNull
+    private static final HashMap<String, String> PRIMITIVE_TO_OBJECT_MAP = new HashMap<>();
 
-    @Nullable private static Types sTypeUtils;
+    @Nullable
+    private static Types sTypeUtils;
 
     static {
         PRIMITIVE_TO_OBJECT_MAP.put(boolean.class.getName(), Boolean.class.getName());
@@ -273,8 +276,8 @@ public final class TypeUtils {
      * inherits from Object or Enum.
      */
     @Nullable
-    public static TypeMirror getInheritedType(@Nullable TypeElement element) {
-        TypeMirror typeMirror = element != null ? element.getSuperclass() : null;
+    public static TypeMirror getInheritedType(@NotNull TypeElement element) {
+        TypeMirror typeMirror = element.getSuperclass();
         String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
         if (!Object.class.getName().equals(className) && !Enum.class.getName().equals(className)) {
             return typeMirror;
@@ -288,8 +291,8 @@ public final class TypeUtils {
      * @param element the element to check.
      * @return true if the element inherits from an enum, false otherwise.
      */
-    public static boolean isEnum(@Nullable TypeElement element) {
-        TypeMirror typeMirror = element != null ? element.getSuperclass() : null;
+    public static boolean isEnum(@NotNull TypeElement element) {
+        TypeMirror typeMirror = element.getSuperclass();
         String className = typeMirror != null ? getClassNameFromTypeMirror(typeMirror) : null;
 
         return Enum.class.getName().equals(className);
@@ -362,7 +365,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), resolvedType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Parameterized Type - " + member.getValue().toString() +
-                                      " resolved to - " + resolvedType.toString());
+                            " resolved to - " + resolvedType.toString());
                 } else {
 
                     int index = inheritedTypes.indexOf(member.getKey().asType());
@@ -370,7 +373,7 @@ public final class TypeUtils {
                     map.put(member.getKey(), concreteType);
 
                     DebugLog.log(TAG, "\t\t\tGeneric Type - " + member.getValue().toString() +
-                                      " resolved to - " + concreteType.toString());
+                            " resolved to - " + concreteType.toString());
                 }
             }
         }
@@ -439,8 +442,9 @@ public final class TypeUtils {
     /**
      * Method to check if the {@link TypeMirror} is of primitive type
      *
-     * @param type :TypeMirror type
-     * @return boolean
+     * @param type TypeMirror type
+     * @return true if the type represented as a string is a primitive type that's supported, false
+     * otherwise.
      */
     public static boolean isSupportedPrimitive(@NotNull String type) {
         return PRIMITIVE_TO_OBJECT_MAP.containsKey(type);
@@ -449,69 +453,45 @@ public final class TypeUtils {
     /**
      * Method to check if the {@link TypeMirror} is of {@link ArrayType}
      *
-     * @param type :TypeMirror type
-     * @return boolean
+     * @param type TypeMirror type
+     * @return true if the type is a native array type, false otherwise.
      */
     public static boolean isNativeArray(@NotNull TypeMirror type) {
         return (type instanceof ArrayType);
     }
 
     /**
-     * Method to check if the {@link TypeMirror} is of {@link Collection} type
-     *
-     * @param type :TypeMirror type
-     * @return boolean
-     */
-    public static boolean isSupportedCollection(@Nullable TypeMirror type) {
-        return type != null && (isNativeArray(type) || isSupportedList(type));
-    }
-
-    /**
      * Method to check if the {@link TypeMirror} is of {@link List} type
      *
-     * @param type :TypeMirror type
-     * @return boolean
+     * @param type TypeMirror type
+     * @return true if the type is a {@link List}, {@link ArrayList}, or {@link Collection},
+     * false otherwise.
      */
-    public static boolean isSupportedList(@Nullable TypeMirror type) {
-        if (type == null) {
-            return false;
-        }
+    public static boolean isSupportedList(@NotNull TypeMirror type) {
         String outerClassType = TypeUtils.getOuterClassType(type);
         return outerClassType.equals(ArrayList.class.getName()) ||
-               outerClassType.equals(List.class.getName()) ||
-               outerClassType.equals(Collection.class.getName());
+                outerClassType.equals(List.class.getName()) ||
+                outerClassType.equals(Collection.class.getName());
     }
 
     /**
      * Method to check if the {@link TypeMirror} is of {@link Map} type
      *
-     * @param type :TypeMirror type
-     * @return boolean
+     * @param type TypeMirror type
+     * @return true if the type is a supported map type, false otherwise.
      */
     public static boolean isSupportedMap(@Nullable TypeMirror type) {
         if (type == null) {
             return false;
         }
         String outerClassType = TypeUtils.getOuterClassType(type);
+        //noinspection LiteralAsArgToStringEquals
         return outerClassType.equals(Map.class.getName()) ||
-               outerClassType.equals(HashMap.class.getName()) ||
-               outerClassType.equals(ConcurrentHashMap.class.getName()) ||
-               outerClassType.equals("android.util.ArrayMap") ||
-               outerClassType.equals("android.support.v4.util.ArrayMap") ||
-               outerClassType.equals(LinkedHashMap.class.getName());
-    }
-
-    /**
-     * Method to check if the type is natively supported such as {@link String} etc
-     *
-     * @param type String type
-     * @return boolean
-     */
-    public static boolean isSupportedNative(@NotNull String type) {
-        return isSupportedPrimitive(type) || type.equals(String.class.getName()) ||
-               type.equals(Long.class.getName()) || type.equals(Integer.class.getName()) ||
-               type.equals(Boolean.class.getName()) || type.equals(Double.class.getName()) ||
-               type.equals(Float.class.getName()) || type.equals(Number.class.getName());
+                outerClassType.equals(HashMap.class.getName()) ||
+                outerClassType.equals(ConcurrentHashMap.class.getName()) ||
+                outerClassType.equals("android.util.ArrayMap") ||
+                outerClassType.equals("android.support.v4.util.ArrayMap") ||
+                outerClassType.equals(LinkedHashMap.class.getName());
     }
 
     /**
@@ -580,7 +560,7 @@ public final class TypeUtils {
     /**
      * Return the type of JsonAdapter {@link TypeMirror}
      *
-     * @param type :TypeMirror type
+     * @param type TypeMirror type
      * @return {@link JsonAdapterType}
      */
     @NotNull

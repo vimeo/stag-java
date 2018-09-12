@@ -1,4 +1,5 @@
 apply plugin: 'java'
+apply plugin: 'kotlin'
 apply plugin: 'jacoco'
 apply plugin: 'maven-publish'
 
@@ -22,9 +23,11 @@ check.dependsOn jacocoTestReport
 jacocoTestReport.dependsOn test
 
 dependencies {
-    compile "com.google.code.gson:gson:$gsonVersion"
-    compile 'com.intellij:annotations:12.0@jar'
+    implementation "com.google.code.gson:gson:$gsonVersion"
+    implementation 'org.jetbrains:annotations-java5:16.0.2@jar'
     testImplementation 'junit:junit:4.12'
+    testImplementation "org.assertj:assertj-core:$assertJ"
+    testImplementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
 }
 
 tasks.withType(Javadoc).all { enabled = true }
