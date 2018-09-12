@@ -51,7 +51,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -185,7 +185,7 @@ public final class StagProcessor extends AbstractProcessor {
 
             StagGenerator stagFactoryGenerator = new StagGenerator(supportedTypes);
 
-            Map<String, List<ClassInfo>> adapterFactoryMap = new HashMap<>();
+            Map<String, List<ClassInfo>> adapterFactoryMap = new LinkedHashMap<>();
 
             for (AnnotatedClass annotatedClass : supportedTypesModel.getSupportedTypes()) {
                 TypeElement element = annotatedClass.getElement();
@@ -267,4 +267,5 @@ public final class StagProcessor extends AbstractProcessor {
         // Write the Java file to disk
         FileGenUtils.writeToFile(javaFile, filer);
     }
+
 }

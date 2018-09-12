@@ -41,6 +41,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.lang.model.element.Element;
@@ -114,8 +115,8 @@ public class EnumTypeAdapterGenerator extends AdapterGenerator {
                 .superclass(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), typeVariableName));
 
 
-        Map<String, Element> nameToConstant = new HashMap<>();
-        Map<Element, String> constantToName = new HashMap<>();
+        Map<String, Element> nameToConstant = new LinkedHashMap<>();
+        Map<Element, String> constantToName = new LinkedHashMap<>();
 
         for (Element enclosingElement : mElement.getEnclosedElements()) {
             if (enclosingElement.getKind() == ElementKind.ENUM_CONSTANT) {

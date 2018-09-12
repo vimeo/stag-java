@@ -31,15 +31,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.lang.model.type.TypeMirror;
 
 public final class SupportedTypesModel {
 
-    @NotNull private final Map<String, AnnotatedClass> mSupportedTypesMap = new HashMap<>();
-    @NotNull private final Map<String, AnnotatedClass> mKnownInheritedTypesMap = new HashMap<>();
+    @NotNull private final Map<String, AnnotatedClass> mSupportedTypesMap = new LinkedHashMap<>();
+    @NotNull private final Map<String, AnnotatedClass> mKnownInheritedTypesMap = new LinkedHashMap<>();
     @NotNull private final Notation mNamingNotation;
 
     public SupportedTypesModel(@NotNull Notation namingNotation) {

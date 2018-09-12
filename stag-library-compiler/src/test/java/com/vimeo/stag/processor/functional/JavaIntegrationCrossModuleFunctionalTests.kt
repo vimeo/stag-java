@@ -202,6 +202,6 @@ class JavaIntegrationCrossModuleFunctionalTests {
     }
 
     private fun <T : Any> assertThatClassCompilationIsSuccessful(kClass: KClass<T>) {
-        Assertions.assertThat(processorTester.compileClassInModule(module, kClass).isSuccessful()).isTrue()
+        Assertions.assertThat(processorTester.compileClassesInModule(module, kClass).isSuccessful()).isTrue()
     }
 }
