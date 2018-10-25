@@ -32,10 +32,11 @@ import com.vimeo.sample_java_model.SwappableParserExampleModel.TestObject;
 import com.vimeo.sample_java_model.stag.generated.Stag;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import verification.Utils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -100,7 +101,8 @@ public class SwappableParserExampleModelTest {
      */
     private static class TestObjectAdapter1 extends TypeAdapter<TestObject> {
 
-        TestObjectAdapter1() {}
+        TestObjectAdapter1() {
+        }
 
         @Override
         public void write(JsonWriter out, TestObject value) throws IOException {
@@ -128,7 +130,8 @@ public class SwappableParserExampleModelTest {
      */
     private static class TestObjectAdapter2 extends TypeAdapter<TestObject> {
 
-        TestObjectAdapter2() {}
+        TestObjectAdapter2() {
+        }
 
         @Override
         public void write(JsonWriter out, TestObject value) throws IOException {

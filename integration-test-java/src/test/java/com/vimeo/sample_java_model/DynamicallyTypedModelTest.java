@@ -2,6 +2,8 @@ package com.vimeo.sample_java_model;
 
 import org.junit.Test;
 
+import verification.Utils;
+
 /**
  * Integration tests for {@link DynamicallyTypedModel}.
  */
@@ -11,4 +13,5 @@ public class DynamicallyTypedModelTest {
     public void verifyTypeAdapterWasGenerated() throws Exception {
         Utils.verifyTypeAdapterGeneration(DynamicallyTypedModel.class);
     }
+
 }

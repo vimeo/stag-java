@@ -9,6 +9,7 @@ dependencies {
     annotationProcessor project(':stag-library-compiler')
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'uk.co.jemos.podam:podam:7.2.0.RELEASE'
 }
 
 gradle.projectsEvaluated {

@@ -10,6 +10,7 @@ import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
+import verification.assertThatClassIsNotInstantiable
 import java.io.StringReader
 
 /**

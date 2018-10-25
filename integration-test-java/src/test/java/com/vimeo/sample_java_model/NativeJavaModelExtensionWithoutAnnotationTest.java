@@ -2,6 +2,8 @@ package com.vimeo.sample_java_model;
 
 import org.junit.Test;
 
+import verification.Utils;
+
 public class NativeJavaModelExtensionWithoutAnnotationTest {
 
     @Test

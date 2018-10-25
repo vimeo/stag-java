@@ -27,4 +27,24 @@ public class AlternateNameModel {
     public void setAndroidNameVersions(String androidNameVersions) {
         mAndroidNameVersions = androidNameVersions;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+
+        AlternateNameModel that = (AlternateNameModel) o;
+
+        if (mAndroidVersions != null ? !mAndroidVersions.equals(that.mAndroidVersions) : that.mAndroidVersions != null) {
+            return false;
+        }
+        return mAndroidNameVersions != null ? mAndroidNameVersions.equals(that.mAndroidNameVersions) : that.mAndroidNameVersions == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = mAndroidVersions != null ? mAndroidVersions.hashCode() : 0;
+        result = 31 * result + (mAndroidNameVersions != null ? mAndroidNameVersions.hashCode() : 0);
+        return result;
+    }
 }
