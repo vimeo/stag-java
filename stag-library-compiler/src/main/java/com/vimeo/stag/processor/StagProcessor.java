@@ -79,6 +79,7 @@ public final class StagProcessor extends AbstractProcessor {
     static final String OPTION_DEBUG = "stagDebug";
     static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
     static final String OPTION_HUNGARIAN_NOTATION = "stagAssumeHungarianNotation";
+    static final String OPTION_SERIALIZE_NULLS = "serializeNulls";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
     private boolean mHasBeenProcessed;
 
@@ -92,6 +93,14 @@ public final class StagProcessor extends AbstractProcessor {
 
     private static boolean getAssumeHungarianNotation(@NotNull ProcessingEnvironment processingEnvironment) {
         String debugString = processingEnvironment.getOptions().get(OPTION_HUNGARIAN_NOTATION);
+        if (debugString != null) {
+            return Boolean.valueOf(debugString);
+        }
+        return false;
+    }
+
+    private static boolean isSerializeNullsEnabled(@NotNull ProcessingEnvironment processingEnvironment) {
+        String debugString = processingEnvironment.getOptions().get(OPTION_SERIALIZE_NULLS);
         if (debugString != null) {
             return Boolean.valueOf(debugString);
         }
@@ -159,6 +168,7 @@ public final class StagProcessor extends AbstractProcessor {
         String packageName = getOptionalPackageName(processingEnv);
 
         boolean assumeHungarianNotation = getAssumeHungarianNotation(processingEnv);
+        boolean enableSerializeNulls = isSerializeNullsEnabled(processingEnv);
 
         TypeUtils.initialize(processingEnv.getTypeUtils());
         ElementUtils.initialize(processingEnv.getElementUtils());
@@ -190,7 +200,7 @@ public final class StagProcessor extends AbstractProcessor {
             for (AnnotatedClass annotatedClass : supportedTypesModel.getSupportedTypes()) {
                 TypeElement element = annotatedClass.getElement();
                 if ((TypeUtils.isConcreteType(element) || TypeUtils.isParameterizedType(element)) && !TypeUtils.isAbstract(element)) {
-                    generateTypeAdapter(supportedTypesModel, element, stagFactoryGenerator);
+                    generateTypeAdapter(supportedTypesModel, element, stagFactoryGenerator, enableSerializeNulls);
 
                     ClassInfo classInfo = new ClassInfo(element.asType());
                     ArrayList<ClassInfo> result = new ArrayList<>();
@@ -242,13 +252,13 @@ public final class StagProcessor extends AbstractProcessor {
 
     private void generateTypeAdapter(@NotNull SupportedTypesModel supportedTypesModel,
                                      @NotNull TypeElement element,
-                                     @NotNull StagGenerator stagGenerator) throws IOException {
+                                     @NotNull StagGenerator stagGenerator, boolean enableSerializeNulls) throws IOException {
 
         ClassInfo classInfo = new ClassInfo(element.asType());
 
         AdapterGenerator independentAdapter = element.getKind() == ElementKind.ENUM ?
                 new EnumTypeAdapterGenerator(classInfo, element) :
-                new TypeAdapterGenerator(supportedTypesModel, classInfo);
+                new TypeAdapterGenerator(supportedTypesModel, classInfo, enableSerializeNulls);
 
         // Create the type spec
         TypeSpec typeAdapterSpec = independentAdapter.createTypeAdapterSpec(stagGenerator);
