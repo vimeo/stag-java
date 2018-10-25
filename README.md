@@ -36,7 +36,7 @@ buildscript {
 apply plugin: 'net.ltgt.apt'
 
 dependencies {
-    def stagVersion = '2.5.1'
+    def stagVersion = '2.6.0'
     compile "com.vimeo.stag:stag-library:$stagVersion"
     apt "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }
@@ -45,9 +45,10 @@ dependencies {
 gradle.projectsEvaluated {
     tasks.withType(JavaCompile) {
         aptOptions.processorArgs = [
-                stagAssumeHungarianNotation: "true",
-                stagGeneratedPackageName   : "com.vimeo.sample.stag.generated",
-                stagDebug                  : "true"
+                "stagAssumeHungarianNotation": "true",
+                "stagGeneratedPackageName"   : "com.vimeo.sample.stag.generated",
+                "stagDebug "                 : "true",
+                "stag.serializeNulls"        : "true",
         ]
     }
 }
@@ -58,7 +59,7 @@ gradle.projectsEvaluated {
 apply plugin: 'kotlin-kapt'
 
 dependencies {
-    def stagVersion = '2.5.1'
+    def stagVersion = '2.6.0'
     compile "com.vimeo.stag:stag-library:$stagVersion"
     kapt "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }
@@ -70,6 +71,7 @@ kapt {
         arg("stagDebug", "true")
         arg("stagGeneratedPackageName", "com.vimeo.sample.stag.generated")
         arg("stagAssumeHungarianNotation", "true")
+        arg("stag.serializeNulls", "true")
     }
 }
 ```
@@ -78,7 +80,7 @@ kapt {
 
 ```groovy
 dependencies {
-    def stagVersion = '2.5.1'
+    def stagVersion = '2.6.0'
     compile "com.vimeo.stag:stag-library:$stagVersion"
     annotationProcessor "com.vimeo.stag:stag-library-compiler:$stagVersion"
 }
@@ -91,9 +93,10 @@ android {
         javaCompileOptions {
             annotationProcessorOptions {
                 arguments = [
-                    stagAssumeHungarianNotation: 'true'
-                    stagGeneratedPackageName   : 'com.vimeo.sample.stag.generated',
-                    stagDebug                  : 'true'
+                    "stagAssumeHungarianNotation": 'true',
+                    "stagGeneratedPackageName"   : 'com.vimeo.sample.stag.generated',
+                    "stagDebug"                  : 'true',
+                    "stag.serializeNulls"        : 'true'
                 ]
             }
         }
@@ -112,6 +115,10 @@ android {
  Stag will look for members named `set[variable_name]` and `get[variable_name]`. If your member variables are named using Hungarian notation,
  then you will need to pass true to this parameter so that for a field named `mField`, Stag will look for `setField` and `getField` instead
  of `setMField` and `getMField`. Default is false.
+ - `stag.serializeNulls`: By default this is set to false. If an object has a null field and you send it to be serialized by Gson, it is optional
+ whether or not that field is serialized into the JSON. If this field is set to `false` null fields will not be serialized, and if set to `true`, 
+ they will be serialized. Prior to stag version 2.6.0, null fields were always serialized to JSON. This should not affect most models. However, if
+ you have a model that has a nullable field that also has a non null default value, then it might be a good idea to turn this option on.
 
 ## Features
 
@@ -249,7 +256,7 @@ class Herd {
  * You parse the list from JSON using
  * Gson.
  */
-MyParsingClass {
+class MyParsingClass {
     private Gson gson = new GsonBuilder()
                                  .registerTypeAdapterFactory(new Stag.Factory())
                                  .create();

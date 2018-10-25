@@ -1,14 +1,14 @@
 buildscript {
     ext {
-        kotlinVersion = '1.2.61'
+        kotlinVersion = '1.2.71'
         jacocoVersion = '0.7.9' // See http://www.eclemma.org/jacoco/
         gsonVersion = '2.8.2'
         assertJ = '3.9.1'
 
         // android dependencies
-        targetSdk = 27
+        targetSdk = 28
         minSdk = 14
-        buildTools = "27.0.3"
+        buildTools = "28.0.3"
     }
     repositories {
         google()
@@ -17,7 +17,7 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:3.2.1'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
@@ -43,5 +43,5 @@ allprojects {
 
 subprojects {
     group = 'com.vimeo.stag'
-    version = '2.5.1'
+    version = '2.6.0'
 }

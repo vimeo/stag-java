@@ -4,10 +4,10 @@ apply plugin: "net.ltgt.apt"
 dependencies {
     implementation "com.google.code.gson:gson:$gsonVersion"
     implementation 'org.jetbrains:annotations-java5:16.0.2@jar'
-    implementation 'com.android.support:support-annotations:27.1.1'
+    implementation 'com.android.support:support-annotations:28.0.0'
 
     implementation project(':stag-library')
-    apt project(':stag-library-compiler')
+    annotationProcessor project(':stag-library-compiler')
 
     implementation project(':integration-test-java')
 

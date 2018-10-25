@@ -1,6 +1,15 @@
 Change Log
 ==========
 
+Version 2.6.0 *(2018-10-25)*
+----------------------------
+- Improved formatting of generated code.
+- Improved logging by putting all debug logging behind the `stagDebug` flag.
+- Improve integration of library by switching to new nullability annotations library.
+- Wrote unit tests for `KnownTypeAdapters`.
+- Fixed bug where code generation was non deterministic by switching to linked versions of `HashSet` and `HashMap`.
+- Added support for turning on/off serialization of `null` with `stag.serializeNulls` compiler option. Default is off, which is a behavior change from version 2.5.1.
+
 Version 2.5.1 *(2018-01-17)*
 ----------------------------
 - Fixed bug where types with wildcards caused compilation to fail.

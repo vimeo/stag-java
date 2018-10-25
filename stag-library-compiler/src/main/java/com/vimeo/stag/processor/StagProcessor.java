@@ -72,14 +72,14 @@ import javax.lang.model.type.TypeMirror;
 
 @AutoService(Processor.class)
 @SupportedAnnotationTypes(value = {"com.vimeo.stag.UseStag"})
-@SupportedOptions(value = {StagProcessor.OPTION_PACKAGE_NAME, StagProcessor.OPTION_DEBUG, StagProcessor.OPTION_HUNGARIAN_NOTATION})
+@SupportedOptions(value = {StagProcessor.OPTION_PACKAGE_NAME, StagProcessor.OPTION_DEBUG, StagProcessor.OPTION_HUNGARIAN_NOTATION, StagProcessor.OPTION_SERIALIZE_NULLS})
 @SupportedSourceVersion(SourceVersion.RELEASE_7)
 public final class StagProcessor extends AbstractProcessor {
 
     static final String OPTION_DEBUG = "stagDebug";
     static final String OPTION_PACKAGE_NAME = "stagGeneratedPackageName";
     static final String OPTION_HUNGARIAN_NOTATION = "stagAssumeHungarianNotation";
-    static final String OPTION_SERIALIZE_NULLS = "serializeNulls";
+    static final String OPTION_SERIALIZE_NULLS = "stag.serializeNulls";
     private static final String DEFAULT_GENERATED_PACKAGE_NAME = "com.vimeo.stag.generated";
     private boolean mHasBeenProcessed;
 
