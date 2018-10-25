@@ -157,11 +157,11 @@ public abstract class FieldAccessor {
     @NotNull
     public final String getJsonName() {
 
-        String name = null != mVariableElement.getAnnotation(SerializedName.class) ?
-                mVariableElement.getAnnotation(SerializedName.class).value() :
-                null;
+        String name = mVariableElement.getAnnotation(SerializedName.class) != null
+                ? mVariableElement.getAnnotation(SerializedName.class).value()
+                : null;
 
-        if (null == name || name.isEmpty()) {
+        if (name == null || name.isEmpty()) {
             name = mVariableElement.getSimpleName().toString();
         }
         return name;
@@ -174,9 +174,9 @@ public abstract class FieldAccessor {
      */
     @Nullable
     public final String[] getAlternateJsonNames() {
-        return null != mVariableElement.getAnnotation(SerializedName.class) ?
-                mVariableElement.getAnnotation(SerializedName.class).alternate() :
-                null;
+        return mVariableElement.getAnnotation(SerializedName.class) != null
+                ? mVariableElement.getAnnotation(SerializedName.class).alternate()
+                : null;
     }
 
 }

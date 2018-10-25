@@ -30,18 +30,17 @@ import com.vimeo.stag.processor.generators.model.accessor.DirectFieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.FieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor;
 import com.vimeo.stag.processor.generators.model.accessor.MethodFieldAccessor.Notation;
-import com.vimeo.stag.processor.utils.DebugLog;
 import com.vimeo.stag.processor.utils.MessagerUtils;
 import com.vimeo.stag.processor.utils.Preconditions;
 import com.vimeo.stag.processor.utils.TypeUtils;
+import com.vimeo.stag.processor.utils.logging.DebugLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,7 +54,7 @@ public class AnnotatedClass {
 
     @NotNull
     public static Set<TypeMirror> annotatedClassToTypeMirror(@NotNull Collection<AnnotatedClass> annotatedClasses) {
-        Set<TypeMirror> typeMirrors = new HashSet<>();
+        Set<TypeMirror> typeMirrors = new LinkedHashSet<>();
         for (AnnotatedClass annotatedClass : annotatedClasses) {
             typeMirrors.add(annotatedClass.getType());
         }
@@ -68,7 +67,6 @@ public class AnnotatedClass {
     @NotNull private final TypeMirror mType;
     @NotNull private final TypeElement mElement;
     @NotNull private final LinkedHashMap<FieldAccessor, TypeMirror> mMemberVariables;
-    @NotNull private final SupportedTypesModel mSupportedTypesModel;
     @NotNull private final Notation mNamingNotation;
 
     AnnotatedClass(@NotNull SupportedTypesModel supportedTypesModel,
@@ -82,10 +80,9 @@ public class AnnotatedClass {
                    @NotNull Notation namingNotation,
                    @Nullable FieldOption childFieldOption) {
         mNamingNotation = namingNotation;
-        mSupportedTypesModel = supportedTypesModel;
         mType = element.asType();
         mElement = element;
-        Map<String, FieldAccessor> variableNames = new HashMap<>(element.getEnclosedElements().size());
+        Map<String, FieldAccessor> variableNames = new LinkedHashMap<>(element.getEnclosedElements().size());
         TypeMirror inheritedType = TypeUtils.getInheritedType(element);
 
         UseStag useStag = element.getAnnotation(UseStag.class);
@@ -105,7 +102,7 @@ public class AnnotatedClass {
         if (inheritedType != null) {
             DebugLog.log(TAG, "\t\tInherited Type - " + inheritedType.toString());
 
-            AnnotatedClass genericInheritedType = mSupportedTypesModel.addToKnownInheritedType(inheritedType, fieldOption);
+            AnnotatedClass genericInheritedType = supportedTypesModel.addToKnownInheritedType(inheritedType, fieldOption);
 
             LinkedHashMap<FieldAccessor, TypeMirror> inheritedMemberVariables = TypeUtils.getConcreteMembers(inheritedType,
                                                                                                              genericInheritedType.getElement(),
@@ -129,10 +126,10 @@ public class AnnotatedClass {
     private void addMemberVariable(@NotNull FieldAccessor element, @NotNull TypeMirror typeMirror,
                                    @NotNull Map<String, FieldAccessor> variableNames) {
         FieldAccessor previousElement = variableNames.put(element.createGetterCode(), element);
-        if (null != previousElement) {
+        if (previousElement != null) {
             mMemberVariables.remove(previousElement);
-            MessagerUtils.logInfo("Ignoring inherited Member variable with the same variable name in class" +
-                                  element.toString() + ", with variable name " + previousElement.asType().toString());
+            DebugLog.log("Ignoring inherited Member variable with the same variable name in class" +
+                         element.toString() + ", with variable name " + previousElement.asType().toString());
         }
         mMemberVariables.put(element, typeMirror);
     }

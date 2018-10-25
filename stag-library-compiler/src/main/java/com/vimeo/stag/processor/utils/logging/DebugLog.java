@@ -21,33 +21,58 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vimeo.stag.processor.utils;
-
-import com.vimeo.stag.processor.StagProcessor;
+package com.vimeo.stag.processor.utils.logging;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * A logging utility.
+ */
 public final class DebugLog {
 
     private static final String TAG = "Stag";
+    @Nullable
+    private static Logger sLogger;
 
     private DebugLog() {
         throw new UnsupportedOperationException("This class is not instantiable");
     }
 
-    public static void log(@Nullable CharSequence message) {
-        if (StagProcessor.DEBUG) {
-            //noinspection UseOfSystemOutOrSystemErr
-            System.out.println(TAG + ": " + message);
-        }
+    /**
+     * Initialize the log utils with the logging instance.
+     *
+     * @param logger the logging instance, if null is provided, logging will result in a crash.
+     */
+    public static void initialize(@Nullable Logger logger) {
+        sLogger = logger;
     }
 
-    public static void log(@NotNull CharSequence tag, @Nullable CharSequence message) {
-        if (StagProcessor.DEBUG) {
-            //noinspection UseOfSystemOutOrSystemErr
-            System.out.println(TAG + ":" + tag + ": " + message);
+    @NotNull
+    private static Logger safeLogger() {
+        if (sLogger == null) {
+            throw new IllegalStateException("initialize must be called first");
         }
+        return sLogger;
+    }
+
+    /**
+     * Log the provided message with the default log tag "Stag"
+     *
+     * @param message the message to log.
+     */
+    public static void log(@Nullable CharSequence message) {
+        safeLogger().log(TAG + ": " + message);
+    }
+
+    /**
+     * Log the provided message with an additional log tag.
+     *
+     * @param tag     the tag to add to the log.
+     * @param message the message to log.
+     */
+    public static void log(@NotNull CharSequence tag, @Nullable CharSequence message) {
+        safeLogger().log(TAG + ":" + tag + ": " + message);
     }
 
 }

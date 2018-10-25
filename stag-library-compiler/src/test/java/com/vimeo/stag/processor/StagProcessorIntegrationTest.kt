@@ -4,10 +4,10 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonWriter
 import com.vimeo.sample_java_model.NullFields
-import com.vimeo.sample_java_model.stag.generated.Stag
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import java.io.StringWriter
+import com.vimeo.sample_java_model.stag.generated.Stag
 
 /**
  * Integration tests for the compiler.

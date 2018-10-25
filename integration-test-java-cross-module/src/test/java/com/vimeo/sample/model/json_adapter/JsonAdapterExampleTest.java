@@ -1,6 +1,6 @@
 package com.vimeo.sample.model.json_adapter;
 
-import com.vimeo.sample.Utils;
+import verification.Utils;
 
 import org.junit.Test;
 
@@ -8,6 +8,7 @@ import org.junit.Test;
  * Created by anshul.garg on 03/03/17.
  */
 public class JsonAdapterExampleTest {
+
     @Test
     public void typeAdapterWasGenerated() throws Exception {
         Utils.verifyTypeAdapterGeneration(JsonAdapterExample.class);

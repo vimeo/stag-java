@@ -2,6 +2,8 @@ package com.vimeo.integration_test_android;
 
 import org.junit.Test;
 
+import verification.Utils;
+
 /**
  * Unit tests for {@link UnserializablePlatformType}.
  */

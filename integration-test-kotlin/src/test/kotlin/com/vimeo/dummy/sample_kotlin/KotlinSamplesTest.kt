@@ -1,6 +1,7 @@
 package com.vimeo.dummy.sample_kotlin
 
 import org.junit.Test
+import verification.Utils
 
 /**
  * Unit tests for [KotlinSamples].
@@ -9,7 +10,8 @@ import org.junit.Test
  */
 class KotlinSamplesTest {
 
-    @Test fun verifyTypeAdapterGenerated() {
+    @Test
+    fun verifyTypeAdapterGenerated() {
         Utils.verifyTypeAdapterGeneration(KotlinSamples::class)
     }
 

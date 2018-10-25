@@ -25,6 +25,7 @@ package com.vimeo.stag.processor.utils;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.JavaFile;
+import com.vimeo.stag.processor.utils.logging.DebugLog;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +44,7 @@ import javax.tools.StandardLocation;
 
 public final class FileGenUtils {
 
-    public static final String CODE_BLOCK_ESCAPED_SEPARATOR = "$$";
+    private static final String CODE_BLOCK_ESCAPED_SEPARATOR = "$$";
     private static final String UNESCAPED_SEPARATOR = "$";
 
     private FileGenUtils() {
@@ -77,15 +78,11 @@ public final class FileGenUtils {
             }
             throw e;
         } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ignored) {
-                }
-            }
+            close(writer);
         }
     }
 
+    @Nullable
     static CharSequence readResource(@NotNull Filer filer, @NotNull String generatedPackageName,
                                      @NotNull String resourceName) throws IOException {
         try {
@@ -116,13 +113,7 @@ public final class FileGenUtils {
             }
             throw e;
         } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException ignored) {
-
-                }
-            }
+            close(writer);
         }
     }
 

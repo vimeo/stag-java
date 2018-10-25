@@ -14,24 +14,26 @@ import com.vimeo.stag.processor.generators.model.ClassInfo;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.lang.model.element.Modifier;
 import javax.lang.model.type.TypeMirror;
 
 public class StagFactoryGenerator {
-    public static final String NAME = "StagFactory";
-    private final List<ClassInfo> classInfoList;
-    private final String fileName;
+
+    @NotNull public static final String NAME = "StagFactory";
+    @NotNull private final List<ClassInfo> mClassInfoList;
+    @NotNull private final String mFileName;
 
     public StagFactoryGenerator(@NotNull List<ClassInfo> classInfoList, @NotNull String fileName) {
-        this.classInfoList = classInfoList;
-        this.fileName = fileName;
+        mClassInfoList = new ArrayList<>(classInfoList);
+        mFileName = fileName;
     }
 
     @NotNull
     public TypeSpec getTypeAdapterFactorySpec() {
-        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(fileName)
+        TypeSpec.Builder adapterBuilder = TypeSpec.classBuilder(mFileName)
                 .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(TypeAdapterFactory.class)
                 .addMethod(getCreateMethodSpec());
@@ -42,7 +44,7 @@ public class StagFactoryGenerator {
     @NotNull
     private MethodSpec getCreateMethodSpec() {
         TypeVariableName genericType = TypeVariableName.get("T");
-        AnnotationSpec suppressions = AnnotationSpec.builder(SuppressWarnings.class)
+        AnnotationSpec suppressedWarnings = AnnotationSpec.builder(SuppressWarnings.class)
                 .addMember("value", "\"unchecked\"")
                 .addMember("value", "\"rawtypes\"")
                 .build();
@@ -51,12 +53,12 @@ public class StagFactoryGenerator {
                 .addParameter(Gson.class, "gson")
                 .addParameter(ParameterizedTypeName.get(ClassName.get(TypeToken.class), genericType), "type")
                 .returns(ParameterizedTypeName.get(ClassName.get(TypeAdapter.class), genericType))
-                .addAnnotation(suppressions)
+                .addAnnotation(suppressedWarnings)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
                 .addCode("Class<? super T> clazz = type.getRawType();\n");
 
-        for (ClassInfo classInfo : classInfoList) {
+        for (ClassInfo classInfo : mClassInfoList) {
             builder.beginControlFlow("if (clazz == " + classInfo.getClassAndPackage() + ".class)");
             List<? extends TypeMirror> typeArguments = classInfo.getTypeArguments();
             if (typeArguments == null || typeArguments.isEmpty()) {

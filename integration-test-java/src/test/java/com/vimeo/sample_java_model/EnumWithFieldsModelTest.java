@@ -2,6 +2,8 @@ package com.vimeo.sample_java_model;
 
 import org.junit.Test;
 
+import verification.Utils;
+
 /**
  * Created by anthonycr on 4/9/17.
  */

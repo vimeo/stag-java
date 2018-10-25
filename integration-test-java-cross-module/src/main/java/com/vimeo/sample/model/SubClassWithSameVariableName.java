@@ -4,6 +4,7 @@ import com.vimeo.stag.UseStag;
 
 import java.util.ArrayList;
 
+@SuppressWarnings("FieldNameHidesFieldInSuperclass")
 @UseStag
 public class SubClassWithSameVariableName extends ClassWithArrayTypes {
 

@@ -2,12 +2,14 @@ apply plugin: 'java'
 apply plugin: "net.ltgt.apt"
 
 dependencies {
+    implementation 'org.jetbrains:annotations-java5:16.0.2@jar'
     implementation "com.google.code.gson:gson:$gsonVersion"
 
     implementation project(':stag-library')
-    apt project(':stag-library-compiler')
+    annotationProcessor project(':stag-library-compiler')
 
     testImplementation 'junit:junit:4.12'
+    testImplementation 'uk.co.jemos.podam:podam:7.2.0.RELEASE'
 }
 
 gradle.projectsEvaluated {

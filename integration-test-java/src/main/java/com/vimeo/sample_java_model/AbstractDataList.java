@@ -39,4 +39,22 @@ import java.util.ArrayList;
 public abstract class AbstractDataList<T> extends SuperAbstractDataList<BaseExternalModel, ArrayList<T>> {
 
     public int page;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) { return true; }
+        if (o == null || getClass() != o.getClass()) { return false; }
+        if (!super.equals(o)) { return false; }
+
+        AbstractDataList<?> that = (AbstractDataList<?>) o;
+
+        return page == that.page;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + page;
+        return result;
+    }
 }

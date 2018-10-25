@@ -32,10 +32,14 @@ import com.vimeo.sample_java_model.SwappableParserExampleModel.TestObject;
 import com.vimeo.sample_java_model.stag.generated.Stag;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import verification.Utils;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for {@link SwappableParserExampleModel}.
@@ -55,6 +59,7 @@ public class SwappableParserExampleModelTest {
     /**
      * Stag does support being used across Gson instances now
      */
+    @Test
     public void test_SwappingTypeAdapters() {
 
         final Stag.Factory factory = new Stag.Factory();
@@ -66,7 +71,7 @@ public class SwappableParserExampleModelTest {
                 .registerTypeAdapter(TestObject.class, new TestObjectAdapter1())
                 .create();
         final SwappableParserExampleModel model1 = gson1.fromJson(typeAdapter1Json, SwappableParserExampleModel.class);
-        Assert.assertEquals(model1.testField2.testField, "test");
+        assertEquals(model1.testField2.testField, "test");
 
         // TypeAdapter2 assumes a reversed string
         final String typeAdapter2Json = swappableParserExampleJsonWithTestObjectField("tset");
@@ -75,7 +80,7 @@ public class SwappableParserExampleModelTest {
                 .registerTypeAdapter(TestObject.class, new TestObjectAdapter2())
                 .create();
         final SwappableParserExampleModel model2 = gson2.fromJson(typeAdapter2Json, SwappableParserExampleModel.class);
-        Assert.assertEquals(model2.testField2.testField, "test");
+        assertEquals(model2.testField2.testField, "test");
     }
 
     /**
@@ -96,7 +101,8 @@ public class SwappableParserExampleModelTest {
      */
     private static class TestObjectAdapter1 extends TypeAdapter<TestObject> {
 
-        TestObjectAdapter1() {}
+        TestObjectAdapter1() {
+        }
 
         @Override
         public void write(JsonWriter out, TestObject value) throws IOException {
@@ -111,7 +117,7 @@ public class SwappableParserExampleModelTest {
             TestObject object = new TestObject();
 
             in.beginObject();
-            Assert.assertTrue("testField".equals(in.nextName()));
+            assertTrue("testField".equals(in.nextName()));
             object.testField = in.nextString();
             in.endObject();
 
@@ -124,7 +130,8 @@ public class SwappableParserExampleModelTest {
      */
     private static class TestObjectAdapter2 extends TypeAdapter<TestObject> {
 
-        TestObjectAdapter2() {}
+        TestObjectAdapter2() {
+        }
 
         @Override
         public void write(JsonWriter out, TestObject value) throws IOException {
@@ -139,7 +146,7 @@ public class SwappableParserExampleModelTest {
             TestObject object = new TestObject();
 
             in.beginObject();
-            Assert.assertTrue("testField".equals(in.nextName()));
+            assertTrue("testField".equals(in.nextName()));
             object.testField = new StringBuilder(in.nextString()).reverse().toString();
             in.endObject();
 

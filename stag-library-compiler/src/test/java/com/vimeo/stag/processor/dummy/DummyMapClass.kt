@@ -45,10 +45,10 @@ class DummyMapClass : MutableMap<Any, Any> {
 
     override fun clear() {}
 
-    override fun put(key: Any, value: Any) = null
+    override fun put(key: Any, value: Any): Nothing? = null
 
     override fun putAll(from: Map<out Any, Any>) {}
 
-    override fun remove(key: Any) = null
+    override fun remove(key: Any): Nothing? = null
 
 }

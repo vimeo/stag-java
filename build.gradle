@@ -1,15 +1,15 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
+    ext {
+        kotlinVersion = '1.2.71'
+        jacocoVersion = '0.7.9' // See http://www.eclemma.org/jacoco/
+        gsonVersion = '2.8.2'
+        assertJ = '3.9.1'
 
-    ext.kotlinVersion = '1.2.20'
-    ext.jacocoVersion = '0.7.9' // See http://www.eclemma.org/jacoco/
-    ext.gsonVersion = '2.8.2'
-
-    // android dependencies
-    ext.targetSdk = 27
-    ext.minSdk = 14
-    ext.buildTools = "27.0.2"
-
+        // android dependencies
+        targetSdk = 28
+        minSdk = 14
+        buildTools = "28.0.3"
+    }
     repositories {
         google()
         jcenter()
@@ -17,11 +17,11 @@ buildscript {
         maven { url "https://plugins.gradle.org/m2/" }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.2.1'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
         classpath 'com.dicedmelon.gradle:jacoco-android:0.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "net.ltgt.gradle:gradle-apt-plugin:0.11"
+        classpath 'net.ltgt.gradle:gradle-apt-plugin:0.15'
     }
 }
 
@@ -43,5 +43,5 @@ allprojects {
 
 subprojects {
     group = 'com.vimeo.stag'
-    version = '2.5.1'
+    version = '2.6.0'
 }

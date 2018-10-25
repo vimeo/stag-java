@@ -2,6 +2,8 @@ package com.vimeo.sample_java_model;
 
 import org.junit.Test;
 
+import verification.Utils;
+
 /**
  * Tests for {@link PrivateMembers}.
  * <p>
