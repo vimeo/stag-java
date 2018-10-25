@@ -90,11 +90,10 @@ public final class Utils {
 
         final T object = factory.manufacturePojo(clazz);
         final TypeAdapter<T> typeAdapter = getTypeAdapter(clazz);
-
-
+        
         T newObject = null;
         if (typeAdapter != null) {
-            String json = typeAdapter.toJson(object);
+            final String json = typeAdapter.toJson(object);
             try {
                 newObject = typeAdapter.fromJson(json);
             } catch (IOException ignored) {}
