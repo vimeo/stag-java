@@ -86,6 +86,7 @@ public abstract class FieldAccessor {
                 case "@org.eclipse.jdt.annotation.NonNull":
                 case "@org.jetbrains.annotations.NotNull":
                 case "@android.support.annotation.NonNull":
+                case "@androidx.annotation.NonNull":
                     return true;
             }
         }
