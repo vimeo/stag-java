@@ -1,3 +1,5 @@
+⚠️⚠️⚠️ This library has been deprecated and will be removed in the future. ⚠️⚠️⚠️
+
 # Stag
 
 Stag improves Gson performance by automatically generating reflection-less TypeAdapters for your model objects.
